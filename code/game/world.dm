@@ -149,7 +149,8 @@ GLOBAL_VAR(restart_counter)
 	log_runtime(GLOB.revdata.get_log_message())
 
 /world/Topic(T, addr, master, key)
-	TGS_TOPIC	//*THIS NEEDS TO BE AT THE TOP OF /world/Topic()* - Redirect to server tools if necessary
+	return
+	/*TGS_TOPIC	//THIS NEEDS TO BE AT THE TOP OF /world/Topic()* - Redirect to server tools if necessary
 
 
 	var/list/response[] = list()
@@ -179,7 +180,7 @@ GLOBAL_VAR(restart_counter)
 		return
 
 	handler = new handler()
-	return handler.TryRun(input, addr)
+	return handler.TryRun(input, addr)*/
 
 /world/proc/AnnouncePR(announcement, list/payload)
 	var/static/list/PRcounts = list()	//PR id -> number of times announced this round

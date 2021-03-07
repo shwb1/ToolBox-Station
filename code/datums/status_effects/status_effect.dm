@@ -91,6 +91,9 @@
 //////////////////
 
 /mob/living/proc/apply_status_effect(effect, ...) //applies a given status effect to this mob, returning the effect if it was successful
+	//bye bye stun nerf
+	if(effect == STATUS_EFFECT_KNOCKDOWN)
+		effect = STATUS_EFFECT_PARALYZED
 	. = FALSE
 	var/datum/status_effect/S1 = effect
 	LAZYINITLIST(status_effects)
