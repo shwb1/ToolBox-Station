@@ -125,8 +125,8 @@ GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 /obj/structure/flora/jackolantern
 	name = "Jack-O-Lantern"
 	desc = "Spooky!"
-	icon = 'icons/oldschool/objects.dmi'
-	icon_state = "jackolantern"
+	icon = 'icons/obj/clothing/hats.dmi'
+	icon_state = "hardhat1_pumpkin"
 	density = 1
 	anchored = 0
 	var/pumpkin_light_strength = 1
@@ -145,8 +145,7 @@ GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 	desc = "A real bonefied skeleton, doesn't seem like it wants to socialize."
 	maxHealth = 50
 	health = 50
-	melee_damage_lower = 3
-	melee_damage_upper = 10
+	melee_damage = 10
 	faction = list("skeleton", "halloween")
 	var/non_brute_armor_modifier = 2
 
@@ -169,8 +168,7 @@ GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 	name = "huge spooky skeleton"
 	maxHealth = 150
 	health = 150
-	melee_damage_lower = 10
-	melee_damage_upper = 25
+	melee_damage = 20
 	pixel_y = 8
 	layer = 4.3
 
@@ -195,8 +193,7 @@ GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 	health = 30
 	speed = 1
 	harm_intent_damage = 5
-	melee_damage_lower = 8
-	melee_damage_upper = 12
+	melee_damage = 8
 	minbodytemp = 150
 	maxbodytemp = 500
 	healable = 0

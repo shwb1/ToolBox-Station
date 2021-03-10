@@ -6,9 +6,8 @@ Ashligger hostile mob, spawns with random colors and name.
 	icon = 'icons/mob/human.dmi'
 	maxHealth = 100
 	health = 100
-	melee_damage_lower = 12
+	melee_damage = 12
 	melee_damage_type = "brute"
-	melee_damage_upper = 12
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	attacktext = "attacks"
 	gold_core_spawnable = 1
@@ -103,7 +102,7 @@ Ashligger hostile mob, spawns with random colors and name.
 	H.dna.features["mcolor"] = skincolor
 	H.name = name
 	H.real_name = name
-	H.equip_to_slot_or_del(new /obj/item/clothing/under/gladiator/ash_walker (), slot_w_uniform)
+	H.equip_to_slot_or_del(new /obj/item/clothing/under/costume/gladiator/ash_walker (), slot_w_uniform)
 	H.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/gladiator(), slot_head)
 	H.regenerate_icons()
 	//drop weapon on death
