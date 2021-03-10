@@ -172,6 +172,7 @@ GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 	melee_damage_lower = 10
 	melee_damage_upper = 25
 	pixel_y = 8
+	layer = 4.3
 
 
 /mob/living/simple_animal/hostile/skeleton/spooky/huge/New()
