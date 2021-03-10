@@ -20,8 +20,7 @@
 	health = 50
 
 	obj_damage = 21
-	melee_damage_lower = 5
-	melee_damage_upper = 15
+	melee_damage = 10
 	attacktext = "bites"
 	attack_sound = 'sound/weapons/bite.ogg'
 	friendly = "rat hugs"
