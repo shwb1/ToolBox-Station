@@ -93,8 +93,8 @@
 	if(!(clothingcolor in colors))
 		clothingcolor = pick(colors)
 	var/uniformpath = colors[clothingcolor]
-	H.equip_to_slot_or_del(new uniformpath(), slot_w_uniform)
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/sneakers/black(), slot_shoes)
+	H.equip_to_slot_or_del(new uniformpath(), SLOT_W_UNIFORM)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/sneakers/black(), SLOT_SHOES)
 	H.regenerate_icons()
 	new /obj/item/toy/katana(loc)
 	H.death()

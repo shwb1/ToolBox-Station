@@ -102,8 +102,8 @@ Ashligger hostile mob, spawns with random colors and name.
 	H.dna.features["mcolor"] = skincolor
 	H.name = name
 	H.real_name = name
-	H.equip_to_slot_or_del(new /obj/item/clothing/under/costume/gladiator/ash_walker (), slot_w_uniform)
-	H.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/gladiator(), slot_head)
+	H.equip_to_slot_or_del(new /obj/item/clothing/under/costume/gladiator/ash_walker (), SLOT_W_UNIFORM)
+	H.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/gladiator(), SLOT_HEAD)
 	H.regenerate_icons()
 	//drop weapon on death
 	new held_weapon(loc)
