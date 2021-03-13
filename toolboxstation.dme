@@ -1231,6 +1231,7 @@
 #include "code\game\turfs\open\space\space.dm"
 #include "code\game\turfs\open\space\transit.dm"
 #include "code\modules\_toolbox\rat.dm"
+#include "code\modules\_toolbox\silly\hostilehumanoid.dm"
 #include "code\modules\_toolbox\silly\lizard_invasion.dm"
 #include "code\modules\_toolbox\silly\weeb.dm"
 #include "code\modules\admin\admin.dm"

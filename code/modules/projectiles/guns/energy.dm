@@ -34,10 +34,10 @@
 
 /obj/item/gun/energy/Initialize()
 	. = ..()
-	if(cell_type)
+	if(ispath(cell_type))
 		cell = new cell_type(src)
 	else
-		cell = new(src)
+		cell = new /obj/item/stock_parts/cell(src)
 	if(dead_cell)	//this makes much more sense.
 		cell.use(cell.maxcharge)
 	update_ammo_types()
