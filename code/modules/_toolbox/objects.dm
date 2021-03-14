@@ -21,6 +21,7 @@
 			startx++
 		ismain = 0
 
+/*
 //rapid parts exchanger can now replace apc cells
 /obj/machinery/power/apc/exchange_parts(mob/user, obj/item/storage/part_replacer/W)
 	if(!istype(W) || !cell)
@@ -51,13 +52,13 @@
 /obj/item/storage/part_replacer/proc/notify_user_of_success(mob/user,atom/newitem,atom/olditem)
 	if(!user || !newitem || !olditem)
 		return
-	to_chat(user, "<span class='notice'>[olditem.name] replaced with [newitem.name].</span>")
+	to_chat(user, "<span class='notice'>[olditem.name] replaced with [newitem.name].</span>")*/
 
 //Cells construct with fullhealth
-/obj/machinery/rnd/production/proc/Make_Cells_Fucking_Full_Charge_Because_Thats_So_Gay(obj/item/stock_parts/cell/C)
+/*/obj/machinery/rnd/production/proc/Make_Cells_Fucking_Full_Charge_Because_Thats_So_Gay(obj/item/stock_parts/cell/C)
 	if(istype(C))
 		C.charge = C.maxcharge
-		C.update_icon()
+		C.update_icon()*/
 
 //reinforced delivery window. allows items to be placed on tables underneath it
 /obj/structure/window/reinforced/fulltile/delivery
@@ -213,7 +214,7 @@
 	plant_disks = list()
 	return ..()
 #undef EMPTYDISKNAME
-
+/*
 //animal cookies
 /obj/item/reagent_containers/food/snacks/cracker
 	var/copied = 0
@@ -253,12 +254,12 @@
 	shades.alpha = round(255*0.5,1)
 	overlays += shades*/
 	M *= 0.6
-	transform = M
+	transform = M*/
 
 //**********************
 //Chemical Reagents Book
 //**********************
-
+/*
 /obj/item/book/manual/wiki/chemistry/Initialize(roundstart)
 	. = ..()
 	if(roundstart)
@@ -311,7 +312,7 @@
 		popup.open()
 		title = name
 		user.visible_message("[user] opens a book titled \"[title]\" and begins reading intently.")
-		user.SendSignal(COMSIG_ADD_MOOD_EVENT, "book_nerd", /datum/mood_event/book_nerd)
+		//user.SendSignal(COMSIG_ADD_MOOD_EVENT, "book_nerd", /datum/mood_event/book_nerd)
 		onclose(user, "book")
 	else
 		to_chat(user, "<span class='notice'>This book is completely blank!</span>")
@@ -431,7 +432,7 @@
 					heated = "cooled"
 				dat += "Must be [heated] to a temperature of [C.required_temp]<BR>"
 			dat += "<BR>"
-
+*/
 //Making it so borgs can set up the engine -falaskian
 /obj/machinery/portable_atmospherics/MouseDrop_T(atom/dropping, mob/user)
 	if(istype(dropping, /obj/item/tank) && isturf(dropping.loc) && user.Adjacent(src) && dropping.Adjacent(user))
@@ -502,7 +503,7 @@
 	bound_width = 64 // 2x1
 
 //make shuttles bolt the door on launch
-/obj/docking_port/mobile/proc/bolt_and_unbolt_exits(unbolt = 0)
+/*/obj/docking_port/mobile/proc/bolt_and_unbolt_exits(unbolt = 0)
 	var/area/A = get_area(src)
 	var/list/airlocks = list()
 	for(var/area/related in A.related)
@@ -527,10 +528,10 @@
 				if(!unbolt)
 					airlock.bolt()
 				else
-					airlock.unbolt()
+					airlock.unbolt()*/
 
 //disease logging
-/datum/disease/proc/log_disease_transfer_attempt(atom/cause,atom/victim,method)
+/*/datum/disease/proc/log_disease_transfer_attempt(atom/cause,atom/victim,method)
 	if(istype(victim,/mob/living/carbon))
 		var/mob/living/carbon/C = victim
 		if(!C.CanContractDisease(src))
@@ -617,4 +618,4 @@
 		var/mob/living/V = victim
 		V.log_message("<font color='orange'>[logtext]</font>", INDIVIDUAL_ATTACK_LOG)
 	log_game(logtext)
-	return logtext
+	return logtext*/

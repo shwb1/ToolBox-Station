@@ -9,10 +9,10 @@
 		products += list(/obj/item/clothing/mask/balaclava/skull = 1)
 	. = ..()
 
-/obj/item/vending_refill/autodrobe/New()
+/*/obj/item/vending_refill/autodrobe/New()
 	..()
 	charges = list(34, 2, 3)
-	init_charges = list(34, 2, 3)
+	init_charges = list(34, 2, 3)*/
 
 //volodyah's pink suit
 
@@ -25,7 +25,7 @@
 	alternate_worn_icon = 'icons/oldschool/clothing/suitmob.dmi'
 	body_parts_covered = CHEST|GROIN|ARMS
 	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 10, rad = 0, fire = 0, acid = 0)
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank/internals/emergency_oxygen,/obj/item/toy,/obj/item/storage/fancy/cigarettes,/obj/item/lighter)
+	allowed = list(/obj/item/flashlight,/obj/item/tank/internals/emergency_oxygen,/obj/item/toy,/obj/item/storage/fancy/cigarettes,/obj/item/lighter)
 	hoodtype = /obj/item/clothing/head/hooded/filthypink
 
 /obj/item/clothing/head/hooded/filthypink
@@ -78,7 +78,7 @@
 	seed vaults and spread them across the universe to every planet they could chart. You are in one such seed vault. Your goal is to cultivate and spread life wherever it will go while waiting \
 	for contact from your creators. Estimated time of last contact: Deployment, 5x10^3 millennia ago.</b>"*/
 	assignedrole = "Rig Miner"
-	lock_to_zlevel = 1
+	//lock_to_zlevel = 1
 	uniform = /obj/item/clothing/under/plasmaman
 	shoes = /obj/item/clothing/shoes/workboots/mining
 	gloves = /obj/item/clothing/gloves/combat
@@ -115,12 +115,12 @@
 	item_state = "bbelt"
 	lefthand_file = 'icons/oldschool/inhand_left.dmi'
 	righthand_file = 'icons/oldschool/inhand_right.dmi'
-	storage_slots = 7
+	slot_flags = ITEM_SLOT_BELT
 	can_hold = list(
 		/obj/item/reagent_containers/food/snacks,
-		/obj/item/device/flashlight,
-		/obj/item/device/radio,
-		/obj/item/device/plant_analyzer,
+		/obj/item/flashlight,
+		/obj/item/radio,
+		/obj/item/plant_analyzer,
 		/obj/item/seeds,
 		/obj/item/reagent_containers/glass/bottle,
 		/obj/item/reagent_containers/spray,
@@ -137,3 +137,7 @@
 		/obj/item/rollingpaper,
 		/obj/item/clothing/mask/cigarette
 		)
+
+/obj/structure/closet/secure_closet/hydroponics/PopulateContents()
+	. = ..()
+	new /obj/item/storage/belt/botany(src)

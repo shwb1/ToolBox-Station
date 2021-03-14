@@ -1,4 +1,4 @@
-/mob
+/*/mob
 	var/ask_to_ghost_on_move = 0
 
 /mob/living
@@ -38,7 +38,7 @@
 	var/multiplier = round(rand(10,400)/100,0.01)
 	maxHealth = round(maxHealth*multiplier,1)
 	health = maxHealth
-	. = ..()
+	. = ..()*/
 
 //Making megafauna do an admin message when teleported off z-level. -falaskian
 /mob/living/simple_animal/hostile/megafauna
@@ -50,6 +50,9 @@
 	alert_location_to_admin()
 	. = ..()
 
+/mob/living/simple_animal/hostile/proc/compute_target()
+	return
+
 /mob/living/simple_animal/hostile/megafauna/compute_target()
 	if(!ismob(target))
 		return
@@ -58,6 +61,15 @@
 		return
 	past_targets[M.ckey] = world.time
 	last_target = M.ckey
+
+/mob/living/simple_animal/hostile/GiveTarget(new_target)
+	if(new_target)
+		compute_target()
+	. = ..()
+
+/mob/living/simple_animal/hostile/megafauna/Initialize(mapload)
+	last_turf = get_turf(src)
+	. = ..()
 
 /mob/living/simple_animal/hostile/megafauna/proc/alert_location_to_admin()
 	var/turf/T = get_turf(src)

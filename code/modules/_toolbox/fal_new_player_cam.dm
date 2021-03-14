@@ -4,7 +4,7 @@
 			new_player_cam = new()*/
 
 
-var/global/obj/new_player_cam/new_player_cam = null
+/*var/global/obj/new_player_cam/new_player_cam = null
 
 /obj/new_player_cam
 	name = "floor"
@@ -152,7 +152,7 @@ var/global/obj/new_player_cam/new_player_cam = null
 				thescreen.icon_state = "[i]"
 				sleep(1)
 			thescreen.icon_state = "0"
-			sleep(1)
+			sleep(1)*/
 
 /proc/message_falaskian(message)
 	if(!message)

@@ -61,7 +61,7 @@
 		bloody_mess = FALSE
 		update_icon()
 
-/obj/machinery/washing_machine/proc/wash_cycle()
+/*/obj/machinery/washing_machine/proc/wash_cycle()
 	for(var/X in contents)
 		var/atom/movable/AM = X
 		SEND_SIGNAL(AM, COMSIG_COMPONENT_CLEAN_ACT, CLEAN_STRENGTH_BLOOD)
@@ -71,7 +71,7 @@
 	if(color_source)
 		qdel(color_source)
 		color_source = null
-	update_icon()
+	update_icon()*/
 
 //what happens to this object when washed inside a washing machine
 /atom/movable/proc/machine_wash(obj/machinery/washing_machine/WM)

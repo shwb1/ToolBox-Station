@@ -10,7 +10,7 @@
 	required_players = 18
 	required_enemies = 2
 	recommended_enemies = 2
-	minimum_enemies = 2
+	//minimum_enemies = 2
 
 	announce_span = "green"
 	announce_text = "Strange aliens are here to implant things in your bum!\n\
@@ -33,9 +33,6 @@
 
 	if(CONFIG_GET(flag/protect_assistant_from_antagonist))
 		restricted_jobs += "Assistant"
-
-	if(antag_candidates.len < minimum_enemies)
-		return 0
 
 	var/list/bum_touchers = list()
 	var/list/teams = list()

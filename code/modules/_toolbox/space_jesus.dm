@@ -1,4 +1,4 @@
-#define SPAN_JESUS "jesus"
+//#define SPAN_JESUS "jesus"
 /mob/living/carbon/human/jesus
 	status_flags = GODMODE//|GOTTAGOREALLYFAST|IGNORESLOWDOWN these 2 removed. fix later
 	anchored = 1
@@ -6,9 +6,9 @@
 	omnipotent_access = 1
 	var/datum/mind/saved_mind
 
-/mob/living/carbon/human/jesus/update_canmove()
+/*/mob/living/carbon/human/jesus/update_canmove()
 	..()
-	anchored = 1
+	anchored = 1*/
 
 /mob/living/carbon/human/jesus/verb/disappear()
 	set category = " Space Jesus"
@@ -107,9 +107,9 @@
 	sync_mind()
 	updateappearance()
 
-/mob/living/carbon/human/jesus/get_spans()
+/*/mob/living/carbon/human/jesus/get_spans()
 	. = ..()
-	. |= SPAN_JESUS
+	. |= SPAN_JESUS*/
 
 /mob/living/carbon/human/jesus/ex_act()
 	return
@@ -135,7 +135,7 @@
 	gloves = /obj/item/clothing/gloves/color/white/jesus
 	shoes = /obj/item/clothing/shoes/jackboots/jesus
 	glasses = /obj/item/clothing/glasses/godeye/jesus
-	ears = /obj/item/device/radio/headset
+	ears = /obj/item/radio/headset
 	belt = /obj/item/storage/belt/utility/full
 
 //00000050600012d5ab193

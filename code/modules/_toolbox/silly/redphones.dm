@@ -84,7 +84,7 @@
 		name = "[label_text] phone"
 		labeled = 1
 		return
-	if(istype(O,/obj/item/device/multitool))
+	if(istype(O,/obj/item/multitool))
 		if(!can_call_out)
 			to_chat(user,"\blue This phone can now call out.")
 		else

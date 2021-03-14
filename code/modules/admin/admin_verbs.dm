@@ -78,7 +78,9 @@ GLOBAL_PROTECT(admin_verbs_admin)
 	/datum/admins/proc/open_borgopanel,
 	/client/proc/fix_say,
 	/client/proc/stabilize_atmos,
-	/client/proc/openTicketManager
+	/client/proc/openTicketManager,
+	/datum/admins/proc/space_jesus,
+	/client/proc/force_rules
 	)
 GLOBAL_LIST_INIT(admin_verbs_ban, list(/client/proc/unban_panel, /client/proc/ban_panel, /client/proc/stickybanpanel))
 GLOBAL_PROTECT(admin_verbs_ban)
@@ -110,7 +112,8 @@ GLOBAL_LIST_INIT(admin_verbs_fun, list(
 	/client/proc/healall,
 	/client/proc/spawn_floor_cluwne,
 	/client/proc/spawnhuman,
-	/client/proc/battle_royale
+	/client/proc/battle_royale,
+	/datum/admins/proc/spawn_awaymission
 	))
 GLOBAL_PROTECT(admin_verbs_fun)
 GLOBAL_LIST_INIT(admin_verbs_spawn, list(/datum/admins/proc/spawn_atom, /datum/admins/proc/podspawn_atom, /datum/admins/proc/spawn_cargo, /datum/admins/proc/spawn_objasmob, /client/proc/respawn_character, /datum/admins/proc/beaker_panel))
@@ -143,7 +146,7 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/client/proc/restart_controller,
 	/client/proc/cmd_admin_list_open_jobs,
 	/client/proc/Debug2,
-	/client/proc/cmd_debug_make_powernets, 
+	/client/proc/cmd_debug_make_powernets,
 	/client/proc/cmd_debug_mob_lists,
 	/client/proc/cmd_admin_delete,
 	/client/proc/cmd_debug_del_all,
@@ -187,7 +190,9 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/datum/admins/proc/view_refs,
 	/datum/admins/proc/view_del_failures,
 	#endif
-	/client/proc/toggle_cdn
+	/client/proc/toggle_cdn,
+	/datum/admins/proc/check_who_has_admin_midis_disabled,
+	/datum/admins/proc/check_hub
 	)
 
 GLOBAL_LIST_INIT(admin_verbs_possess, list(/proc/possess, /proc/release))

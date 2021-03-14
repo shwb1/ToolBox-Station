@@ -3,11 +3,10 @@
 	desc = "Is this even safe?"
 	icon = 'icons/oldschool/items.dmi'
 	icon_state = "slurm"
-	list_reagents = list("slurm" = 30)
+	list_reagents = list(/datum/reagent/consumable/slurm = 30)
 
 /datum/reagent/consumable/slurm
 	name = "Slurm"
-	id = "slurm"
 	description = "Slightly radioactive green goop."
 	color = "#66ff33"
 
@@ -18,7 +17,8 @@
 	if(current_cycle == 20)
 		to_chat(M, "<span class='warning'>You start feeling strange...</span>")
 	if(current_cycle > 20)
-		M.adjustBrainLoss(0.25)
+		//M.adjustBrainLoss(0.25)
+		M.adjustOrganLoss(ORGAN_SLOT_BRAIN, 0.25)
 		M.set_light(max(M.luminosity, 4))
 		if(M.color != color)
 			M.add_atom_colour(color, TEMPORARY_COLOUR_PRIORITY)
