@@ -1,0 +1,872 @@
+
+/********************** SPAWNERS **************************/
+
+
+
+/********************** LIZARD SLAVES **************************/
+
+//LIZARD EGGS
+/obj/item/reagent_containers/food/snacks/egg/lizard_egg
+	name = "lizard egg"
+	icon = 'icons/oldschool/food.dmi'
+	icon_state = "lizard_egg"
+	desc = "Lizard egg that can be hatched using incubator."
+
+//INCUBATOR
+/obj/machinery/incubator
+	name = "incubator"
+	desc = "A pod for hatching eggs."
+	density = TRUE
+	anchored = TRUE
+	icon = 'icons/obj/machines/cloning.dmi'
+	icon_state = "pod_0"
+	color = "#ffd9b3"
+	use_power = IDLE_POWER_USE
+	idle_power_usage = 40
+	resistance_flags = FIRE_PROOF | ACID_PROOF
+	circuit = /obj/item/circuitboard/machine/incubator
+	var/amount_grown = 0
+	var/obj/item/reagent_containers/food/snacks/egg/lizard_egg/egg = null
+	var/egg_printslast = null
+	var/status = "Its empty."
+	var/incubation_failed = null
+
+/obj/machinery/incubator/attackby(obj/item/I, mob/user, params)
+	if(!egg && !incubation_failed && default_deconstruction_screwdriver(user, "pod_0_maintenance", initial(icon_state), I))
+		return
+
+	if(default_deconstruction_crowbar(I))
+		qdel(src)
+		return
+
+	if(istype(I, /obj/item/reagent_containers/food/snacks/egg))
+		var/obj/item/reagent_containers/food/snacks/egg/E = I
+		if(stat & (BROKEN|NOPOWER))
+			to_chat(user, "<span class='warning'>[src] is out of order!</span>")
+			return
+
+		if(egg)
+			to_chat(user, "<span class='warning'>An [E] is already in [src]!</span>")
+			return
+
+		if(!user.transferItemToLoc(E, src))
+			to_chat(user, "<span class='warning'>[E] is stuck to your hand!</span>")
+			return
+
+		egg = E
+		to_chat(user, "<span class='notice'>You insert [E] into [src].</span>")
+		egg_printslast = E.fingerprintslast
+		status = "[amount_grown]%"
+		update_icon()
+		if(incubation_failed)
+			new /obj/effect/gibspawner/generic(loc)
+			incubation_failed = null
+			update_icon()
+
+	else
+		return ..()
+
+/obj/machinery/incubator/process()
+	if(stat & (BROKEN|NOPOWER))
+		if(egg)
+			QDEL_NULL(egg)
+			amount_grown = 0
+			incubation_failed = TRUE
+			update_icon()
+			return
+	if(egg)
+		amount_grown += rand(0,2)
+		if(amount_grown >= 100)
+			if(egg.type == /obj/item/reagent_containers/food/snacks/egg/lizard_egg)
+				var/mob/living/simple_animal/hostile/randomhumanoid/ashligger/L = new /mob/living/simple_animal/hostile/randomhumanoid/ashligger(src.loc)
+				log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
+			else
+				var/mob/living/simple_animal/chicken/C = new /mob/living/simple_animal/chicken(src.loc)
+				C.eggsFertile = 0
+			QDEL_NULL(egg)
+			egg_printslast = null
+			amount_grown = 0
+			update_icon()
+
+
+/obj/machinery/incubator/Destroy()
+	QDEL_NULL(egg)
+
+/obj/machinery/incubator/attack_hand(mob/user)
+	if(incubation_failed)
+		new /obj/effect/gibspawner/generic(loc)
+		egg = qdel()
+		incubation_failed = null
+		amount_grown = 0
+		update_icon()
+
+/obj/machinery/incubator/examine(mob/user)
+	. = ..()
+	if(incubation_failed)
+		to_chat(user, "<span class='warning'>Incubation Failed!</span>")
+		return
+	if(egg)
+		to_chat(user, "Progress: [amount_grown]%")
+		return
+	else
+		to_chat(user, "It is empty.")
+		return
+
+/obj/machinery/incubator/update_icon()
+	if(egg)
+		icon_state = "pod_1"
+	else if(incubation_failed)
+		icon_state = "pod_g"
+	else
+		icon_state = "pod_0"
+
+/datum/design/board/incubator
+	name = "Machine Design (Incubator)"
+	desc = "The circuit board for an incubator."
+	id = "incubator"
+	build_path = /obj/item/circuitboard/machine/incubator
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
+	category = list ("Research Machinery")
+
+/obj/item/circuitboard/machine/incubator
+	name = "Incubator (Machine Board)"
+	build_path = /obj/machinery/incubator
+	req_components = list(
+		/obj/item/stack/cable_coil = 4,
+		/obj/item/stock_parts/scanning_module = 1,
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/micro_laser = 1,
+		/obj/item/stack/sheet/glass = 1)
+
+
+
+
+/********************** LOOTDROPS **************************/
+
+
+/obj/effect/spawner/lootdrop/minecart
+	name = "gambling valuables spawner"
+	loot = list(
+				/obj/item/gun/ballistic/revolver/russian = 5,
+				/obj/item/storage/box/syndie_kit/throwing_weapons = 1,
+				/obj/item/toy/cards/deck/syndicate = 2
+				)
+
+/obj/effect/spawner/lootdrop/away_GB_gun
+	name = "GB gun spawner with pin replacer"
+	loot = list()
+
+/obj/effect/spawner/lootdrop/away_GB_gun/Initialize()
+	.=..()
+	new /obj/item/mass_firing_pin_replacer/ground_base(loc)
+
+
+/obj/effect/spawner/lootdrop/away_GB_gun/shotgun_sawn
+	var/turf/original
+	loot = list(
+			/obj/item/stack/ore/iron = 10,
+			/obj/item/ammo_casing/shotgun/buckshot = 10,
+			/obj/item/gun/ballistic/revolver/doublebarrel/sawnoff = 2
+			)
+
+
+
+/obj/effect/spawner/lootdrop/bandana
+	name = "GB minecart"
+	loot = list(
+			/obj/item/stack/ore/iron = 10,
+			/obj/item/ammo_casing/shotgun/buckshot = 10,
+			/obj/item/stack/ore/gold = 5,
+			/obj/item/reagent_containers/food/snacks/canned/beans = 3,
+			/obj/item/clothing/mask/bandana/red = 3,
+			/obj/item/clothing/mask/bandana/gold = 3,
+			/obj/item/clothing/mask/bandana/black = 3,
+			/obj/item/clothing/mask/bandana/blue = 3,
+			/obj/item/clothing/mask/bandana/skull = 1,
+			)
+
+/obj/effect/spawner/lootdrop/bandolier
+	name = "GB minecart"
+	loot = list(
+			/obj/item/stack/ore/iron = 10,
+			/obj/item/ammo_casing/shotgun/buckshot = 10,
+			/obj/item/stack/ore/gold = 5,
+			/obj/item/storage/belt/bandolier = 1,
+			)
+
+/obj/effect/spawner/lootdrop/abandoned_mine_items
+	loot = list(
+			/obj/item/stack/ore/iron = 5,
+			/obj/item/pickaxe = 3,
+			/obj/structure/ore_box = 2,
+			/obj/item/ammo_casing/shotgun/buckshot = 2,
+			/obj/item/flashlight/lantern = 2,
+			/obj/item/shovel = 1,
+			/obj/item/storage/bag/ore = 1,
+			)
+
+
+/********************** OBJECTS **************************/
+
+//Weapons
+
+/obj/item/gun/ballistic/revolver/doublebarrel/sawnoff
+	name = "sawn-off double-barreled shotgun"
+	desc = "Come with me if you want to live."
+	w_class = WEIGHT_CLASS_NORMAL
+	item_state = "gun"
+	icon_state = "dshotgun-f"
+	sawn_off = TRUE
+
+/obj/item/gun/ballistic/revolver/doublebarrel/sawnoff/Initialize()
+	.=..()
+	slot_flags &= ~SLOT_BACK
+	slot_flags |= SLOT_BELT
+	update_icon()
+
+
+//fix shotgun ammo type
+
+//obj/item/ammo_casing/shotgun/beanbag
+//obj/item/ammo_box/magazine/internal/shot/dual
+
+
+
+//FIRING PINS
+/obj/item/firing_pin/area_locked    //area based firing pin that only works on Ground Base away mission
+	name = "location firing pin"
+	desc = "This safety firing pin only allows weapons to be fired in certain locations."
+	fail_message = "<span class='warning'>LOCATION CHECK FAILED.</span>"
+	pin_removeable = 1
+	pin_removeable = 0
+	var/list/authorised_locations = list(/area/gb_away/ground_base)
+
+/obj/item/firing_pin/area_locked/pin_auth(mob/living/user)
+	var/area/A = get_area(src)
+	if(istype(A, /area/gb_away/ground_base))
+		return 1
+	return 0
+
+
+/obj/item/firing_pin/away_ground_base    //area based firing pin that only works on Ground Base away mission
+	name = "gateway firing pin"
+	desc = "This safety firing pin only allows weapons to be fired on location in an away mission."
+	fail_message = "<span class='warning'>GATEWAY CHECK FAILED.</span>"
+	pin_removeable = 1
+	pin_removeable = 0
+	var/area/A = null
+
+/obj/item/firing_pin/away_ground_base/pin_auth(mob/living/user)
+	A = get_area(src)
+	if(A.name == ("Ground Base" || "Ground Base Wasteland"))
+		return 1
+	return 0
+
+/obj/item/firing_pin/z_level_locked    //firing pin that only works on the Z level it was spawned on
+	name = "gateway firing pin"
+	desc = "This safety firing pin allows weapons to be fired only on 'away' end of gateway."
+	fail_message = "<span class='warning'>GATEWAY CHECK FAILED.</span>"
+	pin_removeable = 1
+	pin_removeable = 0
+	var/original_z_level = null
+
+/obj/item/firing_pin/z_level_locked/Initialize()
+	.=..()
+	var/turf/T = get_turf(src)
+	if(T)
+		original_z_level = T.z
+
+/obj/item/firing_pin/z_level_locked/pin_auth(mob/living/user)
+	var/turf/T = get_turf(src)
+	if(T && original_z_level && T.z == original_z_level)
+		return 1
+	return 0
+
+//Replaces all gun firing pins on a turf you spawn it on with firing pin type you set in "firing_pin" variable
+/obj/item/mass_firing_pin_replacer
+	icon = 'icons/misc/mark.dmi'
+	icon_state = "rup"
+	var/obj/item/firing_pin = null
+
+/obj/item/mass_firing_pin_replacer/Initialize()
+	var/list/found_guns = list()
+	for(var/atom/movable/AM in loc)
+		if(istype(AM, /obj/structure/closet))
+			for(var/obj/item/gun/G in AM)
+				found_guns += G
+		else if(istype(AM, /obj/item/gun))
+			found_guns += AM
+	for(var/obj/item/gun/G in found_guns)
+		if(G.pin)
+			qdel(G.pin)
+			G.pin = null
+		var/obj/item/firing_pin/P = new firing_pin(G)
+		G.pin = P
+	qdel(src)
+
+/obj/item/mass_firing_pin_replacer/ground_base
+	firing_pin = /obj/item/firing_pin/z_level_locked
+
+
+
+/********************** STRUCTURES **************************/
+
+
+//Spawnable headpikes
+
+/obj/structure/headpike/spawnable
+	icon_state = "headpike"
+	spear = /obj/item/twohanded/spear
+	victim = /obj/item/bodypart/head
+
+
+/obj/structure/headpike/spawnable/Initialize()
+	spear = new spear(src)
+	victim = new victim(src)
+	update_icon()
+	.=..()
+
+/obj/structure/headpike/spawnable/bone
+	icon_state = "headpike-bone"
+	spear = /obj/item/twohanded/bonespear
+	victim = /obj/item/bodypart/head
+
+//Mining cart
+/obj/structure/closet/crate/miningcar/minecart
+	name = "minecart"
+	desc = "A minecart for moving ore."
+
+/obj/structure/closet/crate/miningcar/minecart/loot
+
+/obj/structure/closet/crate/miningcar/minecart/loot/Initialize()
+	.=..()
+	if(prob(80))
+		new /obj/effect/spawner/lootdrop/away_GB_gun/shotgun_sawn(src)
+		new /obj/effect/spawner/lootdrop/bandolier(src)
+		new /obj/effect/spawner/lootdrop/bandana(src)
+
+
+/obj/structure/spider/stickyweb/aoe_spawn/Initialize()
+	.=..()
+	for(var/direction in GLOB.alldirs)
+		var/theprobability = 90
+		if(direction in GLOB.diagonals)
+			theprobability = 40
+		var/turf/T = get_step(loc, direction)
+		if(istype(T, /turf/closed))
+			continue
+		if(T)
+			var/obj/structure/spider/stickyweb/S = locate(T)
+			if(S)
+				continue
+		if(T)
+			var/obj/structure/spider/stickyweb/aoe_spawn/AS = locate(T)
+			if(AS)
+				continue
+		if(prob(theprobability))
+			new /obj/structure/spider/stickyweb(T)
+
+
+
+//FENCES
+
+//make this an actual buildable fence
+#define SAND 3
+/obj/structure/barricade/sandbags/fence
+	name = "fence"
+	desc = "Metal fence."
+	icon = 'icons/oldschool/deg_fence.dmi'
+	icon_state = "post"
+	max_integrity = 280
+	proj_pass_rate = 20
+	pass_flags = LETPASSTHROW
+	material = SAND
+	climbable = TRUE
+	smooth = SMOOTH_TRUE
+	canSmoothWith = list(/obj/structure/fence/door/opened, /obj/structure/fence/door, /obj/structure/barricade/sandbags/fence, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust, /obj/structure/barricade/security)
+#undef SAND
+
+/********************** MOBS **************************/
+
+//VENOMOUS SNAKE
+/mob/living/simple_animal/hostile/retaliate/poison/snake/venomous
+	desc = "Don't tread on it."
+	poison_per_bite = 1
+
+/*****CAVE SPIERS*****/
+/mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave
+	unique_name = 0
+	name = "cave spider"
+	melee_damage = 8
+	poison_per_bite = 2
+	maxHealth = 75
+	move_to_delay = 4
+	speed = 1
+
+/mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave/Initialize()
+	.=..()
+	transform *= 0.8
+	faction += "cave"
+
+
+/mob/living/simple_animal/hostile/poison/giant_spider/tarantula/cave
+	unique_name = 0
+	name = "cave tarantula"
+
+/mob/living/simple_animal/hostile/poison/giant_spider/tarantula/cave/Initialize()
+	.=..()
+	transform *= 1.2
+	faction += "cave"
+
+/mob/living/simple_animal/hostile/poison/giant_spider/cave
+	unique_name = 0
+	name = "giant cave spider"
+	melee_damage = 10
+	poison_per_bite = 3
+	maxHealth = 150
+
+/mob/living/simple_animal/hostile/poison/giant_spider/cave/Initialize()
+	.=..()
+	faction += "cave"
+
+/****************/
+
+//CAVE BAT
+/mob/living/simple_animal/hostile/retaliate/bat/cave
+	name = "cave bat"
+	maxHealth = 30
+	melee_damage = 7
+
+/mob/living/simple_animal/hostile/retaliate/bat/cave/Initialize()
+	.=..()
+	transform *= 1.3
+
+
+
+
+/********************** FLORA **************************/
+
+
+/obj/structure/glowshroom/single/unidirectional
+	icon_state = "glowshroom"
+
+/obj/structure/glowshroom/single/unidirectional/CalcDir()
+	floor = 1
+	dir = 1
+
+
+
+/********************** GROUNDBASE TURFS **************************/
+
+
+//Desert turfs
+
+/turf/open/floor/plating/asteroid/has_air    //asteroid turf that smooths with basalt and lava
+	name = "sand"
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/open/floor/plating/asteroid/has_air/Initialize()
+	.=..()
+	for(var/turf/T in range(1, src))
+		if(T == src)
+			continue
+		if(istype(T, /turf/open/lava/smooth))
+			ChangeTurf(/turf/open/floor/plating/asteroid/has_air_smooth)
+		else if(istype(T, /turf/open/floor/plating/asteroid/basalt))
+			ChangeTurf(/turf/open/floor/plating/asteroid/has_air_smooth)
+
+/turf/open/floor/plating/asteroid/has_air/desert_flora   //asteroid turf with flora and fauna spawning
+
+/turf/open/floor/plating/asteroid/has_air/desert_flora/Initialize()
+	.=..()
+	if(prob(0.10))
+		new /mob/living/simple_animal/hostile/retaliate/poison/snake/venomous(src)
+	if(prob(1))
+		var/flora_type = pickweight(list(/obj/structure/flora/ash/cacti = 40, /obj/structure/flora/ausbushes = 33, /obj/structure/flora/ash/stem_shroom = 25))
+		new flora_type(src)
+
+
+/turf/open/floor/plating/asteroid/has_air_smooth    //asteroid-basalt border turf
+	name = "sand"
+	icon = 'icons/oldschool/asteroid_basalt_border.dmi'
+	icon_state = "unsmooth"
+	baseturfs = /turf/open/lava/smooth
+	smooth = SMOOTH_MORE | SMOOTH_BORDER
+	canSmoothWith = list(/turf/open/floor/plating/asteroid/has_air, /turf/open/floor/plating/asteroid/has_air_smooth, /turf/open/floor/plasteel, /turf/closed/wall, /turf/closed/mineral, /turf/open/floor/plating/astplate, /turf/open/floor/pod)
+
+
+
+//Minerals - with air
+
+/turf/closed/mineral/random/has_air
+	environment_type = "basalt"
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	defer_change = 1
+	mineralChance = 10
+	mineralSpawnChanceList = list(
+		/turf/closed/mineral/uranium/has_air = 5, /turf/closed/mineral/diamond/has_air = 1, /turf/closed/mineral/gold/has_air = 10, /turf/closed/mineral/titanium/has_air = 11,
+		/turf/closed/mineral/silver/has_air = 12, /turf/closed/mineral/plasma/has_air = 20, /turf/closed/mineral/iron/has_air = 40,
+		/turf/closed/mineral/gibtonite/has_air = 4, /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine = 1, /turf/closed/mineral/bscrystal/has_air = 1, /turf/closed/mineral/bananium/has_air = 1)
+
+/turf/closed/mineral/uranium/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/diamond/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/gold/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/titanium/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/silver/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/plasma/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/iron/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/gibtonite/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/bscrystal/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/closed/mineral/bananium/has_air
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/********************** CAVE GENERATION **************************/
+
+#define SPAWN_MEGAFAUNA "bluh bluh huge boss"
+#define SPAWN_BUBBLEGUM 6
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air
+	var/length = 100
+	var/list/mob_spawn_list
+	var/list/megafauna_spawn_list
+	var/list/flora_spawn_list
+	var/list/structure_spawn_list
+	var/list/item_spawn_list
+	var/sanity = 1
+	var/forward_cave_dir = 1
+	var/backward_cave_dir = 2
+	var/going_backwards = TRUE
+	var/has_data = FALSE
+	var/data_having_type = /turf/open/floor/plating/asteroid/airless/cave_has_air/has_data
+	var/mob_spawn_chance = 30 //Chance to spawn mobs on every tile
+	var/mob_spawn_radius = 8 // How close can mobs spawn to eachother, reduces number of mobs and stops them from clumping up.
+	var/structure_spawn_chance = 12
+	var/item_spawn_chance = 12
+	var/flora_spawn_chance = 2
+	var/area/caveless_area = /area/mine/explored
+	var/area/mobless_area = /area/gb_away/explored
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/has_data //subtype for producing a tunnel with given data
+	has_data = TRUE
+
+
+//ABANDONED MINE
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine
+
+	mob_spawn_list = list(/mob/living/simple_animal/hostile/skeleton/spooky = 10, /mob/living/simple_animal/hostile/skeleton/spooky/huge = 1, \
+		/mob/living/simple_animal/hostile/skeleton/plasmaminer = 1, /mob/living/simple_animal/hostile/poison/giant_spider/hunter = 5, \
+		/mob/living/simple_animal/hostile/retaliate/bat/cave = 2)
+
+	flora_spawn_list = list(/obj/structure/glowshroom/single/unidirectional = 1)
+
+	structure_spawn_list = list(/obj/structure/barricade/wooden = 10, /obj/structure/closet/crate/miningcar/minecart/loot = 6, /obj/structure/spider/stickyweb/aoe_spawn = 1, \
+	/obj/structure/ore_box = 3)
+
+	item_spawn_list = list(/obj/item/stack/ore/iron = 5, /obj/effect/decal/remains/human = 2, /obj/item/stack/sheet/mineral/wood = 2, \
+	/obj/item/pickaxe = 2, /obj/item/ammo_casing/shotgun/buckshot = 2, /obj/item/flashlight/lantern = 2,/obj/item/shovel = 1, \
+	/obj/item/storage/bag/ore = 1)
+
+
+	data_having_type = /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine/has_data
+	turf_type = /turf/open/floor/plating/asteroid/has_air
+	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine/has_data //subtype for producing a tunnel with given data
+	has_data = TRUE
+
+
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/Initialize()
+/*
+	if (!mob_spawn_list)
+		mob_spawn_list = list(/mob/living/simple_animal/hostile/asteroid/goldgrub = 1, /mob/living/simple_animal/hostile/asteroid/goliath = 5, /mob/living/simple_animal/hostile/asteroid/basilisk = 4, /mob/living/simple_animal/hostile/asteroid/hivelord = 3)
+	if (!megafauna_spawn_list)
+		megafauna_spawn_list = list(/mob/living/simple_animal/hostile/megafauna/dragon = 4, /mob/living/simple_animal/hostile/megafauna/colossus = 2, /mob/living/simple_animal/hostile/megafauna/bubblegum = SPAWN_BUBBLEGUM)
+	if (!flora_spawn_list)
+		flora_spawn_list = list(/obj/structure/flora/ash/leaf_shroom = 2 , /obj/structure/flora/ash/cap_shroom = 2 , /obj/structure/flora/ash/stem_shroom = 2 , /obj/structure/flora/ash/cacti = 1, /obj/structure/flora/ash/tall_shroom = 2)
+*/
+	. = ..()
+	if(!has_data)
+		produce_tunnel_from_data()
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/get_cave_data(set_length, exclude_dir = -1)
+	// If set_length (arg1) isn't defined, get a random length; otherwise assign our length to the length arg.
+	if(!set_length)
+		length = rand(25, 50)
+	else
+		length = set_length
+
+	// Get our directiosn
+	forward_cave_dir = pick(GLOB.alldirs - exclude_dir)
+	// Get the opposite direction of our facing direction
+	backward_cave_dir = angle2dir(dir2angle(forward_cave_dir) + 180)
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/produce_tunnel_from_data(tunnel_length, excluded_dir = -1)
+	get_cave_data(tunnel_length, excluded_dir)
+	// Make our tunnels
+	make_tunnel(forward_cave_dir)
+	if(going_backwards)
+		make_tunnel(backward_cave_dir)
+	// Kill ourselves by replacing ourselves with a normal floor.
+	SpawnFloor(src)
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/make_tunnel(dir)
+	var/turf/closed/mineral/tunnel = src
+	var/next_angle = pick(45, -45)
+
+	for(var/i = 0; i < length; i++)
+		if(!sanity)
+			break
+
+		var/list/L = list(45)
+		if(ISODD(dir2angle(dir))) // We're going at an angle and we want thick angled tunnels.
+			L += -45
+
+		// Expand the edges of our tunnel
+		for(var/edge_angle in L)
+			var/turf/closed/mineral/edge = get_step(tunnel, angle2dir(dir2angle(dir) + edge_angle))
+			if(istype(edge))
+				SpawnFloor(edge)
+
+		if(!sanity)
+			break
+
+		// Move our tunnel forward
+		tunnel = get_step(tunnel, dir)
+
+		if(istype(tunnel))
+			// Small chance to have forks in our tunnel; otherwise dig our tunnel.
+			if(i > 3 && prob(20))
+				var/turf/open/floor/plating/asteroid/airless/cave_has_air/C = tunnel.ChangeTurf(data_having_type, null, CHANGETURF_IGNORE_AIR)
+				C.going_backwards = FALSE
+				C.produce_tunnel_from_data(rand(10, 15), dir)
+			else
+				SpawnFloor(tunnel)
+		else //if(!istype(tunnel, parent)) // We hit space/normal/wall, stop our tunnel.
+			break
+
+		// Chance to change our direction left or right.
+		if(i > 2 && prob(33))
+			// We can't go a full loop though
+			next_angle = -next_angle
+			setDir(angle2dir(dir2angle(dir) )+ next_angle)
+
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/SpawnFloor(turf/T)
+	for(var/S in RANGE_TURFS(1, src))
+		var/turf/NT = S
+		if(!NT || isspaceturf(NT) || istype(NT.loc, /area/mine/explored) || istype(NT.loc, /area/lavaland/surface/outdoors/explored) || istype(NT.loc, caveless_area))
+			sanity = 0
+			break
+	if(!sanity)
+		return
+	SpawnFlora(T)
+	SpawnMonster(T)
+	SpawnStructures(T)
+	SpawnItems(T)
+	T.ChangeTurf(turf_type, null, CHANGETURF_IGNORE_AIR)
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/SpawnMonster(turf/T)
+	if(prob(mob_spawn_chance))
+		if(istype(loc, mobless_area))
+			return
+		var/randumb = pickweight(mob_spawn_list)
+		while(randumb == SPAWN_MEGAFAUNA)
+			if(istype(loc, /area/lavaland/surface/outdoors/unexplored/danger)) //this is danger. it's boss time.
+				var/maybe_boss = pickweight(megafauna_spawn_list)
+				if(megafauna_spawn_list[maybe_boss])
+					randumb = maybe_boss
+					if(ispath(maybe_boss, /mob/living/simple_animal/hostile/megafauna/bubblegum)) //there can be only one bubblegum, so don't waste spawns on it
+						megafauna_spawn_list[maybe_boss] = 0
+			else //this is not danger, don't spawn a boss, spawn something else
+				randumb = pickweight(mob_spawn_list)
+
+		for(var/mob/living/simple_animal/hostile/H in urange(mob_spawn_radius,T)) //prevents mob clumps
+			if((ispath(randumb, /mob/living/simple_animal/hostile/megafauna) || ismegafauna(H)) && get_dist(src, H) <= 7)
+				return //if there's a megafauna within standard view don't spawn anything at all
+			return
+		for(var/S in structure_spawn_list)
+			for(var/obj/structure/structure in T)
+				if(istype(structure, S))
+					return
+		new randumb(T)
+
+	return
+
+#undef SPAWN_MEGAFAUNA
+#undef SPAWN_BUBBLEGUM
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/SpawnFlora(turf/T)
+	if(prob(flora_spawn_chance))
+		if(istype(loc, /area/mine/explored) || istype(loc, /area/lavaland/surface/outdoors/explored))
+			return
+		var/randumb = pickweight(flora_spawn_list)
+		for(var/obj/structure/glowshroom/single/unidirectional/F in range(4, T)) //Allows for growing patches, but not ridiculous stacks of flora
+			if(!istype(F, randumb))
+				return
+		new randumb(T)
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/SpawnStructures(turf/T)
+	if(prob(structure_spawn_chance))
+		if(istype(loc, /area/mine/explored) || istype(loc, /area/lavaland/surface/outdoors/explored))
+			return
+		var/randumb = pickweight(structure_spawn_list)
+		new randumb(T)
+
+/turf/open/floor/plating/asteroid/airless/cave_has_air/proc/SpawnItems(turf/T)
+	if(prob(item_spawn_chance))
+		if(istype(loc, /area/mine/explored) || istype(loc, /area/lavaland/surface/outdoors/explored))
+			return
+		for(var/S in structure_spawn_list)
+			for(var/obj/structure/structure in T)
+				if(istype(structure, S))
+					return
+		var/randumb = pickweight(item_spawn_list)
+		new randumb(T)
+
+
+
+/********************** GROUNDBASE AREAS **************************/
+
+
+/area/gb_away
+	name = "Ground Base Wasteland"
+	icon_state = "awaycontent1"
+	has_gravity = TRUE
+
+/area/gb_away/ground_base
+	name = "Ground Base"
+	icon_state = "awaycontent2"
+	outdoors = FALSE
+	always_unpowered = FALSE
+	poweralm = FALSE
+	power_environ = TRUE
+	power_equip = TRUE
+	power_light = TRUE
+	ambient_buzz = 'sound/ambience/shipambience.ogg'
+
+
+/area/gb_away/explored
+	icon_state = "awaycontent3"
+	outdoors = TRUE
+	always_unpowered = TRUE
+	requires_power = TRUE
+	poweralm = FALSE
+	power_environ = FALSE
+	power_equip = FALSE
+	power_light = FALSE
+	ambient_buzz = 'sound/ambience/shipambience.ogg'
+	ambient_effects = MINING
+
+/area/lavaland/surface/outdoors/unexplored/GB
+
+/area/lavaland/surface/outdoors/unexplored/danger/GB
+
+
+
+/********************** VEHICLES **************************/
+
+
+/obj/vehicle/ridden/atv/nt_turret
+	var/obj/machinery/porta_turret/syndicate/vehicle_turret/nt_owned/turret = null
+	key_type = /obj/item/key/nt_armed_atv
+
+/obj/item/key/nt_armed_atv
+	name = "armed atv key"
+	desc = "A small red key."
+	color = "#f54e5c"
+
+/obj/machinery/porta_turret/syndicate/vehicle_turret/nt_owned
+	name = "mounted turret"
+	scan_range = 7
+	density = FALSE
+	faction = list("neutral")
+
+/obj/vehicle/ridden/atv/nt_turret/Initialize()
+	. = ..()
+	turret = new(loc)
+	turret.base = src
+
+/obj/vehicle/ridden/atv/nt_turret/Moved()
+	. = ..()
+	if(turret)
+		turret.forceMove(get_turf(src))
+		switch(dir)
+			if(NORTH)
+				turret.pixel_x = 0
+				turret.pixel_y = 4
+				turret.layer = ABOVE_MOB_LAYER
+			if(EAST)
+				turret.pixel_x = -12
+				turret.pixel_y = 4
+				turret.layer = OBJ_LAYER
+			if(SOUTH)
+				turret.pixel_x = 0
+				turret.pixel_y = 4
+				turret.layer = OBJ_LAYER
+			if(WEST)
+				turret.pixel_x = 12
+				turret.pixel_y = 4
+				turret.layer = OBJ_LAYER
+
+
+/obj/machinery/porta_turret/syndicate/nt_owned
+	name = "NT turret"
+	scan_range = 7
+	emp_vunerable = 1
+	faction = list("neutral")
+
+
+
+//IM A DUMB STEP EDITING SCRUB
+/*
+/client/verb/EditedStepFinder()
+	for(var/atom/movable/A in world)
+		if(A.step_x != 0 || A.step_y != 0)
+			to_chat(world, "Edited step [A.x] [A.y] [A.z] \"[A.name]\" \"[A.type]\"")
+*/
+
+
