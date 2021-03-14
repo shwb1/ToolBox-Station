@@ -19,10 +19,10 @@ proc/Initialize_Falaskians_Shit()
 	//initialize_discord_channel_list()
 	//save_perseus_manager_whitelist()
 	//SaveStation()
-	load_chaos_assistant_chance()
+	//load_chaos_assistant_chance()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
 	//GLOB.cable_coil_recipes += new/datum/stack_recipe("noose", /obj/structure/chair/noose, 10, time = 0, on_floor = TRUE)
-	new_player_cam = new()
+	//new_player_cam = new()
 
 /*/datum/config_entry/string/discordurl*/
 
@@ -41,7 +41,7 @@ proc/Initialize_Falaskians_Shit()
 
 /datum/config_entry/flag/show_round_time_on_hub
 GLOBAL_LIST_EMPTY(hub_features)
-/world/proc/update_status()
+/world/proc/update_status_toolbox()
 	var/theservername = CONFIG_GET(string/servername)
 	if (!theservername)
 		theservername = "Space Station 13"
@@ -108,18 +108,18 @@ GLOBAL_LIST_EMPTY(hub_features)
 	if(!istype(H))
 		return
 	if(!H.wear_mask && H.ckey == "landrydragon")
-		H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/mime(H),slot_wear_mask)
+		H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/mime(H),SLOT_WEAR_MASK)
 	if(H.ckey == "iksxde")
-		H.equip_to_slot_or_del(new /obj/item/bughunter(H), slot_in_backpack)
+		H.equip_to_slot_or_del(new /obj/item/bughunter(H), SLOT_IN_BACKPACK)
 	if(H.ckey == "nibberfa0t1337")
-		H.equip_to_slot_or_del(new /obj/item/reagent_containers/food/condiment/saltshaker(H), slot_in_backpack)
+		H.equip_to_slot_or_del(new /obj/item/reagent_containers/food/condiment/saltshaker(H), SLOT_IN_BACKPACK)
 	if(H.ckey == "silas4000")
 		var/obj/item/toy/plush/carpplushie/C = new()
 		C.name = "Gift of Carp-Sie"
 		C.desc = "I shall return some day."
-		H.equip_to_slot_or_del(C, slot_in_backpack)
+		H.equip_to_slot_or_del(C, SLOT_IN_BACKPACK)
 		if(H.mind && H.mind.assigned_role == "Chaplain")
-			H.equip_to_slot_or_del(new /obj/item/clothing/suit/hooded/carp_costume(H), slot_in_backpack)
+			H.equip_to_slot_or_del(new /obj/item/clothing/suit/hooded/carp_costume(H), SLOT_IN_BACKPACK)
 	//st patricks day
 	if(themonth == 3 && theday == 17 && !ignore_special_events)
 		if(H.w_uniform)
@@ -171,7 +171,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 	return "[pick(elements)] \Roman[rand(1,25)]"
 
 //machine circuitboards remembering variables from the machine.
-/obj/machinery/proc/upload_to_circuit_memory()
+/*/obj/machinery/proc/upload_to_circuit_memory()
 	if(circuit)
 		for(var/V in savable_data)
 			if(V in vars)
@@ -190,7 +190,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 	var/list/savable_data = list()
 
 /obj/machinery/computer/rdconsole
-	savable_data = list("locked")
+	savable_data = list("locked")*/
 
 //*********
 //Omnilathe
@@ -204,7 +204,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 		allowed_department_flags = ALL
 		department_tag = "Unidentified"
 		circuit = /obj/item/circuitboard/machine/protolathe
-		container_type = OPENCONTAINER
+		//container_type = OPENCONTAINER
 		requires_console = TRUE
 		consoleless_interface = FALSE
 	return ..()
@@ -217,7 +217,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 		allowed_department_flags = ALL
 		department_tag = "Unidentified"
 		circuit = /obj/item/circuitboard/machine/techfab
-		container_type = OPENCONTAINER
+		//container_type = OPENCONTAINER
 	return ..()
 
 /obj/machinery/rnd/production/circuit_imprinter/department/science/Initialize(roundstart)
@@ -225,7 +225,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 		name = "circuit imprinter"
 		desc = "Manufactures circuit boards for the construction of machines."
 		icon_state = "circuit_imprinter"
-		container_type = OPENCONTAINER
+		//container_type = OPENCONTAINER
 		circuit = /obj/item/circuitboard/machine/circuit_imprinter
 		requires_console = TRUE
 		consoleless_interface = FALSE
@@ -244,7 +244,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 			adminhelp(adminhelptext)
 
 //fixing the in_range() bug
-/proc/toolbox_in_range(atom/source, atom/user)
+/*/proc/toolbox_in_range(atom/source, atom/user)
 	var/turf/sourceloc = source.loc
 	var/turf/userloc = user.loc
 	if(!istype(sourceloc))
@@ -253,7 +253,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 		userloc = get_turf(user)
 	if((sourceloc.z == userloc.z) && (get_dist(sourceloc, userloc) <= 1))
 		return 1
-	return 0
+	return 0*/
 
 //borgs can now unbuckle.
 /atom/movable/attack_robot(mob/living/user)
@@ -334,7 +334,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 	return ..()
 
 //tooblox on mob login -falaskian
-/client
+/*/client
 	var/datum/mind/previous_mind
 	var/previous_mob_type
 /mob/proc/toolbox_on_mob_login()
@@ -363,4 +363,4 @@ GLOBAL_LIST_EMPTY(hub_features)
 						prefs.clientfps = 60
 						client.fps = 60
 
-				prefs.save_preferences()
+				prefs.save_preferences()*/

@@ -1,6 +1,5 @@
 /datum/reagent/toxin/tide
 	name = "Laundry Detergent"
-	id = "tide"
 	description = "A detergent for cleaning your clothing. Despite popular opinion, ingesting is a bad idea."
 	reagent_state = LIQUID
 	color = "#66ffcc"
@@ -13,7 +12,7 @@
 	desc = "It looks kind of tasty."
 	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "tidepod"
-	list_reagents = list("tide" = 5)
+	list_reagents = list(/datum/reagent/toxin/tide = 5)
 	filling_color = "#66ffcc"
 	tastes = list("memes" = 1)
 	bitesize = 5
@@ -35,7 +34,7 @@
 	illustration = null
 
 /obj/item/storage/box/tidepods/New()
-	for(var/i=storage_slots,i>0,i--)
+	for(var/i=5,i>0,i--)
 		new /obj/item/reagent_containers/food/snacks/tidepod(src)
 	. = ..()
 
@@ -66,7 +65,7 @@
 	icon_state = "tidepodpizza"
 	slice_path = /obj/item/reagent_containers/food/snacks/pizzaslice/tidepod
 	bonus_reagents = list("nutriment" = 5, "vitamin" = 8)
-	list_reagents = list("nutriment" = 15, "tomatojuice" = 6, "vitamin" = 8, "tide" = 15)
+	list_reagents = list("nutriment" = 15, "tomatojuice" = 6, "vitamin" = 8, /datum/reagent/toxin/tide = 15)
 	tastes = list("crust" = 1, "tomato" = 1, "cheese" = 1, "memes" = 1)
 
 /obj/item/reagent_containers/food/snacks/pizzaslice/tidepod
@@ -76,3 +75,63 @@
 	icon_state = "tidepodpizzaslice"
 	filling_color = "#A52A2A"
 	tastes = list("crust" = 1, "tomato" = 1, "cheese" = 1, "memes" = 1)
+
+/obj/machinery/washing_machine
+	var/hasdetergent = 0
+
+/obj/machinery/washing_machine/Initialize()
+	. = ..()
+	var/foundabox = 0
+	for(var/obj/item/storage/box/tidepods/tidepod in world)
+		var/turf/T = get_turf(tidepod)
+		if(T && get_dist(src,T) <= 2)
+			foundabox = 1
+			break
+	if(!foundabox)
+		var/list/adjacentturfs = list()
+		for(var/turf/T in orange(2,src))
+			var/turf/current = loc
+			var/tries = 2
+			while(current != T)
+				if(tries <= 0)
+					break
+				tries--
+				var/turf/next = get_step(current,get_dir(current,T))
+				if(next.Adjacent(current))
+					current = next
+			if(current == T)
+				adjacentturfs += T
+		if(adjacentturfs.len)
+			var/list/objectstoinsert = list()
+			for(var/turf/T in adjacentturfs)
+				for(var/obj/structure/table/table in T)
+					objectstoinsert += table
+				for(var/obj/structure/closet/closet in T)
+					if(istype(closet,/obj/structure/closet/secure_closet))
+						continue
+					objectstoinsert += closet
+			if(objectstoinsert.len)
+				var/atom/movable/AM = pick(objectstoinsert)
+				if(istype(AM,/obj/structure/closet))
+					new /obj/item/storage/box/tidepods(AM)
+				else if(istype(AM,/obj/structure/table))
+					new /obj/item/storage/box/tidepods(AM.loc)
+
+//You must comment out this proc in washing_machine.dm
+/obj/machinery/washing_machine/proc/wash_cycle()
+	for(var/obj/item/reagent_containers/food/snacks/S in contents)
+		var/datum/reagent/R = S.reagents.has_reagent("tide")
+		if(R)
+			hasdetergent += R.volume
+	for(var/X in contents)
+		var/atom/movable/AM = X
+		if(hasdetergent >= 5)
+			SEND_SIGNAL(AM, COMSIG_COMPONENT_CLEAN_ACT, CLEAN_STRENGTH_BLOOD)
+		AM.machine_wash(src)
+
+	busy = FALSE
+	hasdetergent = 0
+	if(color_source)
+		qdel(color_source)
+		color_source = null
+	update_icon()

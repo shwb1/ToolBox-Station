@@ -50,7 +50,7 @@
 	name = "Psychiatrist"
 	jobtype = /datum/job/psychiatrist
 
-	ears = /obj/item/device/radio/headset/headset_med
+	ears = /obj/item/radio/headset/headset_med
 	uniform = /obj/item/clothing/under/rank/psychiatrist
 	shoes = /obj/item/clothing/shoes/laceup
 	suit_store = /obj/item/device/flashlight/pen

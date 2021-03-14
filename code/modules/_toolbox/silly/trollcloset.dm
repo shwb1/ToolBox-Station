@@ -82,8 +82,8 @@
 			if(istype(AM,/mob/living))
 				var/mob/living/L = AM
 				L.SetKnockdown(50)
-				L.canmove = 0
-				L.update_canmove()
+				//L.canmove = 0
+				//L.update_canmove()
 			moved_items += AM
 			spawn(0)
 				var/turf/T = AM.loc

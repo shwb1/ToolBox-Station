@@ -13,7 +13,7 @@ GLOBAL_VAR_INIT(aliensexist,0)
 	required_enemies = 1
 	recommended_enemies = 2
 	var/maximum_enmies = 3
-	minimum_enemies = 1
+	//minimum_enemies = 1
 
 	announce_span = "green"
 	announce_text = "The station is infested with Xenomorphs!\n\

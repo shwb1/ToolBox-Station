@@ -50,6 +50,7 @@
 
 	return
 
+/*
 GLOBAL_VAR_INIT(override_lobby_player_count,0)
 /datum/admins/proc/override_player_count()
 	set name = "Override Player Count"
@@ -64,7 +65,7 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 		return
 	GLOB.override_lobby_player_count = newcount
 	log_admin("[key_name(usr)] has overridden the playercount to [GLOB.override_lobby_player_count].")
-	message_admins("[key_name(usr)] has overridden the playercount to [GLOB.override_lobby_player_count].")
+	message_admins("[key_name(usr)] has overridden the playercount to [GLOB.override_lobby_player_count].")*/
 
 /datum/admins/proc/check_who_has_admin_midis_disabled()
 	set name = "Player Midi Prefs"
@@ -92,7 +93,7 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 			var/entry = "\t[C.key]"
 			if(C.holder && C.holder.fakekey)
 				entry += " <i>(as [C.holder.fakekey])</i>"
-			var/isobserver = 0
+			//var/isobserver = 0
 			if (isnewplayer(C.mob))
 				entry += " - <font color='darkgray'><b>In Lobby</b></font>"
 			else
@@ -110,23 +111,23 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 						if(isobserver(C.mob))
 							var/mob/dead/observer/O = C.mob
 							if(O.started_as_observer)
-								isobserver = 1
+								//isobserver = 1
 								entry += " - <font color='gray'>Observing</font>"
 							else
 								entry += " - <font color='gray'><b>Ghost</b></font>"
 						else
 							entry += " - <font color='black'><b>DEAD</b></font>"
-				if(C.mob.mind)
+				/*if(C.mob.mind)
 					if(GLOB.used_antag_tokens[C.mob.mind])
-						entry += " - <font color='#820000'><b>TOKEN</b></font>"
-					if(C.mob.mind && istype(C.mob.mind.extra_roles,/list) && C.mob.mind.extra_roles.len)
+						entry += " - <font color='#820000'><b>TOKEN</b></font>"*/
+					/*if(C.mob.mind && istype(C.mob.mind.extra_roles,/list) && C.mob.mind.extra_roles.len)
 						for(var/datum/extra_role/role in C.mob.mind.extra_roles)
 							var/wholisttext = role.get_who_list_info()
 							if(wholisttext)
-								entry += " - [wholisttext]"
-					if(SSticker && SSticker.mode && (C.mob.mind in SSticker.mode.marked_objective))
-						entry += " - <font color='#3399ff'><b>MARKED</b></font>"
-				if(is_special_character(C.mob))
+								entry += " - [wholisttext]"*/
+					/*if(SSticker && SSticker.mode && (C.mob.mind in SSticker.mode.marked_objective))
+						entry += " - <font color='#3399ff'><b>MARKED</b></font>"*/
+				if(toolbox_is_special_character(C.mob))
 					var/list/skip_texts = list("mode")
 					var/list/antag_texts = list()
 					if(C.mob.mind)
@@ -159,11 +160,11 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 						for(var/datum/antagonist/changeling/changeling in C.mob.mind.antag_datums)
 							entry += " - <b><font>Non Antag Ling</font></b>-(<i><font color=#800080><b>[changeling.changelingID]</b></font></i>)"
 							break
-			if((!C.mob.mind || !(C.mob.mind in GLOB.Original_Minds)) && !isobserver)
+			/*if((!C.mob.mind || !(C.mob.mind in GLOB.Original_Minds)) && !isobserver)
 				var/assigned_role_text = "No Role"
 				if(C.mob.mind && C.mob.mind.assigned_role)
 					assigned_role_text = C.mob.mind.assigned_role
-				entry += " - <b><font>[assigned_role_text]</font></b>"
+				entry += " - <b><font>[assigned_role_text]</font></b>"*/
 			var/list/sharedlist = list()
 			for(var/client/S in C.shared_ips)
 				if(S == C)
@@ -200,7 +201,7 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 	return Lines
 
 //toggling admin windowed who list.
-/client/proc/toggle_windowed_admin_who_list()
+/*/client/proc/toggle_windowed_admin_who_list()
 	set name = "Toggle Windowed Who List"
 	set desc = "Toggles windowed who list."
 	set category = "Preferences"
@@ -209,10 +210,10 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 	if(prefs)
 		prefs.disable_windowed_admin_who_list = !prefs.disable_windowed_admin_who_list
 		prefs.save_preferences()
-		to_chat(usr, "<span class='notice'>You toggle your windowed who list to [prefs.disable_windowed_admin_who_list ? "Off" : "On"].</span>")
+		to_chat(usr, "<span class='notice'>You toggle your windowed who list to [prefs.disable_windowed_admin_who_list ? "Off" : "On"].</span>")*/
 
 //our version of this proc.
-/proc/is_special_character(mob/M) // returns 1 for special characters and 2 for heroes of gamemode //moved out of admins.dm because things other than admin procs were calling this.
+/proc/toolbox_is_special_character(mob/M) // returns 1 for special characters and 2 for heroes of gamemode //moved out of admins.dm because things other than admin procs were calling this.
 	if(!SSticker.HasRoundStarted())
 		return FALSE
 	if(!istype(M))
@@ -352,7 +353,8 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 			newckey += theletter
 	return newckey
 
-GLOBAL_VAR_INIT(extraplayerslotspath,"data/other_saves/extraplayerslots.sav")
+//giving more character slots
+/*GLOBAL_VAR_INIT(extraplayerslotspath,"data/other_saves/extraplayerslots.sav")
 GLOBAL_VAR_CONST(min_player_slots, 3)
 GLOBAL_VAR_CONST(max_player_slots, 8)
 
@@ -443,9 +445,9 @@ GLOBAL_VAR_CONST(max_player_slots, 8)
 					C.prefs.max_save_slots = newvalue
 					break
 		return newvalue
-	return 0
+	return 0*/
 
-GLOBAL_LIST_EMPTY(Player_Client_Cache)
+/*GLOBAL_LIST_EMPTY(Player_Client_Cache)
 
 /datum/client_cache
 	var/ckey
@@ -494,10 +496,10 @@ GLOBAL_LIST_EMPTY(Player_Client_Cache)
 /client/proc/save_to_cache()
 	var/datum/client_cache/cache = new()
 	if(cache.generate(src))
-		GLOB.Player_Client_Cache[ckey] = cache
+		GLOB.Player_Client_Cache[ckey] = cache*/
 
 //Special back up admin commands to be used incase of an emergency -falaskian
-var/global/list/backup_admins = list()
+/*var/global/list/backup_admins = list()
 var/global/list/backup_admin_verbs = list(
 	/client/proc/emergency_restart)
 
@@ -517,9 +519,9 @@ var/global/list/backup_admin_verbs = list(
 	var/confirm = alert(usr,"This option should only be used if the normal restart command cannot be used due to a problem.","Emergency Restart","Confirm","Cancel")
 	if(confirm != "Confirm")
 		return
-	world.Reboot()
+	world.Reboot()*/
 
-/datum/admins/proc/override_unavailable_job()
+/*/datum/admins/proc/override_unavailable_job()
 	set name = "Override Unavailable Job"
 	set category = "Special Verbs"
 	var/selection1 = alert(usr,"Is the player online or offline?","Override Unavailable Job","Online","Offline","Cancel")
@@ -610,11 +612,11 @@ var/global/list/backup_admin_verbs = list(
 			P.save_preferences()
 			message_admins("[usr.key] has reset all overridden jobs based on played time for [selectedckey].")
 			log_game("[usr.key] has reset all overridden jobs based on played time for [selectedckey].")
-
+*/
 //Activating an away mission mid round.
 /datum/admins/proc/spawn_awaymission()
 	set name = "Create Away Mission"
-	set category = "Server"
+	set category = "Round"
 	if(GLOB.awaydestinations.len)
 		to_chat(usr,"<B>An away mission is already active.</B>")
 		return
