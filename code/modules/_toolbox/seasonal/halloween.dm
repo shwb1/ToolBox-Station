@@ -1,4 +1,4 @@
-//Updating parallax planet
+/*/Updating parallax planet
 GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 /obj/screen/parallax_layer/planet/Initialize(mapload, view)
 	.=..()
@@ -121,7 +121,7 @@ GLOBAL_VAR_INIT(parallax_planet_icon, 'icons/effects/parallax.dmi')
 				break
 			if(clearedturf)
 				new /obj/structure/flora/jackolantern(F)
-
+*/
 /obj/structure/flora/jackolantern
 	name = "Jack-O-Lantern"
 	desc = "Spooky!"
