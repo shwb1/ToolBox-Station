@@ -1067,7 +1067,7 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 			if(CONFIG_GET(flag/respect_upstream_permabans) && ban["expires"])
 				continue
 
-			to_chat(src, "<span class='userdanger'>Your connection has been closed because you are currently banned from BeeStation.</span>")
-			message_admins("[key_name(src)] was removed from the game due to a ban from BeeStation.")
+			to_chat(src, "<span class='userdanger'>Your connection has been closed because you are currently banned from the server.</span>")
+			message_admins("[key_name(src)] was removed from the game due to a ban from the server.")
 			qdel(src)
 			return

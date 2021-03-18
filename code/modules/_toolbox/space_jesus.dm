@@ -6,9 +6,11 @@
 	omnipotent_access = 1
 	var/datum/mind/saved_mind
 
-/*/mob/living/carbon/human/jesus/update_canmove()
-	..()
-	anchored = 1*/
+/mob/living/carbon/human/jesus/Life()
+	. = ..()
+	anchored = 1
+	if(!HAS_TRAIT(src, TRAIT_IGNORESLOWDOWN))
+		ignore_slowdown(src)
 
 /mob/living/carbon/human/jesus/verb/disappear()
 	set category = " Space Jesus"
@@ -49,7 +51,7 @@
 	/*if (!check_rights(R_REJUVINATE))
 		return*/
 	var/list/surrounding = list()
-	for(var/mob/living/M in view(7,src))
+	for(var/mob/living/M in view(8,src))
 		var/thename = "Noname"
 		if(M.name)
 			thename = "[M.name]"
@@ -92,7 +94,7 @@
 	..()
 	name = "Space Jesus"
 	real_name = "Space Jesus"
-	equipOutfit(/datum/outfit/jesus)
+	//vv_edit_var(cached_multiplicative_slowdown , 0.5)
 	var/datum/dna/D = dna
 	skin_tone = "caucasian3"
 	lip_color = "white"
@@ -128,47 +130,18 @@
 		hallucination = 0
 		return
 
-
-/datum/outfit/jesus
+//the original outfit
+/datum/outfit/jesus/carpenter
 	name = "Space Jesus"
-	uniform = /obj/item/clothing/under/waiter/jesus
+	uniform = /obj/item/clothing/under/suit/waiter/jesus
+	suit = null //Since this is a child, no robe on this one.
 	gloves = /obj/item/clothing/gloves/color/white/jesus
 	shoes = /obj/item/clothing/shoes/jackboots/jesus
 	glasses = /obj/item/clothing/glasses/godeye/jesus
 	ears = /obj/item/radio/headset
 	belt = /obj/item/storage/belt/utility/full
 
-//00000050600012d5ab193
-/*/mob/proc/jesusify()
-	if(isnewplayer(src))
-		to_chat(usr, "<span class='danger'>Cannot convert players who have not entered yet.</span>")
-		return
-
-	spawn(0)
-		var/mob/living/carbon/human/jesus/M
-		var/location = src.loc
-		var/delay = 50
-		spawn(0)
-			for(var/i=0,i<=20,i++)
-				if(i != 0)
-					delay = max(delay-5,1)
-				var/obj/effect/E = new(loc)
-				E.pixel_x = rand(-24,24)
-				E.pixel_y = rand(-24,24)
-				E.anchored = 1
-				E.density = 0
-				E.icon = 'icons/effects/beam/dmi'
-				E.icon_state = "lightning[rand(1,12)]"
-				spawn(8)
-					qdel(E)
-				sleep(delay)
-			*/
-
-
-
-
-
-/mob/proc/jesusify()
+/mob/proc/jesusify(var/datum/outfit/outfit)
 	if(isnewplayer(src))
 		to_chat(usr, "<span class='danger'>Cannot convert players who have not entered yet.</span>")
 		return
@@ -201,26 +174,36 @@
 			M.key = savedkey
 			if(M.mind)
 				M.mind.assigned_role = "Space Jesus"
+			if(!istype(outfit))
+				outfit = /datum/outfit/jesus
+			M.equipOutfit(outfit)
+			if(istype(outfit,/datum/outfit/job))
+				M.real_name = "[outfit.name] Jesus"
+			else
+				M.real_name = "[outfit.name]"
+			M.name = M.real_name
 			QDEL_IN(src, 1)
 		return M
 
-/obj/item/clothing/under/waiter/jesus
+/obj/item/clothing/under/suit/waiter/jesus
+	name = "carpenter uniform"
 	resistance_flags = INDESTRUCTIBLE
-
-/obj/item/clothing/under/waiter/jesus/worn_overlays(isinhands)
-    . = list()
-    if(!isinhands)
-        . += image(layer = LYING_MOB_LAYER-0.01, icon = 'icons/effects/effects.dmi', icon_state = "m_shield")
 
 /obj/item/clothing/glasses/godeye/jesus
 	icon_state = ""
 	item_state = ""
 	resistance_flags = INDESTRUCTIBLE
 
+/obj/item/clothing/glasses/godeye/jesus/worn_overlays(isinhands)
+    . = list()
+    if(!isinhands)
+        . += image(layer = LYING_MOB_LAYER-0.01, icon = 'icons/effects/effects.dmi', icon_state = "m_shield")
+
 /obj/item/clothing/gloves/color/white/jesus
 	resistance_flags = INDESTRUCTIBLE
 
 /obj/item/clothing/shoes/jackboots/jesus
+	name = "Black Boots"
 	resistance_flags = INDESTRUCTIBLE
 
 /obj/effect/jesusportal
@@ -231,7 +214,7 @@
 
 /datum/admins/proc/space_jesus()
 	set name = "Space Jesus"
-	set category = "Special Verbs"
+	set category = "Adminbus"
 	var/userckey = usr.ckey
 	var/confirm = alert(usr,"Do you wish to become Space Jesus?","Space Jesus","Yes","Cancel")
 	if(confirm != "Yes")
@@ -242,6 +225,83 @@
 	if(!istype(usr,/mob/dead/observer) || usr.ckey != userckey)
 		to_chat(usr,"You must be a ghost for this.")
 		return
-	usr.jesusify()
+	var/list/outfits = list("Naked" = new /datum/outfit(),"Original" = new /datum/outfit/jesus(),"Carpenter" = new /datum/outfit/jesus/carpenter())
+	var/list/paths = subtypesof(/datum/outfit/job)
+	for(var/path in paths)
+		var/datum/outfit/job/O = new path()
+		if(initial(O.can_be_admin_equipped))
+			if(findtext(O.name,"\[",1,length(O.name)+1))
+				continue
+			outfits["[O.name] Jesus"] = O
+			O.head = null
+			O.mask = null
+			O.id = null
+			O.l_pocket = null
+			O.r_pocket = null
+			O.ears = null
+			O.back = null
+			O.backpack_contents = null
+			O.box = null
+			O.pda_slot = null
+			O.backpack = null
+			O.satchel  = null
+			O.duffelbag = null
+			O.toggle_helmet = FALSE
+			if(!O.gloves)
+				O.gloves = /obj/item/clothing/gloves/color/white/jesus
+			O.glasses = /obj/item/clothing/glasses/godeye/jesus
+	var/theoutfit = input("Select outfit", "Space Jesus", "Original") as null|anything in outfits
+	var/chosenoutfit = outfits[theoutfit]
+	if(!istype(chosenoutfit,/datum/outfit))
+		chosenoutfit = /datum/outfit/jesus
+	usr.jesusify(chosenoutfit)
 
+//Updated space jesus clothes.
+/obj/item/clothing/suit/hooded/spacejesus
+	name = "Divine Robes"
+	desc = "It's super ugly and looks really old."
+	icon = 'icons/oldschool/clothing/suititem.dmi'
+	icon_state = "jesus_robe"
+	item_state = "owl"
+	item_color = "lightbrown"
+	alternate_worn_icon = 'icons/oldschool/clothing/suitmob.dmi'
+	body_parts_covered = CHEST|GROIN|ARMS
+	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 10, rad = 0, fire = 0, acid = 0)
+	allowed = list(/obj/item/flashlight,/obj/item/tank/internals/emergency_oxygen,/obj/item/toy,/obj/item/storage/fancy/cigarettes,/obj/item/lighter)
+	hoodtype = /obj/item/clothing/head/hooded/spacejesus
+	resistance_flags = INDESTRUCTIBLE
 
+/obj/item/clothing/head/hooded/spacejesus
+	name = "Divine Hood"
+	desc = "It's super ugly and looks really old."
+	icon = 'icons/oldschool/clothing/headitem.dmi'
+	icon_state = "jesus_robe"
+	alternate_worn_icon = 'icons/oldschool/clothing/headmob.dmi'
+	body_parts_covered = HEAD
+	flags_inv = HIDEHAIR|HIDEEARS
+	resistance_flags = INDESTRUCTIBLE
+
+/obj/item/clothing/under/suit/spacejesus
+	name = "Divine Undersuit"
+	desc = "It's even older and uglier."
+	icon = 'icons/oldschool/clothing/uniformitem.dmi'
+	icon_state = "jesus_uniform"
+	item_state = "lb_suit"
+	alternate_worn_icon = 'icons/oldschool/clothing/uniformmob.dmi'
+	resistance_flags = INDESTRUCTIBLE
+
+/datum/outfit/jesus
+	name = "Space Jesus"
+	uniform = /obj/item/clothing/under/suit/spacejesus
+	suit = /obj/item/clothing/suit/hooded/spacejesus
+	gloves = /obj/item/clothing/gloves/color/white/jesus
+	shoes = /obj/item/clothing/shoes/jackboots/jesus
+	glasses = /obj/item/clothing/glasses/godeye/jesus
+	ears = /obj/item/radio/headset
+	belt = /obj/item/storage/belt/utility/full
+
+/datum/outfit/jesus/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	. = ..()
+	var/obj/item/clothing/suit/hooded/hooded = H.wear_suit
+	if(istype(hooded) && !hooded.suittoggled)
+		hooded.ToggleHood()

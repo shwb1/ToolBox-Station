@@ -1,7 +1,7 @@
 //adding things to vending machines with out editing vending machine files
 /obj/machinery/vending/clothing/New()
 	if(type == /obj/machinery/vending/clothing)
-		products += list(/obj/item/clothing/under/tracksuit/spawn_with_vodka = 1,/obj/item/clothing/suit/hooded/filthypink = 1)
+		products += list(/obj/item/clothing/under/suit/tracksuit/spawn_with_vodka = 1,/obj/item/clothing/suit/hooded/filthypink = 1)
 	. = ..()
 
 /obj/machinery/vending/autodrobe/New()
@@ -48,7 +48,7 @@
 	alternate_worn_icon = 'icons/oldschool/clothing/maskmob.dmi'
 
 //track suit
-/obj/item/clothing/under/tracksuit
+/obj/item/clothing/under/suit/tracksuit
 	name = "track suit"
 	desc = null
 	icon = 'icons/oldschool/clothing/uniformitem.dmi'
@@ -56,7 +56,7 @@
 	item_state = "bl_suit"
 	alternate_worn_icon = 'icons/oldschool/clothing/uniformmob.dmi'
 
-/obj/item/clothing/under/tracksuit/spawn_with_vodka/New()
+/obj/item/clothing/under/suit/tracksuit/spawn_with_vodka/New()
 	. = ..()
 	if(loc)
 		var/obj/item/reagent_containers/food/drinks/bottle/vodka/V = new(loc)

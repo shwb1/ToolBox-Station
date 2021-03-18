@@ -267,7 +267,7 @@
 	SSblackbox.Seal()
 
 	if(CONFIG_GET(flag/automapvote))
-		SSvote.initiate_vote("map", "BeeBot", forced=TRUE, popup=TRUE) //automatic map voting
+		SSvote.initiate_vote("map", "Server", forced=TRUE, popup=TRUE) //automatic map voting
 
 	sleep(50)
 	ready_for_reboot = TRUE

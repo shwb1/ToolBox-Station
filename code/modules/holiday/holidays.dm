@@ -232,15 +232,6 @@
 /datum/holiday/firefighter/getStationPrefix()
 	return pick("Burning","Blazing","Plasma","Fire")
 
-/datum/holiday/bee
-	name = "Bee Day"
-	begin_day = 20
-	begin_month = MAY
-	drone_hat = /obj/item/clothing/mask/rat/bee
-
-/datum/holiday/bee/getStationPrefix()
-	return pick("Bee","Honey","Hive","Africanized","Mead","Buzz")
-
 /datum/holiday/summersolstice
 	name = "Summer Solstice"
 	begin_day = 21

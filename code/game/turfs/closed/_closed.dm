@@ -69,16 +69,20 @@
 
 /turf/closed/indestructible/splashscreen/New()
 	SStitle.splash_turf = src
-	if(SStitle.icon)
-		icon = SStitle.icon
+	if(SStitle.splashscreen)
+		SStitle.apply_icon(src)
 	..()
 
 /turf/closed/indestructible/splashscreen/vv_edit_var(var_name, var_value)
 	. = ..()
-	if(.)
+	if(. && SStitle.splashscreen)
 		switch(var_name)
 			if("icon")
-				SStitle.icon = icon
+				SStitle.splashscreen.icon = icon
+				SStitle.splashscreen.overlay_states.Cut()
+			if("icon_state")
+				SStitle.splashscreen.icon_state = icon_state
+				SStitle.splashscreen.overlay_states.Cut()
 
 /turf/closed/indestructible/riveted
 	icon = 'icons/turf/walls/riveted.dmi'

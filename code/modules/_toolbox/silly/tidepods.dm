@@ -33,10 +33,10 @@
 	max_w_class = 1
 	illustration = null
 
-/obj/item/storage/box/tidepods/New()
+/obj/item/storage/box/tidepods/PopulateContents()
+	. = ..()
 	for(var/i=5,i>0,i--)
 		new /obj/item/reagent_containers/food/snacks/tidepod(src)
-	. = ..()
 
 /datum/supply_pack/misc/tidepods
 	name = "Laundry Supplies"

@@ -244,7 +244,7 @@
 	new /obj/item/grenade/chem_grenade/facid(src)
 
 /obj/item/paper/fluff/bee_objectives
-	name = "Objectives of a Bee Liberation Front Operative"
+	name = "Objectives of a Liberation Front Operative"
 	info = "<b>Objective #1</b>. Liberate all bees on the NT transport vessel 2416/B. <b>Success!</b>  <br><b>Objective #2</b>. Escape alive. <b>Failed.</b>"
 
 /obj/machinery/syndicatebomb/shuttle_loan/Initialize()

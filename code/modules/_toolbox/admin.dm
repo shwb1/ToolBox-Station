@@ -11,7 +11,7 @@
 	return*/
 
 /client/proc/force_rules()
-	set category = "Special Verbs"
+	set category = "Adminbus"
 	set name = "Force Rules"
 	set desc = "Forces a player to open the rules."
 
@@ -360,7 +360,7 @@ GLOBAL_VAR_CONST(max_player_slots, 8)
 
 /datum/admins/proc/manage_characterslots()
 	set name = "Manage Character Slots"
-	set category = "Special Verbs"
+	set category = "Server"
 	var/procname = "Manage Character Slots"
 	var/onlineoroffline = alert(usr,"Is the player online or offline?",procname,"Online","Offline")
 	var/chosenkey
@@ -523,7 +523,7 @@ var/global/list/backup_admin_verbs = list(
 
 /*/datum/admins/proc/override_unavailable_job()
 	set name = "Override Unavailable Job"
-	set category = "Special Verbs"
+	set category = "Server"
 	var/selection1 = alert(usr,"Is the player online or offline?","Override Unavailable Job","Online","Offline","Cancel")
 	if(!selection1 || selection1 == "Cancel")
 		return

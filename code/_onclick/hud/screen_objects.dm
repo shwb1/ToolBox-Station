@@ -712,14 +712,16 @@
 	if(!visible)
 		alpha = 0
 
-	if(!use_previous_title)
+	/*if(!use_previous_title)
 		if(SStitle.icon)
 			icon = SStitle.icon
 	else
 		if(!SStitle.previous_icon)
 			qdel(src)
 			return
-		icon = SStitle.previous_icon
+		icon = SStitle.previous_icon*/
+
+	SStitle.apply_icon(src)
 
 	holder.screen += src
 

@@ -12,18 +12,19 @@
 	return src
 
 /obj/item/storage/Initialize()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	if(islist(can_hold) && can_hold.len)
-		STR.can_hold = typecacheof(can_hold)
-	if(max_w_class)
-		STR.max_w_class = max_w_class
-	if(max_combined_w_class)
-		STR.max_combined_w_class = max_combined_w_class
 	. = ..()
 	PopulateContents()
 
 /obj/item/storage/ComponentInitialize()
 	AddComponent(component_type)
+	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
+	if(STR)
+		if(islist(can_hold) && can_hold.len)
+			STR.can_hold = typecacheof(can_hold)
+		if(max_w_class)
+			STR.max_w_class = max_w_class
+		if(max_combined_w_class)
+			STR.max_combined_w_class = max_combined_w_class
 
 /obj/item/storage/AllowDrop()
 	return FALSE
