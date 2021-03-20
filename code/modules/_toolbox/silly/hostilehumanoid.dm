@@ -74,7 +74,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		I = new()
 		I.icon = 'icons/mob/human_parts_greyscale.dmi'
 		I.icon_state = "[race]_[text]"
-		I.color = "[skincolor]"
+		I.color = "#[skincolor]"
 		I.layer = bodyparts[text]
 		overlayslist += I
 	//making body and facial features.
@@ -111,7 +111,7 @@ A hostile human animal mob that is customizable. -Falaskian
 				I = new()
 				I.icon = 'icons/mob/mutant_bodyparts.dmi'
 				I.icon_state = state
-				I.color = "[skincolor]"
+				I.color = "#[skincolor]"
 				I.layer = 4.3
 				overlayslist += I
 	//building icons for equipped items
@@ -160,9 +160,15 @@ A hostile human animal mob that is customizable. -Falaskian
 			melee_damage = item.force
 			highest_damage = item.force
 			if(!override_attacktext)
+				var/changedattacktext = 0
 				if(item.attack_verb)
-					attacktext = typelist("attack_verb", item.attack_verb)
-				else
+					if(islist(item.attack_verb))
+						attacktext = pick(item.attack_verb)
+						changedattacktext = 1
+					else if(istext(item.attack_verb))
+						attacktext = item.attack_verb
+						changedattacktext = 1
+				if(!changedattacktext)
 					attacktext = "attacks"
 			if(!override_attack_sound)
 				if(!item.hitsound)
@@ -208,11 +214,13 @@ A hostile human animal mob that is customizable. -Falaskian
 			lizardskincolor_red = clamp(lizardskincolor_red,50,200)
 			lizardskincolor_green = clamp(lizardskincolor_green,50,200)
 			lizardskincolor_blue = clamp(lizardskincolor_blue,50,200)
-			. = sanitize_hexcolor(rgb(lizardskincolor_red,lizardskincolor_green,lizardskincolor_blue),include_crunch=1)
+			. = sanitize_hexcolor(rgb(lizardskincolor_red,lizardskincolor_green,lizardskincolor_blue),include_crunch=0)
 		else //ensuring it assumes a human skin color if race gets messed up.
 			if(!humanskincolor)
 				humanskincolor = "caucasian2" //defaulting to caucasian2 just incase no proper skin color is selected.
-			. = sanitize_hexcolor(skintone2hex(humanskincolor), desired_format=6, include_crunch=1)
+			. = sanitize_hexcolor(skintone2hex(humanskincolor), desired_format=6, include_crunch=0)
+	if(copytext(.,1,2) == "#")
+		. = copytext(.,2,length(.)+1)
 
 /mob/living/simple_animal/hostile/randomhumanoid/death()
 	. = ..()
@@ -238,7 +246,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		H.hair_color = human_traits["hair_color"]
 		H.facial_hair_style = human_traits["facial_hair_style"]
 		H.facial_hair_color = human_traits["facial_hair_color"]
-		H.skin_tone = skincolor
+		H.skin_tone = humanskincolor
 	//Because degeneral hates underwear.
 	H.underwear = "Nude"
 	H.undershirt = "Nude"
