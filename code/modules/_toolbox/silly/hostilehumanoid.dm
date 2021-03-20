@@ -38,6 +38,9 @@ A hostile human animal mob that is customizable. -Falaskian
 		null = SLOT_WEAR_SUIT,
 		null = SLOT_W_UNIFORM)
 	var/list/humanoid_held_items = list(null,null) //equipped weapons type paths. Only two should be present.
+	//for retaliation
+	var/retaliation = 0
+	var/list/enemies = list()
 
 /mob/living/simple_animal/hostile/randomhumanoid/Initialize()
 	. = ..()
@@ -251,3 +254,50 @@ A hostile human animal mob that is customizable. -Falaskian
 		item.forceMove(loc)
 	H.death()
 	qdel(src)
+
+//retaliation flag. because fuckin tg sucks
+//this is literally copy pasted from retaltiate.dm
+/mob/living/simple_animal/hostile/randomhumanoid/Found(atom/A)
+	if(retaliation)
+		if(isliving(A))
+			var/mob/living/L = A
+			if(!L.stat)
+				return L
+			else
+				enemies -= L
+		else if(ismecha(A))
+			var/obj/mecha/M = A
+			if(M.occupant)
+				return A
+
+/mob/living/simple_animal/hostile/randomhumanoid/ListTargets()
+	if(retaliation)
+		if(!enemies.len)
+			return list()
+		var/list/see = ..()
+		see &= enemies
+		return see
+
+/mob/living/simple_animal/hostile/randomhumanoid/proc/Retaliate()
+	if(retaliation)
+		for(var/atom/movable/A as obj|mob in oview(vision_range, src))
+			if(isliving(A))
+				var/mob/living/M = A
+				if(attack_same || !faction_check_mob(M))
+					enemies |= M
+				if(istype(M, /mob/living/simple_animal/hostile/retaliate))
+					var/mob/living/simple_animal/hostile/retaliate/H = M
+					if(attack_same && H.attack_same)
+						H.enemies |= enemies
+			else if(ismecha(A))
+				var/obj/mecha/M = A
+				if(M.occupant)
+					enemies |= M
+					enemies |= M.occupant
+		return FALSE
+
+/mob/living/simple_animal/hostile/randomhumanoid/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
+	. = ..()
+	if(retaliation)
+		if(. > 0 && stat == CONSCIOUS)
+			Retaliate()
