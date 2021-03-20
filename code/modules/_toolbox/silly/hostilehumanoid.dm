@@ -269,6 +269,7 @@ A hostile human animal mob that is customizable. -Falaskian
 			var/obj/mecha/M = A
 			if(M.occupant)
 				return A
+	return ..()
 
 /mob/living/simple_animal/hostile/randomhumanoid/ListTargets()
 	if(retaliation)
@@ -277,6 +278,8 @@ A hostile human animal mob that is customizable. -Falaskian
 		var/list/see = ..()
 		see &= enemies
 		return see
+	else
+		return ..()
 
 /mob/living/simple_animal/hostile/randomhumanoid/proc/Retaliate()
 	if(retaliation)
