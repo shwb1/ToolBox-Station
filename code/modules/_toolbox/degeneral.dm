@@ -1,9 +1,351 @@
 
 /********************** SPAWNERS **************************/
 
+/mob/living/simple_animal/hostile/spawner
+	name = "monster nest"
+	icon = 'icons/mob/nest.dmi'
+	icon_state = "hole"
+	health = 150
+	maxHealth = 150
+	gender = NEUTER
+	var/list/spawned_mobs = list()
+	var/max_mobs = 5
+	var/spawn_delay = 0
+	var/spawn_time = 30 //30 seconds default
+	var/mob_types = list(/mob/living/simple_animal/hostile/carp = 1)
+	var/spawn_text = "emerges from"
+	status_flags = 0
+	anchored = TRUE
+	AIStatus = AI_OFF
+	a_intent = INTENT_HARM
+	stop_automated_movement = 1
+	wander = 0
+	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 5, "min_n2" = 0, "max_n2" = 0)
+	minbodytemp = 0
+	maxbodytemp = 350
+	layer = BELOW_MOB_LAYER
+	del_on_death = 1
 
 
+/mob/living/simple_animal/hostile/spawner/Destroy()
+	for(var/mob/living/simple_animal/L in spawned_mobs)
+		if(L.nest == src)
+			L.nest = null
+	spawned_mobs = null
+	return ..()
+
+/mob/living/simple_animal/hostile/spawner/Life()
+	. = ..()
+	if(!.) // dead
+		return
+	spawn_mob()
+
+/mob/living/simple_animal/hostile/spawner/proc/spawn_mob()
+	if(spawned_mobs.len >= max_mobs)
+		return 0
+	if(spawn_delay > world.time)
+		return 0
+	spawn_delay = world.time + spawn_time*10
+	var/chosen_mob_type = pickweight(mob_types)
+	var/mob/living/simple_animal/L = new chosen_mob_type(src.loc)
+	spawned_mobs += L
+	L.nest = src
+	L.faction = src.faction
+	visible_message("<span class='danger'>[L] [spawn_text] [src].</span>")
+
+
+/mob/living/simple_animal/hostile/spawner/lizard
+	name = "lizard nest"
+	icon = 'icons/mob/nest.dmi'
+	icon_state = "ash_walker_nest"
+	faction = list("lizard")
+	light_power = 0.5
+	light_range = 7
+	max_mobs = 3
+	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
+	loot = list(/obj/effect/lizard_nest_gib)
+
+/obj/effect/lizard_nest_gib
+	name = "lizard nest gibbing"
+	desc = "Disgusting! Im covered in gibs."
+
+/obj/effect/lizard_nest_gib/Initialize()
+	. = ..()
+	visible_message("<span class='boldannounce'>The tendril squirms in pain.</span>")
+	playsound(loc,'sound/effects/tendril_destroyed.ogg', 200, 0, 50, 1, 1)
+	new /obj/effect/gibspawner/generic/lizard_nest(loc)
+	new /obj/item/reagent_containers/food/snacks/egg/lizard_egg(loc)
+	qdel(src)
+
+/obj/effect/gibspawner/generic/lizard_nest
+	gibtypes = list(/obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs, /obj/effect/decal/cleanable/blood/gibs/core/nest)
+	gibamounts = list(4,4,1)
+
+/obj/effect/decal/cleanable/blood/gibs/core/nest
+	name = "lizard nest remains"
+	random_icon_states = list("gibmid3")
+
+
+
+/mob/living/simple_animal/hostile/spawner/lizard/with_props/Initialize()
+	.=..()
+	var/list/turf_list = list()
+	var/turf/E = get_step(loc, EAST)
+	var/turf/W = get_step(loc, WEST)
+	var/list/L_R = list(E,W)
+
+	for(var/turf/turf in L_R)
+		if(istype(turf, /turf/closed))
+			continue
+		var/shit_in_the_way = 0
+		for(var/obj/O in turf)
+			if(O.density)
+				shit_in_the_way = 1
+				break
+		if(!shit_in_the_way)
+			new /obj/structure/pike_torch(turf)
+
+
+	for(var/turf/T in range(3, src))
+		turf_list += T
+
+	var/turf/gibs = pick(turf_list)
+	new /obj/effect/decal/cleanable/blood/gibs/up(gibs)
+
+
+
+/mob/living/simple_animal/hostile/spawner/cave_spider
+	name = "cave spider nest"
+	icon = 'icons/oldschool/objects.dmi'
+	icon_state = "spider_nest"
+	faction = list("cave")
+	light_power = 0.5
+	light_range = 7
+	max_mobs = 5
+	spawn_time = 30
+	mob_types = list(/mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave = 7, /mob/living/simple_animal/hostile/poison/giant_spider/cave = 1)
+	loot = list(/obj/effect/cave_spider_nest_death)
+
+/mob/living/simple_animal/hostile/spawner/cave_spider/Initialize()
+	.=..()
+	new /obj/structure/spider/stickyweb/aoe_spawn(loc)
+
+/obj/effect/cave_spider_nest_death
+	name = "cave spider nest death"
+	desc = "Run!"
+
+/obj/effect/cave_spider_nest_death/Initialize()
+	. = ..()
+	visible_message("<span class='boldannounce'>Spider nest shakes violently!</span>")
+	visible_message("<span class='boldannounce'>Tarantula bursts out of the spider nest!</span>")
+	playsound(loc,'sound/items/poster_ripped.ogg', 200, 0, 50, 1, 1)
+	new /obj/effect/gibspawner/generic(loc)
+	new /obj/item/reagent_containers/food/snacks/spidereggs(loc)
+	var/mob/living/simple_animal/hostile/poison/giant_spider/tarantula/cave/T = new(loc)
+	T.faction = list("cave")
+	qdel(src)
+
+
+/mob/living/simple_animal/hostile/spawner/spooky_skeleton
+	name = "pile of bones"
+	icon = 'icons/oldschool/objects.dmi'
+	icon_state = "pile_of_bones"
+	faction = list("cave")
+	light_power = 0.5
+	light_range = 7
+	max_mobs = 4
+	spawn_time = 20
+	mob_types = list(/mob/living/simple_animal/hostile/skeleton/spooky = 1)
+	loot = list(/obj/effect/spooky_skeleton_spawner_death)
+
+/obj/effect/spooky_skeleton_spawner_death
+	name = "pile of bones collapse"
+	desc = "HE NEEDS SOME MILK!"
+
+/obj/effect/spooky_skeleton_spawner_death/Initialize()
+	. = ..()
+	visible_message("<span class='boldannounce'>Huge spooky skeleton emerges out of pile of bones as it collapses!</span>")
+	playsound(loc,'sound/hallucinations/growl1.ogg', 200, 0, 50, 1, 1)
+	var/mob/living/simple_animal/hostile/skeleton/spooky/huge/H = new(loc)
+	H.faction = list("cave")
+	H.maxHealth = 200
+	H.health = 200
+	qdel(src)
+
+
+
+/*
+	var/tile_type = pick(/obj/structure/stone_tile/cracked, /obj/structure/stone_tile/surrounding_tile/cracked, /obj/structure/stone_tile/block/cracked)
+	if(prob(70))
+		for(var/turf/T in range(3, src))
+			var/obj/structure/stone_tile/S = new tile_type(T)
+			S.dir = pick(1,2,4,8)
+*/
 /********************** LIZARD SLAVES **************************/
+
+GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave
+	name = "lizard slave"
+	forcename = 1
+	race = "lizard"
+	attacktext = "slashes"
+	environment_smash = 0
+	gold_core_spawnable = 0
+	equipped_items = list(/obj/item/clothing/under/rank/prisoner = SLOT_W_UNIFORM)
+	humanoid_held_items = list(/obj/item/pickaxe)
+	lizardskincolor_red = list(1,25)
+	lizardskincolor_green = list(150,200)
+	lizardskincolor_blue = list(1,25)
+	retaliation = 1
+	search_objects = 0
+	wanted_objects = list(/obj/structure/closet/crate,/obj/structure/lizard_ore_node)
+	var/obj/structure/lizard_ore_node/node_target
+	var/list/memory_nodes = list()
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/Initialize()
+	.=..()
+	transform *= 0.85
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/ListTargets()
+	var/list/targs = ..()
+	if(!islist(targs))
+		targs = list()
+	var/turf/src_turf = get_turf(src)
+	if(!targs.len)
+		if(!has_ore())
+			for(var/obj/structure/lizard_ore_node/node in GLOB.lizard_ore_nodes)
+				if(src_turf.z == node.z)
+					targs += node
+		else
+			var/list/dropoff_points = list()
+			if(src_turf)
+				for(var/text in GLOB.tribalslave_ore_dropoff_point)
+					var/list/dropoff_point = params2list(text)
+					var/turf/T = locate(text2num(dropoff_point["x"]),text2num(dropoff_point["y"]),text2num(dropoff_point["z"]))
+					if(T)
+						if(T.z != src_turf.z)
+							continue
+						dropoff_points += T
+			if(dropoff_points.len)
+				var/turf/dropoff_point = pick(dropoff_points)
+				var/list/crates = list()
+				for(var/obj/structure/closet/crate/crate in view(8, dropoff_point))
+					if(!istype(crate, /obj/structure/closet/crate/secure))
+						crates += crate
+				if(crates.len)
+					targs += pick(crates)
+	return targs
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/AttackingTarget()
+	if(istype(target, /obj/structure/lizard_ore_node))
+		var/obj/structure/lizard_ore_node/N = target
+		N.enter_node(src)
+		return
+	else if(istype(target, /obj/structure/closet/crate))
+		var/obj/structure/closet/crate/C = target
+		if(!C.opened)
+			C.open()
+		for(var/obj/item/stack/ore/ore in src)
+			ore.forceMove(C.loc)
+		spawn(15)
+			C.close()
+		return
+	.=..()
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/proc/has_ore()
+	for(var/obj/item/stack/ore/ore in src)
+		return 1
+	return 0
+
+//ORE NODE - only way to get bananium??
+
+GLOBAL_LIST_EMPTY(lizard_ore_nodes)
+
+/obj/structure/lizard_ore_node
+	name = "cavern"
+	desc = "Dangerous caves only tribal lizards know how to navigate."
+	icon = 'icons/mob/nest.dmi'
+	icon_state = "hole"
+	anchored = 1
+	density = 0
+	var/list/miners = list()
+	var/list/allowed_miners = list(/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave = "time=10;amount=3")
+	var/eject_dir = SOUTH
+	resistance_flags = INDESTRUCTIBLE
+	var/list/ore = list(/obj/item/stack/ore/iron = 40,
+						/obj/item/stack/ore/uranium = 5,
+						/obj/item/stack/ore/diamond = 1,
+						/obj/item/stack/ore/gold = 10,
+						/obj/item/stack/ore/titanium = 11,
+						/obj/item/stack/ore/silver = 12,
+						/obj/item/stack/ore/plasma = 20,
+						/obj/item/stack/ore/bluespace_crystal = 1,
+						/obj/item/stack/ore/bananium = 1)
+
+/obj/structure/lizard_ore_node/Initialize()
+	GLOB.lizard_ore_nodes.Add(src)
+	.=..()
+	START_PROCESSING(SSobj, src)
+
+/obj/structure/lizard_ore_node/proc/enter_node(atom/movable/AM)
+	for(var/path in allowed_miners)
+		if(istype(AM, path))
+			AM.moveToNullspace()
+			var/list/params_list = params2list(allowed_miners[path])
+			var/thetime = text2num(params_list["time"])
+			miners[AM] = world.time+thetime*10
+			if(istype(AM, /mob/living/simple_animal))
+				var/mob/living/simple_animal/animal = AM
+				animal.AIStatus = AI_OFF
+			break
+	AM.visible_message("<span class='boldannounce'>[AM] enters [src].</span>")
+
+/obj/structure/lizard_ore_node/process()
+	for(var/atom/movable/AM in miners)
+		var/time = miners[AM]
+		if(!isnum(time))
+			time = world.time+100
+		if(world.time >= time)
+			eject(AM)
+
+/obj/structure/lizard_ore_node/proc/eject(atom/movable/AM)
+	for(var/path in allowed_miners)
+		if(istype(AM, path))
+			var/list/params_list = params2list(allowed_miners[path])
+			var/theamount = text2num(params_list["amount"])
+			for(var/i=theamount,i>0,i--)
+				var/selected_ore = pickweight(ore)
+				new selected_ore(AM)
+			var/turf/T = get_step(loc, eject_dir)
+			if(!T)
+				T = loc
+			AM.visible_message("<span class='boldannounce'>[AM] emerges from [src].</span>")
+			AM.forceMove(T)
+			if(istype(AM, /mob/living/simple_animal))
+				var/mob/living/simple_animal/animal = AM
+				animal.AIStatus = AI_ON
+			miners.Remove(AM)
+
+/obj/structure/lizard_ore_node/Destroy()
+	GLOB.lizard_ore_nodes.Remove(src)
+	for(var/atom/movable/AM in miners)
+		eject(AM)
+	//add effect here
+
+/obj/effect/slave_ore_dropoff_point
+	name = "slave ore dropoff point"
+	icon = 'icons/effects/landmarks_static.dmi'
+	icon_state = "x4"
+
+/obj/effect/slave_ore_dropoff_point/Initialize()
+	var/turf/T = get_turf(src)
+	if(T)
+		GLOB.tribalslave_ore_dropoff_point.Add("x=[T.x];y=[T.y];z=[T.z]")
+	qdel(src)
+
+
+
 
 //LIZARD EGGS
 /obj/item/reagent_containers/food/snacks/egg/lizard_egg
@@ -78,7 +420,7 @@
 		amount_grown += rand(0,2)
 		if(amount_grown >= 100)
 			if(egg.type == /obj/item/reagent_containers/food/snacks/egg/lizard_egg)
-				var/mob/living/simple_animal/hostile/randomhumanoid/ashligger/L = new /mob/living/simple_animal/hostile/randomhumanoid/ashligger(src.loc)
+				var/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave(src.loc)
 				log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
 			else
 				var/mob/living/simple_animal/chicken/C = new /mob/living/simple_animal/chicken(src.loc)
@@ -141,6 +483,7 @@
 
 
 
+
 /********************** LOOTDROPS **************************/
 
 
@@ -166,7 +509,8 @@
 	loot = list(
 			/obj/item/stack/ore/iron = 10,
 			/obj/item/ammo_casing/shotgun/buckshot = 10,
-			/obj/item/gun/ballistic/revolver/doublebarrel/sawnoff = 2
+			/obj/item/kitchen/knife/combat/survival = 4,
+			/obj/item/gun/ballistic/shotgun/doublebarrel/sawnoff = 2
 			)
 
 
@@ -178,11 +522,13 @@
 			/obj/item/ammo_casing/shotgun/buckshot = 10,
 			/obj/item/stack/ore/gold = 5,
 			/obj/item/reagent_containers/food/snacks/canned/beans = 3,
-			/obj/item/clothing/mask/bandana/red = 3,
-			/obj/item/clothing/mask/bandana/gold = 3,
-			/obj/item/clothing/mask/bandana/black = 3,
-			/obj/item/clothing/mask/bandana/blue = 3,
+			/obj/item/stack/medical/gauze/two = 3,
+			/obj/item/clothing/mask/bandana/red = 2,
+			/obj/item/clothing/mask/bandana/gold = 2,
+			/obj/item/clothing/mask/bandana/black = 2,
+			/obj/item/clothing/mask/bandana/blue = 2,
 			/obj/item/clothing/mask/bandana/skull = 1,
+			/obj/item/clothing/gloves/fingerless = 1,
 			)
 
 /obj/effect/spawner/lootdrop/bandolier
@@ -210,20 +556,19 @@
 
 //Weapons
 
-/obj/item/gun/ballistic/revolver/doublebarrel/sawnoff
+/obj/item/gun/ballistic/shotgun/doublebarrel/sawnoff
 	name = "sawn-off double-barreled shotgun"
 	desc = "Come with me if you want to live."
 	w_class = WEIGHT_CLASS_NORMAL
 	item_state = "gun"
-	icon_state = "dshotgun-f"
+	icon_state = "dshotgun_l"
 	sawn_off = TRUE
 
-/obj/item/gun/ballistic/revolver/doublebarrel/sawnoff/Initialize()
+/obj/item/gun/ballistic/shotgun/doublebarrel/sawnoff/Initialize()
 	.=..()
 	slot_flags &= ~SLOT_BACK
 	slot_flags |= SLOT_BELT
 	update_icon()
-
 
 //fix shotgun ammo type
 
@@ -308,6 +653,18 @@
 	firing_pin = /obj/item/firing_pin/z_level_locked
 
 
+//LANTERN ON
+/obj/item/flashlight/lantern/on/Initialize()
+	icon_state = "lantern-on"
+	.=..()
+
+//TORCH ON
+/obj/item/flashlight/flare/torch/on/Initialize()
+	icon_state = "torch-on"
+	.=..()
+
+/obj/item/stack/medical/gauze/two
+	amount = 2
 
 /********************** STRUCTURES **************************/
 
@@ -348,43 +705,63 @@
 
 /obj/structure/spider/stickyweb/aoe_spawn/Initialize()
 	.=..()
-	for(var/direction in GLOB.alldirs)
-		var/theprobability = 90
-		if(direction in GLOB.diagonals)
-			theprobability = 40
-		var/turf/T = get_step(loc, direction)
-		if(istype(T, /turf/closed))
+	for(var/turf/T in range(1, src))
+		if(loc == T || istype(T, /turf/closed))
 			continue
-		if(T)
-			var/obj/structure/spider/stickyweb/S = locate(T)
-			if(S)
-				continue
-		if(T)
-			var/obj/structure/spider/stickyweb/aoe_spawn/AS = locate(T)
-			if(AS)
-				continue
+		var/web_exists = 0
+		for(var/obj/O in T)
+			if(istype(O, /obj/structure/spider/stickyweb) || O.density)
+				web_exists = 1
+				break
+		if(web_exists)
+			continue
+		var/thedir = get_dir(loc, T)
+		var/theprobability = 80
+		if(thedir in GLOB.diagonals)
+			theprobability = 40
 		if(prob(theprobability))
 			new /obj/structure/spider/stickyweb(T)
 
+
+//Pike Torch
+
+/obj/structure/pike_torch
+	name = "torch"
+	desc = "A torch fashioned from some leaves and a log. It seems to be stuck in the ground."
+	icon = 'icons/oldschool/objects.dmi'
+	icon_state = "pike_torch-on"
+	light_color = "#FA9632"
+	light_range = 4
+
+/obj/structure/pike_torch/MouseDrop(over_object, src_location, over_location)
+	. = ..()
+	if(over_object == usr && Adjacent(usr))
+		if(!usr.can_hold_items())
+			return
+		if(!usr.canUseTopic(src, BE_CLOSE(usr)))
+			return
+		usr.visible_message("<span class='notice'>[usr] grabs \the [src.name].</span>", "<span class='notice'>You grab \the [src.name].</span>")
+		var/obj/item/flashlight/flare/torch/on/C = new /obj/item/flashlight/flare/torch/on(loc)
+		TransferComponents(C)
+		usr.put_in_hands(C)
+		qdel(src)
+
+
+//obj/item/flashlight/flare/torch
 
 
 //FENCES
 
 //make this an actual buildable fence
-#define SAND 3
-/obj/structure/barricade/sandbags/fence
+/obj/structure/fence/smooth
 	name = "fence"
 	desc = "Metal fence."
-	icon = 'icons/oldschool/deg_fence.dmi'
+	icon = 'icons/oldschool/smooth_fence.dmi'
 	icon_state = "post"
-	max_integrity = 280
-	proj_pass_rate = 20
-	pass_flags = LETPASSTHROW
-	material = SAND
-	climbable = TRUE
+	max_integrity = 300
 	smooth = SMOOTH_TRUE
-	canSmoothWith = list(/obj/structure/fence/door/opened, /obj/structure/fence/door, /obj/structure/barricade/sandbags/fence, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust, /obj/structure/barricade/security)
-#undef SAND
+	canSmoothWith = list(/obj/structure/fence/door/opened, /obj/structure/fence/door, /obj/structure/fence/smooth, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust)
+
 
 /********************** MOBS **************************/
 
@@ -398,36 +775,35 @@
 	unique_name = 0
 	name = "cave spider"
 	melee_damage = 8
-	poison_per_bite = 2
-	maxHealth = 75
-	move_to_delay = 4
-	speed = 1
+	poison_per_bite = 1
+	maxHealth = 50
+	move_to_delay = 2
 
 /mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave/Initialize()
 	.=..()
 	transform *= 0.8
-	faction += "cave"
 
 
 /mob/living/simple_animal/hostile/poison/giant_spider/tarantula/cave
 	unique_name = 0
 	name = "cave tarantula"
+	maxHealth = 250
+	move_to_delay = 5
 
 /mob/living/simple_animal/hostile/poison/giant_spider/tarantula/cave/Initialize()
 	.=..()
 	transform *= 1.2
-	faction += "cave"
 
 /mob/living/simple_animal/hostile/poison/giant_spider/cave
 	unique_name = 0
 	name = "giant cave spider"
 	melee_damage = 10
-	poison_per_bite = 3
-	maxHealth = 150
+	poison_per_bite = 2
+	maxHealth = 100
+	move_to_delay = 4
 
 /mob/living/simple_animal/hostile/poison/giant_spider/cave/Initialize()
 	.=..()
-	faction += "cave"
 
 /****************/
 
@@ -435,6 +811,7 @@
 /mob/living/simple_animal/hostile/retaliate/bat/cave
 	name = "cave bat"
 	maxHealth = 30
+	health = 30
 	melee_damage = 7
 
 /mob/living/simple_animal/hostile/retaliate/bat/cave/Initialize()
@@ -483,7 +860,7 @@
 	if(prob(0.10))
 		new /mob/living/simple_animal/hostile/retaliate/poison/snake/venomous(src)
 	if(prob(1))
-		var/flora_type = pickweight(list(/obj/structure/flora/ash/cacti = 40, /obj/structure/flora/ausbushes = 33, /obj/structure/flora/ash/stem_shroom = 25))
+		var/flora_type = pickweight(list(/obj/structure/flora/ash/cacti = 40, /obj/structure/flora/ausbushes = 33, /obj/structure/flora/ash/cap_shroom = 25))
 		new flora_type(src)
 
 
@@ -502,7 +879,7 @@
 /turf/closed/mineral/random/has_air
 	environment_type = "basalt"
 	turf_type = /turf/open/floor/plating/asteroid/has_air
-	baseturfs = /turf/open/lava/smooth
+	baseturfs = /turf/open/floor/plating/asteroid/has_air
 	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
 	defer_change = 1
 	mineralChance = 10
@@ -596,9 +973,9 @@
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine
 
-	mob_spawn_list = list(/mob/living/simple_animal/hostile/skeleton/spooky = 10, /mob/living/simple_animal/hostile/skeleton/spooky/huge = 1, \
-		/mob/living/simple_animal/hostile/skeleton/plasmaminer = 1, /mob/living/simple_animal/hostile/poison/giant_spider/hunter = 5, \
-		/mob/living/simple_animal/hostile/retaliate/bat/cave = 2)
+	mob_spawn_list = list(/mob/living/simple_animal/hostile/skeleton/plasmaminer = 1, /mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave = 5, \
+		/mob/living/simple_animal/hostile/retaliate/bat/cave = 2, /mob/living/simple_animal/hostile/poison/giant_spider/cave = 3, \
+		/mob/living/simple_animal/hostile/skeleton/spooky = 5, /mob/living/simple_animal/hostile/skeleton/spooky/huge = 1)
 
 	flora_spawn_list = list(/obj/structure/glowshroom/single/unidirectional = 1)
 
@@ -606,7 +983,7 @@
 	/obj/structure/ore_box = 3)
 
 	item_spawn_list = list(/obj/item/stack/ore/iron = 5, /obj/effect/decal/remains/human = 2, /obj/item/stack/sheet/mineral/wood = 2, \
-	/obj/item/pickaxe = 2, /obj/item/ammo_casing/shotgun/buckshot = 2, /obj/item/flashlight/lantern = 2,/obj/item/shovel = 1, \
+	/obj/item/pickaxe = 2, /obj/item/ammo_casing/shotgun/buckshot = 2, /obj/item/flashlight/lantern/on = 2,/obj/item/shovel = 1, \
 	/obj/item/storage/bag/ore = 1)
 
 
@@ -704,8 +1081,8 @@
 	if(!sanity)
 		return
 	SpawnFlora(T)
-	SpawnMonster(T)
 	SpawnStructures(T)
+	SpawnMonster(T)
 	SpawnItems(T)
 	T.ChangeTurf(turf_type, null, CHANGETURF_IGNORE_AIR)
 
@@ -732,7 +1109,8 @@
 			for(var/obj/structure/structure in T)
 				if(istype(structure, S))
 					return
-		new randumb(T)
+		var/mob/living/simple_animal/A = new randumb(T)
+		A.faction += "cave" //stops mobs from killing eachother
 
 	return
 
@@ -802,8 +1180,11 @@
 	ambient_effects = MINING
 
 /area/lavaland/surface/outdoors/unexplored/GB
+	name = "Ground Base Wasteland"
 
 /area/lavaland/surface/outdoors/unexplored/danger/GB
+	name = "Ground Base Wasteland"
+
 
 
 
@@ -856,7 +1237,6 @@
 /obj/machinery/porta_turret/syndicate/nt_owned
 	name = "NT turret"
 	scan_range = 7
-	emp_vunerable = 1
 	faction = list("neutral")
 
 
