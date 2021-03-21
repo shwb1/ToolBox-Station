@@ -428,8 +428,8 @@ Auto Patrol[]"},
 			projectile = /obj/item/projectile/beam
 	else
 		if(!lasercolor)
-			shoot_sound = 'sound/weapons/laser.ogg'
-			projectile = /obj/item/projectile/beam/disabler
+			shoot_sound = 'sound/weapons/taser.ogg'
+			projectile = /obj/item/projectile/energy/electrode
 		else if(lasercolor == "b")
 			projectile = /obj/item/projectile/beam/lasertag/bluetag
 		else if(lasercolor == "r")

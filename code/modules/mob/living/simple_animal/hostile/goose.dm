@@ -50,6 +50,8 @@
 	var/vomiting = FALSE
 	var/vomitCoefficient = 1
 	var/vomitTimeBonus = 0
+	var/list/bad_food = list()
+	var/lasteat = 0
 	var/datum/action/cooldown/vomit/goosevomit
 
 /mob/living/simple_animal/hostile/retaliate/goose/vomit/Initialize()
@@ -73,8 +75,9 @@
 		feed(O)
 
 /mob/living/simple_animal/hostile/retaliate/goose/vomit/proc/feed(obj/item/reagent_containers/food/tasty)
-	if (stat == DEAD) // plapatin I swear to god
+	if (stat == DEAD || world.time > lasteat || (tasty in bad_food)) // plapatin I swear to god
 		return
+	lasteat = world.time+10
 	if (contents.len > GOOSE_SATIATED)
 		visible_message("<span class='notice'>[src] looks too full to eat \the [tasty]!</span>")
 		return
@@ -86,6 +89,7 @@
 		vomitTimeBonus += 2
 	else
 		visible_message("<span class='notice'>[src] refuses to eat \the [tasty].</span>")
+		bad_food += tasty
 
 /mob/living/simple_animal/hostile/retaliate/goose/vomit/proc/vomit()
 	if (stat == DEAD)

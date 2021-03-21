@@ -619,3 +619,16 @@
 		V.log_message("<font color='orange'>[logtext]</font>", INDIVIDUAL_ATTACK_LOG)
 	log_game(logtext)
 	return logtext*/
+
+//reverting egun nerfs with one proc
+/obj/item/gun/energy/e_gun/Initialize()
+	if(w_class == WEIGHT_CLASS_BULKY)
+		w_class = WEIGHT_CLASS_NORMAL
+	if(weapon_weight == WEAPON_MEDIUM)
+		weapon_weight = WEAPON_LIGHT
+	return ..()
+
+/obj/item/gun/energy/laser/Initialize()
+	if(w_class == WEIGHT_CLASS_BULKY)
+		w_class = WEIGHT_CLASS_NORMAL
+	return ..()

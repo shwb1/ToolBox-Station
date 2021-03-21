@@ -274,7 +274,8 @@
 			playsound(get_turf(src), on_stun_sound, 75, 1, -1)
 			additional_effects_carbon(target, user)
 			if((user.zone_selected == BODY_ZONE_HEAD) || (user.zone_selected == BODY_ZONE_CHEST))
-				target.apply_damage(stamina_damage, STAMINA, BODY_ZONE_CHEST, def_check)
+				//target.apply_damage(stamina_damage, STAMINA, BODY_ZONE_CHEST, def_check)
+				target.Knockdown(60) //Ungayifying this
 				log_combat(user, target, "stunned", src)
 				target.visible_message(desc["visiblestun"], desc["localstun"])
 			if((user.zone_selected == BODY_ZONE_R_LEG) || (user.zone_selected == BODY_ZONE_L_LEG))

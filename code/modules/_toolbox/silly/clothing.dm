@@ -141,3 +141,17 @@
 /obj/structure/closet/secure_closet/hydroponics/PopulateContents()
 	. = ..()
 	new /obj/item/storage/belt/botany(src)
+
+//because I like it this way.
+/obj/item/clothing/suit/toggle/labcoat/Initialize()
+	if(!src.suittoggled)
+		src.icon_state = "[initial(icon_state)]_t"
+		src.suittoggled = TRUE
+		if(istype(loc,/mob/living/carbon/human))
+			var/mob/living/carbon/human/H = loc
+			if(H.wear_suit == src)
+				H.update_inv_wear_suit()
+		for(var/X in actions)
+			var/datum/action/A = X
+			A.UpdateButtonIcon()
+	. = ..()

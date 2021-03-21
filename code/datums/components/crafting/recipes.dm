@@ -167,7 +167,7 @@
 				/obj/item/bodypart/r_leg/robot = 1,
 				/obj/item/stack/sheet/iron = 1,
 				/obj/item/stack/cable_coil = 1,
-				/obj/item/gun/energy/e_gun/dragnet = 1,
+				/obj/item/gun/energy/e_gun/advtaser = 1,
 				/obj/item/stock_parts/cell = 1,
 				/obj/item/assembly/prox_sensor = 1)
 	tools = list(TOOL_WELDER, TOOL_SCREWDRIVER)
@@ -946,5 +946,5 @@
 	result = /obj/item/reagent_containers/food/snacks/grown/poppy
 	time = 5
 	reqs = list(/obj/item/clothing/accessory/poppy_pin = 1)
-	
+
 	category = CAT_MISC

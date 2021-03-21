@@ -478,7 +478,7 @@
 	force_wielded = 18
 	block_power_wielded = 25
 	block_upgrade_walk = 1
-	throwforce = 20
+	throwforce = 21 //why would we want the perma brig to be inescapable.
 	throw_speed = 4
 	embedding = list("embedded_impact_pain_multiplier" = 3)
 	armour_penetration = 10

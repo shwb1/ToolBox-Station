@@ -2,12 +2,12 @@
 /obj/item/projectile/energy/bolt //ebow bolts
 	name = "bolt"
 	icon_state = "cbbolt"
-	damage = 15
+	damage = 8
 	damage_type = TOX
 	nodamage = FALSE
-	stamina = 60
-	eyeblur = 10
-	knockdown = 10
+	//stamina = 60
+	//eyeblur = 10
+	knockdown = 100
 	slur = 5
 
 /obj/item/projectile/energy/bolt/radbolt

@@ -6,7 +6,7 @@
 	lefthand_file = 'icons/mob/inhands/equipment/security_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/security_righthand.dmi'
 	slot_flags = ITEM_SLOT_BELT
-	force = 5
+	force = 10
 	throwforce = 7
 	block_upgrade_walk = 1
 	block_flags = BLOCKING_ACTIVE | BLOCKING_NASTY
@@ -177,7 +177,7 @@
 	var/armor_block = target.run_armor_check(affecting, "energy")
 	// L.adjustStaminaLoss(stunforce)
 	target.apply_damage(stunforce, STAMINA, affecting, armor_block)
-	user.Paralyze(stunforce*3) //we dont gay up our combat.
+	target.Paralyze(stunforce*3) //we dont gay up our combat.
 	target.apply_effect(EFFECT_STUTTER, stunforce)
 	SEND_SIGNAL(target, COMSIG_LIVING_MINOR_SHOCK)
 	if(user)

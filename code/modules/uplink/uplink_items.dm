@@ -182,7 +182,7 @@ GLOBAL_LIST_INIT(uplink_items, subtypesof(/datum/uplink_item))
 /datum/uplink_item/bundles_TC/bulldog
 	name = "Bulldog bundle"
 	desc = "Lean and mean: Optimized for people that want to get up close and personal. Contains the popular \
-			Bulldog shotgun, two 12g buckshot drums, and a pair of Thermal imaging goggles."
+			Bulldog shotgun, a 12g buckshot drum, a 12g taser slug drum, and a pair of Thermal imaging goggles."
 	item = /obj/item/storage/backpack/duffelbag/syndie/bulldogbundle
 	cost = 13 // normally 16
 	include_modes = list(/datum/game_mode/nuclear)
