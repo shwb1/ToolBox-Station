@@ -82,6 +82,8 @@ Buildable meters
 	var/obj/machinery/atmospherics/fakeA = pipe_type
 	name = "[initial(fakeA.name)] fitting"
 	icon_state = initial(fakeA.pipe_state)
+	if(CONFIG_GET(flag/old_school_vents) && (fakeA in list(/obj/machinery/atmospherics/components/unary/vent_pump,/obj/machinery/atmospherics/components/unary/vent_scrubber)))
+		icon = 'icons/oldschool/oldericons/pipe_item_old.dmi'
 	if(ispath(pipe_type,/obj/machinery/atmospherics/pipe/heat_exchanging))
 		resistance_flags |= FIRE_PROOF | LAVA_PROOF
 

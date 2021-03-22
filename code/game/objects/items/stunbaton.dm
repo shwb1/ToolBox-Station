@@ -14,7 +14,7 @@
 	attack_verb = list("enforced the law upon")
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 50, "bio" = 0, "rad" = 0, "fire" = 80, "acid" = 80)
 
-	var/stunforce = 75
+	var/stunforce = 100
 	var/turned_on = FALSE
 	var/obj/item/stock_parts/cell/cell
 	var/hitcost = 1000
@@ -131,7 +131,7 @@
 	if(turned_on && HAS_TRAIT(user, TRAIT_CLUMSY) && prob(50))
 		user.visible_message("<span class='danger'>[user] accidentally hits [user.p_them()]self with [src], electrocuting themselves badly!</span>", \
 							"<span class='userdanger'>You accidentally hit yourself with [src], electrocuting yourself badly!</span>")
-		user.Paralyze(stunforce*3)
+		user.Paralyze(stunforce*2)
 		//user.adjustStaminaLoss(stunforce*3)
 		deductcharge(hitcost)
 		return
@@ -177,7 +177,7 @@
 	var/armor_block = target.run_armor_check(affecting, "energy")
 	// L.adjustStaminaLoss(stunforce)
 	target.apply_damage(stunforce, STAMINA, affecting, armor_block)
-	target.Paralyze(stunforce*3) //we dont gay up our combat.
+	target.Paralyze(stunforce) //we dont gay up our combat.
 	target.apply_effect(EFFECT_STUTTER, stunforce)
 	SEND_SIGNAL(target, COMSIG_LIVING_MINOR_SHOCK)
 	if(user)
@@ -212,7 +212,7 @@
 	w_class = WEIGHT_CLASS_BULKY
 	force = 3
 	throwforce = 5
-	stunforce = 70
+	stunforce = 100
 	hitcost = 2000
 	throw_hit_chance = 10
 	slot_flags = ITEM_SLOT_BACK

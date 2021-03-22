@@ -203,7 +203,10 @@
 		else
 			O = new R.result_type(usr.drop_location())
 		if(O)
-			O.setDir(usr.dir)
+			var/thedir = usr.dir
+			if("forcedir" in O.vars)
+				thedir = O.vars["forcedir"]
+			O.setDir(thedir)
 		use(R.req_amount * multiplier)
 
 		//START: oh fuck i'm so sorry

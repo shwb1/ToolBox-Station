@@ -77,12 +77,16 @@
 
 /obj/structure/closet/secure_closet/freezer/fridge/PopulateContents()
 	..()
+	var/list/randomized = list()
 	for(var/i = 0, i < 5, i++)
-		new /obj/item/reagent_containers/food/condiment/milk(src)
+		randomized += new /obj/item/reagent_containers/food/condiment/milk(src)
 	for(var/i = 0, i < 5, i++)
-		new /obj/item/reagent_containers/food/condiment/soymilk(src)
+		randomized += new /obj/item/reagent_containers/food/condiment/soymilk(src)
 	for(var/i = 0, i < 2, i++)
 		new /obj/item/storage/fancy/egg_box(src)
+	for(var/obj/item/I in randomized)
+		I.pixel_x = rand(-4,4)
+		I.pixel_y = rand(-4,4)
 
 /obj/structure/closet/secure_closet/freezer/fridge/open
 	req_access = null

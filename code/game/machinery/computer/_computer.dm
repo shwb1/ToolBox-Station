@@ -14,8 +14,15 @@
 	var/icon_screen = "generic"
 	var/clockwork = FALSE
 	var/time_to_scewdrive = 20
+	var/forcedir = SOUTH //Set to 0 or null if you want directions back for computers. We dont like how other directions sort of obstruct what screen it is.
+	var/icon/original_icon = null
 
 /obj/machinery/computer/Initialize(mapload, obj/item/circuitboard/C)
+	original_icon = icon
+	if(CONFIG_GET(flag/black_computers))
+		icon = 'icons/oldschool/objects.dmi'
+	if(forcedir && forcedir in GLOB.cardinals)
+		setDir(forcedir)
 	. = ..()
 	power_change()
 	if(!QDELETED(C))
@@ -61,8 +68,8 @@
 	var/overlay_state = icon_screen
 	if(stat & BROKEN)
 		overlay_state = "[icon_state]_broken"
-	SSvis_overlays.add_vis_overlay(src, icon, overlay_state, layer, plane, dir)
-	SSvis_overlays.add_vis_overlay(src, icon, overlay_state, ABOVE_LIGHTING_LAYER, ABOVE_LIGHTING_PLANE, dir, alpha=128)
+	SSvis_overlays.add_vis_overlay(src, original_icon, overlay_state, layer, plane, dir)
+	SSvis_overlays.add_vis_overlay(src, original_icon, overlay_state, ABOVE_LIGHTING_LAYER, ABOVE_LIGHTING_PLANE, dir, alpha=128)
 
 /obj/machinery/computer/power_change()
 	..()

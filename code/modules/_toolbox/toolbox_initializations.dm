@@ -15,6 +15,10 @@ var/global/debug_check_count = 1
 	to_chat(world,"DEBUG: [debug_check_count], [(debug_time_check-debug_time_check_start)/10] seconds.")
 	debug_check_count++*/
 
+//old school pipe icons
+/datum/config_entry/flag/old_school_vents
+/datum/config_entry/flag/black_computers
+
 proc/Initialize_Falaskians_Shit()
 	//initialize_discord_channel_list()
 	//save_perseus_manager_whitelist()

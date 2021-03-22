@@ -1,4 +1,4 @@
-/obj/effect/turf_decal/plaque/toolbox
+/*/obj/effect/turf_decal/plaque/toolbox
 	name = "plaque"
 	icon = 'icons/oldschool/ss13sign1rowdecals.dmi'
 	var/ismain = 0
@@ -19,7 +19,7 @@
 					P = new(T)
 				P.icon_state = "S[i]"
 			startx++
-		ismain = 0
+		ismain = 0*/
 
 /*
 //rapid parts exchanger can now replace apc cells
@@ -259,7 +259,7 @@
 //**********************
 //Chemical Reagents Book
 //**********************
-/*
+
 /obj/item/book/manual/wiki/chemistry/Initialize(roundstart)
 	. = ..()
 	if(roundstart)
@@ -270,8 +270,8 @@
 			new /obj/item/book/manual/falaskian_chemistry(loc)
 
 /obj/item/book/manual/falaskian_chemistry
-	name = "Full Guide to Chemical Recipes"
-	desc = "A full list of every chemical recipe in the known universe."
+	name = "Guide to all chemical recipes in the known universe."
+	desc = "A complete list of all chemicals recipes and their effects."
 	author = "Mangoulium XCIX"
 	unique = 1
 	icon_state = "book8"
@@ -331,7 +331,7 @@
 
 /obj/item/book/manual/falaskian_chemistry/proc/populate_reagents()
 	var/list/reactions = list()
-	for(var/path in typesof(/datum/chemical_reaction))
+	for(var/path in subtypesof(/datum/chemical_reaction))
 		var/datum/chemical_reaction/C = new path()
 		if(!C.name || !C.id || !C.results || !C.results.len)
 			qdel(C)
@@ -346,13 +346,13 @@
 		"Consumable" = list(),
 		"Drug" = list(),
 		"Other Various Chemicals" = list())
-	for(var/path in typesof(/datum/reagent))
+	for(var/path in subtypesof(/datum/reagent))
 		var/datum/reagent/R = new path()
-		if(!R.id || R.id == "reagent")
+		if(!R.name)
 			qdel(R)
 			continue
-		all_reagents[R.id] = R
-		if(R.id in reactions)
+		all_reagents[R.type] = R
+		if(R.type in reactions)
 			if(istype(R,/datum/reagent/medicine))
 				crafted_reagents["Medicine"][R.name] = R
 			else if(istype(R,/datum/reagent/toxin))
@@ -379,7 +379,7 @@
 			dat += "<B>[R.name]</B><BR>"
 			if(R.description)
 				dat += "[R.description]<BR>"
-			var/datum/chemical_reaction/C = reactions[R.id]
+			var/datum/chemical_reaction/C = reactions[R.type]
 			dat += "<B>Formula:</B> "
 			var/totalparts = 0
 			for(var/i=1,i<=C.required_reagents.len,i++)
@@ -419,7 +419,7 @@
 						catalystname = R2.name
 					dat += "[units] of [catalystname]"
 				dat += "<BR>"
-			var/craftedunits = C.results[R.id]
+			var/craftedunits = C.results[R.type]
 			if(totalparts && craftedunits && totalparts != craftedunits)
 				if(craftedunits > 1)
 					craftedunits = "[craftedunits] units"
@@ -432,7 +432,7 @@
 					heated = "cooled"
 				dat += "Must be [heated] to a temperature of [C.required_temp]<BR>"
 			dat += "<BR>"
-*/
+
 //Making it so borgs can set up the engine -falaskian
 /obj/machinery/portable_atmospherics/MouseDrop_T(atom/dropping, mob/user)
 	if(istype(dropping, /obj/item/tank) && isturf(dropping.loc) && user.Adjacent(src) && dropping.Adjacent(user))

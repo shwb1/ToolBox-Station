@@ -116,6 +116,9 @@
 /mob/living/carbon/human/jesus/ex_act()
 	return
 
+/mob/living/carbon/human/jesus/electrocute_act(shock_damage, source, siemens_coeff = 1, safety = 0, tesla_shock = 0, illusion = 0, stun = TRUE)
+	return shock_damage*0
+
 /mob/living/carbon/human/jesus/examine(mob/user)
 		var/msg = "<span class='info'>*---------*\nThis is <EM><font size=3>Space Jesus</font></EM>, your Lord and Savior!</span>\n"
 		msg += "<font color=red>He is the real deal.</font><br>"

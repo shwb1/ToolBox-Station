@@ -1,7 +1,19 @@
 /obj/structure/frame/computer
 	name = "computer frame"
+	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "0"
 	state = 0
+	var/forcedir = SOUTH //Set to 0 or null if you want directions back for computers. We dont like how other directions sort of obstruct what screen it is.
+
+/obj/structure/frame/computer/Initialize()
+	if(forcedir && forcedir in GLOB.cardinals)
+		setDir(forcedir)
+	. = ..()
+
+/obj/structure/frame/computer/Move(NewLoc,Dir=0,step_x=0,step_y=0)
+	. = ..()
+	if(forcedir && forcedir in GLOB.cardinals)
+		setDir(forcedir)
 
 /obj/structure/frame/computer/attackby(obj/item/P, mob/user, params)
 	add_fingerprint(user)
@@ -114,7 +126,10 @@
 				P.play_tool_sound(src)
 				to_chat(user, "<span class='notice'>You connect the monitor.</span>")
 				var/obj/B = new circuit.build_path (loc, circuit)
-				B.setDir(dir)
+				var/thedir = dir
+				if(forcedir && forcedir in GLOB.cardinals)
+					thedir = forcedir
+				B.setDir(thedir)
 				transfer_fingerprints_to(B)
 				qdel(src)
 				return
@@ -139,4 +154,7 @@
 		to_chat(usr, "<span class='warning'>You must unwrench [src] before rotating it!</span>")
 		return
 
-	setDir(turn(dir, -90))
+	var/thedir = turn(dir, -90)
+	if(forcedir && forcedir in GLOB.cardinals)
+		thedir = forcedir
+	setDir(thedir)

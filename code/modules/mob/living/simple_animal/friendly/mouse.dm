@@ -80,7 +80,7 @@
 			to_chat(M, "<span class='notice'>[icon2html(src, M)] Squeak!</span>")
 	..()
 
-/mob/living/simple_animal/mouse/handle_automated_action()
+/*/mob/living/simple_animal/mouse/handle_automated_action()
 	if(prob(chew_probability))
 		var/turf/open/floor/F = get_turf(src)
 		if(istype(F) && !F.intact)
@@ -93,7 +93,22 @@
 					death(toast=1)
 				else
 					C.deconstruct()
-					visible_message("<span class='warning'>[src] chews through the [C].</span>")
+					visible_message("<span class='warning'>[src] chews through the [C].</span>")*/
+
+/mob/living/simple_animal/mouse/proc/bite_cable(only_electrified = 0)
+	var/turf/open/floor/F = get_turf(src)
+	if(istype(F) && !F.intact)
+		var/obj/structure/cable/C = locate() in F
+		if(C)
+			var/chewtext = "[src] chews through the [C]."
+			if(C.avail())
+				playsound(src, 'sound/effects/sparks2.ogg', 100, 1)
+				chewtext += " It's toast!"
+				death(toast=1)
+			else if(only_electrified)
+				return
+			C.deconstruct()
+			visible_message("<span class='warning'>[chewtext]</span>")
 
 /*
  * Mouse types
