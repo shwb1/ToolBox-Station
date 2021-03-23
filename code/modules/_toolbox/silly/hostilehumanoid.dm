@@ -14,6 +14,7 @@ A hostile human animal mob that is customizable. -Falaskian
 	var/override_attack_sound = 0 //Use this if you want to force a specific attack sound.
 	attacktext = "punches" //^
 	var/override_attacktext = 0 //Use this if you want to force a specific attacktext message.
+	var/damage_modifier = -1 //set to 0 or a positive number to modify the damage of this mob as a multiplier. 0 will work in causing 0 damage
 	gold_core_spawnable = 0 //The default version of this mob should not spawn from gold cores.
 	var/race = "human" // "human" or "lizard". No others have been programmed in yet. If one of these is not chosen it defaults to "human".
 	var/humanskincolor //only used when human is selected. defaults to "caucasian2" if nothing is selected here. Its ok to leave this blank.
@@ -158,6 +159,8 @@ A hostile human animal mob that is customizable. -Falaskian
 		var/obj/item/item = new path()
 		if(item.force > highest_damage)
 			melee_damage = item.force
+			if(isnum(damage_modifier) && damage_modifier >= 0)
+				melee_damage = melee_damage*damage_modifier
 			highest_damage = item.force
 			if(!override_attacktext)
 				var/changedattacktext = 0
@@ -222,10 +225,13 @@ A hostile human animal mob that is customizable. -Falaskian
 	if(copytext(.,1,2) == "#")
 		. = copytext(.,2,length(.)+1)
 
-/mob/living/simple_animal/hostile/randomhumanoid/death()
-	. = ..()
+//doing this as its own proc so it can be used in other ways.
+/mob/living/simple_animal/hostile/randomhumanoid/proc/create_human()
 	var/mob/living/carbon/human/H = new(loc)
-	H.gender = MALE
+	if(gender == FEMALE)
+		H.gender = FEMALE
+	else
+		H.gender = MALE
 	H.real_name = name
 	H.name = H.real_name
 	var/thespecies = /datum/species/human
@@ -259,9 +265,21 @@ A hostile human animal mob that is customizable. -Falaskian
 		H.equip_to_slot_or_del(item, equipped_items[item])
 	//no point in equipping the hand held items, we just put them on the floor.
 	for(var/obj/item/item in humanoid_held_items)
-		item.forceMove(loc)
+		H.put_in_hands(item)
+	return H
+
+/mob/living/simple_animal/hostile/randomhumanoid/death()
+	. = ..()
+	var/mob/living/carbon/human/H = create_human()
 	H.death()
 	qdel(src)
+
+/mob/living/simple_animal/hostile/randomhumanoid/Login()
+	. = ..()
+	if(client)
+		var/mob/living/carbon/human/H = create_human()
+		H.ckey = client.ckey
+		qdel(src)
 
 //retaliation flag. because fuckin tg sucks
 //this is literally copy pasted from retaltiate.dm

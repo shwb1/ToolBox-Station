@@ -284,11 +284,17 @@ SUBSYSTEM_DEF(ticker)
 	GLOB.start_landmarks_list = shuffle(GLOB.start_landmarks_list) //Shuffle the order of spawn points so they dont always predictably spawn bottom-up and right-to-left
 	create_characters() //Create player characters
 	collect_minds()
-	equip_characters()
+	var/captainless = equip_characters()
 
 	GLOB.data_core.manifest()
 
 	transfer_characters()	//transfer keys to the new mobs
+
+	if(captainless && !create_acting_captain())
+		for(var/mob/dead/new_player/N in GLOB.player_list)
+			if(N.new_character)
+				to_chat(N, "Captainship not forced on anyone.")
+			CHECK_TICK
 
 	for(var/I in round_start_events)
 		var/datum/callback/cb = I
@@ -385,11 +391,12 @@ SUBSYSTEM_DEF(ticker)
 			if(CONFIG_GET(flag/roundstart_traits) && ishuman(N.new_character))
 				SSquirks.AssignQuirks(N.new_character, N.client, TRUE)
 		CHECK_TICK
-	if(captainless)
+	return captainless
+	/*if(captainless)
 		for(var/mob/dead/new_player/N in GLOB.player_list)
 			if(N.new_character)
 				to_chat(N, "Captainship not forced on anyone.")
-			CHECK_TICK
+			CHECK_TICK*/
 
 /datum/controller/subsystem/ticker/proc/transfer_characters()
 	var/list/livings = list()

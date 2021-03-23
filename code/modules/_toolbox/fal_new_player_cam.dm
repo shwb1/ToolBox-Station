@@ -1,10 +1,10 @@
-/*/mob/dead/new_player/proc/do_new_player_cam_shit()
+/mob/dead/new_player/proc/do_new_player_cam_shit()
 	spawn(0)
 		if(!new_player_cam)
-			new_player_cam = new()*/
+			new_player_cam = new()
 
 
-/*var/global/obj/new_player_cam/new_player_cam = null
+var/global/obj/new_player_cam/new_player_cam = null
 
 /obj/new_player_cam
 	name = "floor"
@@ -16,7 +16,7 @@
 	var/tiles_moved_per_shot = 20
 	var/reset_shot_if_no_floors_in_this_range = 4
 	var/scroll_speed = 2
-	var/obj/screen/thescreen
+	var/atom/movable/screen/thescreen
 	var/list/camturfs = list()
 	var/turf/previousstart
 
@@ -152,7 +152,7 @@
 				thescreen.icon_state = "[i]"
 				sleep(1)
 			thescreen.icon_state = "0"
-			sleep(1)*/
+			sleep(1)
 
 /proc/message_falaskian(message)
 	if(!message)

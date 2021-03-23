@@ -3,7 +3,7 @@
 	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "0"
 	state = 0
-	var/forcedir = SOUTH //Set to 0 or null if you want directions back for computers. We dont like how other directions sort of obstruct what screen it is.
+	var/forcedir = 0
 
 /obj/structure/frame/computer/Initialize()
 	if(forcedir && forcedir in GLOB.cardinals)

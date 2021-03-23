@@ -8,9 +8,14 @@
 	var/arms_required = 1	//why not?
 	var/fall_off_if_missing_arms = FALSE //heh...
 	var/message_cooldown
+	var/zlevel_locked = 0
 
 /obj/vehicle/ridden/Initialize()
 	. = ..()
+	if(zlevel_locked)
+		var/turf/T = get_turf(src)
+		if(T)
+			zlevel_locked = T.z
 	LoadComponent(/datum/component/riding)
 
 /obj/vehicle/ridden/examine(mob/user)
@@ -59,6 +64,13 @@
 	return
 
 /obj/vehicle/ridden/driver_move(mob/user, direction)
+	if(zlevel_locked)
+		var/turf/T = get_turf(src)
+		if(T.z != zlevel_locked)
+			if(message_cooldown < world.time)
+				to_chat(user, "<span class='warning'>The [src] cannot function in this environment!</span>")
+				message_cooldown = world.time + 5 SECONDS
+			return FALSE
 	if(key_type && !is_key(inserted_key))
 		if(message_cooldown < world.time)
 			to_chat(user, "<span class='warning'>[src] has no key inserted!</span>")
