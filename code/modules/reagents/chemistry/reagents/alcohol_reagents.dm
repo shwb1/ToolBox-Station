@@ -654,6 +654,8 @@ All effects don't start immediately, but rather get worse over time; the rate is
 	M.Jitter(2)
 	if(M.mind && HAS_TRAIT(M.mind, TRAIT_LAW_ENFORCEMENT_METABOLISM))
 		M.adjustStaminaLoss(-10, 0)
+		M.AdjustParalyzed(-2)
+		M.AdjustKnockdown(-2)
 		if(prob(20))
 			new /datum/hallucination/items_other(M)
 		if(prob(10))
@@ -1327,6 +1329,7 @@ All effects don't start immediately, but rather get worse over time; the rate is
 	M.adjustOrganLoss(ORGAN_SLOT_BRAIN, 1*REM, 150)
 	if(prob(20))
 		M.adjustStaminaLoss(10)
+		M.Paralyze(30) //more unnerfing stuns.
 		M.drop_all_held_items()
 		to_chat(M, "<span class='notice'>You cant feel your hands!</span>")
 	if(current_cycle > 5)

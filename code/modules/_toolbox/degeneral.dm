@@ -202,10 +202,17 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 	wanted_objects = list(/obj/structure/closet/crate,/obj/structure/lizard_ore_node)
 	var/obj/structure/lizard_ore_node/node_target
 	var/list/memory_nodes = list()
+	var/obj/structure/closet/crate/crate_memory
+	var/size_modifier = 0.85
 
 /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/Initialize()
 	.=..()
-	transform *= 0.85
+	transform *= size_modifier
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/create_human()
+	var/mob/M = ..()
+	M.transform *= size_modifier
+	return M
 
 /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/ListTargets()
 	var/list/targs = ..()
@@ -234,7 +241,9 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 					if(!istype(crate, /obj/structure/closet/crate/secure))
 						crates += crate
 				if(crates.len)
-					targs += pick(crates)
+					if(!crate_memory || !(crate_memory in crates))
+						crate_memory = pick(crates)
+					targs += crate_memory
 	return targs
 
 /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/AttackingTarget()

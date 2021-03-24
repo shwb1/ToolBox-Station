@@ -139,9 +139,9 @@
 				return
 			bolt_locked = FALSE
 		if(BOLT_TYPE_PUMP)
-			if(user?.get_inactive_held_item())
-				to_chat(user, "<span class='warning'>You require your other hand to be free to rack the [bolt_wording] of \the [src]!</span>")
-				return
+			//if(user?.get_inactive_held_item()) Shutguns already suck enough
+			to_chat(user, "<span class='warning'>You require your other hand to be free to rack the [bolt_wording] of \the [src]!</span>")
+			return
 	if(user)
 		to_chat(user, "<span class='notice'>You rack the [bolt_wording] of \the [src].</span>")
 	process_chamber(!chambered, FALSE)

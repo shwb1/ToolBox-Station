@@ -39,6 +39,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		null = SLOT_WEAR_SUIT,
 		null = SLOT_W_UNIFORM)
 	var/list/humanoid_held_items = list(null,null) //equipped weapons type paths. Only two should be present.
+	var/start_dead = 0 //the mobs starts off dead. Use this to spawn custom corpses at round start.
 	//for retaliation
 	var/retaliation = 0
 	var/list/enemies = list()
@@ -193,6 +194,8 @@ A hostile human animal mob that is customizable. -Falaskian
 		humanoid_held_items.Remove(path)
 		overlayslist += I
 	add_overlay(overlayslist)
+	if(start_dead)
+		death()
 
 //made this a proc because I use it more then once.
 /mob/living/simple_animal/hostile/randomhumanoid/proc/get_skincolor()
@@ -278,6 +281,7 @@ A hostile human animal mob that is customizable. -Falaskian
 	. = ..()
 	if(client)
 		var/mob/living/carbon/human/H = create_human()
+		H.dir = dir
 		H.ckey = client.ckey
 		qdel(src)
 
