@@ -1,4 +1,32 @@
 
+/********************** This object is used to modify the entire zlevel where it spawns. **************************/
+/obj/full_zlevel_modifier
+	name = "Full Z-level Modifier"
+	icon = 'icons/effects/landmarks_static.dmi'
+	icon_state = "x"
+	var/inited = 0
+
+/obj/full_zlevel_modifier/Initialize()
+	if(inited)
+		return 1
+	inited = 1
+
+/obj/full_zlevel_modifier/groundbase
+	name = "Groundbase Initializer"
+	var/base_turf = /turf/open/lava/smooth
+
+/obj/full_zlevel_modifier/groundbase/Initialize()
+	. = ..()
+	if(.)
+		return
+	var/list/entirezlevel = block(locate(1,1,z),locate(world.maxx,world.maxy,z))
+	for(var/turf/T in entirezlevel)
+		if(T && T.z == z)
+			if(istype(T,/turf/open/space))
+				T.ChangeTurf(base_turf, base_turf)
+			T.baseturfs = base_turf
+	qdel(src)
+
 /********************** SPAWNERS **************************/
 
 /mob/living/simple_animal/hostile/spawner

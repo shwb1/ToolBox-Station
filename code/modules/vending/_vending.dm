@@ -258,7 +258,7 @@ IF YOU MODIFY THE PRODUCTS LIST OF A MACHINE, MAKE SURE TO UPDATE ITS RESUPPLY C
 				if(found_anything && prob(80))
 					continue
 
-				var/obj/O = new dump_path(loc)
+				var/obj/O = vend_item(dump_path,loc)
 				step(O, pick(GLOB.alldirs))
 				found_anything = TRUE
 				dump_amount++
@@ -290,7 +290,11 @@ GLOBAL_LIST_EMPTY(vending_products)
 			R.amount = amount
 		R.max_amount = amount
 		R.custom_price = initial(temp.custom_price)
+		if(typepath in price_override)
+			R.custom_price = price_override[typepath]
 		R.custom_premium_price = initial(temp.custom_premium_price)
+		if(typepath in premium_price_override)
+			R.custom_premium_price = premium_price_override[typepath]
 		recordlist += R
 /**
   * Refill a vending machine from a refill canister
@@ -453,7 +457,7 @@ GLOBAL_LIST_EMPTY(vending_products)
 				continue
 
 			R.amount--
-			new dump_path(get_turf(src))
+			vend_item(dump_path,get_turf(src))
 			break
 
 /obj/machinery/vending/proc/tilt(mob/fatty, crit=FALSE)
@@ -783,7 +787,7 @@ GLOBAL_LIST_EMPTY(vending_products)
 			if(icon_vend) //Show the vending animation if needed
 				flick(icon_vend,src)
 			playsound(src, 'sound/machines/machine_vend.ogg', 50, TRUE, extrarange = -3)
-			new R.product_path(get_turf(src))
+			vend_item(R.product_path,get_turf(src))
 			R.amount--
 			SSblackbox.record_feedback("nested tally", "vending_machine_usage", 1, list("[type]", "[R.product_path]"))
 			vend_ready = TRUE
@@ -856,7 +860,7 @@ GLOBAL_LIST_EMPTY(vending_products)
 			continue
 
 		R.amount--
-		throw_item = new dump_path(loc)
+		throw_item = vend_item(dump_path,loc)
 		break
 	if(!throw_item)
 		return 0

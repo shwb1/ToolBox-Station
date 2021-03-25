@@ -632,3 +632,16 @@
 	if(w_class == WEIGHT_CLASS_BULKY)
 		w_class = WEIGHT_CLASS_NORMAL
 	return ..()
+
+//vending modification for vending machines
+/obj/machinery/vending
+	var/price_override = list()
+	var/premium_price_override = list()
+
+/obj/machinery/vending/proc/vend_item(item_path,atom/dropoffspot)
+	var/atom/A = new item_path(dropoffspot)
+	if(A)
+		on_vend(A)
+	return A
+
+/obj/machinery/vending/proc/on_vend(atom/movable/AM)
