@@ -27,7 +27,18 @@
 		to_chat(src, "<span class='danger'>The forum URL is not set in the server configuration.</span>")
 	return
 
+//We opt to handle this the old school way.
 /client/verb/rules()
+	set name = "rules"
+	set desc = "Show Server Rules."
+	set hidden = 1
+	if (fexists("config/rules.html"))
+		src << browse(file("config/rules.html"), "window=rules;size=800x540")
+	else
+		to_chat(src, "<span class='danger'>The rules URL is not set in the server configuration.</span>")
+		src << sound('sound/items/bikehorn.ogg')
+	return
+/*/client/verb/rules()
 	set name = "rules"
 	set desc = "Show Server Rules."
 	set hidden = 1
@@ -38,12 +49,13 @@
 		src << link(rulesurl)
 	else
 		to_chat(src, "<span class='danger'>The rules URL is not set in the server configuration.</span>")
-	return
+	return*/
 
 /client/verb/github()
 	set name = "github"
 	set desc = "Visit Github"
 	set hidden = 1
+	return //We present this a different way.
 	var/githuburl = CONFIG_GET(string/githuburl)
 	if(githuburl)
 		if(alert("This will open the Github repository in your browser. Are you sure?",,"Yes","No")!="Yes")
@@ -57,6 +69,7 @@
 	set name = "report-issue"
 	set desc = "Report an issue"
 	set hidden = 1
+	return
 	var/githuburl = CONFIG_GET(string/githuburl)
 	if(githuburl)
 		var/message = "This will open the Github issue reporter in your browser. Are you sure?"
@@ -98,6 +111,7 @@ Admin:
 /client/verb/changelog()
 	set name = "Changelog"
 	set category = "OOC"
+	return
 	var/datum/asset/simple/namespaced/changelog = get_asset_datum(/datum/asset/simple/namespaced/changelog)
 	changelog.send(src)
 	src << browse(changelog.get_htmlloader("changelog.html"), "window=changes;size=675x650")
@@ -230,6 +244,7 @@ Any-Mode: (hotkey doesn't need to be on)
 	set name = "donate"
 	set desc = "Donate to the server"
 	set hidden = 1
+	return
 	var/donateurl = CONFIG_GET(string/donateurl)
 	if(donateurl)
 		if(alert("This will open the Donation page in your browser. Are you sure?",,"Yes","No")!="Yes")

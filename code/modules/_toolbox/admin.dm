@@ -650,22 +650,30 @@ var/global/list/backup_admin_verbs = list(
 		if(GLOB.awaydestinations.len)
 			to_chat(usr,"<B>An away mission is already active.</B>")
 			return
+		var/obj/machinery/gateway/centerstation/centerstation
+		for(var/obj/machinery/gateway/G in world)
+			if(!centerstation && istype(G,/obj/machinery/gateway/centerstation))
+				centerstation = G
+				break
+		if(!centerstation)
+			to_chat(usr,"<B>No station gateway detected.</B>")
+			return
+		var/minutestimeleft = round(((centerstation.wait-world.time)/10)/60,1)
+		var/gettime = input(usr,"Minutes untill the gateway becomes available.","Create Away Mission",minutestimeleft) as num
 		message_admins("[userkey] has spawned an away mission. \"[selectedawaymission]\" selected.")
 		log_game("[userkey] has spawned an away mission. \"[selectedawaymission]\" selected.")
 		GLOB.potentialRandomZlevels.Add(selectedawaymission)
 		to_chat(world, "<span class='boldannounce'>Loading away mission...</span>")
 		load_new_z_level(selectedawaymission, "Away Mission")
 		to_chat(world, "<span class='boldannounce'>Away mission loaded.</span>")
-		var/obj/machinery/gateway/centerstation/centerstation
 		for(var/obj/machinery/gateway/G in world)
 			G.randomspawns = GLOB.awaydestinations
-			if(istype(G,/obj/machinery/gateway/centerstation))
-				centerstation = G
 		if(centerstation)
 			centerstation.calibrated = 0
-			centerstation.Initialize()
-			var/minutestimeleft = round(((centerstation.wait-world.time)/10)/60,1)
-			var/gettime = input(usr,"Minutes untill the gateway becomes available.","Create Away Mission",minutestimeleft) as num
+			if(!GLOB.the_gateway)
+				GLOB.the_gateway = centerstation
+			centerstation.update_icon()
+			centerstation.awaygate = locate(/obj/machinery/gateway/centeraway)
 			gettime = max((gettime*60)*10,0)
 			if(isnum(gettime))
 				centerstation.wait = gettime

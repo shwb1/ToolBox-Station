@@ -1238,6 +1238,7 @@
 #include "code\modules\_toolbox\items.dm"
 #include "code\modules\_toolbox\lootdrop_trash.dm"
 #include "code\modules\_toolbox\mob_additions.dm"
+#include "code\modules\_toolbox\modified_guns.dm"
 #include "code\modules\_toolbox\objects.dm"
 #include "code\modules\_toolbox\rat.dm"
 #include "code\modules\_toolbox\space_jesus.dm"
