@@ -1242,48 +1242,202 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 
 /********************** VENDING **************************/
-/*
+
 /obj/machinery/vending/liberationstation/GB
-	name = "\improper Liberation Station"
+	tiltable = FALSE
+
+/obj/machinery/vending/liberationstation/GB/on_vend(atom/movable/AM)
+	var/obj/item/gun/G
+	if(istype(AM, G))
+		var/obj/item/firing_pin/P
+		qdel(P in G.contents)
+		qdel(G.pin)
+		G.pin = /obj/item/firing_pin/z_level_locked
+		new /obj/item/firing_pin/z_level_locked(G)
+
+
+/obj/machinery/vending/liberationstation/GB/handgun
+	name = "\improper Liberation Station - Handguns & Submachineguns"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
 	product_slogans = "Liberation Station: Your one-stop shop for all things second ammendment!;Be a patriot today, pick up a gun!;Quality weapons for cheap prices!;Better dead than red!"
 	product_ads = "Float like an astronaut, sting like a bullet!;Express your second ammendment today!;Guns don't kill people, but you can!;Who needs responsibilities when you have guns?"
 	vend_reply = "Remember the name: Liberation Station!"
 	light_color = LIGHT_COLOR_RED
-	products = list(/obj/item/reagent_containers/food/snacks/burger/plain = 5, //O say can you see, by the dawn's early light
-					/obj/item/reagent_containers/food/snacks/burger/baseball = 3, //What so proudly we hailed at the twilight's last gleaming
-					/obj/item/reagent_containers/food/snacks/fries = 5, //Whose broad stripes and bright stars through the perilous fight
-					/obj/item/reagent_containers/food/drinks/beer/light = 10, //O'er the ramparts we watched, were so gallantly streaming?
-					/obj/item/gun/ballistic/automatic/pistol/deagle/gold = 2,
-		            /obj/item/gun/ballistic/automatic/pistol/deagle/camo = 2,
-					/obj/item/gun/ballistic/automatic/pistol/m1911 = 2,
-					/obj/item/gun/ballistic/automatic/proto/unrestricted = 2,
-					/obj/item/gun/ballistic/shotgun/automatic/combat = 2,
-					/obj/item/gun/ballistic/automatic/gyropistol = 1,
-					/obj/item/gun/ballistic/shotgun = 2,
-					/obj/item/gun/ballistic/automatic/ar = 2)
-	premium = list(/obj/item/ammo_box/magazine/smgm9mm = 2,
-		           /obj/item/ammo_box/magazine/m50 = 4,
-		           /obj/item/ammo_box/magazine/m45 = 2,
-		           /obj/item/ammo_box/magazine/m75 = 2,
-				   /obj/item/reagent_containers/food/snacks/cheesyfries = 5,
-				   /obj/item/reagent_containers/food/snacks/burger/baconburger = 5) //Premium burgers for the premium section
+	products = list(/obj/item/gun/ballistic/automatic/pistol = 20,
+				/obj/item/gun/ballistic/automatic/pistol/m1911 = 20,
+				/obj/item/gun/ballistic/revolver/mateba = 20,
+				/obj/item/gun/ballistic/automatic/pistol/deagle/sound = 20,
+				/obj/item/gun/ballistic/automatic/pistol/deagle/gold = 1,)
+
+	premium = list(/obj/item/gun/ballistic/automatic/proto = 20,
+				/obj/item/gun/ballistic/automatic/pistol/APS = 20,
+				/obj/item/gun/ballistic/automatic/mini_uzi = 20,
+				/obj/item/gun/ballistic/automatic/c20r/unrestricted = 20,
+				/obj/item/gun/ballistic/automatic/tommygun = 20,)
+
 	contraband = list(/obj/item/clothing/under/misc/patriotsuit = 3,
-		              /obj/item/bedsheet/patriot = 5,
-					  /obj/item/reagent_containers/food/snacks/burger/superbite = 3) //U S A
+					/obj/item/bedsheet/patriot = 5,
+					/obj/item/reagent_containers/food/snacks/burger/superbite = 3)
 	armor = list("melee" = 100, "bullet" = 100, "laser" = 100, "energy" = 100, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 50)
-	resistance_flags = FIRE_PROOF
+	resistance_flags = INDESTRUCTIBLE
 	default_price = 50
 	extra_price = 100
 	payment_department = ACCOUNT_SEC
+	price_override = list(/obj/item/gun/ballistic/automatic/pistol = 150,
+					/obj/item/gun/ballistic/automatic/pistol/m1911 = 200,
+		            /obj/item/gun/ballistic/automatic/pistol/deagle/sound = 600,
+		            /obj/item/gun/ballistic/revolver/mateba = 500,
+		            /obj/item/gun/ballistic/automatic/pistol/deagle/gold = 1200)
 
-*/
+	premium_price_override = list(/obj/item/gun/ballistic/automatic/proto = 700,
+				/obj/item/gun/ballistic/automatic/pistol/APS = 600,
+				/obj/item/gun/ballistic/automatic/mini_uzi = 850,
+				/obj/item/gun/ballistic/automatic/c20r/unrestricted = 1000,
+				/obj/item/gun/ballistic/automatic/tommygun = 1200)
 
 
+/obj/machinery/vending/liberationstation/GB/rifle_and_shotgun
+	name = "\improper Liberation Station - Rifles & Shotguns"
+	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
+	icon_state = "liberationstation"
+	product_slogans = "Liberation Station: Your one-stop shop for all things second ammendment!;Be a patriot today, pick up a gun!;Quality weapons for cheap prices!;Better dead than red!"
+	product_ads = "Float like an astronaut, sting like a bullet!;Express your second ammendment today!;Guns don't kill people, but you can!;Who needs responsibilities when you have guns?"
+	vend_reply = "Remember the name: Liberation Station!"
+	light_color = LIGHT_COLOR_RED
+	products = list(/obj/item/gun/ballistic/rifle/boltaction = 20,
+					/obj/item/gun/ballistic/automatic/surplus = 20,
+					/obj/item/gun/ballistic/automatic/wt550 = 15,
+					/obj/item/gun/ballistic/automatic/ar = 15,
+					/obj/item/gun/ballistic/automatic/m90 = 6,
+					/obj/item/gun/ballistic/automatic/l6_saw = 6)
+
+	premium = list(/obj/item/gun/ballistic/shotgun/doublebarrel = 20,
+				/obj/item/gun/ballistic/shotgun/lethal = 20,
+				/obj/item/gun/ballistic/shotgun/lever_action = 20,
+				/obj/item/gun/ballistic/shotgun/automatic/combat = 15,
+				/obj/item/gun/ballistic/shotgun/automatic/combat/compact = 10,
+				/obj/item/gun/ballistic/shotgun/automatic/breaching = 10)
+
+	contraband = list(/obj/item/clothing/under/misc/patriotsuit = 3,
+					/obj/item/bedsheet/patriot = 5,
+					/obj/item/reagent_containers/food/snacks/burger/superbite = 3)
+	armor = list("melee" = 100, "bullet" = 100, "laser" = 100, "energy" = 100, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 50)
+	resistance_flags = INDESTRUCTIBLE
+	default_price = 50
+	extra_price = 100
+	payment_department = ACCOUNT_SEC
+	price_override = list(/obj/item/gun/ballistic/rifle/boltaction = 200,
+					/obj/item/gun/ballistic/automatic/surplus = 400,
+					/obj/item/gun/ballistic/automatic/wt550 = 800,
+					/obj/item/gun/ballistic/automatic/ar = 1200,
+					/obj/item/gun/ballistic/automatic/m90 = 2200,
+					/obj/item/gun/ballistic/automatic/l6_saw = 2500)
+
+	premium_price_override = list(/obj/item/gun/ballistic/shotgun/doublebarrel = 150,
+				/obj/item/gun/ballistic/shotgun/lethal = 250,
+				/obj/item/gun/ballistic/shotgun/lever_action = 500,
+				/obj/item/gun/ballistic/shotgun/automatic/combat = 600,
+				/obj/item/gun/ballistic/shotgun/automatic/combat/compact = 650,
+				/obj/item/gun/ballistic/shotgun/automatic/breaching = 250)
 
 
+/obj/machinery/vending/liberationstation/GB/special_and_explosives
+	name = "\improper Liberation Station - Special Weapons & Explosives"
+	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
+	icon_state = "liberationstation"
+	product_slogans = "Liberation Station: Your one-stop shop for all things second ammendment!;Be a patriot today, pick up a gun!;Quality weapons for cheap prices!;Better dead than red!"
+	product_ads = "Float like an astronaut, sting like a bullet!;Express your second ammendment today!;Guns don't kill people, but you can!;Who needs responsibilities when you have guns?"
+	vend_reply = "Remember the name: Liberation Station!"
+	light_color = LIGHT_COLOR_RED
+	products = list(/obj/item/gun/energy/laser/retro = 20,
+					/obj/item/gun/energy/laser/scatter = 20,
+					/obj/item/gun/energy/lasercannon = 10,
+					/obj/item/gun/energy/pulse/pistol = 2,
+					/obj/item/gun/energy/beam_rifle = 1,
+					/obj/item/gun/medbeam = 3)
 
+	premium = list(/obj/item/gun/ballistic/automatic/sniper_rifle = 2,
+				/obj/item/gun/ballistic/revolver/grenadelauncher = 2,
+				/obj/item/gun/ballistic/automatic/gyropistol = 1,
+				/obj/item/gun/energy/meteorgun = 1,
+				/obj/item/gun/ballistic/rocketlauncher = 1)
+
+	contraband = list(/obj/item/clothing/under/misc/patriotsuit = 3,
+					/obj/item/bedsheet/patriot = 5,
+					/obj/item/reagent_containers/food/snacks/burger/superbite = 3)
+	armor = list("melee" = 100, "bullet" = 100, "laser" = 100, "energy" = 100, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 50)
+	resistance_flags = INDESTRUCTIBLE
+	default_price = 50
+	extra_price = 100
+	payment_department = ACCOUNT_SEC
+	price_override = list(/obj/item/gun/energy/laser/retro = 350,
+					/obj/item/gun/energy/laser/scatter = 400,
+					/obj/item/gun/energy/lasercannon = 850,
+					/obj/item/gun/energy/pulse/pistol = 3000,
+					/obj/item/gun/energy/beam_rifle = 4000,
+					/obj/item/gun/medbeam = 2500)
+
+	premium_price_override = list(/obj/item/gun/ballistic/automatic/sniper_rifle = 2000,
+								/obj/item/gun/ballistic/revolver/grenadelauncher = 1900,
+								/obj/item/gun/ballistic/automatic/gyropistol = 3000,
+								/obj/item/gun/energy/meteorgun = 4500,
+								/obj/item/gun/ballistic/rocketlauncher = 2500)
+
+
+/obj/machinery/vending/liberationstation/GB/ammo
+	name = "\improper Liberation Station - Ammunition"
+	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
+	icon_state = "liberationstation"
+	product_slogans = "Liberation Station: Your one-stop shop for all things second ammendment!;Be a patriot today, pick up a gun!;Quality weapons for cheap prices!;Better dead than red!"
+	product_ads = "Float like an astronaut, sting like a bullet!;Express your second ammendment today!;Guns don't kill people, but you can!;Who needs responsibilities when you have guns?"
+	vend_reply = "Remember the name: Liberation Station!"
+	light_color = LIGHT_COLOR_RED
+	products = list(/obj/item/ammo_box/magazine/tommygunm45 = 99,
+					/obj/item/ammo_box/magazine/smgm9mm = 99,
+					/obj/item/ammo_box/magazine/uzim9mm = 99,
+					/obj/item/ammo_box/magazine/pistolm9mm = 99,
+					/obj/item/ammo_box/magazine/m10mm = 99,
+					/obj/item/ammo_box/magazine/m50 = 99,
+					/obj/item/ammo_box/a357 = 99,
+					/obj/item/storage/box/lethalshot = 99,
+					/obj/item/ammo_box/a762 = 99,
+					/obj/item/ammo_box/magazine/wt550m9 = 99,
+					/obj/item/ammo_box/magazine/m10mm/rifle = 99)
+
+	premium = list(/obj/item/ammo_box/magazine/mm712x82 = 99,
+				/obj/item/ammo_box/magazine/m556 = 99,
+				/obj/item/ammo_box/magazine/sniper_rounds = 99,
+				/obj/item/ammo_box/magazine/m75 = 99,
+				/obj/item/ammo_casing/a40mm = 99,
+				/obj/item/ammo_casing/caseless/rocket = 99)
+
+	contraband = list(/obj/item/clothing/under/misc/patriotsuit = 3,
+					/obj/item/bedsheet/patriot = 5,
+					/obj/item/reagent_containers/food/snacks/burger/superbite = 3)
+	armor = list("melee" = 100, "bullet" = 100, "laser" = 100, "energy" = 100, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 50)
+	resistance_flags = INDESTRUCTIBLE
+	default_price = 50
+	extra_price = 100
+	payment_department = ACCOUNT_SEC
+	price_override = list(/obj/item/ammo_box/magazine/tommygunm45 = 60,
+					/obj/item/ammo_box/magazine/smgm9mm = 15,
+					/obj/item/ammo_box/magazine/uzim9mm = 25,
+					/obj/item/ammo_box/magazine/pistolm9mm = 10,
+					/obj/item/ammo_box/magazine/m10mm = 10,
+					/obj/item/ammo_box/magazine/m50 = 20,
+					/obj/item/ammo_box/a357 = 15,
+					/obj/item/storage/box/lethalshot = 10,
+					/obj/item/ammo_box/a762 = 5,
+					/obj/item/ammo_box/magazine/wt550m9 = 20,
+					/obj/item/ammo_box/magazine/m10mm/rifle = 10)
+
+	premium_price_override = list(/obj/item/ammo_box/magazine/mm712x82 = 100,
+								/obj/item/ammo_box/magazine/m556 = 35,
+								/obj/item/ammo_box/magazine/sniper_rounds = 50,
+								/obj/item/ammo_box/magazine/m75 = 180,
+								/obj/item/ammo_casing/a40mm = 60,
+								/obj/item/ammo_casing/caseless/rocket = 80)
 
 
 
