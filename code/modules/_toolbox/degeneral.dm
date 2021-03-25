@@ -1,5 +1,6 @@
 
 /********************** This object is used to modify the entire zlevel where it spawns. **************************/
+
 /obj/full_zlevel_modifier
 	name = "Full Z-level Modifier"
 	icon = 'icons/effects/landmarks_static.dmi'
@@ -26,6 +27,8 @@
 				T.ChangeTurf(base_turf, base_turf)
 			T.baseturfs = base_turf
 	qdel(src)
+
+
 
 /********************** SPAWNERS **************************/
 
@@ -136,10 +139,20 @@
 
 	for(var/turf/T in range(3, src))
 		turf_list += T
+		turf_list -= L_R
+		turf_list -= src.loc
 
 	var/turf/gibs = pick(turf_list)
 	new /obj/effect/decal/cleanable/blood/gibs/up(gibs)
+	turf_list -= list(gibs)
 
+	var/turf/head_pike = pick(turf_list)
+	new /obj/structure/headpike/spawnable/bone(head_pike)
+	turf_list -= list(head_pike)
+
+	var/turf/head_pike2 = pick(turf_list)
+	new /obj/structure/headpike/spawnable/bone(head_pike2)
+	turf_list -= list(head_pike2)
 
 
 /mob/living/simple_animal/hostile/spawner/cave_spider
@@ -574,6 +587,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			/obj/item/stack/ore/iron = 10,
 			/obj/item/ammo_casing/shotgun/buckshot = 10,
 			/obj/item/stack/ore/gold = 5,
+			/obj/item/reagent_containers/hypospray/medipen/survival = 3,
 			/obj/item/storage/belt/bandolier = 1,
 			)
 
@@ -587,6 +601,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			/obj/item/shovel = 1,
 			/obj/item/storage/bag/ore = 1,
 			)
+
 
 
 /********************** OBJECTS **************************/
@@ -767,6 +782,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	desc = "A torch fashioned from some leaves and a log. It seems to be stuck in the ground."
 	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "pike_torch-on"
+	anchored = 1
 	light_color = "#FA9632"
 	light_range = 4
 
@@ -873,12 +889,11 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 /********************** GROUNDBASE TURFS **************************/
 
 
-//Desert turfs
-
 /turf/open/floor/plating/asteroid/has_air    //asteroid turf that smooths with basalt and lava
 	name = "sand"
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
+	digResult = /obj/item/stack/ore/glass
 
 /turf/open/floor/plating/asteroid/has_air/Initialize()
 	.=..()
@@ -906,6 +921,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	icon = 'icons/oldschool/asteroid_basalt_border.dmi'
 	icon_state = "unsmooth"
 	baseturfs = /turf/open/lava/smooth
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 	smooth = SMOOTH_MORE | SMOOTH_BORDER
 	canSmoothWith = list(/turf/open/floor/plating/asteroid/has_air, /turf/open/floor/plating/asteroid/has_air_smooth, /turf/open/floor/plasteel, /turf/closed/wall, /turf/closed/mineral, /turf/open/floor/plating/astplate, /turf/open/floor/pod)
 
@@ -917,7 +933,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	environment_type = "basalt"
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/floor/plating/asteroid/has_air
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 	defer_change = 1
 	mineralChance = 10
 	mineralSpawnChanceList = list(
@@ -928,52 +944,52 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 /turf/closed/mineral/uranium/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/diamond/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/gold/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/titanium/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/silver/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/plasma/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/iron/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/gibtonite/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/bscrystal/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/closed/mineral/bananium/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 	baseturfs = /turf/open/lava/smooth
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /********************** CAVE GENERATION **************************/
 
@@ -1021,12 +1037,12 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 	item_spawn_list = list(/obj/item/stack/ore/iron = 5, /obj/effect/decal/remains/human = 2, /obj/item/stack/sheet/mineral/wood = 2, \
 	/obj/item/pickaxe = 2, /obj/item/ammo_casing/shotgun/buckshot = 2, /obj/item/flashlight/lantern/on = 2,/obj/item/shovel = 1, \
-	/obj/item/storage/bag/ore = 1)
+	/obj/item/storage/bag/ore = 1, /obj/item/storage/bag/ore = 1, /obj/item/clothing/shoes/workboots/mining = 1)
 
 
 	data_having_type = /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine/has_data
 	turf_type = /turf/open/floor/plating/asteroid/has_air
-	initial_gas_mix = "o2=22;n2=82;TEMP=305.15"
+	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine/has_data //subtype for producing a tunnel with given data
 	has_data = TRUE
