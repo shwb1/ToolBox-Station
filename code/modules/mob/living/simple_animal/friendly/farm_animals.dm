@@ -33,6 +33,8 @@
 
 	do_footstep = TRUE
 
+	var/gleam_chance = 1
+
 /mob/living/simple_animal/hostile/retaliate/goat/Initialize()
 	udder = new()
 	. = ..()
@@ -46,7 +48,7 @@
 	. = ..()
 	if(.)
 		//chance to go crazy and start wacking stuff
-		if(!enemies.len && prob(1))
+		if(!enemies.len && prob(gleam_chance))
 			Retaliate()
 
 		if(enemies.len && prob(10))

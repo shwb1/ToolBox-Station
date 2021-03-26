@@ -61,6 +61,8 @@ SUBSYSTEM_DEF(ticker)
 	var/list/crewobjlist = list()
 	var/list/crewobjjobs = list()
 
+	var/next_world_status_update = 0
+
 /datum/controller/subsystem/ticker/Initialize(timeofday)
 	load_mode()
 
@@ -163,6 +165,7 @@ SUBSYSTEM_DEF(ticker)
 			current_state = GAME_STATE_PREGAME
 			//Everyone who wants to be an observer is now spawned
 			create_observers()
+			world.update_status()
 			fire()
 		if(GAME_STATE_PREGAME)
 				//lobby stats for statpanels
@@ -205,13 +208,16 @@ SUBSYSTEM_DEF(ticker)
 			mode.process(wait * 0.1)
 			check_queue()
 			check_maprotate()
-
 			if(!roundend_check_paused && mode.check_finished(force_ending) || force_ending)
 				current_state = GAME_STATE_FINISHED
+				world.update_status()
 				toggle_ooc(TRUE) // Turn it on
 				toggle_dooc(TRUE)
 				declare_completion(force_ending)
 				Master.SetRunLevel(RUNLEVEL_POSTGAME)
+			if(current_state == GAME_STATE_PLAYING && next_world_status_update <= world.time)
+				next_world_status_update = world.time+600
+				world.update_status()
 
 
 /datum/controller/subsystem/ticker/proc/setup()

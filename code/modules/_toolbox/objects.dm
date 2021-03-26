@@ -645,3 +645,24 @@
 	return A
 
 /obj/machinery/vending/proc/on_vend(atom/movable/AM)
+
+//making power cells spawn with full energy not empty because thats super gay.
+/datum/design/basic_cell/New()
+	. = ..()
+	build_path = /obj/item/stock_parts/cell
+
+/datum/design/high_cell/New()
+	. = ..()
+	build_path = /obj/item/stock_parts/cell/high
+
+/datum/design/super_cell/New()
+	. = ..()
+	build_path = /obj/item/stock_parts/cell/super
+
+/datum/design/hyper_cell/New()
+	. = ..()
+	build_path = /obj/item/stock_parts/cell/hyper
+
+/datum/design/bluespace_cell/New()
+	. = ..()
+	build_path = /obj/item/stock_parts/cell/bluespace

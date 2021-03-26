@@ -114,3 +114,20 @@
 		message_admins("[the_message]")
 		log_game("[the_message]")
 	last_turf = T
+
+//calming down a retaliated mob.
+/mob/living/simple_animal/hostile/retaliate/attack_hand(mob/living/carbon/human/M)
+	. = ..()
+	if(M.a_intent == "help" && health > 0 && enemies.len)
+		var/forgiveness_chance = ((health/maxHealth)*100)/2 //forgive chance is half the remaining health percentage of the mob.
+		if(prob(forgiveness_chance))
+			enemies.Remove(M)
+			if(target == M)
+				LoseTarget()
+			visible_message("<span class='notice'>[src] seems to forgive [M].</span>")
+
+//always pissed off goat
+/mob/living/simple_animal/hostile/retaliate/goat/alwayspissed
+	faction = list("pissed_goat")
+	attack_same = 0
+	gleam_chance = 100

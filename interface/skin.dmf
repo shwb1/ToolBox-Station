@@ -112,14 +112,15 @@ window "infowindow"
 	elem "infowindow"
 		type = MAIN
 		pos = 281,0
-		size = 656x538
+		size = 672x577
 		anchor1 = none
 		anchor2 = none
 		background-color = none
 		saved-params = "pos;size;is-minimized;is-maximized"
 		statusbar = false
 		is-pane = true
-		outer-size = 656x519
+		outer-size = 672x577
+		inner-size = 656x538
 	elem "discord"
 		type = BUTTON
 		pos = 607,5
@@ -134,7 +135,7 @@ window "infowindow"
 	elem "info"
 		type = CHILD
 		pos = 0,32
-		size = 640x445
+		size = 640x528
 		anchor1 = 0,0
 		anchor2 = 100,100
 		background-color = none

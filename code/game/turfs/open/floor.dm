@@ -215,7 +215,7 @@
 			if(prob(70))
 				new floor_tile(src)
 				make_plating()
-		else if(prob(50))
+		else if(!istype(src, /turf/open/floor/plating/asteroid) && prob(50))
 			ReplaceWithLattice()
 
 /turf/open/floor/narsie_act(force, ignore_mobs, probability = 20)

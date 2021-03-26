@@ -62,6 +62,7 @@ GLOBAL_VAR(restart_counter)
 	#ifdef UNIT_TESTS
 	HandleTestRun()
 	#endif
+	world.update_status()
 
 /world/proc/HandleTestRun()
 	//trigger things to run the whole process
@@ -271,8 +272,8 @@ GLOBAL_VAR(restart_counter)
 	..()
 
 /world/proc/update_status()
-
-	var/list/features = list()
+	update_status_toolbox()
+	/*var/list/features = list()
 
 	if(GLOB.master_mode)
 		features += GLOB.master_mode
@@ -290,7 +291,7 @@ GLOBAL_VAR(restart_counter)
 		hostedby = CONFIG_GET(string/hostedby)
 
 	s += "<b>[station_name()]</b>";
-	s += "(<a href='https://discord.gg/z9ttAvA'>Discord</a>|<a href='http://beestation13.com'>Website</a>)"
+	s += "(<a href='******'>Discord</a>|<a href='********'>Website</a>)"
 
 	var/players = GLOB.clients.len
 
@@ -312,7 +313,7 @@ GLOBAL_VAR(restart_counter)
 	if (features)
 		s += ": [jointext(features, ", ")]"
 
-	status = s
+	status = s*/
 
 /world/proc/update_hub_visibility(new_visibility)
 	if(new_visibility == GLOB.hub_visibility)

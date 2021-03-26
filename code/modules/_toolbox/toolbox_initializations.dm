@@ -27,6 +27,7 @@ proc/Initialize_Falaskians_Shit()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
 	//GLOB.cable_coil_recipes += new/datum/stack_recipe("noose", /obj/structure/chair/noose, 10, time = 0, on_floor = TRUE)
 	new_player_cam = new()
+	world.update_status()
 
 /*/datum/config_entry/string/discordurl*/
 
@@ -132,17 +133,6 @@ GLOBAL_LIST_EMPTY(hub_features)
 			H.w_uniform.item_state = "g_suit"
 			H.w_uniform.item_color = "green"
 			H.regenerate_icons()
-	//stay safe out there -falaskian
-	/*if(!istype(H,/mob/living/carbon/human/jesus) && (themonth <= 7 && theyear <= 2020) && !H.wear_mask)
-		var/obj/item/clothing/mask/surgical/S = new()
-		S.desc = "Stay safe out there!"
-		H.equip_to_slot_or_del(S,slot_wear_mask)*/
-
-/*April 22nd 2020. Lets switch it up. Mood is back, fuck it. - falaskian
-//switching off human mood because its gay as fuck -falaskian
-/datum/config_entry/flag/disable_human_mood
-	config_entry_value = 1
-*/
 
 /client
 	var/list/shared_ips = list()

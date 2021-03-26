@@ -14,7 +14,7 @@
 
 /obj/full_zlevel_modifier/groundbase
 	name = "Groundbase Initializer"
-	var/base_turf = /turf/open/lava/smooth
+	var/base_turf = /turf/open/floor/plating/asteroid/has_air
 
 /obj/full_zlevel_modifier/groundbase/Initialize()
 	. = ..()
@@ -25,10 +25,17 @@
 		if(T && T.z == z)
 			if(istype(T,/turf/open/space))
 				T.ChangeTurf(base_turf, base_turf)
-			T.baseturfs = base_turf
+				var/area/A = locate(/area/gb_away/explored)
+				if(A)
+					T.change_area(T.loc, A)
+			var/reset_baseturf = 0
+			if(islist(T.baseturfs) && ((/turf/baseturf_bottom in T.baseturfs)||(/turf/open/space in T.baseturfs)))
+				reset_baseturf = 1
+			else if(T.baseturfs in list(/turf/baseturf_bottom,/turf/open/space,/turf/open/space/basic))
+				reset_baseturf = 1
+			if(reset_baseturf)
+				T.baseturfs = base_turf
 	qdel(src)
-
-
 
 /********************** SPAWNERS **************************/
 
@@ -1245,16 +1252,14 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /obj/machinery/vending/liberationstation/GB
 	tiltable = FALSE
+	var/firing_pin = /obj/item/firing_pin/z_level_locked
 
 /obj/machinery/vending/liberationstation/GB/on_vend(atom/movable/AM)
-	var/obj/item/gun/G
-	if(istype(AM, G))
-		var/obj/item/firing_pin/P
-		qdel(P in G.contents)
+	. = ..()
+	var/obj/item/gun/G = AM
+	if(istype(G))
 		qdel(G.pin)
-		G.pin = /obj/item/firing_pin/z_level_locked
-		new /obj/item/firing_pin/z_level_locked(G)
-
+		G.pin = new firing_pin(G)
 
 /obj/machinery/vending/liberationstation/GB/handgun
 	name = "\improper Liberation Station - Handguns & Submachineguns"

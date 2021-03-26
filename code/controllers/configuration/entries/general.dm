@@ -203,7 +203,7 @@
 /datum/config_entry/string/banappeals
 
 /datum/config_entry/string/wikiurl
-	config_entry_value = "https://wiki.beestation13.com/view/Main_Page"
+	config_entry_value
 
 /datum/config_entry/string/forumurl
 	config_entry_value = ""

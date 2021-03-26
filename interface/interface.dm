@@ -271,6 +271,7 @@ Any-Mode: (hotkey doesn't need to be on)
 	set name = "map"
 	set desc = "View the current map in the webviewer"
 	set hidden = 1
+	return
 	var/map_in_url
 	switch(SSmapping.config?.map_name)
 		if("Box Station")			map_in_url = "box"
@@ -282,6 +283,6 @@ Any-Mode: (hotkey doesn't need to be on)
 	if(map_in_url)
 		if(alert("This will open the current map in your browser. Are you sure?",,"Yes","No")!="Yes")
 			return
-		src << link("http://beestation13.com/map/[map_in_url]")
+		src << link("*****")
 	else
 		to_chat(src, "<span class='danger'>The current map is either invalid or unavailable.</span>")
