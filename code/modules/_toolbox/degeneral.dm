@@ -807,8 +807,14 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 		qdel(src)
 
 
-//obj/item/flashlight/flare/torch
 
+//Fireproof railing
+
+/obj/structure/railing/fireproof
+	resistance_flags = FIRE_PROOF
+
+/obj/structure/railing/corner/fireproof
+	resistance_flags = FIRE_PROOF
 
 //FENCES
 
@@ -1250,18 +1256,18 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /********************** VENDING **************************/
 
-/obj/machinery/vending/liberationstation/GB
+/obj/machinery/vending/liberationstation/z_level_locked
 	tiltable = FALSE
 	var/firing_pin = /obj/item/firing_pin/z_level_locked
 
-/obj/machinery/vending/liberationstation/GB/on_vend(atom/movable/AM)
+/obj/machinery/vending/liberationstation/z_level_locked/on_vend(atom/movable/AM)
 	. = ..()
 	var/obj/item/gun/G = AM
 	if(istype(G))
 		qdel(G.pin)
 		G.pin = new firing_pin(G)
 
-/obj/machinery/vending/liberationstation/GB/handgun
+/obj/machinery/vending/liberationstation/z_level_locked/handgun
 	name = "\improper Liberation Station - Handguns & Submachineguns"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1302,7 +1308,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 				/obj/item/gun/ballistic/automatic/tommygun = 1200)
 
 
-/obj/machinery/vending/liberationstation/GB/rifle_and_shotgun
+/obj/machinery/vending/liberationstation/z_level_locked/rifle_and_shotgun
 	name = "\improper Liberation Station - Rifles & Shotguns"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1347,7 +1353,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 				/obj/item/gun/ballistic/shotgun/automatic/breaching = 250)
 
 
-/obj/machinery/vending/liberationstation/GB/special_and_explosives
+/obj/machinery/vending/liberationstation/z_level_locked/special_and_explosives
 	name = "\improper Liberation Station - Special Weapons & Explosives"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1390,7 +1396,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 								/obj/item/gun/ballistic/rocketlauncher = 2500)
 
 
-/obj/machinery/vending/liberationstation/GB/ammo
+/obj/machinery/vending/liberationstation/z_level_locked/ammo
 	name = "\improper Liberation Station - Ammunition"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1443,6 +1449,66 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 								/obj/item/ammo_box/magazine/m75 = 180,
 								/obj/item/ammo_casing/a40mm = 60,
 								/obj/item/ammo_casing/caseless/rocket = 80)
+
+
+
+
+/********************** GATEWAY **************************/
+
+GLOBAL_LIST_EMPTY(gateway_components)
+
+/obj/machinery/gateway/centeraway/missing_component //Requires bluespace_cube to activate
+	desc = "A mysterious gateway built by unknown hands. It seems some components are missing, they can be located using component pinpointer and GPS."
+	var/has_cube = FALSE
+
+
+/obj/machinery/gateway/centeraway/missing_component/toggleon(mob/user)
+	if(!detect())
+		return
+	if(!stationgate)
+		to_chat(user, "<span class='notice'>Error: No destination found.</span>")
+		return
+	if(!has_cube)
+		to_chat(user, "<span class='notice'>Error: Gateway is missing a critical component. It can be located using component pinpointer and GPS.</span>")
+		return
+	for(var/obj/machinery/gateway/G in linked)
+		G.active = 1
+		G.update_icon()
+	active = 1
+	update_icon()
+
+/obj/machinery/gateway/centeraway/missing_component/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/bluespace_cube))
+		var/obj/item/bluespace_cube/C = I
+		C.forceMove(src.contents)
+		has_cube = TRUE
+	.=..()
+
+
+/obj/item/bluespace_cube
+	name = "bluespace cube"
+	desc = "An integral gateway component. It pulsates with a beautiful hypnotising glow."
+	icon = 'icons/oldschool/items.dmi'
+	icon_state = "subspace_cube"
+	w_class = 3
+	light_color = "#0099ff"
+	light_power = 2
+	light_range = 2
+	resistance_flags = INDESTRUCTIBLE
+
+/obj/item/bluespace_cube/Initialize()
+	.=..()
+	GLOB.gateway_components.Add(src)
+	AddComponent(/datum/component/gps, "Gateway Component")
+
+
+
+/obj/item/pinpointer/gateway_component
+	name = "gateway component pinpointer"
+
+/obj/item/pinpointer/gateway_component/scan_for_target()
+	var/obj/item/bluespace_cube/C = locate() in GLOB.gateway_components
+	target = C
 
 
 
