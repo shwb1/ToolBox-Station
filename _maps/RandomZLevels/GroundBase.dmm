@@ -124,7 +124,7 @@
 "ct" = (/obj/machinery/light/small{dir = 1},/turf/open/floor/plating,/area/gb_away/ground_base)
 "cu" = (/obj/machinery/door/poddoor/shutters{id = "GBMaint1"},/obj/structure/grille,/obj/structure/window/plastitanium,/obj/structure/cable{icon_state = "0-2"},/obj/structure/cable{icon_state = "2-4"},/obj/structure/cable{icon_state = "2-4"},/obj/structure/cable{icon_state = "0-2"},/turf/open/floor/plating,/area/gb_away/ground_base)
 "cv" = (/obj/machinery/power/smes{charge = 5e+006},/obj/structure/cable{icon_state = "0-8"},/obj/structure/sign/warning/electricshock{pixel_y = 32; step_y = 0},/turf/open/floor/plating,/area/gb_away/ground_base)
-"cw" = (/obj/machinery/door/airlock/medical/glass{name = "Infirmary"},/turf/open/floor/plasteel,/area/gb_away/ground_base)
+"cw" = (/obj/machinery/door/airlock/public/glass{name = "Garden"},/turf/open/floor/plasteel,/area/gb_away/ground_base)
 "cx" = (/obj/structure/window/reinforced{dir = 8; pixel_x = -4},/turf/closed/wall,/area/gb_away/ground_base)
 "cy" = (/obj/machinery/vending/snack,/turf/open/floor/plasteel,/area/gb_away/ground_base)
 "cz" = (/obj/machinery/vending/cigarette,/obj/machinery/newscaster{pixel_y = 32},/turf/open/floor/plasteel,/area/gb_away/ground_base)
