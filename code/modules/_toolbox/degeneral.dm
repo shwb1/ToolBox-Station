@@ -811,10 +811,10 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 //Fireproof railing
 
 /obj/structure/railing/fireproof
-	resistance_flags = FIRE_PROOF
+	resistance_flags = (LAVA_PROOF|FIRE_PROOF)
 
 /obj/structure/railing/corner/fireproof
-	resistance_flags = FIRE_PROOF
+	resistance_flags = (LAVA_PROOF|FIRE_PROOF)
 
 //FENCES
 
