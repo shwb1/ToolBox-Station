@@ -6,7 +6,7 @@
 	equipped_items = list(
 		/obj/item/clothing/head/helmet/gladiator = SLOT_HEAD,
 		/obj/item/clothing/under/costume/gladiator/ash_walker = SLOT_W_UNIFORM)
-	humanoid_held_items = list(/obj/item/twohanded/spear)
+	humanoid_held_items = list(/obj/item/twohanded/bonespear)
 
 /mob/living/simple_animal/hostile/randomhumanoid/ashligger/red
 	lizardskincolor_red = list(150,200) //Red is the dominant color.

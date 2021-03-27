@@ -315,7 +315,13 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 		return 1
 	return 0
 
-//ORE NODE - only way to get bananium??
+
+/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/dead
+	humanoid_held_items = list()
+	start_dead = 1
+
+
+//ORE NODE
 
 GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
@@ -338,6 +344,8 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 						/obj/item/stack/ore/silver = 12,
 						/obj/item/stack/ore/plasma = 20,
 						/obj/item/stack/ore/bluespace_crystal = 1,
+						/turf/closed/mineral/copper = 15,
+						/obj/item/stack/ore/glass/basalt = 5,
 						/obj/item/stack/ore/bananium = 1)
 
 /obj/structure/lizard_ore_node/Initialize()
@@ -641,7 +649,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "location firing pin"
 	desc = "This safety firing pin only allows weapons to be fired in certain locations."
 	fail_message = "<span class='warning'>LOCATION CHECK FAILED.</span>"
-	pin_removeable = 1
 	pin_removeable = 0
 	var/list/authorised_locations = list(/area/gb_away/ground_base)
 
@@ -656,7 +663,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "gateway firing pin"
 	desc = "This safety firing pin only allows weapons to be fired on location in an away mission."
 	fail_message = "<span class='warning'>GATEWAY CHECK FAILED.</span>"
-	pin_removeable = 1
 	pin_removeable = 0
 	var/area/A = null
 
@@ -670,7 +676,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "gateway firing pin"
 	desc = "This safety firing pin allows weapons to be fired only on 'away' end of gateway."
 	fail_message = "<span class='warning'>GATEWAY CHECK FAILED.</span>"
-	pin_removeable = 1
 	pin_removeable = 0
 	var/original_z_level = null
 
@@ -828,6 +833,15 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	smooth = SMOOTH_TRUE
 	canSmoothWith = list(/obj/structure/fence/door/opened, /obj/structure/fence/door, /obj/structure/fence/smooth, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust)
 
+//FENCE DOOR CLOSED
+/obj/structure/fence/door/closed
+	name = "fence door"
+	desc = "Not very useful without a real lock."
+	icon_state = "door_closed"
+	cuttable = FALSE
+	open = TRUE
+	density = FALSE //Density FALSE results in closed door because monke who coded this put update_door_status() in initialize which flips the state to TRUE
+
 
 /********************** MOBS **************************/
 
@@ -950,9 +964,11 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	defer_change = 1
 	mineralChance = 10
 	mineralSpawnChanceList = list(
-		/turf/closed/mineral/uranium/has_air = 5, /turf/closed/mineral/diamond/has_air = 1, /turf/closed/mineral/gold/has_air = 10, /turf/closed/mineral/titanium/has_air = 11,
+		/turf/closed/mineral/uranium/has_air = 5, /turf/closed/mineral/diamond/has_air = 1, /turf/closed/mineral/gold/has_air = 10,
+		/turf/closed/mineral/titanium/has_air = 11, /turf/closed/mineral/copper = 15,
 		/turf/closed/mineral/silver/has_air = 12, /turf/closed/mineral/plasma/has_air = 20, /turf/closed/mineral/iron/has_air = 40,
-		/turf/closed/mineral/gibtonite/has_air = 4, /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine = 1, /turf/closed/mineral/bscrystal/has_air = 1, /turf/closed/mineral/bananium/has_air = 1)
+		/turf/closed/mineral/gibtonite/has_air = 4, /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine = 1,
+		/turf/closed/mineral/bscrystal/has_air = 1, /turf/closed/mineral/bananium/has_air = 1)
 
 /turf/closed/mineral/uranium/has_air
 	turf_type = /turf/open/floor/plating/asteroid/has_air
@@ -1256,18 +1272,18 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /********************** VENDING **************************/
 
-/obj/machinery/vending/liberationstation/z_level_locked
+/obj/machinery/vending/z_level_locked
 	tiltable = FALSE
 	var/firing_pin = /obj/item/firing_pin/z_level_locked
 
-/obj/machinery/vending/liberationstation/z_level_locked/on_vend(atom/movable/AM)
+/obj/machinery/vending/z_level_locked/on_vend(atom/movable/AM)
 	. = ..()
 	var/obj/item/gun/G = AM
 	if(istype(G))
 		qdel(G.pin)
 		G.pin = new firing_pin(G)
 
-/obj/machinery/vending/liberationstation/z_level_locked/handgun
+/obj/machinery/vending/z_level_locked/handgun
 	name = "\improper Liberation Station - Handguns & Submachineguns"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1308,7 +1324,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 				/obj/item/gun/ballistic/automatic/tommygun = 1200)
 
 
-/obj/machinery/vending/liberationstation/z_level_locked/rifle_and_shotgun
+/obj/machinery/vending/z_level_locked/rifle_and_shotgun
 	name = "\improper Liberation Station - Rifles & Shotguns"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1353,7 +1369,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 				/obj/item/gun/ballistic/shotgun/automatic/breaching = 250)
 
 
-/obj/machinery/vending/liberationstation/z_level_locked/special_and_explosives
+/obj/machinery/vending/z_level_locked/special_and_explosives
 	name = "\improper Liberation Station - Special Weapons & Explosives"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1396,7 +1412,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 								/obj/item/gun/ballistic/rocketlauncher = 2500)
 
 
-/obj/machinery/vending/liberationstation/z_level_locked/ammo
+/obj/machinery/vending/z_level_locked/ammo
 	name = "\improper Liberation Station - Ammunition"
 	desc = "An overwhelming amount of <b>ancient patriotism</b> washes over you just by looking at the machine."
 	icon_state = "liberationstation"
@@ -1449,7 +1465,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 								/obj/item/ammo_box/magazine/m75 = 180,
 								/obj/item/ammo_casing/a40mm = 60,
 								/obj/item/ammo_casing/caseless/rocket = 80)
-
 
 
 
