@@ -402,15 +402,24 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "slave ore dropoff point"
 	icon = 'icons/effects/landmarks_static.dmi'
 	icon_state = "x4"
+	var/make_decal = 0
 
 /obj/effect/slave_ore_dropoff_point/Initialize()
 	var/turf/T = get_turf(src)
 	if(T)
 		GLOB.tribalslave_ore_dropoff_point.Add("x=[T.x];y=[T.y];z=[T.z]")
+		if(make_decal)
+			var/turf/left = locate(T.x-1,T.y,T.z)
+			var/turf/right = locate(T.x+1,T.y,T.z)
+			if(left && right)
+				var/list/sides = list(left,T,right)
+				for(var/turf/side in sides)
+					var/decalnumber = 1
+					var/obj/effect/decal/D = new(side)
+					D.icon = 'icons/oldschool/objects.dmi'
+					D.icon_state = "oredrop[decalnumber]"
+					decalnumber++
 	qdel(src)
-
-
-
 
 //LIZARD EGGS
 /obj/item/reagent_containers/food/snacks/egg/lizard_egg
@@ -1581,11 +1590,17 @@ GLOBAL_LIST_EMPTY(gateway_components)
 
 
 //IM A DUMB STEP EDITING SCRUB
-/*
-/client/verb/EditedStepFinder()
+
+/client/proc/EditedStepFinder()
+	set name = "Step X and Y Finder"
+	set category = "Debug"
+	var/founderror = 0
 	for(var/atom/movable/A in world)
 		if(A.step_x != 0 || A.step_y != 0)
-			to_chat(world, "Edited step [A.x] [A.y] [A.z] \"[A.name]\" \"[A.type]\"")
-*/
+			message_admins("Found edited Step at ([A.x] [A.y] [A.z]). Name: \"[A.name]\" Type: \"[A.type]\"")
+			founderror = 1
+	if(!founderror)
+		message_admins("Found no edited Steps in the world.")
+
 
 

@@ -633,7 +633,7 @@
 		w_class = WEIGHT_CLASS_NORMAL
 	return ..()
 
-//vending modification for vending machines
+//on vend item modification for vending machines. allows you to affect the item or vending machine post vending the item.
 /obj/machinery/vending
 	var/price_override = list()
 	var/premium_price_override = list()
@@ -666,3 +666,41 @@
 /datum/design/bluespace_cell/New()
 	. = ..()
 	build_path = /obj/item/stock_parts/cell/bluespace
+
+//fast loading shotguns
+/obj/item/gun/ballistic/shotgun
+	var/bag_reload_time = 8 //Time between shell loads. First one is instant.
+
+/obj/item/gun/ballistic/shotgun/get_dumping_location()
+	return src
+
+/obj/item/gun/ballistic/shotgun/attackby(obj/item/A, mob/user, params)
+	if(istype(A,/obj/item/storage))
+		reload_from_bag(A,user)
+		return
+	return ..()
+
+/obj/item/gun/ballistic/shotgun/storage_contents_dump_act(datum/component/storage/src_object, mob/user)
+	if(istype(src_object.parent,/obj/item/storage/box) || istype(src_object.parent,/obj/item/storage/belt/bandolier))
+		reload_from_bag(src_object.parent,user)
+		return
+	return ..()
+
+/obj/item/gun/ballistic/shotgun/proc/reload_from_bag(obj/item/storage/bag, mob/user)
+	if(!istype(bag) || !user)
+		return
+	var/success = 1
+	while(success && magazine.ammo_count(countempties = TRUE) < magazine.max_ammo)
+		var/obj/item/ammo_casing/reload
+		for(var/obj/item/ammo_casing/A in bag)
+			if(A.BB && (A.caliber == magazine.caliber || (!magazine.caliber && A.type == magazine.ammo_type))) //The same checks as when you manually load a shell to the gun.
+				reload = A
+				break
+		if(reload)
+			attackby(reload,user) //We just call attackby, it does the rest.
+			if(magazine.ammo_count(countempties = TRUE) >= magazine.max_ammo)
+				break
+			success = do_after(user, bag_reload_time, TRUE, src, TRUE)
+		else
+			break
+		stoplag(1) //Dont wanna crash server if something goes wrong here.

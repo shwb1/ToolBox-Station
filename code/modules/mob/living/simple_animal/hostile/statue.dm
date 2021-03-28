@@ -49,7 +49,7 @@
 
 	var/cannot_be_seen = 1
 	var/mob/living/creator = null
-
+	var/next_move_spam = 0
 
 
 // No movement while seen code.
@@ -74,7 +74,9 @@
 /mob/living/simple_animal/hostile/statue/Move(turf/NewLoc)
 	if(can_be_seen(NewLoc))
 		if(client)
-			to_chat(src, "<span class='warning'>You cannot move, there are eyes on you!</span>")
+			if(next_move_spam < world.time)
+				to_chat(src, "<span class='warning'>You cannot move, there are eyes on you!</span>")
+				next_move_spam = world.time+50
 		return 0
 	return ..()
 
