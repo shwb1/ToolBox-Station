@@ -670,12 +670,13 @@
 //fast loading shotguns
 /obj/item/gun/ballistic/shotgun
 	var/bag_reload_time = 8 //Time between shell loads. First one is instant.
+	var/next_bag_reload = 0
 
 /obj/item/gun/ballistic/shotgun/get_dumping_location()
 	return src
 
 /obj/item/gun/ballistic/shotgun/attackby(obj/item/A, mob/user, params)
-	if(istype(A,/obj/item/storage))
+	if(istype(A,/obj/item/storage/box) || istype(A,/obj/item/storage/belt/bandolier))
 		reload_from_bag(A,user)
 		return
 	return ..()
@@ -689,15 +690,20 @@
 /obj/item/gun/ballistic/shotgun/proc/reload_from_bag(obj/item/storage/bag, mob/user)
 	if(!istype(bag) || !user)
 		return
+	if(next_bag_reload > world.time)
+		to_chat(user, "<span class='notice'>It's hard to rummage this quickly with these shells.</span>")
+		return
 	var/success = 1
+	next_bag_reload = world.time+bag_reload_time
 	while(success && magazine.ammo_count(countempties = TRUE) < magazine.max_ammo)
 		var/obj/item/ammo_casing/reload
 		for(var/obj/item/ammo_casing/A in bag)
 			if(A.BB && (A.caliber == magazine.caliber || (!magazine.caliber && A.type == magazine.ammo_type))) //The same checks as when you manually load a shell to the gun.
 				reload = A
 				break
-		if(reload)
+		if(reload && bag && !QDELETED(reload) && !QDELETED(bag))
 			attackby(reload,user) //We just call attackby, it does the rest.
+			next_bag_reload+=bag_reload_time
 			if(magazine.ammo_count(countempties = TRUE) >= magazine.max_ammo)
 				break
 			success = do_after(user, bag_reload_time, TRUE, src, TRUE)

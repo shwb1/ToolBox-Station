@@ -286,7 +286,11 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 			if(dropoff_points.len)
 				var/turf/dropoff_point = pick(dropoff_points)
 				var/list/crates = list()
+				var/area/dropoffA = get_area(dropoff_point)
 				for(var/obj/structure/closet/crate/crate in view(8, dropoff_point))
+					var/area/crateA = get_area(crate)
+					if(crateA.type != dropoffA.type)
+						continue
 					if(!istype(crate, /obj/structure/closet/crate/secure))
 						crates += crate
 				if(crates.len)
@@ -414,11 +418,12 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			var/turf/right = locate(T.x+1,T.y,T.z)
 			if(left && right)
 				var/list/sides = list(left,T,right)
+				var/decalnumber = 1
 				for(var/turf/side in sides)
-					var/decalnumber = 1
 					var/obj/effect/decal/D = new(side)
 					D.icon = 'icons/oldschool/objects.dmi'
 					D.icon_state = "oredrop[decalnumber]"
+					D.alpha = 175
 					decalnumber++
 	qdel(src)
 
