@@ -112,7 +112,8 @@
 	visible_message("<span class='boldannounce'>The tendril squirms in pain.</span>")
 	playsound(loc,'sound/effects/tendril_destroyed.ogg', 200, 0, 50, 1, 1)
 	new /obj/effect/gibspawner/generic/lizard_nest(loc)
-	new /obj/item/reagent_containers/food/snacks/egg/lizard_egg(loc)
+	if(prob(60))
+		new /obj/item/reagent_containers/food/snacks/egg/lizard_egg(loc)
 	qdel(src)
 
 /obj/effect/gibspawner/generic/lizard_nest
@@ -840,7 +841,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	icon_state = "post"
 	max_integrity = 300
 	smooth = SMOOTH_TRUE
-	canSmoothWith = list(/obj/structure/fence/door/opened, /obj/structure/fence/door, /obj/structure/fence/smooth, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust)
+	canSmoothWith = list(/obj/structure/fence/door/opened,/obj/structure/fence/door/closed, /obj/structure/fence/door, /obj/structure/fence/smooth, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust)
 
 //FENCE DOOR CLOSED
 /obj/structure/fence/door/closed
