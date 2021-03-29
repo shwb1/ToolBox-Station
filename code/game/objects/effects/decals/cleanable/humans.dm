@@ -96,6 +96,8 @@
 	SEND_SIGNAL(src, COMSIG_GIBS_STREAK, directions, diseases)
 	var/direction = pick(directions)
 	for(var/i in 0 to pick(0, 200; 1, 150; 2, 50))
+		if(i > 3)
+			break
 		sleep(2)
 		if(i > 0)
 			new /obj/effect/decal/cleanable/blood/splatter(loc, diseases)

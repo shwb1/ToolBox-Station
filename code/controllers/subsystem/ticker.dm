@@ -65,7 +65,7 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/Initialize(timeofday)
 	load_mode()
-
+	/*We do our own thing here. -falaskian
 	var/list/byond_sound_formats = list(
 		"mid"  = TRUE,
 		"midi" = TRUE,
@@ -80,6 +80,9 @@ SUBSYSTEM_DEF(ticker)
 		"wma"  = TRUE,
 		"aiff" = TRUE
 	)
+
+
+
 
 	var/list/provisional_title_music = flist("[global.config.directory]/title_music/sounds/")
 	var/list/music = list()
@@ -119,8 +122,12 @@ SUBSYSTEM_DEF(ticker)
 		music = world.file2list(ROUND_START_MUSIC_LIST, "\n")
 		login_music = pick(music)
 	else
-		login_music = "[global.config.directory]/title_music/sounds/[pick(music)]"
+		login_music = "[global.config.directory]/title_music/sounds/[pick(music)]"*/
 
+	var/list/music_list = flist("sound/toolbox/titlethemes/")
+	var/musicpath = pick(music_list)
+	if(fexists("sound/toolbox/titlethemes/[musicpath]"))
+		login_music = file("sound/toolbox/titlethemes/[musicpath]")
 
 	if(!GLOB.syndicate_code_phrase)
 		GLOB.syndicate_code_phrase	= generate_code_phrase(return_list=TRUE)
@@ -662,9 +669,20 @@ SUBSYSTEM_DEF(ticker)
 	save_admin_data()
 	update_everything_flag_in_db()
 	if(!round_end_sound)
-		var/list/tracks = flist("sound/roundend/")
-		if(tracks.len)
-			round_end_sound = "sound/roundend/[pick(tracks)]"
+		var/list/our_list = list(
+		"newroundsexy.ogg",
+		"apcdestroyed.ogg",
+		"bangindonk.ogg",
+		"autism.ogg",
+		//"heeman.ogg", degeneral hates this one apparently.
+		"rigged_from_the_start.ogg",
+		"seagulls.ogg")
+		var/chosen = pick(our_list)
+		if(fexists("sound/roundend/[chosen]"))
+			chosen = "sound/roundend/[chosen]"
+		else if(fexists("sound/toolbox/roundend/[chosen]"))
+			chosen = "sound/toolbox/roundend/[chosen]"
+		round_end_sound = chosen
 
 	SEND_SOUND(world, sound(round_end_sound))
 	rustg_file_append(login_music, "data/last_round_lobby_music.txt")

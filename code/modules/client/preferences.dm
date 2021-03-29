@@ -121,6 +121,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	var/action_buttons_screen_locs = list()
 
+	var/lastheardlobbytheme = 0
+
 /datum/preferences/New(client/C)
 	parent = C
 

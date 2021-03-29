@@ -297,7 +297,14 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 					if(!crate_memory || !(crate_memory in crates))
 						crate_memory = pick(crates)
 					targs += crate_memory
+	stop_automated_movement = TRUE
 	return targs
+
+/mob/living/simple_animal/hostile/randomhumanoid/handle_automated_movement() //This is to make sure he doesnt do a random wander between mining actions. This was causing him to bump into shit he shouldnt bump in to.
+	if(stop_automated_movement)
+		stop_automated_movement = !stop_automated_movement //only one attempt to wander in a random direction is skipped after seeing a target in the previous tick.
+		return FALSE
+	. = ..()
 
 /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/AttackingTarget()
 	if(istype(target, /obj/structure/lizard_ore_node))

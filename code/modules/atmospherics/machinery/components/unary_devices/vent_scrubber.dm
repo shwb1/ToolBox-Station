@@ -29,9 +29,12 @@
 
 	pipe_state = "scrubber"
 
-/obj/machinery/atmospherics/components/unary/vent_scrubber/New()
+/obj/machinery/atmospherics/components/unary/vent_scrubber/Initialize()
 	if(CONFIG_GET(flag/old_school_vents))
 		icon = 'icons/oldschool/oldericons/unary_devices_old.dmi'
+	. = ..()
+
+/obj/machinery/atmospherics/components/unary/vent_scrubber/New()
 	..()
 	if(!id_tag)
 		id_tag = assign_uid_vents()

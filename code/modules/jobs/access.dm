@@ -1,7 +1,7 @@
 
 //returns TRUE if this mob has sufficient access to use this object
 /obj/proc/allowed(mob/M)
-	if(M.omnipotent_access)
+	if(istype(M) && M.omnipotent_access)
 		return TRUE
 	//check if it doesn't require any access at all
 	if(src.check_access(null))

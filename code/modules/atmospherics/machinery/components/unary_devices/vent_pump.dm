@@ -36,9 +36,12 @@
 
 	pipe_state = "uvent"
 
-/obj/machinery/atmospherics/components/unary/vent_pump/New()
+/obj/machinery/atmospherics/components/unary/vent_pump/Initialize()
 	if(CONFIG_GET(flag/old_school_vents))
 		icon = 'icons/oldschool/oldericons/unary_devices_old.dmi'
+	. = ..()
+
+/obj/machinery/atmospherics/components/unary/vent_pump/New()
 	..()
 	if(!id_tag)
 		id_tag = assign_uid_vents()

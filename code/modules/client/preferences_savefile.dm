@@ -204,6 +204,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["purchased_gear"]					>> purchased_gear
 	S["equipped_gear"]					>> equipped_gear
 
+	S["lastheardlobbytheme"]	>> lastheardlobbytheme
+
 	//try to fix any outdated data if necessary
 	if(needs_update >= 0)
 		update_preferences(needs_update, S)		//needs_update = savefile_version if we need an update (positive integer)
@@ -245,6 +247,10 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		purchased_gear = list()
 	if(!equipped_gear)
 		equipped_gear = list()
+
+	if((lastheardlobbytheme < LOBBYMUSICREVISION) && !(toggles & SOUND_LOBBY))
+		toggles ^= SOUND_LOBBY
+		save_preferences()
 
 	return 1
 
@@ -299,6 +305,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["show_credits"], show_credits)
 	WRITE_FILE(S["purchased_gear"], purchased_gear)
 	WRITE_FILE(S["equipped_gear"], equipped_gear)
+	WRITE_FILE(S["lastheardlobbytheme"], lastheardlobbytheme)
 
 	if (!key_bindings)
 		key_bindings = deepCopyList(GLOB.keybinding_list_by_key)

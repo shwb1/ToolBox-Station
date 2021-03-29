@@ -76,7 +76,7 @@
 /obj/item/clothing/mask/cigarette/rollie/cannabis
 	desc = "Dried cannabis leaf rolled up in a thin piece of paper."
 	smoketime = 120
-	list_reagents = list("space_drugs" = 30, "lipolicide" = 5, "omnizine" = 2)
+	list_reagents = list(/datum/reagent/drug/space_drugs = 30, /datum/reagent/toxin/lipolicide = 5, /datum/reagent/medicine/omnizine = 2)
 
 // Holy Rollie
 
@@ -84,7 +84,7 @@
 	name = "holy rollie"
 	desc = "Holy healing cannabis leaf grown in heaven rolled up in a thin piece of paper."
 	chem_volume = 60
-	list_reagents = list("space_drugs" = 30, "omnizine" = 15, "mannitol" = 15)
+	list_reagents = list(/datum/reagent/drug/space_drugs = 30, /datum/reagent/medicine/omnizine = 15, /datum/reagent/medicine/mannitol = 15)
 
 
 // N-word pass

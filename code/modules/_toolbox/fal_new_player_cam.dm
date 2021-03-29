@@ -19,6 +19,7 @@ var/global/obj/new_player_cam/new_player_cam = null
 	var/atom/movable/screen/thescreen
 	var/list/camturfs = list()
 	var/turf/previousstart
+	var/atom/movable/screen/toolboxlogo
 
 /obj/new_player_cam/Destroy()
 	unlock_eyes_from_cam()
@@ -33,8 +34,10 @@ var/global/obj/new_player_cam/new_player_cam = null
 			continue*/
 		if(SSticker.current_state < GAME_STATE_PREGAME)
 			continue
-		if(!(thescreen in P.client.screen))
+		if(thescreen && !(thescreen in P.client.screen))
 			P.client.screen += thescreen
+		if(toolboxlogo && !(toolboxlogo in P.client.screen))
+			P.client.screen += toolboxlogo
 		if(P.client.perspective != EYE_PERSPECTIVE)
 			P.client.perspective = EYE_PERSPECTIVE
 		if(P.client.eye != src)
@@ -53,6 +56,8 @@ var/global/obj/new_player_cam/new_player_cam = null
 			continue
 		if(thescreen && thescreen in P.client.screen)
 			P.client.screen -= thescreen
+		if(toolboxlogo && toolboxlogo in P.client.screen)
+			P.client.screen -= toolboxlogo
 		if(P.client.eye != src)
 			continue
 		P.client.perspective = MOB_PERSPECTIVE
@@ -74,6 +79,7 @@ var/global/obj/new_player_cam/new_player_cam = null
 	thescreen.layer = 20
 	thescreen.plane = 100
 	thescreen.color = "black"
+	toolboxlogo = new()
 	spawn(0)
 		while(1)
 			if(SSticker.current_state > GAME_STATE_PREGAME||!camturfs.len)

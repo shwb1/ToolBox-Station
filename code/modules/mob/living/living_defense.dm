@@ -153,10 +153,10 @@
 			if(H.dna.species.grab_sound)
 				sound_to_play = H.dna.species.grab_sound
 		playsound(src.loc, sound_to_play, 50, 1, -1)
-
-		if(user.grab_state) //only the first upgrade is instantaneous
+		var/grab_upgrade_time = instant ? 0 : 10 //adding 1 second to the first grab state. -Falaskian
+		if(user.grab_state)
 			var/old_grab_state = user.grab_state
-			var/grab_upgrade_time = instant ? 0 : 30
+			grab_upgrade_time = instant ? 0 : 30
 			visible_message("<span class='danger'>[user] starts to tighten [user.p_their()] grip on [src]!</span>", \
 				"<span class='userdanger'>[user] starts to tighten [user.p_their()] grip on you!</span>")
 			switch(user.grab_state)

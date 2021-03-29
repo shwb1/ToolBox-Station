@@ -18,8 +18,7 @@ GLOBAL_PROTECT(admin_verbs_default)
 	/client/proc/cmd_admin_pm_context,	/*right-click adminPM interface*/
 	/client/proc/cmd_admin_pm_panel,		/*admin-pm list*/
 	/client/proc/stop_sounds,
-	/client/proc/mark_datum_mapview,
-	/client/proc/EditedStepFinder
+	/client/proc/mark_datum_mapview
 	)
 GLOBAL_LIST_INIT(admin_verbs_admin, world.AVerbsAdmin())
 GLOBAL_PROTECT(admin_verbs_admin)
@@ -193,7 +192,8 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	#endif
 	/client/proc/toggle_cdn,
 	/datum/admins/proc/check_who_has_admin_midis_disabled,
-	/datum/admins/proc/check_hub
+	/datum/admins/proc/check_hub,
+	/client/proc/EditedStepFinder
 	)
 
 GLOBAL_LIST_INIT(admin_verbs_possess, list(/proc/possess, /proc/release))

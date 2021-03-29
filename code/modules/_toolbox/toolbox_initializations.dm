@@ -29,6 +29,19 @@ proc/Initialize_Falaskians_Shit()
 	new_player_cam = new()
 	world.update_status()
 
+/atom/movable/screen/toolboxlogo
+	name = "Toolbox Station"
+	icon = 'icons/oldschool/toolboxlogo.dmi'
+	icon_state = ""
+	screen_loc = "south:16,east-5:10"
+	mouse_opacity = 0
+	layer = 20
+	plane = 100
+
+/atom/movable/screen/toolboxlogo/New()
+	alpha = round(255*0.7,1)
+	. = ..()
+
 /*/datum/config_entry/string/discordurl*/
 
 /*/client/verb/discord()
@@ -62,7 +75,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 		if(thediscordlink)
 			dat += "<a href=\"[thediscordlink]\">Discord</a>"
 		dat += ")<br>"
-	if(SSmapping && SSmapping.config.map_name)
+	if(SSmapping && SSmapping.config && SSmapping.config.map_name)
 		dat += "Map: [SSmapping.config.map_name]"
 	if(SSticker)
 		if(SSticker.current_state < GAME_STATE_PLAYING)

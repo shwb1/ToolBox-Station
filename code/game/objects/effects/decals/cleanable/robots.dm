@@ -15,6 +15,8 @@
 	set waitfor = 0
 	var/direction = pick(directions)
 	for (var/i = 0, i < pick(1, 200; 2, 150; 3, 50), i++)
+		if(i > 3)
+			break
 		sleep(2)
 		if (i > 0)
 			if (prob(40))
