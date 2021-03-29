@@ -19,7 +19,7 @@ var/global/obj/new_player_cam/new_player_cam = null
 	var/atom/movable/screen/thescreen
 	var/list/camturfs = list()
 	var/turf/previousstart
-	var/atom/movable/screen/toolboxlogo
+	var/atom/movable/screen/toolboxlogo/toolboxlogo
 
 /obj/new_player_cam/Destroy()
 	unlock_eyes_from_cam()

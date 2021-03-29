@@ -155,7 +155,6 @@
 		playsound(src.loc, sound_to_play, 50, 1, -1)
 		var/grab_upgrade_time = instant ? 0 : 10 //adding 1 second to the first grab state. -Falaskian
 		if(user.grab_state)
-			var/old_grab_state = user.grab_state
 			grab_upgrade_time = instant ? 0 : 30
 			visible_message("<span class='danger'>[user] starts to tighten [user.p_their()] grip on [src]!</span>", \
 				"<span class='userdanger'>[user] starts to tighten [user.p_their()] grip on you!</span>")
@@ -164,8 +163,10 @@
 					log_combat(user, src, "attempted to neck grab", addition="neck grab")
 				if(GRAB_NECK)
 					log_combat(user, src, "attempted to strangle", addition="kill grab")
-			if(!do_mob(user, src, grab_upgrade_time))
-				return 0
+		if(!do_mob(user, src, grab_upgrade_time))
+			return 0
+		if(user.grab_state)
+			var/old_grab_state = user.grab_state
 			if(!user.pulling || user.pulling != src || user.grab_state != old_grab_state)
 				return 0
 			if(user.a_intent != INTENT_GRAB)
