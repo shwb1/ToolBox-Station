@@ -221,15 +221,25 @@
 	H.health = 200
 	qdel(src)
 
-
-
 /*
-	var/tile_type = pick(/obj/structure/stone_tile/cracked, /obj/structure/stone_tile/surrounding_tile/cracked, /obj/structure/stone_tile/block/cracked)
-	if(prob(70))
-		for(var/turf/T in range(3, src))
-			var/obj/structure/stone_tile/S = new tile_type(T)
-			S.dir = pick(1,2,4,8)
+/mob/living/simple_animal/hostile/spawner/lizard/overmind
+	name = "lizard overmind"
+	icon = 'icons/mob/nest.dmi'
+	icon_state = "ash_walker_nest"
+	faction = list("lizard")
+	light_power = 0.5
+	light_range = 7
+	max_mobs = 3
+	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
+	loot = list(/obj/effect/lizard_nest_gib)
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/proc/tendril
+	var/mob/living/carbon/human/H
+	for(H in range(9))
 */
+
+
+
 /********************** LIZARD SLAVES **************************/
 
 GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
