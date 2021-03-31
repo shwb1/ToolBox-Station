@@ -224,12 +224,12 @@
 /*
 /mob/living/simple_animal/hostile/spawner/lizard/overmind
 	name = "lizard overmind"
-	icon = 'icons/mob/nest.dmi'
-	icon_state = "ash_walker_nest"
+	icon = 'icons/oldschool/96x96.dmi'
+	icon_state = "tribal_nexus_blink"
 	faction = list("lizard")
 	light_power = 0.5
-	light_range = 7
-	max_mobs = 3
+	light_range = 14
+	max_mobs = 6
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
 	loot = list(/obj/effect/lizard_nest_gib)
 
