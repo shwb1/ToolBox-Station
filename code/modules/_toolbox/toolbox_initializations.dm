@@ -23,7 +23,7 @@ proc/Initialize_Falaskians_Shit()
 	//initialize_discord_channel_list()
 	//save_perseus_manager_whitelist()
 	//SaveStation()
-	//load_chaos_assistant_chance()
+	load_chaos_assistant_chance()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
 	//GLOB.cable_coil_recipes += new/datum/stack_recipe("noose", /obj/structure/chair/noose, 10, time = 0, on_floor = TRUE)
 	new_player_cam = new()
@@ -371,3 +371,152 @@ GLOBAL_LIST_EMPTY(hub_features)
 						client.fps = 60
 
 				prefs.save_preferences()*/
+
+//Mass changing area lighting the lazy way.
+/area
+	var/list/rgb_remake = list()
+
+/area/New()
+	. = ..()
+	remake_RGB()
+
+/area/proc/remake_RGB()
+	if(islist(rgb_remake) && rgb_remake.len)
+		var/R = rgb_remake[1]
+		var/G = rgb_remake[2]
+		var/B = rgb_remake[3]
+		var/themax = max(R,G,B)
+		lighting_colour_tube = rgb(R,G,B)
+		lighting_colour_bulb = rgb(R == themax ? R : round(R*0.8,1),G == themax ? G : round(G*0.8,1),B == themax ? B : round(B*0.8,1))
+		lighting_colour_night = rgb(R == themax ? R : round(R*0.8,1),G == themax ? G : round(G*0.8,1),B == themax ? B : round(B*0.8,1))
+		for(var/obj/machinery/light/L in contents)
+			if(istype(L,/obj/machinery/light/small))
+				L.bulb_colour = lighting_colour_bulb
+				L.light_color = lighting_colour_bulb
+			else
+				L.bulb_colour = lighting_colour_tube
+				L.light_color = lighting_colour_tube
+			L.nightshift_light_color = lighting_colour_night
+			L.update_icon()
+
+//general areas
+/area/hallway
+	rgb_remake = list(233, 230, 255)
+/area/storage
+	rgb_remake = list(138, 255, 146)
+/area/storage/primary
+	rgb_remake = null
+/area/storage/tools
+	rgb_remake = null
+/area/crew_quarters
+	rgb_remake = list(203, 255, 196)
+/area/crew_quarters/kitchen
+	rgb_remake = null //I think kitchen should remain unchanged.
+/area/crew_quarters/bar
+	rgb_remake = list(148, 115, 65)
+/area/ai_monitored/storage/eva
+	rgb_remake = list(255, 255, 255)
+/area/chapel
+	rgb_remake = list(148, 115, 65)
+/area/library
+	rgb_remake = list(148, 115, 65)
+
+//command areas
+/area/bridge
+	rgb_remake = list(209, 255, 248)
+	lighting_brightness_tube = 6
+	lighting_brightness_bulb = 5
+	lighting_brightness_night = 5
+/area/crew_quarters/heads
+	rgb_remake = list(209, 255, 248)
+/area/bridge/meeting_room
+	rgb_remake = list(148, 115, 65)
+	lighting_brightness_tube = 10
+	lighting_brightness_bulb = 6
+	lighting_brightness_night = 6
+area/ai_monitored/nuke_storage
+	rgb_remake = list(133, 133, 133)
+/area/gateway
+	rgb_remake = list(209, 255, 248)
+
+//security areas
+/area/security
+	rgb_remake = list(255, 166, 166)
+/area/security/prison
+	rgb_remake = list(128, 68, 68)
+	lighting_brightness_tube = 6 //making perma darker, Fuck their feelings.
+	lighting_brightness_bulb = 5
+	lighting_brightness_night = 5
+/area/ai_monitored/security/armory
+	rgb_remake = list(255, 166, 166)
+	lighting_brightness_tube = 6 //making armory darker
+	lighting_brightness_bulb = 5
+	lighting_brightness_night = 5
+/area/mine/laborcamp
+	rgb_remake = list(255, 166, 166)
+
+//medical areas
+/area/medical
+	rgb_remake = list(209, 255, 248)
+/area/medical/virology
+	rgb_remake = list(145, 255, 156)
+/area/medical/apothecary
+	rgb_remake = list(255, 230, 161)
+/area/medical/surgery
+	rgb_remake = list(255, 255, 255)
+/area/medical/morgue
+	rgb_remake = list(69, 125, 255)
+
+//engineering areas
+/area/engine
+	rgb_remake = list(255, 205, 105)
+/area/storage/tech
+	rgb_remake = list(255, 205, 105)
+	lighting_brightness_tube = 5
+	lighting_brightness_bulb = 4
+	lighting_brightness_night = 4
+/area/engine/gravity_generator
+	lighting_brightness_tube = 5
+	lighting_brightness_bulb = 4
+	lighting_brightness_night = 4
+/area/construction
+	rgb_remake = list(255, 205, 105)
+/area/tcommsat/computer
+	rgb_remake = list(255, 205, 105) //telecoms office has engineering color.
+/area/tcommsat/server
+	lighting_brightness_tube = 5
+	lighting_brightness_bulb = 4
+	lighting_brightness_night = 4
+
+//science areas
+/area/science
+	rgb_remake = list(255, 209, 254)
+/area/science/xenobiology
+	lighting_brightness_tube = 6
+	lighting_brightness_bulb = 5
+	lighting_brightness_night = 5
+/area/science/server
+	rgb_remake = list(98, 0, 255)
+	lighting_brightness_tube = 6
+	lighting_brightness_bulb = 5
+	lighting_brightness_night = 5
+/area/science/robotics/lab
+	rgb_remake = list(254, 235, 255)
+
+//cargo areas
+/area/quartermaster
+	rgb_remake = list(255, 221, 135)
+/area/mine
+	rgb_remake = list(255, 221, 135)
+
+
+
+
+
+
+
+/area/hydroponics
+	rgb_remake = list(192, 255, 189)
+
+/area/shuttle
+	rgb_remake = list(208, 207, 255)

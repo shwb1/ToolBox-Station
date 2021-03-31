@@ -5,7 +5,7 @@
 	set waitfor = FALSE
 	..()
 	var/list/startlist = list()
-	var/therange = world.view+2
+	var/therange = 8
 	var/turf/Cturf = get_turf(C)
 	var/initializetimeout = world.time+200
 	while(world.time <= initializetimeout && !startlist.len)

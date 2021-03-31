@@ -13,7 +13,7 @@
 		ignore_slowdown(src)
 
 /mob/living/carbon/human/jesus/verb/disappear()
-	set category = " Space Jesus"
+	set category = "Space Jesus"
 	set name = "Disappear"
 	set desc = "You've finished your job. Time to disappear."
 
@@ -36,7 +36,7 @@
 	qdel(src)
 
 /mob/living/carbon/human/jesus/verb/hallelujah()
-	set category = " Space Jesus"
+	set category = "Space Jesus"
 	set name = "Hallelujah"
 	set desc = "Best used when performing miracles."
 
@@ -45,7 +45,7 @@
 	T.visible_message("<font size=3 color=blue><b>Hallelujah!</b></font>")
 
 /mob/living/carbon/human/jesus/verb/heal()
-	set category = " Space Jesus"
+	set category = "Space Jesus"
 	set name = "Heal"
 	set desc = "Perform a miracle."
 	/*if (!check_rights(R_REJUVINATE))
@@ -79,7 +79,7 @@
 	new /obj/effect/explosion(get_turf(L))
 
 /mob/living/carbon/human/jesus/verb/togglecorporeal()
-	set category = " Space Jesus"
+	set category = "Space Jesus"
 	set name = "Toggle Corporeal Form"
 	set desc = "Toggles your corporeal form."
 	incorporeal_move = !incorporeal_move
@@ -99,7 +99,7 @@
 	skin_tone = "caucasian3"
 	lip_color = "white"
 	eye_color = "000"
-	facial_hair_style = "Full Beard"
+	facial_hair_style = "Beard (Full)"
 	facial_hair_color = "000"
 	hair_style = "Long Fringe"
 	hair_color = "000"

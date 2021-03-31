@@ -82,13 +82,13 @@
 	return !cleared
 
 /obj/machinery/computer/station_alert/update_icon()
+	icon_screen = initial(icon_screen)
+	if(!(stat & (NOPOWER|BROKEN)))
+		var/active_alarms = FALSE
+		for(var/cat in alarms)
+			var/list/L = alarms[cat]
+			if(L.len)
+				active_alarms = TRUE
+		if(active_alarms)
+			icon_screen = "alert:2"
 	..()
-	if(stat & (NOPOWER|BROKEN))
-		return
-	var/active_alarms = FALSE
-	for(var/cat in alarms)
-		var/list/L = alarms[cat]
-		if(L.len)
-			active_alarms = TRUE
-	if(active_alarms)
-		add_overlay("alert:2")

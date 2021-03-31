@@ -57,8 +57,7 @@
 	cost = 10
 
 /datum/toolbox_upgrade/hulk/apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	var/datum/mutation/human/HM = GLOB.mutations_list[HULK]
-	HM.force_give(user)
+	user.dna.add_mutation(HULK, MUT_EXTRA)
 
 /*
 	Freeze Beam
@@ -122,8 +121,7 @@
 	cost = 2
 
 datum/toolbox_upgrade/sight/apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	var/datum/mutation/human/HM = GLOB.mutations_list[XRAY]
-	HM.force_give(user)
+	user.dna.add_mutation(XRAY, MUT_EXTRA)
 
 /*
 	Block
@@ -135,7 +133,7 @@ datum/toolbox_upgrade/sight/apply(mob/living/carbon/human/user, obj/structure/st
 	cost = 2
 
 /datum/toolbox_upgrade/block/apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	statue.true_box.block_chance = 80
+	statue.true_box.block_level = 2
 
 /datum/toolbox_upgrade/block2
 	name = "Ultimate Block"
@@ -144,11 +142,11 @@ datum/toolbox_upgrade/sight/apply(mob/living/carbon/human/user, obj/structure/st
 	cost = 5
 
 /datum/toolbox_upgrade/block2/can_apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	if (statue.true_box.block_chance < 80) return 0
+	if (statue.true_box.block_level == 2) return 0
 	return ..()
 
 /datum/toolbox_upgrade/block2/apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	statue.true_box.block_chance = 95
+	statue.true_box.block_level = 3
 
 /*
 	Glue
@@ -160,7 +158,7 @@ datum/toolbox_upgrade/sight/apply(mob/living/carbon/human/user, obj/structure/st
 	cost = 5
 
 /datum/toolbox_upgrade/glue/apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	statue.true_box.flags_1 |= NODROP_1
+	ADD_TRAIT(statue.true_box, TRAIT_NODROP, "chaos-assistant")
 
 /*
 	No slips
@@ -172,8 +170,8 @@ datum/toolbox_upgrade/sight/apply(mob/living/carbon/human/user, obj/structure/st
 	cost = 1
 
 /datum/toolbox_upgrade/noslip/apply(mob/living/carbon/human/user, obj/structure/statue/toolbox/statue)
-	var/obj/item/I = new /obj/item/clothing/shoes/sneakers/black(get_turf(statue.Holder))
-	I.flags_1 |= NOSLIP_1
+	var/obj/item/clothing/I = new /obj/item/clothing/shoes/sneakers/black(get_turf(statue.Holder))
+	I.clothing_flags |= NOSLIP
 	statue.Holder.put_in_hands(I)
 
 /*

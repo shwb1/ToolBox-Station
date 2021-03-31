@@ -164,6 +164,9 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	/// cooldown tracker for accent sounds,
 	var/last_accent_sound = 0
 
+	var/adminpaused = 0
+	var/adminheal_percent = 0.2
+
 /obj/machinery/power/supermatter_crystal/Initialize()
 	. = ..()
 	uid = gl_uid++
@@ -232,15 +235,19 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	return SUPERMATTER_INACTIVE
 
 /obj/machinery/power/supermatter_crystal/proc/alarm()
+	var/thevolume = 100
 	switch(get_status())
 		if(SUPERMATTER_DELAMINATING)
-			playsound(src, 'sound/misc/bloblarm.ogg', 100)
+			. = 'sound/misc/bloblarm.ogg'
 		if(SUPERMATTER_EMERGENCY)
-			playsound(src, 'sound/machines/engine_alert1.ogg', 100)
+			. = 'sound/machines/engine_alert1.ogg'
 		if(SUPERMATTER_DANGER)
-			playsound(src, 'sound/machines/engine_alert2.ogg', 100)
+			. = 'sound/machines/engine_alert2.ogg'
 		if(SUPERMATTER_WARNING)
-			playsound(src, 'sound/machines/terminal_alert.ogg', 75)
+			. = 'sound/machines/terminal_alert.ogg'
+			thevolume = 75
+	if(.)
+		playsound(src, ., thevolume)
 
 /obj/machinery/power/supermatter_crystal/proc/get_integrity()
 	var/integrity = damage / explosion_point
@@ -260,21 +267,34 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 
 	var/speaking = "[emergency_alert] The supermatter has reached critical integrity failure. Emergency causality destabilization field has been activated."
 	radio.talk_into(src, speaking, common_channel, language = get_selected_language())
-	for(var/i in SUPERMATTER_COUNTDOWN_TIME to 0 step -10)
+	message_admins("<font color='#ff0000'><B>SUPERMATTER AT \"[get_area(src)]\" IS EXPLODING! [ADMIN_JMP(src)] You have [SUPERMATTER_COUNTDOWN_TIME/10] seconds to reverse this.</B></font>(<A href='?src=[REF(src)];openoptions=1'>Options</A>)")
+	for(var/client/C in GLOB.admins)
+		C << sound('sound/magic/charge.ogg',volume = 75)
+	var/explodetime = world.time+SUPERMATTER_COUNTDOWN_TIME
+	var/sleeptime = 10
+	//for(var/i in SUPERMATTER_COUNTDOWN_TIME to 0 step -10)
+	while(world.time < explodetime)
 		if(damage < explosion_point) // Cutting it a bit close there engineers
 			radio.talk_into(src, "[safe_alert] Failsafe has been disengaged.", common_channel)
 			cut_overlay(causality_field, TRUE)
 			final_countdown = FALSE
 			return
-		else if((i % 50) != 0 && i > 50) // A message once every 5 seconds until the final 5 seconds which count down individualy
-			sleep(10)
+		if(adminpaused)
+			var/timeremaining = explodetime-world.time
+			while(adminpaused)
+				sleep(sleeptime)
+			explodetime = world.time+timeremaining
+			continue
+		var/i = explodetime - world.time
+		if((i % 50) != 0 && i > 50) // A message once every 5 seconds until the final 5 seconds which count down individualy
+			sleep(sleeptime)
 			continue
 		else if(i > 50)
 			speaking = "[DisplayTimeText(i, TRUE)] remain before causality stabilization."
 		else
 			speaking = "[i*0.1]..."
 		radio.talk_into(src, speaking, common_channel)
-		sleep(10)
+		sleep(sleeptime)
 
 	explode()
 
@@ -344,6 +364,9 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 			playsound(src, "smcalm", max(50, aggression), FALSE, 10)
 		var/next_sound = round((100 - aggression) * 5)
 		last_accent_sound = world.time + max(SUPERMATTER_ACCENT_SOUND_MIN_COOLDOWN, next_sound)
+
+	if(adminpaused)//admin told this supermatter to chill out.
+		return
 
 	//Ok, get the air from the turf
 	var/datum/gas_mixture/env = T.return_air()
@@ -493,21 +516,26 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 
 	if(damage > warning_point) // while the core is still damaged and it's still worth noting its status
 		if((REALTIMEOFDAY - lastwarning) / 10 >= WARNING_DELAY)
-			alarm()
-
+			var/alarmsound = alarm()
+			var/percentintegrity = get_integrity()
+			if(percentintegrity <= 70)//warning admin shits burning down -falaskian.
+				message_admins("<B>SUPERMATTER INTEGRITY FAILURE, NOW [percentintegrity]%</B> at [get_area(src)] [ADMIN_JMP(src)].")
+				if(alarmsound)
+					for(var/client/C in GLOB.admins)
+						C << sound(alarmsound,volume = 50)
 			if(damage > emergency_point)
-				radio.talk_into(src, "[emergency_alert] Integrity: [get_integrity()]%", common_channel)
+				radio.talk_into(src, "[emergency_alert] Integrity: [percentintegrity]%", common_channel)
 				lastwarning = REALTIMEOFDAY
 				if(!has_reached_emergency)
 					investigate_log("has reached the emergency point for the first time.", INVESTIGATE_SUPERMATTER)
 					message_admins("[src] has reached the emergency point [ADMIN_JMP(src)].")
 					has_reached_emergency = TRUE
 			else if(damage >= damage_archived) // The damage is still going up
-				radio.talk_into(src, "[warning_alert] Integrity: [get_integrity()]%", engineering_channel)
+				radio.talk_into(src, "[warning_alert] Integrity: [percentintegrity]%", engineering_channel)
 				lastwarning = REALTIMEOFDAY - (WARNING_DELAY * 5)
 
 			else                                                 // Phew, we're safe
-				radio.talk_into(src, "[safe_alert] Integrity: [get_integrity()]%", engineering_channel)
+				radio.talk_into(src, "[safe_alert] Integrity: [percentintegrity]%", engineering_channel)
 				lastwarning = REALTIMEOFDAY
 
 			if(power > POWER_PENALTY_THRESHOLD)
@@ -598,6 +626,9 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	return
 
 /obj/machinery/power/supermatter_crystal/attack_hand(mob/living/user)
+	if(istype(user,/mob/living/carbon/human/jesus) && user.client && user.client in GLOB.admins)
+		admin_menu(user)
+		return
 	. = ..()
 	if(.)
 		return
@@ -869,6 +900,58 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 			supermatter_zap(target_structure, 5, power / 2)
 		else
 			supermatter_zap(target_structure, 5, power / 1.5)
+
+/obj/machinery/power/supermatter_crystal/proc/admin_heal()
+	var/healamount = round(explosion_point*adminheal_percent,1)
+	damage = clamp(min(damage,explosion_point)-healamount, 0, explosion_point)
+
+/obj/machinery/power/supermatter_crystal/attack_ghost(mob/user)
+	if(admin_menu(user))
+		return
+	return ..()
+
+/obj/machinery/power/supermatter_crystal/proc/admin_menu(mob/user)
+	if(user.client && user.client in GLOB.admins)
+		var/dat = "<center><A href='?src=[REF(src)];pause=1'>Toggle Pause</A> <A href='?src=[REF(src)];invuln=1'>Toggle Invulnerable</A> <A href='?src=[REF(src)];heal=1'>Heal</A></center>"
+		dat+= "<P><B>Pause:</B> Prevents the supermatter from processing. No rads, arcing or interactions with gases. Stops explosions.<br>"
+		dat+= "<B>Invulnerability:</B> Locks the crystal's health, everything else will continue to run like rads and gases. This will not stop an explosion.<br>"
+		dat+= "<B>Heal:</B> Heals the Supermatter for 20% of it's health.</P>"
+		dat+= "<center><B><A href='?src=[REF(src)];zap=1'>ZAP!</A></B></center>"
+		var/datum/browser/popup = new(user,"supermatteradmin","Admin Supermatter Controls",400,300)
+		popup.set_content(dat)
+		popup.open(use_onclose = 0)
+		onclose(user,"supermatteradmin",ref=src)
+		return 1
+
+/obj/machinery/power/supermatter_crystal/Topic(href, href_list)
+	if(usr.client && usr.client in GLOB.admins)
+		if(href_list["openoptions"])
+			admin_menu(usr)
+			return
+		var/adminmessage
+		if(href_list["pause"])
+			adminpaused = !adminpaused
+			adminmessage = "[key_name(usr)] [adminpaused ? "paused" : "unpaused"] the supermatter"
+		if(href_list["invuln"])
+			if(initial(takes_damage))
+				takes_damage = !takes_damage
+				adminmessage = "[key_name(usr)] made the supermatter [takes_damage ? "no longer invulnerable": "invulnerable"]"
+			else
+				to_chat(usr, "This supermatter is always invulnerable.")
+		if(href_list["heal"])
+			admin_heal()
+			adminmessage = "[key_name(usr)] healed the supermatter [adminheal_percent*100]%"
+		if(href_list["zap"])
+			adminmessage = "[key_name(usr)] caused the supermatter to ZAP something random."
+			playsound(src.loc, 'sound/weapons/emitter2.ogg', 100, 1, extrarange = 10)
+			supermatter_zap(src, 4, CLAMP(max(power*2,4000), 4000, 20000))
+		if(adminmessage)
+			var/turf/T = get_turf(src)
+			if(T)
+				adminmessage = "[adminmessage] at [T.x] [T.y] [T.z] [get_area(src)]."
+				log_admin("[adminmessage]")
+				message_admins("[adminmessage]  [ADMIN_VERBOSEJMP(T)]")
+	..()
 
 #undef HALLUCINATION_RANGE
 #undef GRAVITATIONAL_ANOMALY

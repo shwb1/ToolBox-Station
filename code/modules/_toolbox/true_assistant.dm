@@ -345,7 +345,8 @@ GLOBAL_LIST_EMPTY(toolbox_statues)
 	var/obj/structure/statue/toolbox/Statue
 	icon_state = "red"
 	item_state = "toolbox_red"
-	block_chance = 60
+	//block_chance = 60
+	block_level = 1
 	//origin_tech = null
 	force = 12
 	var/next_freeze = 0
@@ -372,7 +373,7 @@ GLOBAL_LIST_EMPTY(toolbox_statues)
 	new /obj/item/weldingtool/true(src)
 	new /obj/item/crowbar/true(src)
 	new /obj/item/wirecutters/true(src, "red")
-	new /obj/item/device/multitool(src)
+	new /obj/item/multitool(src)
 	new /obj/item/clothing/gloves/color/yellow(src)
 	new /obj/item/clothing/glasses/sunglasses(src)
 	new /obj/item/storage/belt/utility(src)
@@ -393,7 +394,7 @@ GLOBAL_LIST_EMPTY(toolbox_statues)
 
 
 	target.Knockdown(60)
-	add_logs(user, target, "stunned", src)
+	log_combat(user, target, "stunned", src)
 	src.add_fingerprint(user)
 	target.visible_message("<span class ='danger'>[user] has knocked down [target] with [src]!</span>", \
 		"<span class ='userdanger'>[user] has knocked down [target] with [src]!</span>")
@@ -443,8 +444,8 @@ GLOBAL_LIST_EMPTY(toolbox_statues)
 /obj/item/weldingtool/true/use()
 	return 1
 
-/obj/item/weldingtool/true/attackby(obj/item/I, mob/user, params)
-	..()
+/*/obj/item/weldingtool/true/attackby(obj/item/I, mob/user, params)
+	..()*/
 
 /obj/item/crowbar/true
 	name = "true crowbar"

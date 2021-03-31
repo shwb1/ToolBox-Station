@@ -66,7 +66,7 @@
 		if(suckingticktime <= 0)
 			break
 		suckingticktime--
-		for(var/atom/movable/AM in range(world.view,src))
+		for(var/atom/movable/AM in range(7,src))
 			if(AM in ignore_atom)
 				continue
 			if(istype(AM,/obj/structure/closet))
