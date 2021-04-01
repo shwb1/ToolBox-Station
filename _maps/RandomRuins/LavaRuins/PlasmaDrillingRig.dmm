@@ -1,0 +1,148 @@
+"aa" = (/turf/closed/mineral/volcanic,/area/lavaland/surface/outdoors)
+"ab" = (/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ac" = (/turf/open/chasm/lavaland,/area/lavaland/surface/outdoors)
+"ad" = (/obj/item/flashlight/lantern,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ae" = (/obj/effect/decal/remains/human,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"af" = (/obj/structure/fence{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ag" = (/obj/structure/fence/door,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ah" = (/obj/structure/lattice,/turf/open/chasm/lavaland,/area/lavaland/surface/outdoors)
+"ai" = (/obj/structure/lattice/catwalk,/turf/open/chasm/lavaland,/area/lavaland/surface/outdoors)
+"aj" = (/turf/closed/wall/r_wall/rust,/area/survivalpod)
+"ak" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 56568},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"al" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 55980},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"am" = (/obj/structure/closet,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"an" = (/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"ao" = (/obj/structure/tank_dispenser/plasma,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"ap" = (/obj/effect/decal/cleanable/cobweb/cobweb2,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aq" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 44569},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"ar" = (/obj/machinery/door/airlock/hatch,/obj/effect/turf_decal/caution/stand_clear/red,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"as" = (/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"at" = (/obj/structure/fans/tiny,/obj/machinery/door/airlock/hatch,/obj/effect/turf_decal/caution/stand_clear/red,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"au" = (/obj/machinery/button/door{id = 56568; name = "shutter button"; pixel_x = 5; pixel_z = 25},/obj/structure/rack,/obj/item/storage/backpack/old,/obj/item/storage/backpack/old,/obj/item/storage/backpack/old,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"av" = (/obj/effect/decal/cleanable/cobweb/cobweb2,/obj/machinery/button/door{id = 55980; name = "shutter button"; pixel_x = -5; pixel_z = 25},/obj/structure/closet,/obj/item/stack/rods/ten,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aw" = (/turf/closed/wall/mineral/plastitanium,/area/survivalpod)
+"ax" = (/obj/structure/grille,/obj/structure/window/plastitanium,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"ay" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 99765},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"az" = (/turf/open/space/basic,/area/survivalpod)
+"aA" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 33657},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aB" = (/obj/machinery/light/small,/obj/structure/reagent_dispensers/cooking_oil{name = "vat of water"; reagent_id = "water"; tank_volume = 2000},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aC" = (/obj/effect/decal/remains/plasma,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aD" = (/obj/structure/fans/tiny,/obj/effect/turf_decal/bot_red,/obj/effect/turf_decal/caution/red,/obj/machinery/door/airlock/hatch,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aE" = (/obj/machinery/computer,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aF" = (/obj/structure/fans/tiny,/obj/machinery/door/airlock/hatch,/obj/effect/turf_decal/bot_red,/obj/effect/turf_decal/caution/red,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aG" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 34742},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aH" = (/obj/machinery/light/small,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aI" = (/obj/effect/decal/remains/plasma,/obj/effect/decal/cleanable/shreds,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aJ" = (/turf/open/floor/pod/light{name = "floor"},/area/survivalpod)
+"aK" = (/obj/structure/fans/tiny,/obj/machinery/door/airlock/hatch,/obj/effect/turf_decal/caution/stand_clear/red,/turf/open/floor/pod/light{name = "floor"},/area/survivalpod)
+"aL" = (/obj/effect/decal/remains/plasma,/obj/effect/decal/cleanable/cobweb,/obj/effect/decal/cleanable/shreds,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aM" = (/obj/machinery/light/broken{dir = 1},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aN" = (/obj/structure/table/reinforced,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aO" = (/obj/machinery/light/broken,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aP" = (/obj/machinery/button/door{id = 17762; name = "shutter button"},/turf/closed/wall/r_wall/rust,/area/survivalpod)
+"aQ" = (/obj/structure/grille,/obj/structure/window/plastitanium,/obj/machinery/door/poddoor/shutters{id = 17762},/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"aR" = (/obj/structure/ore_box,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aS" = (/turf/open/chasm/lavaland,/area/survivalpod)
+"aT" = (/obj/effect/turf_decal/delivery/white,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aU" = (/obj/effect/turf_decal/stripes/asteroid,/turf/closed/wall/r_wall/rust,/area/survivalpod)
+"aV" = (/obj/effect/turf_decal/loading_area/white,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"aW" = (/obj/structure/lattice,/turf/open/chasm/lavaland,/area/survivalpod)
+"aX" = (/obj/machinery/button/door{id = 66931; pixel_z = -25},/turf/open/floor/pod/light{name = "floor"},/area/survivalpod)
+"aY" = (/obj/structure/fans/tiny,/obj/machinery/door/airlock/hatch,/obj/effect/turf_decal/caution/stand_clear/red,/obj/machinery/door/poddoor{id = 66931; layer = 2.8; level = 2},/turf/open/floor/pod/light{name = "floor"},/area/survivalpod)
+"aZ" = (/obj/structure/reagent_dispensers/cooking_oil{name = "vat of water"; reagent_id = "water"; tank_volume = 2000},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"ba" = (/obj/machinery/door/poddoor{id = 57542; layer = 2.8; level = 2},/obj/effect/turf_decal/delivery,/turf/open/floor/plating/lavaland_baseturf,/area/survivalpod)
+"bb" = (/obj/effect/turf_decal/delivery,/obj/machinery/door/poddoor{id = 22735; layer = 2.8; level = 2},/turf/open/floor/plating/lavaland_baseturf,/area/survivalpod)
+"bc" = (/obj/effect/turf_decal/delivery,/obj/machinery/door/poddoor{id = 22735; layer = 2.8; level = 2},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bd" = (/obj/effect/turf_decal/delivery,/obj/machinery/door/poddoor{id = 57542; layer = 2.8; level = 2},/turf/open/floor/plating/lavaland_baseturf,/area/survivalpod)
+"be" = (/obj/machinery/button/door{id = 57542; name = "blast door button"; pixel_x = 25},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bf" = (/obj/machinery/button/door{id = 22735; name = "blast door button"; pixel_x = -25},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bg" = (/obj/structure/extinguisher_cabinet{pixel_x = -25},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bh" = (/obj/structure/extinguisher_cabinet{pixel_x = 25; pixel_z = 0},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bi" = (/obj/machinery/button/door{id = 44569; name = "shutter button"; pixel_x = 5; pixel_z = -25},/obj/machinery/light/broken,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"bj" = (/obj/machinery/shower{pixel_x = 0; pixel_z = 15},/obj/effect/turf_decal/delivery/white,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bk" = (/obj/structure/closet/emcloset/anchored,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bl" = (/obj/structure/closet/firecloset/full,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bm" = (/obj/structure/reagent_dispensers/fueltank,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bn" = (/obj/structure/extinguisher_cabinet{pixel_x = 25},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bo" = (/obj/machinery/light/broken,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"bp" = (/obj/machinery/light/broken{dir = 8},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bq" = (/obj/machinery/button/door{id = 22735; name = "blast door button"; pixel_x = -27; pixel_z = 5},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"br" = (/obj/machinery/light/broken{dir = 4},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bs" = (/obj/machinery/autolathe,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bt" = (/obj/machinery/button/door{id = 99765; name = "shutter button"; pixel_x = -5; pixel_z = 25},/obj/structure/table/reinforced,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bu" = (/obj/machinery/light/broken{dir = 1},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bv" = (/obj/effect/decal/cleanable/cobweb,/obj/machinery/mineral/equipment_vendor/golem{name = "''borrowed'' equipment vendor"},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bw" = (/obj/machinery/portable_atmospherics/canister,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bx" = (/obj/machinery/vending/wallmed{pixel_x = 25; pixel_z = 0},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"by" = (/obj/structure/table_frame,/obj/item/surgical_drapes,/obj/machinery/light/broken{dir = 8},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bz" = (/obj/structure/frame/computer,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"bA" = (/obj/machinery/light/small{dir = 4},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bB" = (/obj/machinery/light/small{dir = 1},/turf/open/floor/pod/light{name = "floor"},/area/survivalpod)
+"bC" = (/obj/machinery/light/small{dir = 8},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bD" = (/obj/machinery/autolathe,/obj/machinery/light/broken{dir = 4},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bE" = (/obj/structure/table/reinforced,/turf/open/floor/pod{name = "floor"},/area/survivalpod)
+"bF" = (/obj/structure/table/reinforced,/obj/item/storage/firstaid/ancient{pixel_x = 4; pixel_z = 4},/obj/item/storage/firstaid/ancient{pixel_x = -4; pixel_z = -4},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bG" = (/obj/structure/table/reinforced,/obj/machinery/vending/wallmed,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bH" = (/obj/structure/table/reinforced,/obj/machinery/light/floor,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bI" = (/obj/machinery/button/door{id = 33657; name = "shutter button"; pixel_x = 5; pixel_z = 25},/obj/structure/table/reinforced,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bJ" = (/obj/machinery/door/poddoor{id = 99564; layer = 2.8; level = 2},/obj/effect/turf_decal/delivery,/turf/open/floor/plating/lavaland_baseturf,/area/survivalpod)
+"bK" = (/obj/machinery/door/poddoor{id = 57542; layer = 2.8; level = 2},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bL" = (/obj/machinery/button/door{id = 34742; name = "shutter button"; pixel_x = 5; pixel_z = 25},/obj/effect/mob_spawn/human/plasma_miner,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bM" = (/obj/effect/mob_spawn/human/plasma_miner,/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bN" = (/obj/structure/rack,/obj/item/tank/internals/plasmaman/belt{pixel_x = 5; pixel_z = 5},/obj/item/tank/internals/plasmaman/belt,/obj/item/tank/internals/plasmaman/belt{pixel_x = -5; pixel_z = -5},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+"bO" = (/obj/structure/epifiller{pixel_x = 0; pixel_z = 27},/turf/open/floor/pod/dark{name = "floor"},/area/survivalpod)
+
+(1,1,1) = {"
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabababadaeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabababababababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafafagafafaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaacacacacacacacacacaaaaaaabababababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaacacacacacacacacacacacacacacacabababababababacacacaaaaaaaaaaaaaaaaaaacacacaaaaaaaaaaaaaaaaaa
+aaaaaaaaacacacacacacacacacacacacacacacacacacacahaiaiaiahacacacacacacacacacacacacacacacacacaaaaaaaaaaaaaa
+aaaaaaaaacacacacacacacacacacacacacacacacacacacahaiaiaiahacacacacacacacacacacacacacacacacacacaaaaaaaaaaaa
+aaaaaaacacacacacacacacacacacacacacacacacacacacahaiaiaiahacacacacacacacacacacacacacacacacacacaaaaaaaaaaaa
+aaaaaaacacacacacacacacacacacacacacacacacacacacahaiaiaiahacacacacacacacacacacacacacacacacacacaaaaaaaaaaaa
+aaaaaaacacacacacacacacacacacacacacacahacahacahahaiaiaiahahacahacahacacacacacacacacacacacacacaaaaaaaaaaaa
+aaaaaaacacacacacacacajajakakakacacacaiaiaiaiaiaiaiaiaiaiaiaiaiaiaiacacacalalalajajacacacacacacaaaaaaaaaa
+aaaaaaacacacacacacajajanananakacacaiaiaiaiaiaiaiaiaiaiaiaiaiaiaiaiaiacacalananaoajajacacacacacaaaaaaaaaa
+aaaaacacacacacacacajauanananakahahaiaiaiahahahahahahahahahahahaiaiaiahahalanananavajacacacacacaaaaaaaaaa
+aaaaacacacacacacacajaNanaBaZajacacaiaiahahajajaqaqaqaqaqajajahahaiaiacacajbmaHanamajacacacacacacaaaaaaaa
+aaaaacacacacacacacajajarajajajahahaiaiahajajasasasasasasasajajahaiaiahahajajajatajajacacacacacacaaaaaaaa
+aaaaacacacacacacacajananananajajaiaiaiaiajaMasasasasasasasaMajaiaiaiaiajajbsanananajacacacacacacaaaaaaaa
+aaaaaaacacacacacacajananananbtajaiaiaiaiajasasawaxaxaxawasasajaiaiaiaiajbIananananajacacacacacacaaaaaaaa
+aaaaaaacacacacacacajaOanananaNayaiaiaiaiaqasasaxazazazaxasasaqaiaiaiaiaAaNanananaOajacacacacacacaaaaaaaa
+aaaaaaacacacacacacajajbgananaNayaiaiaiaiaqasasaxazazazaxasasaqaiaiaiaiaAaNananbhajajacacacacacacaaaaaaaa
+aaaaaaacacacacacacaSajanananaNayaiaiaiaiaqasasaxazazazaxasasaqaiaiaiaiaAaNanananajaSacacacacacacaaaaaaaa
+aaaaacacacacacacacaSajanananaNajaiaiaiaiaUasasawaxaxaxawasasajaiaiaiaiajaNanananajaSacacacacacacaaaaaaaa
+aaaaacacacacacacacaSajajarajajajaiaiaiaiajbiasasasaEasasasboajaiaiaiaiajajajatajajaSacacacacacacaaaaaaaa
+aaaaacacacacacacacaSajanananbjajajaiaiaiajajasasasasasasaCajajaiaiaiajajbjanananajaSacacacacacaaaaaaaaaa
+aaaaaaacacacacacacaSajanasasasbkajaiaiaiaiajajajajaDajajajajaiaiaiaiajbkasasasanajaSacacacacacaaaaaaaaaa
+aaaaaaacacacacacacaSajanasasasblajaiaiaiaiaiaiaiajbJajaiaiaiaiaiaiaiajblasasasanajaSacacacacacaaaaaaaaaa
+aaaaaaacacacacacacaSajanasasbnajajajaiaiaiaiaiaiaiaiaiaiaiaiaiaiaiajajajbgasasanajaSacacacacacaaaaaaaaaa
+aaaaaaacacacacacacaSajanasasasbKajbaaiaiaiaiaiaiaiaiaiaiaiaiaiaiaibbajbcasasasanajaSacacacacacaaaaaaaaaa
+aaaaaaacacacacacacaSajbpasasasbKaFbdaiaiaiaiaiaiaiaiaiaiaiaiaiaiaibbaFbcasasasbrajaSacacacacacacaaaaaaaa
+aaaaaaacacacacacacaSajanasasasbKajbdaiaiaiaiajaGaGajaGaGajaiaiaiaibbajbcasasasanajaSacacacacacacaaaaaaaa
+aaaaaaacacacacacacaSajanasasbeajajajacahacajajbqanbuanaIajajacahacajajajbfasasanajaSacacacacacacaaaaaaaa
+aaaaaaacacacacacacaSajajanasasanapajajahahaGbLaJaJaJaJaJanaGahahajajananasasanajajaSacacacacacacaaaaaaaa
+aaaaacacacacacacacaSaWajajanasasasanajajahaGbMaJaJaJaJaJbNaGahajajanasasasanajajaWaSacacacacacacaaaaaaaa
+aaaaacacacacacacacaSaWaSajanananananbmajahaGbMaJaXaJaJaJanaGahajaIanananananajaSaWaSacacacacacacaaaaaaaa
+aaaaacacacacacacajajajajajajajajajatajajajajajajajaYajajajajajajajatajajajajajajajajajacacacacacacaaaaaa
+aaaaacacacacacacajanananbOananajaLasasaMasasasasasasasasasasaMasasasasajbvbwbwananaNajacacacacacacaaaaaa
+aaaaacacacacacacajanaJasaJasbxajasasasasasasasajajajajajasasasasasasasajanasaJasaJaTajacacacacacacaaaaaa
+aaaaacacacacacacajbybzaJasaJbAajasasasasasasasaKaJbBaJaKasasasasasasasajbCaJasaJasbDajacacacacacacaaaaaa
+aaaaacacacacacacajanaJasaJasanatasasanaPajajajawawaJawawajajajaPanasasatanasaJasaJaVajacacacacacacaaaaaa
+aaaaacacacacacacajaNbEaJasaJanajasasaNaQacahacawaJaJaJawacahacaQaNasasajbgaJasaJasaNajacacacacacacaaaaaa
+aaaaacacacacacacajajbFbGananbnajasasaNaQacahacawawaJawawacahacaQaNasasajaRaRaRaRaRajajacacacacacacaaaaaa
+aaaaacacacacacacacajajajajajajajaNaNbHaQacahacawaJaJaJaJacahacaQbHaNaNajajajajajajajacacacacacacacaaaaaa
+aaaaacacacacacacacacacacacacacajaQaQaQajahahahawawaJawawahahahajaQaQaQajacacacacacacacacacacacacacaaaaaa
+aaaaacacacacacacacacacacacacacacacacacacacacacacawaJawacacacacacacacacacacacacacacacacacacacacacacaaaaaa
+aaaaaaacacacacacacacacacacacacacacacacacacacacacawacawacacacacacacacacacacacacacacacacacacacacacaaaaaaaa
+aaaaaaacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaaaa
+aaaaaaaaacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaaaaaa
+aaaaaaaaaaaaaaacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacacacacacacacacacacacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+"}

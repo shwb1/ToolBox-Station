@@ -1259,6 +1259,8 @@
 #include "code\modules\_toolbox\silly\tidepods.dm"
 #include "code\modules\_toolbox\silly\trollcloset.dm"
 #include "code\modules\_toolbox\silly\weeb.dm"
+#include "code\modules\_toolbox\space_exploration\ruins\lava_ruins.dm"
+#include "code\modules\_toolbox\space_exploration\ruins\space_ruins.dm"
 #include "code\modules\admin\admin.dm"
 #include "code\modules\admin\admin_follow.dm"
 #include "code\modules\admin\admin_investigate.dm"

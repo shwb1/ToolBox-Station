@@ -88,10 +88,9 @@
 	back = /obj/item/tank/internals/plasmaman
 	l_pocket = /obj/item/reagent_containers/hypospray/medipen/survival
 
-/obj/effect/mob_spawn/human/plasma_miner/create(ckey, name)
+/obj/effect/mob_spawn/human/plasma_miner/special(mob/living/carbon/M, name)
 	. = ..()
-	if(istype(.,/mob/living/carbon))
-		var/mob/living/carbon/M = .
+	if(istype(M,/mob/living/carbon))
 		for(var/obj/item/tank/internals/plasmaman/F in M)
 			M.internal = F
 			break

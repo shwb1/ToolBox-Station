@@ -18,7 +18,7 @@
 	icon_state = "sosjerky"
 	desc = "Beef jerky made from the finest space cows."
 	trash = /obj/item/trash/sosjerky
-	list_reagents = list(/datum/reagent/consumable/nutriment = 1, /datum/reagent/consumable/sugar = 3, /datum/reagent/consumable/sodiumchloride = 2)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sugar = 1, /datum/reagent/consumable/sodiumchloride = 1)
 	junkiness = 25
 	filling_color = "#8B0000"
 	tastes = list("dried meat" = 1)
@@ -47,7 +47,7 @@
 	icon_state = "4no_raisins"
 	desc = "Best raisins in the universe. Not sure why."
 	trash = /obj/item/trash/raisins
-	list_reagents = list(/datum/reagent/consumable/nutriment = 2, /datum/reagent/consumable/sugar = 4)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sugar = 2)
 	junkiness = 25
 	filling_color = "#8B0000"
 	tastes = list("dried raisins" = 1)
@@ -57,7 +57,7 @@
 /obj/item/reagent_containers/food/snacks/no_raisin/healthy
 	name = "homemade raisins"
 	desc = "Homemade raisins, the best in all of spess."
-	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/nutriment/vitamin = 2)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 4, /datum/reagent/consumable/nutriment/vitamin = 2)
 	junkiness = 0
 	foodtype = FRUIT
 
@@ -65,7 +65,7 @@
 	name = "space twinkie"
 	icon_state = "space_twinkie"
 	desc = "Guaranteed to survive longer than you will."
-	list_reagents = list(/datum/reagent/consumable/sugar = 4)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 1, /datum/reagent/consumable/sugar = 4)
 	junkiness = 25
 	filling_color = "#FFD700"
 	foodtype = JUNKFOOD | GRAIN | SUGAR
@@ -76,7 +76,7 @@
 	desc = "Bite sized cheesie snacks that will honk all over your mouth."
 	icon_state = "cheesie_honkers"
 	trash = /obj/item/trash/cheesie
-	list_reagents = list(/datum/reagent/consumable/nutriment = 1, /datum/reagent/consumable/sugar = 3)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sugar = 1)
 	junkiness = 25
 	filling_color = "#FFD700"
 	tastes = list("cheese" = 5, "crisps" = 2)

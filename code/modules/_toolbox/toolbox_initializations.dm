@@ -401,7 +401,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 
 //general areas
 /area/hallway
-	rgb_remake = list(233, 230, 255)
+	rgb_remake = list(240, 240, 255)
 /area/storage
 	rgb_remake = list(138, 255, 146)
 /area/storage/primary
@@ -409,7 +409,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 /area/storage/tools
 	rgb_remake = null
 /area/crew_quarters
-	rgb_remake = list(203, 255, 196)
+	rgb_remake = list(240, 240, 255)
 /area/crew_quarters/kitchen
 	rgb_remake = null //I think kitchen should remain unchanged.
 /area/crew_quarters/bar
@@ -420,6 +420,10 @@ GLOBAL_LIST_EMPTY(hub_features)
 	rgb_remake = list(148, 115, 65)
 /area/library
 	rgb_remake = list(148, 115, 65)
+/area/hydroponics
+	rgb_remake = list(192, 255, 189)
+/area/shuttle
+	rgb_remake = list(240, 240, 255)
 
 //command areas
 /area/bridge
@@ -457,7 +461,7 @@ area/ai_monitored/nuke_storage
 
 //medical areas
 /area/medical
-	rgb_remake = list(209, 255, 248)
+	rgb_remake = list(230, 255, 235)
 /area/medical/virology
 	rgb_remake = list(145, 255, 156)
 /area/medical/apothecary
@@ -501,7 +505,7 @@ area/ai_monitored/nuke_storage
 	lighting_brightness_bulb = 5
 	lighting_brightness_night = 5
 /area/science/robotics/lab
-	rgb_remake = list(254, 235, 255)
+	rgb_remake = list(255, 227, 227)
 
 //cargo areas
 /area/quartermaster
@@ -509,14 +513,10 @@ area/ai_monitored/nuke_storage
 /area/mine
 	rgb_remake = list(255, 221, 135)
 
-
-
-
-
-
-
-/area/hydroponics
-	rgb_remake = list(192, 255, 189)
-
-/area/shuttle
-	rgb_remake = list(208, 207, 255)
+//blacklisting station room modules. Why is there a blacklist for ruins but not these rooms?
+/proc/toolboxhatesthisroom(datum/map_template/random_room/R)
+	. = FALSE
+	if(istype(R))
+		var/list/banned = generateMapList("[global.config.directory]/randomroomblacklist.txt")
+		if(banned.Find(R.mappath))
+			. = TRUE

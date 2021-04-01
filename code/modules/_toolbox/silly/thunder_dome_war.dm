@@ -43,11 +43,11 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 			var/turf/T2 = locate(specialcenter.x+(additional*-1),specialcenter.y,specialcenter.z)
 			specialturfs += T2
 			additional++
-		var/thepwhitelist = get_pwhitelist()
+		//var/thepwhitelist = get_pwhitelist()
 		to_chat(world,"<font size='5'><B>ITS THUNDERDOME TIME</B></font>")
 		while(GLOB.Thunder_Dome_War_Time)
 			var/list/deathsquads = list()
-			var/list/perseus = list()
+			//var/list/perseus = list()
 			for(var/client/C in GLOB.clients)
 				if(!istype(C.mob,/mob/dead/observer) && !istype(C.mob,/mob/living))
 					continue
@@ -79,12 +79,12 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 						spawn(0)
 							if(oldmob.mind && oldmob.mind.special_role == "Thunder Dome War" )
 								qdel(oldmob)
-					var/perccheck = is_pwhitelisted(C.ckey,thepwhitelist)
+					/*var/perccheck = is_pwhitelisted(C.ckey,thepwhitelist)
 					if(perccheck && (specialturfs.len || specialbackupturfs.len))
 						perseus[C] = perccheck
 					else
-						deathsquads += C
-			for(var/client/C in perseus)
+						deathsquads += C*/
+			/*for(var/client/C in perseus)
 				if(perseus[C])
 					var/mob/living/carbon/human/H = new()
 					C.prefs.copy_to(H)
@@ -106,7 +106,7 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 						outfitdatum = /datum/outfit/perseus/commander/fullkit
 					var/datum/outfit/perseus/P = new outfitdatum()
 					H.equipOutfit(P)
-					H.dir = SOUTH
+					H.dir = SOUTH*/
 			for(var/client/C in deathsquads)
 				var/mob/living/carbon/human/H = new()
 				H.real_name = C.key

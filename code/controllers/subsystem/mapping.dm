@@ -359,6 +359,8 @@ GLOBAL_LIST_EMPTY(the_station_areas)
 		if(!(initial(room_type.mappath)))
 			continue
 		var/datum/map_template/random_room/R = new room_type()
+		if(toolboxhatesthisroom(R))
+			continue
 		random_room_templates[R.room_id] = R
 		map_templates[R.room_id] = R
 
