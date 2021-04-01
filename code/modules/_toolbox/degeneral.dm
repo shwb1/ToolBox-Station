@@ -1592,8 +1592,9 @@ GLOBAL_LIST_EMPTY(gateway_components)
 /obj/machinery/gateway/centeraway/missing_component/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/bluespace_cube))
 		var/obj/item/bluespace_cube/C = I
-		C.forceMove(src)
+		QDEL_NULL(C)
 		has_cube = TRUE
+		to_chat(user, "<span class='notice'>You insert the bluespace cube into the gateway.</span>")
 		return
 	.=..()
 
