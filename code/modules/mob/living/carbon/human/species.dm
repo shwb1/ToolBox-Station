@@ -1219,9 +1219,25 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 /datum/species/proc/movement_delay(mob/living/carbon/human/H)
 	. = 0	//We start at 0.
 	var/gravity = 0
+	var/ignoreslow = 0
+
+	//flight patch returns
+	var/flightpack = 0
+	var/obj/item/flightpack/F = H.get_flightpack()
+	if(istype(F) && F.flight)
+		flightpack = 1
+
 	gravity = H.has_gravity()
 
-	if(!HAS_TRAIT(H, TRAIT_IGNORESLOWDOWN) && gravity)
+	if(HAS_TRAIT(H, TRAIT_IGNORESLOWDOWN))
+		ignoreslow = 1
+
+	if(flightpack && F.boost)
+		. -= F.boost_speed
+	else if(flightpack && F.brake)
+		. += 1
+
+	if(!ignoreslow && !flightpack && gravity)
 		if(H.wear_suit)
 			. += H.wear_suit.slowdown
 		if(H.shoes)

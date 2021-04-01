@@ -16,7 +16,7 @@ A hostile human animal mob that is customizable. -Falaskian
 	var/override_attacktext = 0 //Use this if you want to force a specific attacktext message.
 	var/damage_modifier = -1 //set to 0 or a positive number to modify the damage of this mob as a multiplier. 0 will work in causing 0 damage
 	gold_core_spawnable = 0 //The default version of this mob should not spawn from gold cores.
-	var/race = "human" // "human" or "lizard". No others have been programmed in yet. If one of these is not chosen it defaults to "human".
+	var/race = "human" // "human", "lizard" or "ashwalker". No others have been programmed in yet. If one of these is not chosen it defaults to "human".
 	var/humanskincolor //only used when human is selected. defaults to "caucasian2" if nothing is selected here. Its ok to leave this blank.
 	var/list/lizardskincolor_red = list(50,200) //these are to choose the lizards skin color based on RGB, range is 1-255. You can instead just enter one number instead of a list of two.
 	var/list/lizardskincolor_green = list(50,200) //^
@@ -47,14 +47,14 @@ A hostile human animal mob that is customizable. -Falaskian
 /mob/living/simple_animal/hostile/randomhumanoid/Initialize()
 	. = ..()
 	//we default back to human if race isnt properly chosen.
-	if(!(race in list("human","lizard")))
+	if(!(race in list("human","lizard","ashwalker")))
 		race = "human"
 	//whats his name? Sorry I didnt program in women, is that sexist?
 	if(!forcename)
 		switch(race)
 			if("human")
 				name = capitalize(pick(GLOB.first_names_male)) + " " + capitalize(pick(GLOB.last_names))
-			if("lizard")
+			if("lizard" || "ashwalker")
 				name = lizard_name(MALE)
 	var/list/overlayslist = list()
 	var/image/I
@@ -72,10 +72,13 @@ A hostile human animal mob that is customizable. -Falaskian
 		"l_leg" = 4.2,
 		"head_m" = 4.1,
 		"chest_m" = 4.0)
+	var/race_icon = race
+	if(race == "ashwalker")
+		race_icon = "lizard"
 	for(var/text in bodyparts)
 		I = new()
 		I.icon = 'icons/mob/human_parts_greyscale.dmi'
-		I.icon_state = "[race]_[text]"
+		I.icon_state = "[race_icon]_[text]"
 		I.color = "#[skincolor]"
 		I.layer = bodyparts[text]
 		overlayslist += I
@@ -98,7 +101,7 @@ A hostile human animal mob that is customizable. -Falaskian
 				I.color = "#[human_traits["facial_hair_color"]]"
 				I.layer = 4.4
 				overlayslist += I
-		if("lizard")
+		if("lizard" || "ashwalker")
 			//for now, we hard coded what specific lizard mutant parts are used. Lizards all look the same anyway.
 			var/list/body_part_states = list("m_body_markings_ltiger_ADJ" = 4.3,
 			"m_tail_spikes_FRONT" = 4.5,
@@ -201,7 +204,7 @@ A hostile human animal mob that is customizable. -Falaskian
 /mob/living/simple_animal/hostile/randomhumanoid/proc/get_skincolor()
 	. = skincolor
 	if(!.)
-		if(race == "lizard")
+		if(race == "lizard" || race == "ashwalker")
 			if(islist(lizardskincolor_red))
 				if(lizardskincolor_red.len > 1)
 					lizardskincolor_red = rand(lizardskincolor_red[1],lizardskincolor_red[2])
@@ -237,11 +240,16 @@ A hostile human animal mob that is customizable. -Falaskian
 		H.gender = MALE
 	H.real_name = name
 	H.name = H.real_name
-	var/thespecies = /datum/species/human
-	if(race == "lizard")
-		thespecies = /datum/species/lizard
+	var/thespecies
+	switch(race)
+		if("lizard")
+			thespecies = /datum/species/lizard
+		if("ashwalker")
+			thespecies = /datum/species/lizard/ashwalker
+		else
+			thespecies = /datum/species/human
 	H.set_species(thespecies, icon_update=1)
-	if(race == "lizard")
+	if(race == "lizard" || race == "ashwalker")
 		//As mentioned above, lizard mutant body parts are hard coded because who cares.
 		H.dna.features["body_markings"] = "Light Tiger Body"
 		H.dna.features["tail_lizard"] = "Spikes"
@@ -265,10 +273,13 @@ A hostile human animal mob that is customizable. -Falaskian
 	for(var/obj/item/item in equipped_items)
 		if(!istype(item) || !equipped_items[item])
 			continue
+		if(race == "ashwalker" && equipped_items[item] == SLOT_SHOES) //ashwalkers cant wear shoes
+			continue
 		H.equip_to_slot_or_del(item, equipped_items[item])
 	//no point in equipping the hand held items, we just put them on the floor.
 	for(var/obj/item/item in humanoid_held_items)
 		H.put_in_hands(item)
+	H.faction = faction.Copy()
 	return H
 
 /mob/living/simple_animal/hostile/randomhumanoid/death()

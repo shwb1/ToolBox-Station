@@ -1246,6 +1246,7 @@
 #include "code\modules\_toolbox\toolbox_initializations.dm"
 #include "code\modules\_toolbox\true_assistant.dm"
 #include "code\modules\_toolbox\true_assistant_upgrades.dm"
+#include "code\modules\_toolbox\flightsuit\flightsuit.dm"
 #include "code\modules\_toolbox\medical\epi_filler.dm"
 #include "code\modules\_toolbox\seasonal\halloween.dm"
 #include "code\modules\_toolbox\silly\clothing.dm"

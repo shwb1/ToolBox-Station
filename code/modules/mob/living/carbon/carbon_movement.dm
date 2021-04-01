@@ -1,8 +1,20 @@
-/mob/living/carbon/movement_delay()	
-	. = ..()	
+/mob/living/carbon/movement_delay()
+	var/FP = FALSE
+	var/obj/item/flightpack/F = get_flightpack()
+	if(istype(F) && F.flight)
+		FP = TRUE
+	. = ..(FP)
+	if(!FP)
+		. += grab_state * 1	//Flightpacks are too powerful to be slowed too much by the weight of a corpse.
+	else
+		. += grab_state * 3 //can't go fast while grabbing something.
 
-	if(!get_leg_ignore() && legcuffed) //ignore the fact we lack legs	
-		. += legcuffed.slowdown	
+//before return of flight suit
+/*/mob/living/carbon/movement_delay()
+	. = ..()
+
+	if(!get_leg_ignore() && legcuffed) //ignore the fact we lack legs
+		. += legcuffed.slowdown	*/
 
 /mob/living/carbon/slip(knockdown_amount, obj/O, lube, paralyze, force_drop)
 	if(movement_type & FLYING)
@@ -16,6 +28,11 @@
 		return 1
 	if(!isturf(loc))
 		return 0
+
+	//flight pack returns
+	var/obj/item/flightpack/F = get_flightpack()
+	if(istype(F) && (F.flight) && F.allow_thrust(0.01, src))
+		return 1
 
 	// Do we have a jetpack implant (and is it on)?
 	var/obj/item/organ/cyberimp/chest/thrusters/T = getorganslot(ORGAN_SLOT_THRUSTERS)
