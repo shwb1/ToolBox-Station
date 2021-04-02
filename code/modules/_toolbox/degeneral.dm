@@ -102,6 +102,7 @@
 	faction = list("lizard")
 	light_power = 0.5
 	light_range = 7
+	light_color = "#FA9632"
 	max_mobs = 3
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
 	loot = list(/obj/effect/lizard_nest_gib)
@@ -172,6 +173,9 @@
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 2,
 					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 1)
 
+/mob/living/simple_animal/hostile/spawner/lizard/archers/with_props
+	spawn_props = 1
+
 /mob/living/simple_animal/hostile/spawner/lizard/axemen
 	max_mobs = 4
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1,
@@ -184,7 +188,7 @@
 /mob/living/simple_animal/hostile/spawner/lizard/elite
 	max_mobs = 5
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 1,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow = 2)
+					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow = 1)
 
 /mob/living/simple_animal/hostile/spawner/lizard/elite/with_props
 	spawn_props = 1
@@ -255,7 +259,7 @@
 		H.health = 200
 	qdel(src)
 
-
+//BOSS
 /mob/living/simple_animal/hostile/spawner/lizard/overmind
 	health = 3000
 	maxHealth = 3000
@@ -269,12 +273,18 @@
 	ranged = 1
 	light_power = 0.5
 	light_range = 14
-	max_mobs = 6
-	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
+	max_mobs = 8
+	spawn_time = 15
+	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 3,
+					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 2,
+					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 2,
+					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow = 1)
+
 	loot = list(/obj/effect/lizard_nest_gib)
-	ranged_cooldown_time = 50
+	ranged_cooldown_time = 80
 	vision_range = 9
 	pixel_x = -32
+	loot = list(/obj/effect/lizard_nest_gib, /obj/item/bluespace_cube)
 	var/random_tentacle_chance = 5
 
 
