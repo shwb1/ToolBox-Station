@@ -61,7 +61,8 @@
 
 /mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe/Initialize()
 	.=..()
-	transform *= 1.2
+	resize = 1.2
+	update_transform()
 
 //Warchief
 /mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe/warchief

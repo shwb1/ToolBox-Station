@@ -255,40 +255,53 @@
 		H.health = 200
 	qdel(src)
 
-/* Doesnt work because im a scrub coder
+
 /mob/living/simple_animal/hostile/spawner/lizard/overmind
 	health = 3000
 	maxHealth = 3000
 	name = "lizard overmind"
-	icon = 'icons/mob/nest.dmi'
-	icon_state = "ash_walker_nest"
+	icon = 'icons/oldschool/96x96.dmi'
+	icon_state = "tribal_nexus_blink"
 	faction = list("lizard")
+	AIStatus = AI_ON
+	retreat_distance = null
+	environment_smash = 0
+	ranged = 1
 	light_power = 0.5
 	light_range = 14
 	max_mobs = 6
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
 	loot = list(/obj/effect/lizard_nest_gib)
-	var/tendril_cooldown = 5 // in seconds
+	ranged_cooldown_time = 50
+	vision_range = 9
+	pixel_x = -32
+	var/random_tentacle_chance = 5
 
-/mob/living/simple_animal/hostile/spawner/lizard/overmind/proc/tendril_attack()
-	var/mob/living/carbon/human/H
-	var/list/targets = list()
-	var/tendril_number = 1
-	if(H in range(9))
-		//var/turf/T = H.loc
-		new /obj/effect/temp_visual/goliath_tentacle(H.loc)
 
-/mob/living/simple_animal/hostile/spawner/lizard/overmind/Life()
-	.=..()
-	var/next_tendril_attack = world.time
-	if(next_tendril_attack > world.time)
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/Goto(target, delay, minimum_distance)
+	return
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/Shoot(atom/target)
+	if(QDELETED(target) || target == target.loc || target == targets_from)
 		return
-	else
-		tendril_attack()
-		next_tendril_attack = world.time+tendril_cooldown*10
+	var/list/targets_gathered = ListTargets()
+	var/list/turfs_gathered = list()
+	for(var/atom/movable/AM in targets_gathered)
+		if(faction_check_mob(AM))
+			continue
+		turfs_gathered += AM.loc
+	for(var/turf/T in view(vision_range, src))
+		if(T in turfs_gathered)
+			continue
+		if(prob(random_tentacle_chance))
+			turfs_gathered += T
+	for(var/turf/T in turfs_gathered)
+		new /obj/effect/temp_visual/goliath_tentacle(T)
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/AttackingTarget()
+	return Shoot(target)
 
 
-*/
 
 /********************** LIZARD SLAVES **************************/
 
@@ -939,6 +952,20 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	open = TRUE
 	density = FALSE //Density FALSE results in closed door because monke who coded this put update_door_status() in initialize which flips the state to TRUE
 
+/obj/structure/spider/cocoon/large/Initialize()
+	. = ..()
+	icon_state = pick("cocoon_large1","cocoon_large2","cocoon_large3")
+
+//COCOONS
+/obj/structure/spider/cocoon/large/templar_armor/Initialize()
+	. = ..()
+	var/obj/item/S = pickweight(/obj/item/clothing/suit/armor/riot/chaplain = 2, /obj/item/clothing/suit/armor/riot/chaplain/witchhunter = 1)
+	new S(src)
+	if(S == /obj/item/clothing/suit/armor/riot/chaplain)
+		new /obj/item/clothing/head/helmet/chaplain(src)
+	else
+		new /obj/item/clothing/head/helmet/chaplain/witchunter_hat (src)
+	new /obj/effect/decal/remains/human(src)
 
 /********************** MOBS **************************/
 
