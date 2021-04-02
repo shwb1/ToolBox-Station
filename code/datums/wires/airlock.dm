@@ -16,9 +16,9 @@
 	add_duds(2)
 	..()
 
-/datum/wires/airlock/interactable(mob/user)
+/datum/wires/airlock/interactable(mob/living/user)
 	var/obj/machinery/door/airlock/A = holder
-	if(!issilicon(user) && A.isElectrified() && A.shock(user, 100))
+	if(!issilicon(user) && ((istype(user) && user.AmountParalyzed()) || (A.isElectrified() && A.shock(user, 100))))
 		return FALSE
 	if(A.panel_open)
 		return TRUE
