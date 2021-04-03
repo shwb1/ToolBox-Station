@@ -1125,6 +1125,8 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 		new t(src)
 	new /obj/effect/decal/remains/human(src)
 
+
+
 /********************** MOBS **************************/
 
 //VENOMOUS SNAKE
