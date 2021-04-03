@@ -1556,6 +1556,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /obj/machinery/vending/z_level_locked
 	tiltable = FALSE
+	payment_department = NO_FREEBIES
 	var/firing_pin = /obj/item/firing_pin/z_level_locked
 
 /obj/machinery/vending/z_level_locked/on_vend(atom/movable/AM)
