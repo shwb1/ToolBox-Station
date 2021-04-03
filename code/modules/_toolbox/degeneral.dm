@@ -398,7 +398,7 @@
 	var/mobcount = 0
 	for(var/mob/living/M in spawned_mobs)
 		var/turf/T = get_turf(M)
-		if(T.z != z)
+		if(!T || T.z != z)
 			continue
 		if(get_dist(src,T) >= 12)
 			continue
@@ -600,6 +600,8 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			eject(AM)
 
 /obj/structure/lizard_ore_node/proc/eject(atom/movable/AM)
+	if(!loc)
+		return
 	for(var/path in allowed_miners)
 		if(istype(AM, path))
 			var/list/params_list = params2list(allowed_miners[path])

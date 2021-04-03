@@ -85,11 +85,11 @@
 
 /obj/machinery/computer/atmos_alert/update_icon()
 	icon_screen = initial(icon_screen)
+	. = ..()
 	if(stat & (NOPOWER|BROKEN))
 		return
 	if(priority_alarms.len)
 		icon_screen = "alert:2"
 	else if(minor_alarms.len)
 		icon_screen = "alert:1"
-	..()
 

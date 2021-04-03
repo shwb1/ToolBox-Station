@@ -8,14 +8,14 @@ $include resources.txt
 
 # You can use the @ character at the beginning of a config option to lock it from being edited in-game
 # Example usage:
-# @SERVERNAME beestation
+# @SERVERNAME Space Station 13
 # Which sets the SERVERNAME, and disallows admins from being able to change it using View Variables.
 # @LOG_TWITTER 0
 # Which explicitly disables LOG_TWITTER, as well as locking it.
 # There are various options which are hard-locked for security reasons.
 
-## Server name: This appears at the top of the screen in-game and in the BYOND hub. Uncomment and replace 'beestation' with the name of your choice.
-#@SERVERNAME beestation
+## Server name: This appears at the top of the screen in-game and in the BYOND hub. Uncomment and replace 'Space Station 13' with the name of your choice.
+SERVERNAME Space Station 13
 
 ## Server SQL name: This is the name used to identify the server to the SQL DB, distinct from SERVERNAME as it must be at most 32 characters.
 #@SERVERSQLNAME ss13newbs
@@ -24,7 +24,7 @@ $include resources.txt
 STATIONNAME Space Station 13
 
 ## Put on byond hub: Uncomment this to put your server on the byond hub.
-#HUB
+HUB
 
 ## Lobby time: This is the amount of time between rounds that players have to setup their characters and be ready.
 LOBBY_COUNTDOWN 180
@@ -40,10 +40,10 @@ ROUND_END_COUNTDOWN 90
 ADMIN_LEGACY_SYSTEM
 
 ##Uncomment this to stop any admins loaded by the legacy system from having their rank edited by the permissions panel
-#PROTECT_LEGACY_ADMINS
+PROTECT_LEGACY_ADMINS
 
 ##Uncomment this to stop any ranks loaded by the legacy system from having their flags edited by the permissions panel
-#PROTECT_LEGACY_RANKS
+PROTECT_LEGACY_RANKS
 
 ##Uncomment this to have admin ranks only loaded from the legacy admin_ranks.txt
 ##If enabled, each time admins are loaded ranks the database will be updated with the current ranks and their flags
@@ -65,7 +65,7 @@ ENABLE_LOCALHOST_RANK
 ## REQUIRES the database set up to work. Keep it hashed if you don't have a database set up.
 ## NOTE: If you have just set-up the database keep this DISABLED, as player age is determined from the first time they connect to the server with the database up. If you just set it up, it means
 ## you have noone older than 0 days, since noone has been logged yet. Only turn this on once you have had the database up for 30 days.
-#USE_AGE_RESTRICTION_FOR_JOBS
+USE_AGE_RESTRICTION_FOR_JOBS
 
 ## Uncomment this to have the job system use the player's account creation date, rather than the when they first joined the server for job timers.
 #USE_ACCOUNT_AGE_FOR_JOBS
@@ -167,10 +167,10 @@ PICTURE_LOGGING_CAMERA
 # KICK_INACTIVE
 
 ## Comment this out to stop admins being able to choose their personal ooccolor
-ALLOW_ADMIN_OOCCOLOR
+#ALLOW_ADMIN_OOCCOLOR
 
 ## Comment this out to stop admins being able to choose their personal asay color
-ALLOW_ADMIN_ASAYCOLOR
+#ALLOW_ADMIN_ASAYCOLOR
 
 ## Job slot open/close by identification consoles delay in seconds
 ID_CONSOLE_JOBSLOT_DELAY 30
@@ -200,7 +200,7 @@ NORESPAWN
 # DONT_DEL_NEWMOB
 
 ## set a hosted by name for unix platforms
-HOSTEDBY Crossedfall
+HOSTEDBY ss13
 
 ## Set to jobban "Guest-" accounts from Captain, HoS, HoP, CE, RD, CMO, Warden, Security, Detective, and AI positions.
 ## Set to 1 to jobban them from those positions, set to 0 to allow them.
@@ -238,29 +238,29 @@ CHECK_RANDOMIZER
 
 ## set a server location for world reboot. Don't include the byond://, just give the address and port.
 ## Don't set this to the same server, BYOND will automatically restart players to the server when it has restarted.
-SERVER  byond://golden.beestation13.com:7777
+SERVER
 
 ## forum address
-FORUMURL http://forums.beestation13.com
+FORUMURL
 
 ## Wiki address
-WIKIURL https://wiki.beestation13.com/view
+WIKIURL
 
 ## Rules address
-RULESURL http://beestation13.com/rules?server=bs_golden
+RULESURL 
 
 ## Github address
-GITHUBURL https://www.github.com/beestation/beestation-hornet
+GITHUBURL 
 
 ## Label to tag ingame-registered issues with.
 ## Uncomment this to enable them.
 #ISSUE_LABEL Ingame Issue Report
 
 ## Donation URL
-DONATEURL https://www.patreon.com/user?u=10639001
+DONATEURL
 
 ## Discord Invite
-DISCORDURL https://discord.gg/zUe34rs
+DISCORDURL
 
 ## Round specific stats address
 ## Link to round specific parsed logs; IE statbus. It is appended with the RoundID automatically by ticker/Reboot()
@@ -276,10 +276,10 @@ DISCORDURL https://discord.gg/zUe34rs
 ## Github repo id
 ##This can be found by going to https://api.github.com/users/<user name here>/repos
 ##Or https://api.github.com/orgs/<org name here>/repos if the repo owner is an organization
-GITHUBREPOID 154500094
+GITHUBREPOID
 
 ## Ban appeals URL - usually for a forum or wherever people should go to contact your admins.
-BANAPPEALS https://forums.beestation13.com/c/ban-appeals/game-ban-appeals
+#BANAPPEALS
 
 ## System command that invokes youtube-dl, used by Play Internet Sound.
 ## You can install youtube-dl with
@@ -298,7 +298,7 @@ INVOKE_YOUTUBEDL C:\youtubedl\youtube-dl.exe
 
 ## Uncomment to show a popup 'reply to' window to every non-admin that receives an adminPM.
 ## The intention is to make adminPMs more visible. (although I fnd popups annoying so this defaults to off)
-POPUP_ADMIN_PM
+#POPUP_ADMIN_PM
 
 ## Uncomment to allow special 'Easter-egg' events on special holidays such as seasonal holidays and stuff like 'Talk Like a Pirate Day' :3 YAARRR
 ALLOW_HOLIDAYS
@@ -373,7 +373,7 @@ NOTIFY_NEW_PLAYER_ACCOUNT_AGE 1
 #PANIC_SERVER_NAME [Put the name here]
 
 ## Uncomment to have the changelog file automatically open when a user connects and hasn't seen the latest changelog
-AGGRESSIVE_CHANGELOG
+#AGGRESSIVE_CHANGELOG
 
 ## Comment this out if you've used the mass conversion sql proc for notes or want to stop converting notes
 AUTOCONVERT_NOTES
@@ -382,11 +382,11 @@ AUTOCONVERT_NOTES
 ANNOUNCE_ADMIN_LOGOUT
 
 ## Uncomment to have an admin message sent anytime an admin connects to a round in play, you can edit the messages in admin.dm
-ANNOUNCE_ADMIN_LOGIN
+#ANNOUNCE_ADMIN_LOGIN
 
 ## Map rotation
 ## You should edit maps.txt to match your configuration when you enable this.
-MAPROTATION
+#MAPROTATION
 
 ## Map voting
 ## Allows players to vote for their preffered map
@@ -494,7 +494,7 @@ MENU_SQUARE_VIEW
 
 ## Name your perpetual currency here
 ## This is used within the metashop and earned by playing the game.
-METACURRENCY_NAME BeeCoin
+METACURRENCY_NAME HonkCoin
 
 ## Grant metacurrency
 ## Comment this out if you don't want players to earn metacurrency
@@ -542,15 +542,15 @@ CENTCOM_BAN_DB https://centcom.melonmesa.com/ban/search
 
 ## Uncomment to enable redirecting to the specified address. If a user attempts to join after EXTREEME_POPCAP has been reached, redirect them to this address.
 ## The given address is a format example. "byond://" is required to function. Create a potential infinite loop at your own risk.
-#REDIRECT_ADDRESS byond://golden.beestation13.com:7777
+#REDIRECT_ADDRESS 
 
 ### Autotransfer Settings
 ## Uncomment to enable shuttle autotransfer
-VOTE_AUTOTRANSFER_ENABLED
+#VOTE_AUTOTRANSFER_ENABLED
 ## Time (in deciseconds) before the first transfer vote. Default: 90 minutes
-VOTE_AUTOTRANSFER_INITIAL 54000
+#VOTE_AUTOTRANSFER_INITIAL 54000
 ## Time (in deciseconds) between subsequent transfer votes. Default: 30 minutes
-VOTE_AUTOTRANSFER_INTERVAL 18000
+#VOTE_AUTOTRANSFER_INTERVAL 18000
 
 ## Ghost role cooldown time after death (In deciseconds)
 GHOST_ROLE_COOLDOWN 3000

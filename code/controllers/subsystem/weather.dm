@@ -39,10 +39,19 @@ SUBSYSTEM_DEF(weather)
 		var/datum/weather/W = V
 		var/probability = initial(W.probability)
 		var/target_trait = initial(W.target_trait)
+		var/area_type = initial(W.area_type)
 
 		// any weather with a probability set may occur at random
 		if (probability)
 			for(var/z in SSmapping.levels_by_trait(target_trait))
+				if(area_type)
+					var/foundarea = 0
+					for(var/turf/T in block(locate(1,1,z),locate(world.maxx,world.maxy,z)))
+						if(istype(get_area(T),area_type))
+							foundarea = 1
+							break
+					if(!foundarea)
+						continue
 				LAZYINITLIST(eligible_zlevels["[z]"])
 				eligible_zlevels["[z]"][W] = probability
 	return ..()

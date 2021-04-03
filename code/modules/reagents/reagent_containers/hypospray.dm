@@ -14,6 +14,7 @@
 	slot_flags = ITEM_SLOT_BELT
 	var/ignore_flags = 0
 	var/infinite = FALSE
+	var/warn_target = 1 //stealth injector?
 
 /obj/item/reagent_containers/hypospray/attack_paw(mob/user)
 	return attack_hand(user)
@@ -33,7 +34,8 @@
 	log_combat(user, M, "attempted to inject", src, "([contained])")
 
 	if(reagents.total_volume && (ignore_flags || M.can_inject(user, 1))) // Ignore flag should be checked first or there will be an error message.
-		to_chat(M, "<span class='warning'>You feel a tiny prick!</span>")
+		if(warn_target)
+			to_chat(M, "<span class='warning'>You feel a tiny prick!</span>")
 		to_chat(user, "<span class='notice'>You inject [M] with [src].</span>")
 		playsound(loc, 'sound/items/hypospray.ogg', 50, 1)
 
