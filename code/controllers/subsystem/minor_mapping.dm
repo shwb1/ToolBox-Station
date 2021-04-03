@@ -24,7 +24,7 @@ SUBSYSTEM_DEF(minor_mapping)
 			num_mice -= 1
 			M = null
 	for(var/mob/living/simple_animal/mouse/mouse in GLOB.mob_list)
-		if(mouse.z == SSmapping.levels_by_trait(ZTRAIT_STATION))
+		if(mouse.z in SSmapping.levels_by_trait(ZTRAIT_STATION))
 			mouse.bite_cable(1)
 
 /datum/controller/subsystem/minor_mapping/proc/place_satchels(amount=10)

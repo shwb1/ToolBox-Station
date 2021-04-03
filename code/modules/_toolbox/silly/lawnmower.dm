@@ -6,7 +6,6 @@
 	var/emagged = FALSE
 	var/list/drive_sounds = list('sound/toolbox/mowermove1.ogg', 'sound/toolbox/mowermove2.ogg')
 	var/list/gib_sounds = list('sound/toolbox/mowermovesquish.ogg')
-	var/driver
 	var/engine_sound = 'sound/toolbox/car/carrev.ogg'
 	var/last_enginesound_time
 	var/engine_sound_length = 20
@@ -46,9 +45,8 @@
 	if(H && !(world.time < last_enginesound_time + engine_sound_length))
 		last_enginesound_time = world.time
 		playsound(src, engine_sound, 100, TRUE)
-		playsound(src, 'sound/toolbox/car/carrev.ogg', 100, TRUE)
 
-	if(emagged)
+	if(H && emagged)
 		for(var/mob/living/carbon/human/M in loc)
 			if(M == H)
 				continue
@@ -73,7 +71,7 @@
 	if(gibbed)
 		shake_camera(H, 10, 1)
 		playsound(loc, pick(gib_sounds), 75, 1)
-	else
+	else if(H)
 		playsound(loc, pick(drive_sounds), 75, 1)
 
 //Starting emagged

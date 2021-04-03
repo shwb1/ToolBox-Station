@@ -1,26 +1,36 @@
-/obj/item/gun/ballistic/automatic/pistol/APS/New()
+/*/obj/item/gun/ballistic/automatic/pistol/APS/New()
 	if(type == /obj/item/gun/ballistic/automatic/pistol/APS)
 		icon = 'icons/oldschool/guns.dmi'
+		old_school_icon = 1
+		update_icon()
 	. = ..()
 
 /obj/item/gun/ballistic/automatic/wt550/New()
 	if(type == /obj/item/gun/ballistic/automatic/wt550)
 		icon = 'icons/oldschool/guns.dmi'
+		old_school_icon = 1
+		update_icon()
 	. = ..()
 
 /obj/item/gun/ballistic/automatic/mini_uzi/New()
 	if(type == /obj/item/gun/ballistic/automatic/mini_uzi)
 		icon = 'icons/oldschool/guns.dmi'
+		old_school_icon = 1
+		update_icon()
 	. = ..()
 
 /obj/item/gun/ballistic/automatic/pistol/New()
 	if(type == /obj/item/gun/ballistic/automatic/pistol || type == /obj/item/gun/ballistic/automatic/pistol/suppressed)
 		icon = 'icons/oldschool/guns.dmi'
+		old_school_icon = 1
+		update_icon()
 	. = ..()
 
 /obj/item/gun/ballistic/revolver/golden/New()
 	if(type == /obj/item/gun/ballistic/revolver/golden)
 		icon = 'icons/oldschool/guns.dmi'
+		old_school_icon = 1
+		update_icon()
 	. = ..()
 
 /obj/item/gun/ballistic/automatic/surplus/New()
@@ -28,7 +38,9 @@
 		icon = 'icons/oldschool/guns.dmi'
 		lefthand_file = 'icons/oldschool/inhand_left.dmi'
 		righthand_file = 'icons/oldschool/inhand_right.dmi'
-	. = ..()
+		old_school_icon = 1
+		update_icon()
+	. = ..()*/
 
 /obj/item/gun/energy/laser/scatter/shotty/New()
 	if(type == /obj/item/gun/energy/laser/scatter/shotty)

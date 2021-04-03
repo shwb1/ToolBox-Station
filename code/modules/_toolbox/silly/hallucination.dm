@@ -48,9 +48,10 @@
 			while(C && world.time <= endtime)
 				if(C.stat != CONSCIOUS)
 					break
-				if((!laststaminahit || laststaminahit+10 < world.time) && C.staminaloss < 50)
+				if((!laststaminahit || laststaminahit+10 < world.time) && C.getStaminaLoss() < 50)
 					laststaminahit = world.time
 					C.staminaloss = 50
+					C.adjustStaminaLoss(50)
 				for(var/obj/effect/hallucination/simple/zerg_mouse/mouse in mouses)
 					spawn(0)
 						var/turf/NewCturf = get_turf(C)
@@ -92,10 +93,10 @@
 		if(M.stat == CONSCIOUS)
 			to_chat(M,"<div class='warning'>You were [pick(theverb)] by [name].</div>")
 		if(istype(M))
-			M.staminaloss = min(M.staminaloss+bitefakedamage,111)
+			M.adjustStaminaLoss(M.staminaloss+bitefakedamage,111)
 			if(prob(20))
 				M.blur_eyes(3)
-			if(M.staminaloss >= 90)
+			if(M.getStaminaLoss() >= 90)
 				M.Unconscious(80, updating = TRUE, ignore_canunconscious = FALSE)
 				M.Sleeping(rand(80,150), 0)
 			do_attack_animation(M)

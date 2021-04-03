@@ -8,6 +8,10 @@
 	key_type = /obj/item/key
 	integrity_failure = 70
 	var/static/mutable_appearance/atvcover
+	var/last_enginesound_time
+	var/engine_sound_length = 20
+	var/list/drive_sounds = list('sound/toolbox/mowermove1.ogg', 'sound/toolbox/mowermove2.ogg')
+	var/engine_sound = 'sound/toolbox/car/carrev.ogg'
 
 /obj/vehicle/ridden/atv/Initialize()
 	. = ..()
@@ -27,6 +31,13 @@
 	if(!has_buckled_mobs())
 		cut_overlay(atvcover)
 	return ..()
+
+/obj/vehicle/ridden/atv/Move()
+	. = ..()
+	if(has_buckled_mobs() && !(world.time < last_enginesound_time + engine_sound_length))
+		last_enginesound_time = world.time
+		playsound(src, engine_sound, 100, TRUE)
+	playsound(loc, pick(drive_sounds), 75, 1)
 
 //TURRETS!
 /obj/vehicle/ridden/atv/turret

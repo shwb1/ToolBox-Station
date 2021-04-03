@@ -672,6 +672,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	var/egg_printslast = null
 	var/status = "Its empty."
 	var/incubation_failed = null
+	var/clonerating = 1
 
 /obj/machinery/incubator/attackby(obj/item/I, mob/user, params)
 	if(!egg && !incubation_failed && default_deconstruction_screwdriver(user, "pod_0_maintenance", initial(icon_state), I))
@@ -717,14 +718,19 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			update_icon()
 			return
 	if(egg)
-		amount_grown += rand(0,2)
+		var/growspeed = max(round(clonerating,1),1)
+		amount_grown += rand(growspeed-1,growspeed+1)
 		if(amount_grown >= 100)
-			if(egg.type == /obj/item/reagent_containers/food/snacks/egg/lizard_egg)
-				var/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave(src.loc)
-				log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
-			else
-				var/mob/living/simple_animal/chicken/C = new /mob/living/simple_animal/chicken(src.loc)
-				C.eggsFertile = 0
+			var/clonecount = 1
+			if(clonerating >= 4 && prob(30))
+				clonecount = 2
+			for(var/i=clonecount,i>0,i--)
+				if(egg.type == /obj/item/reagent_containers/food/snacks/egg/lizard_egg)
+					var/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave(src.loc)
+					log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
+				else
+					var/mob/living/simple_animal/chicken/C = new /mob/living/simple_animal/chicken(src.loc)
+					C.eggsFertile = 0
 			QDEL_NULL(egg)
 			egg_printslast = null
 			amount_grown = 0
@@ -761,6 +767,15 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 		icon_state = "pod_g"
 	else
 		icon_state = "pod_0"
+
+/obj/machinery/incubator/RefreshParts()
+	var/partcount = 0
+	var/totalrating = 0
+	for(var/obj/item/stock_parts/C in component_parts)
+		partcount++
+		totalrating += C.rating
+	partcount = max(partcount,1)
+	clonerating = max(totalrating/partcount,1)
 
 /datum/design/board/incubator
 	name = "Machine Design (Incubator)"
@@ -1078,10 +1093,14 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "fence"
 	desc = "Metal fence."
 	icon = 'icons/oldschool/smooth_fence.dmi'
-	icon_state = "post"
+	icon_state = ""
 	max_integrity = 300
 	smooth = SMOOTH_TRUE
 	canSmoothWith = list(/obj/structure/fence/door/opened,/obj/structure/fence/door/closed, /obj/structure/fence/door, /obj/structure/fence/smooth, /obj/structure/barricade/sandbags, /turf/closed/wall, /turf/closed/wall/r_wall, /obj/structure/falsewall, /obj/structure/falsewall/reinforced, /turf/closed/wall/rust, /turf/closed/wall/r_wall/rust)
+
+/obj/structure/fence/smooth/Initialize()
+	icon_state = ""
+	return ..()
 
 //FENCE DOOR CLOSED
 /obj/structure/fence/door/closed
