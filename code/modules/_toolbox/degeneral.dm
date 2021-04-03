@@ -1,4 +1,6 @@
-
+//Declaring the factions used here.
+#define GBLIZARDGREEN "green-lizard"
+#define GBCAVESPIDER "cave-spider"
 /********************** This object is used to modify the entire zlevel where it spawns. **************************/
 
 /obj/full_zlevel_modifier
@@ -69,7 +71,7 @@
 	for(var/mob/living/simple_animal/L in spawned_mobs)
 		if(L.nest == src)
 			L.nest = null
-	spawned_mobs = null
+	spawned_mobs.Cut()
 	return ..()
 
 /mob/living/simple_animal/hostile/spawner/Life()
@@ -83,6 +85,7 @@
 		return 0
 	if(spawn_delay > world.time)
 		return 0
+	clean_spawned_mobs_list()
 	spawn_delay = world.time + spawn_time*10
 	var/chosen_mob_type = pickweight(mob_types)
 	var/mob/living/simple_animal/L = new chosen_mob_type(src.loc)
@@ -91,7 +94,14 @@
 	L.faction = src.faction
 	visible_message("<span class='danger'>[L] [spawn_text] [src].</span>")
 
-
+/mob/living/simple_animal/hostile/spawner/proc/clean_spawned_mobs_list()
+	for(var/t in spawned_mobs)
+		if(!istype(t,/mob/living))
+			spawned_mobs.Remove(t)
+			continue
+		var/mob/living/M = t
+		if(M.stat == DEAD)
+			spawned_mobs.Remove(M)
 
 //LIZARD SPAWNER
 
@@ -99,7 +109,7 @@
 	name = "lizard nest"
 	icon = 'icons/mob/nest.dmi'
 	icon_state = "ash_walker_nest"
-	faction = list("lizard")
+	faction = list(GBLIZARDGREEN)
 	light_power = 0.5
 	light_range = 7
 	light_color = "#FA9632"
@@ -199,7 +209,7 @@
 	name = "cave spider nest"
 	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "spider_nest"
-	faction = list("cave")
+	faction = list(GBCAVESPIDER)
 	light_power = 0.5
 	light_range = 7
 	max_mobs = 5
@@ -225,7 +235,7 @@
 	if(prob(50))
 		visible_message("<span class='boldannounce'>Tarantula bursts out of the spider nest!</span>")
 		var/mob/living/simple_animal/hostile/poison/giant_spider/tarantula/cave/T = new(loc)
-		T.faction = list("cave")
+		T.faction = list(GBCAVESPIDER)
 	else
 		visible_message("<span class='boldannounce'>Spider nest bursts into pile of gibs!</span>")
 	qdel(src)
@@ -235,7 +245,7 @@
 	name = "pile of bones"
 	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "pile_of_bones"
-	faction = list("cave")
+	faction = list(GBCAVESPIDER)
 	light_power = 0.5
 	light_range = 7
 	max_mobs = 4
@@ -254,7 +264,7 @@
 	new /obj/item/storage/bag/money/random(loc)
 	if(prob(50))
 		var/mob/living/simple_animal/hostile/skeleton/spooky/huge/H = new(loc)
-		H.faction = list("cave")
+		H.faction = list(GBCAVESPIDER)
 		H.maxHealth = 200
 		H.health = 200
 	qdel(src)
@@ -266,7 +276,7 @@
 	name = "lizard overmind"
 	icon = 'icons/oldschool/96x96.dmi'
 	icon_state = "tribal_nexus_blink"
-	faction = list("lizard")
+	faction = list(GBLIZARDGREEN)
 	AIStatus = AI_ON
 	retreat_distance = null
 	environment_smash = 0
@@ -279,39 +289,159 @@
 					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 2,
 					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 2,
 					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow = 1)
-
-	loot = list(/obj/effect/lizard_nest_gib)
 	ranged_cooldown_time = 80
 	vision_range = 9
 	pixel_x = -32
 	loot = list(/obj/effect/lizard_nest_gib, /obj/item/bluespace_cube)
+	var/list/targets_gathered = list()
 	var/random_tentacle_chance = 5
-
+	var/bholes = 3 //number of Bholes per cooldown. Set 0 to disable.
+	var/last_bhole = 0
+	var/bhole_cooldown = 200 //20 second cooldown on b-holes.
+	var/max_mobs_bholes = 15
+	var/end_life_on_death = 0
 
 /mob/living/simple_animal/hostile/spawner/lizard/overmind/Goto(target, delay, minimum_distance)
 	return
 
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/Move(NewLoc,Dir=0,step_x=0,step_y=0)
+	return 0
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/ListTargets()
+	targets_gathered.Cut()
+	. = ..()
+	targets_gathered = .
+
 /mob/living/simple_animal/hostile/spawner/lizard/overmind/Shoot(atom/target)
 	if(QDELETED(target) || target == target.loc || target == targets_from)
 		return
-	var/list/targets_gathered = ListTargets()
 	var/list/turfs_gathered = list()
 	for(var/atom/movable/AM in targets_gathered)
 		if(faction_check_mob(AM))
 			continue
 		turfs_gathered += AM.loc
-	for(var/turf/T in view(vision_range, src))
-		if(T in turfs_gathered)
+	var/list/bhole_turfs = list()
+	for(var/turf/open/T in view(vision_range, src))
+		if((T in turfs_gathered) || !is_turf_cool(T))
 			continue
+		if(bholes)
+			bhole_turfs += T
 		if(prob(random_tentacle_chance))
 			turfs_gathered += T
-	for(var/turf/T in turfs_gathered)
+	spawn_tentacles(turfs_gathered)
+	spawn_Bholes(bhole_turfs,bholes)
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/proc/spawn_tentacles(list/Turfs)
+	if(!Turfs || !Turfs.len)
+		ListTargets()
+		if(!islist(Turfs))
+			Turfs = list()
+		for(var/atom/movable/AM in targets_gathered)
+			if(faction_check_mob(AM))
+				continue
+			Turfs += AM.loc
+		for(var/turf/open/T in view(vision_range, src))
+			if((T in Turfs) || !is_turf_cool(T))
+				continue
+			if(prob(random_tentacle_chance))
+				Turfs += T
+	for(var/turf/T in Turfs)
 		new /obj/effect/temp_visual/goliath_tentacle(T)
 
 /mob/living/simple_animal/hostile/spawner/lizard/overmind/AttackingTarget()
 	return Shoot(target)
 
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/proc/is_turf_cool(turf/T)
+	. = 1
+	if(istype(T,/turf/open) && T != loc && !istype(T,/turf/open/space))
+		for(var/obj/O in T)
+			if(O.density)
+				. = 0
+				break
+	else
+		. = 0
 
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/death()
+	end_life()
+	. = ..()
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/proc/end_life() //You won, they all die.
+	if(!end_life_on_death)
+		return
+	for(var/mob/living/simple_animal/hostile/spawner/lizard/L in GLOB.mob_list)
+		var/turf/T = get_turf(L)
+		if(!T || T.z != z)
+			continue
+		if(!faction_check_mob(L))
+			continue
+		for(var/mob/living/living in L.spawned_mobs)
+			living.death()
+		if(L == src)
+			continue
+		L.death()
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/ex_act(severity, ex_target) //Bombs cant insta kill the thing, but damage is percent based.
+	var/b_loss_percent = 0
+	switch (severity)
+		if (EXPLODE_DEVASTATE)
+			b_loss_percent = 0.65
+		if (EXPLODE_HEAVY)
+			b_loss_percent = 0.3
+		if (EXPLODE_LIGHT)
+			b_loss_percent = 0.1
+	adjustBruteLoss(round(maxHealth*b_loss_percent,1))
+
+//Lizard B-holes!
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/proc/spawn_Bholes(list/bhole_turfs = list(),Bholes = 3,mObs = 3)
+	if(last_bhole >= world.time)
+		return
+	var/mobcount = 0
+	for(var/mob/living/M in spawned_mobs)
+		var/turf/T = get_turf(M)
+		if(T.z != z)
+			continue
+		if(get_dist(src,T) >= 12)
+			continue
+		mobcount++
+	if(mobcount > max_mobs_bholes)
+		return
+	last_bhole = world.time+bhole_cooldown
+	if(!bhole_turfs.len)
+		for(var/turf/open/T in view(vision_range, src))
+			if(is_turf_cool(T))
+				bhole_turfs += T
+	var/i = bholes
+	if(bhole_turfs.len < i)
+		i = max(bhole_turfs.len,0)
+	for(i,i>0,i--)
+		var/turf/T = pick(bhole_turfs)
+		if(!istype(T))
+			return
+		new /obj/effect/lizard_bhole(T)
+		for(var/j=mObs,j>0,j--)
+			var/mobpath = pickweight(mob_types)
+			if(!ispath(mobpath))
+				continue
+			var/mob/living/simple_animal/hostile/H = new mobpath(T)
+			H.faction = faction
+			spawned_mobs += H
+			H.handle_automated_action()//Immediate agro.
+	visible_message("<span class='userdanger'>Several portals open and Lizards pour out of them!</span>")
+
+/obj/effect/lizard_bhole
+	name = "Lizard Black-Hole" //what did you think it ment?
+	mouse_opacity = 0
+	density = 0
+	anchored = 1
+	icon = 'icons/effects/effects.dmi'
+	icon_state = "bhole3" //they said it not me.
+
+/obj/effect/lizard_bhole/New()
+	. = ..()
+	transform = transform*2
+	playsound(loc, 'sound/effects/phasein.ogg', 100, 1)
+	spawn(15)
+		qdel(src)
 
 /********************** LIZARD SLAVES **************************/
 
@@ -380,12 +510,12 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 					if(!crate_memory || !(crate_memory in crates))
 						crate_memory = pick(crates)
 					targs += crate_memory
-	stop_automated_movement = TRUE
+	wander = FALSE
 	return targs
 
 /mob/living/simple_animal/hostile/randomhumanoid/handle_automated_movement() //This is to make sure he doesnt do a random wander between mining actions. This was causing him to bump into shit he shouldnt bump in to.
-	if(stop_automated_movement)
-		stop_automated_movement = !stop_automated_movement //only one attempt to wander in a random direction is skipped after seeing a target in the previous tick.
+	if(!wander)
+		wander = !wander //only one attempt to wander in a random direction is skipped after seeing a target in the previous tick.
 		return FALSE
 	. = ..()
 
@@ -969,12 +1099,11 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 //COCOONS
 /obj/structure/spider/cocoon/large/templar_armor/Initialize()
 	. = ..()
-	var/obj/item/S = pickweight(/obj/item/clothing/suit/armor/riot/chaplain = 2, /obj/item/clothing/suit/armor/riot/chaplain/witchhunter = 1)
-	new S(src)
-	if(S == /obj/item/clothing/suit/armor/riot/chaplain)
-		new /obj/item/clothing/head/helmet/chaplain(src)
-	else
-		new /obj/item/clothing/head/helmet/chaplain/witchunter_hat (src)
+	var/list/spawnlist = list(/obj/item/clothing/suit/armor/riot/chaplain,/obj/item/clothing/head/helmet/chaplain)
+	if(prob(33))
+		spawnlist = list(/obj/item/clothing/suit/armor/riot/chaplain/witchhunter,/obj/item/clothing/head/helmet/chaplain/witchunter_hat)
+	for(var/t in spawnlist)
+		new t(src)
 	new /obj/effect/decal/remains/human(src)
 
 /********************** MOBS **************************/
@@ -1326,7 +1455,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 				if(istype(structure, S))
 					return
 		var/mob/living/simple_animal/A = new randumb(T)
-		A.faction += "cave" //stops mobs from killing eachother
+		A.faction += GBCAVESPIDER //stops mobs from killing eachother
 
 	return
 
@@ -1729,5 +1858,5 @@ GLOBAL_LIST_EMPTY(gateway_components)
 	if(!founderror)
 		message_admins("Found no edited Steps in the world.")
 
-
-
+#undef GBCAVESPIDER
+#undef GBLIZARDGREEN
