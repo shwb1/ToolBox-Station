@@ -710,3 +710,16 @@
 		else
 			break
 		stoplag(1) //Dont wanna crash server if something goes wrong here.
+
+//autobuckling noose, formapping purposes. yeah thats it.
+/obj/structure/chair/noose/autobuckle/Initialize()
+	. = ..()
+	var/mob/to_buckle
+	for(var/mob/living/carbon/human/M in loc)
+		if(istype(M,/mob/living/carbon/human))
+			to_buckle = M
+			break
+	if(to_buckle)
+		buckle_mob(to_buckle)
+		return
+	qdel(src)

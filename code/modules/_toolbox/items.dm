@@ -11,8 +11,8 @@
 	armor = list(melee = 25, bullet = 25, laser = 25, energy = 10, bomb = 20, bio = 0, rad = 0, fire = 40, acid = 40)
 
 //stealth hypo
-
-/*/obj/item/reagent_containers/hypospray/stealthinjector
+/*
+/obj/item/reagent_containers/hypospray/stealthinjector
 	name = "one use injector"
 	desc = null
 	icon_state = "medipen"
@@ -21,7 +21,7 @@
 	volume = 10
 	ignore_flags = 0 //can you itch through hardsuits
 	//container_type = null
-	flags_1 = null
+	reagent_flags = null
 	list_reagents = list()
 	var/injecttext = "cover"
 
@@ -48,7 +48,7 @@
 
 // Degeneral's Itch Powder
 
-/*/obj/item/reagent_containers/hypospray/stealthinjector/itchingpowder
+/obj/item/reagent_containers/hypospray/itchingpowder
 	name = "itching powder"
 	desc = "Itching powder in a bag."
 	icon = 'icons/oldschool/objects.dmi'
@@ -57,9 +57,11 @@
 	amount_per_transfer_from_this = 10
 	volume = 10
 	ignore_flags = 0 //can you itch through hardsuits
-	container_type = null
-	flags_1 = null
-	list_reagents = list("itching_powder" = 10)
+	//container_type = null
+	reagent_flags = null
+	list_reagents = list(/datum/reagent/toxin/itching_powder = 10)
+	prevent_grinding = TRUE
+	warn_target = 0
 
 /obj/item/reagent_containers/hypospray/stealthinjector/itchingpowder/attack(mob/living/M, mob/user)
 	. = ..()
@@ -69,7 +71,7 @@
 	if(reagents.total_volume > 0)
 		icon_state = initial(icon_state)
 	else
-		icon_state = "[initial(icon_state)]0"*/
+		icon_state = "[initial(icon_state)]0"
 
 // Rollie Cannabis
 

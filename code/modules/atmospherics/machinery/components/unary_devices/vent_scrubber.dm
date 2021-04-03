@@ -19,6 +19,7 @@
 
 	var/filter_types = list(/datum/gas/carbon_dioxide, /datum/gas/bz)
 	var/volume_rate = 200
+	var/siphon_multiplier = 3
 	var/widenet = 0 //is this scrubber acting on the 3x3 area around it.
 	var/list/turf/adjacent_turfs = list()
 
@@ -178,7 +179,7 @@
 
 	else //Just siphoning all air
 
-		var/transfer_moles = environment.total_moles()*(volume_rate/environment.return_volume())
+		var/transfer_moles = environment.total_moles()*((volume_rate*siphon_multiplier)/environment.return_volume())
 
 		var/datum/gas_mixture/removed = tile.remove_air(transfer_moles)
 
