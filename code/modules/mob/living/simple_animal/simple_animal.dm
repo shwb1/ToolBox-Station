@@ -97,6 +97,8 @@
 
 	var/special_process = FALSE
 
+	var/dont_wander_atoms = list(/turf/open/chasm,/turf/open/lava)
+
 /mob/living/simple_animal/Initialize()
 	. = ..()
 	GLOB.simple_animals[AIStatus] += src
@@ -163,11 +165,42 @@
 	if(!stop_automated_movement && wander)
 		if((isturf(loc) || allow_movement_on_non_turfs) && (mobility_flags & MOBILITY_MOVE))		//This is so it only moves if it's not inside a closet, gentics machine, etc.
 			turns_since_move++
+			var/standing_on_bad = 0
+			for(var/t in dont_wander_atoms)
+				if(istype(get_turf(src),t))
+					standing_on_bad = 1
+					break
 			if(turns_since_move >= turns_per_move)
 				if(!(stop_automated_movement_when_pulled && pulledby)) //Some animals don't move when pulled
-					var/anydir = pick(GLOB.cardinals)
-					if(Process_Spacemove(anydir))
-						Move(get_step(src, anydir), anydir)
+					var/list/usable_turfs = list()
+					var/list/allturfs = list()
+					for(var/turf/T in orange(1,loc))
+						if(!T.Adjacent(loc))
+							continue
+						var/badturf = 0
+						if(!standing_on_bad)
+							for(var/t in dont_wander_atoms)
+								if(istype(T,t))
+									badturf = 1
+									break
+						if(!badturf)
+							for(var/obj/O in T)
+								for(var/t in dont_wander_atoms)
+									if(istype(O,t))
+										badturf = 1
+										break
+								if(badturf)
+									break
+						if(!badturf)
+							usable_turfs += T
+						allturfs += T
+					if(!usable_turfs.len && allturfs.len)
+						usable_turfs = allturfs
+					var/thedir
+					if(usable_turfs.len)
+						thedir = get_dir(loc,pick(usable_turfs))
+					if(thedir && Process_Spacemove(thedir))
+						Move(get_step(src, thedir), thedir)
 						turns_since_move = 0
 			return 1
 
