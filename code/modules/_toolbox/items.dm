@@ -56,18 +56,19 @@
 	item_state = "candy"
 	amount_per_transfer_from_this = 10
 	volume = 10
-	ignore_flags = 0 //can you itch through hardsuits
+	ignore_flags = 1 //can you itch through hardsuits
 	//container_type = null
 	reagent_flags = null
 	list_reagents = list(/datum/reagent/toxin/itching_powder = 10)
 	prevent_grinding = TRUE
 	warn_target = 0
+	inject_verb = "sprinkle"
 
-/obj/item/reagent_containers/hypospray/stealthinjector/itchingpowder/attack(mob/living/M, mob/user)
+/obj/item/reagent_containers/hypospray/itchingpowder/attack(mob/living/M, mob/user)
 	. = ..()
 	update_icon()
 
-/obj/item/reagent_containers/hypospray/stealthinjector/itchingpowder/update_icon()
+/obj/item/reagent_containers/hypospray/itchingpowder/update_icon()
 	if(reagents.total_volume > 0)
 		icon_state = initial(icon_state)
 	else
@@ -139,3 +140,25 @@
 		new /mob/living/simple_animal/cockroach(get_turf(src))
 		used = 1
 	qdel(src)
+
+//child autism book
+
+/obj/item/book/manual/autismchild
+	name = "How to deal with an autistic child"
+	desc = "Signed \"Silas\". Whatever that means."
+	icon_state ="rdbook"
+	author = "By Melinda Smith, M.A., Jeanne Segal, Ph.D., and Ted Hutman, Ph.D."
+	title = "How to deal with an autistic child"
+	dat = {"
+	<html>
+	<head>
+	<title>A parent’s guide to autism treatment and support</title>
+	</head>
+	<body>
+	<P>If you’ve recently learned that your child has or might have autism spectrum disorder, you’re probably wondering and worrying about what comes next. No parent is ever prepared to hear that a child is anything other than happy and healthy, and an ASD diagnosis can be particularly frightening. You may be unsure about how to best help your child, or confused by conflicting treatment advice. Or you may have been told that ASD is an incurable, lifelong condition, leaving you concerned that nothing you do will make a difference.</P>
+
+	<P>While it is true that ASD is not something a person simply grows out of, there are many treatments that can help children acquire new skills and overcome a wide variety of developmental challenges. From free government services to in-home behavioral therapy and school-based programs, assistance is available to meet your child’s special needs and help them learn, grow, and thrive in life.</P>
+
+	<P>When you’re looking after a child with ASD, it’s also important to take care of yourself. Being emotionally strong allows you to be the best parent you can be to your child in need. These parenting tips can help by making life with an autistic child easier.</P>
+	</body>
+	</html>"}
