@@ -1236,7 +1236,8 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	baseturfs = /turf/open/lava/smooth
 	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 	smooth = SMOOTH_MORE | SMOOTH_BORDER
-	canSmoothWith = list(/turf/open/floor/plating/asteroid/has_air, /turf/open/floor/plating/asteroid/has_air_smooth, /turf/open/floor/plasteel, /turf/closed/wall, /turf/closed/mineral, /turf/open/floor/plating/astplate, /turf/open/floor/pod)
+	canSmoothWith = list(/turf/open/floor/plating/asteroid/has_air, /turf/open/floor/plating/asteroid/has_air_smooth, /turf/open/floor/plasteel,
+						/turf/closed/wall, /turf/closed/mineral, /turf/open/floor/plating/astplate, /turf/open/floor/pod)
 
 
 
@@ -1335,6 +1336,53 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air/has_data //subtype for producing a tunnel with given data
 	has_data = TRUE
+
+/turf/open/floor/plating/asteroid/getDug()
+	.=..()
+	for(var/obj/structure/treasure_chest_spawner/T in src)
+		T.getDug()
+
+
+//TREASURE
+/obj/structure/treasure_chest_spawner
+	name = "treasure chest spawner"
+	icon = 'icons/obj/crates.dmi'
+	icon_state = "wooden"
+	invisibility = INVISIBILITY_OBSERVER
+	anchored = 1
+	density = 0
+	var/obj/structure/closet/crate/crate = /obj/structure/closet/crate
+	var/list/crate_contents = list()
+
+/obj/structure/treasure_chest_spawner/proc/getDug()
+	if(QDELETED(src))
+		return
+	crate.forceMove(loc)
+	qdel(src)
+
+/obj/structure/treasure_chest_spawner/Destroy()
+	.=..()
+	getDug()
+	var/datum/component/C = GetComponent(/datum/component/gps)
+	if(C)
+		C.RemoveComponent()
+
+
+/obj/structure/treasure_chest_spawner/Initialize()
+	.=..()
+	AddComponent(/datum/component/gps, "Treasure")
+	crate = new crate(src)
+	for(var/t in crate_contents)
+		new t(crate)
+
+/obj/structure/treasure_chest_spawner/wooden_crate
+	crate = /obj/structure/closet/crate/wooden
+	crate_contents = list(/obj/item/clothing/under/rank/prisoner)
+
+/obj/structure/treasure_chest_spawner/wooden_crate/Initialize()
+	.=..()
+	if(crate)
+		crate.color = "#999999"
 
 
 //ABANDONED MINE

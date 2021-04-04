@@ -988,7 +988,7 @@
 "asZ" = (/obj/structure/table/reinforced,/obj/item/folder/white,/obj/item/pen,/obj/item/reagent_containers/glass/bottle/epinephrine{pixel_y = 2},/obj/item/reagent_containers/glass/bottle/charcoal{pixel_x = -5; pixel_y = -1},/turf/open/floor/plasteel/white,/area/medical/medbay/central)
 "ata" = (/obj/machinery/computer/warrant{dir = 4},/turf/open/floor/wood,/area/lawoffice)
 "atb" = (/obj/structure/table,/obj/item/stack/sheet/plasteel{amount = 10},/obj/item/stack/rods/fifty,/obj/effect/turf_decal/tile/yellow,/obj/effect/turf_decal/tile/yellow{dir = 4},/turf/open/floor/plasteel,/area/construction/mining/aux_base)
-"atc" = (/obj/structure/table/wood,/obj/item/storage/box/matches{pixel_y = 4},/obj/item/razor{pixel_x = -4; pixel_y = 3; step_x = -2},/obj/item/reagent_containers/food/drinks/flask/gold{pixel_x = 7; pixel_y = 16},/obj/item/clothing/mask/cigarette/cigar{pixel_y = 1},/turf/open/floor/carpet/royalblue,/area/crew_quarters/heads/captain)
+"atc" = (/obj/structure/table/wood,/obj/item/storage/box/matches{pixel_y = 4},/obj/item/razor{pixel_x = -6; pixel_y = 3; step_x = 0},/obj/item/reagent_containers/food/drinks/flask/gold{pixel_x = 7; pixel_y = 16},/obj/item/clothing/mask/cigarette/cigar{pixel_y = 1},/turf/open/floor/carpet/royalblue,/area/crew_quarters/heads/captain)
 "atd" = (/obj/machinery/light{dir = 4},/obj/effect/turf_decal/tile/red{dir = 4},/turf/open/floor/plasteel,/area/hallway/primary/fore)
 "ate" = (/obj/effect/landmark/xeno_spawn,/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 5},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3{dir = 5},/turf/open/floor/carpet/cyan,/area/crew_quarters/dorms)
 "atf" = (/obj/structure/chair/stool{pixel_y = 8},/turf/open/floor/carpet/cyan,/area/crew_quarters/dorms)
