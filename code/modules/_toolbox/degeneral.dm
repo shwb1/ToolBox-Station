@@ -292,7 +292,7 @@
 	ranged_cooldown_time = 80
 	vision_range = 9
 	pixel_x = -32
-	loot = list(/obj/effect/lizard_nest_gib, /obj/item/bluespace_cube)
+	loot = list(/obj/effect/lizard_nest_gib)
 	var/list/targets_gathered = list()
 	var/random_tentacle_chance = 5
 	var/bholes = 3 //number of Bholes per cooldown. Set 0 to disable.
@@ -300,6 +300,11 @@
 	var/bhole_cooldown = 200 //20 second cooldown on b-holes.
 	var/max_mobs_bholes = 15
 	var/end_life_on_death = 0
+	var/obj/item/bluespace_cube/cube
+
+/mob/living/simple_animal/hostile/spawner/lizard/overmind/Initialize()
+	cube = new(src)
+	. = ..()
 
 /mob/living/simple_animal/hostile/spawner/lizard/overmind/Goto(target, delay, minimum_distance)
 	return
@@ -362,6 +367,9 @@
 		. = 0
 
 /mob/living/simple_animal/hostile/spawner/lizard/overmind/death()
+	if(cube)
+		cube.forceMove(loc)
+		cube = null
 	end_life()
 	. = ..()
 
@@ -1911,6 +1919,11 @@ GLOBAL_LIST_EMPTY(gateway_components)
 	scan_range = 7
 	faction = list("neutral")
 
+//bonfire that waits for atmos to initialize
+/obj/structure/bonfire/prelit/waitforatmos/Initialize()
+	while(!SSair && !SSair.initialized)
+		sleep(5)
+	..()
 
 
 //IM A DUMB STEP EDITING SCRUB
