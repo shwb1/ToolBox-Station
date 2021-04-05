@@ -45,7 +45,7 @@
 	if(pulling)
 		if(isliving(pulling))
 			var/mob/living/L = pulling
-			if(!slowed_by_drag || L.buckled || grab_state >= GRAB_AGGRESSIVE) // removed (L.mobility_flags & MOBILITY_STAND) because nerfing combat is ghey
+			if(istype(L,/mob/living/carbon/human) || !slowed_by_drag || (L.mobility_flags & MOBILITY_STAND) || L.buckled || grab_state >= GRAB_AGGRESSIVE)
 				remove_movespeed_modifier(MOVESPEED_ID_BULKY_DRAGGING)
 				return
 			add_movespeed_modifier(MOVESPEED_ID_BULKY_DRAGGING, multiplicative_slowdown = PULL_PRONE_SLOWDOWN)

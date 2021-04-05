@@ -62,6 +62,7 @@
 	else if(O && istype(O, /obj/machinery/camera))
 		C = O
 	L[A.name] = list(A, (C ? C : O), list(source))
+	update_icon()
 	return 1
 
 
@@ -84,7 +85,6 @@
 
 /obj/machinery/computer/station_alert/update_icon()
 	icon_screen = initial(icon_screen)
-	..()
 	if(!(stat & (NOPOWER|BROKEN)))
 		var/active_alarms = FALSE
 		for(var/cat in alarms)
@@ -93,3 +93,4 @@
 				active_alarms = TRUE
 		if(active_alarms)
 			icon_screen = "alert:2"
+	..()

@@ -1,8 +1,9 @@
 /mob/living/simple_animal/hostile/randomhumanoid/ashligger
 	name = "lizard"
-	race = "lizard"
+	race = "ashwalker"
 	attacktext = "slashes"
 	gold_core_spawnable = 1
+	dont_wander_atoms = list(/turf/open/chasm,/turf/open/lava,/obj/structure/bonfire)
 	equipped_items = list(
 		/obj/item/clothing/head/helmet/gladiator = SLOT_HEAD,
 		/obj/item/clothing/under/costume/gladiator/ash_walker = SLOT_W_UNIFORM)

@@ -493,7 +493,7 @@
 "jy" = (/obj/structure/stone_tile/cracked{dir = 4},/turf/open/floor/plating/asteroid/has_air/desert_flora,/area/gb_away/explored)
 "jz" = (/obj/structure/disposalpipe/trunk{dir = 4},/obj/machinery/disposal/deliveryChute{dir = 8},/turf/open/floor/plasteel/white,/area/gb_away/ground_base)
 "jA" = (/obj/structure/disposalpipe/segment{dir = 10},/turf/closed/wall/r_wall,/area/gb_away/ground_base)
-"jB" = (/obj/structure/closet/crate/freezer,/obj/item/reagent_containers/food/snacks/egg/lizard_egg,/obj/item/storage/fancy/egg_box,/obj/item/storage/fancy/egg_box,/turf/open/floor/plasteel/white,/area/gb_away/ground_base)
+"jB" = (/obj/structure/closet/crate/freezer,/obj/item/storage/fancy/egg_box,/obj/item/storage/fancy/egg_box,/turf/open/floor/plasteel/white,/area/gb_away/ground_base)
 "jC" = (/obj/structure/sign/poster/official/science{pixel_y = -32},/obj/item/reagent_containers/glass/bucket,/obj/item/mop,/turf/open/floor/plasteel/white,/area/gb_away/ground_base)
 "jD" = (/obj/structure/cable{icon_state = "4-8"},/obj/machinery/light/broken,/turf/open/floor/plasteel,/area/gb_away/ground_base)
 "jE" = (/obj/structure/sign/poster/official/walk{pixel_y = -32},/turf/open/floor/plasteel/white,/area/gb_away/ground_base)
