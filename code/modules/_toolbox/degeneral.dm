@@ -1645,7 +1645,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	resistance_flags = INDESTRUCTIBLE
 	default_price = 50
 	extra_price = 100
-	payment_department = ACCOUNT_SEC
 	price_override = list(/obj/item/gun/ballistic/automatic/pistol = 150,
 					/obj/item/gun/ballistic/automatic/pistol/m1911 = 200,
 		            /obj/item/gun/ballistic/automatic/pistol/deagle/sound = 600,
@@ -1688,7 +1687,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	resistance_flags = INDESTRUCTIBLE
 	default_price = 50
 	extra_price = 100
-	payment_department = ACCOUNT_SEC
 	price_override = list(/obj/item/gun/ballistic/rifle/boltaction = 200,
 					/obj/item/gun/ballistic/automatic/surplus = 400,
 					/obj/item/gun/ballistic/automatic/wt550 = 800,
@@ -1732,7 +1730,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	resistance_flags = INDESTRUCTIBLE
 	default_price = 50
 	extra_price = 100
-	payment_department = ACCOUNT_SEC
 	price_override = list(/obj/item/gun/energy/laser/retro = 350,
 					/obj/item/gun/energy/laser/scatter = 400,
 					/obj/item/gun/energy/lasercannon = 850,
@@ -1781,7 +1778,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	resistance_flags = INDESTRUCTIBLE
 	default_price = 50
 	extra_price = 100
-	payment_department = ACCOUNT_SEC
 	price_override = list(/obj/item/ammo_box/magazine/tommygunm45 = 60,
 					/obj/item/ammo_box/magazine/smgm9mm = 15,
 					/obj/item/ammo_box/magazine/uzim9mm = 25,
