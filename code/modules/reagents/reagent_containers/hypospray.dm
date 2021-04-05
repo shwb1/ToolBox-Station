@@ -15,6 +15,7 @@
 	var/ignore_flags = 0
 	var/infinite = FALSE
 	var/warn_target = 1 //stealth injector?
+	var/inject_verb = "inject"
 
 /obj/item/reagent_containers/hypospray/attack_paw(mob/user)
 	return attack_hand(user)
@@ -36,7 +37,7 @@
 	if(reagents.total_volume && (ignore_flags || M.can_inject(user, 1))) // Ignore flag should be checked first or there will be an error message.
 		if(warn_target)
 			to_chat(M, "<span class='warning'>You feel a tiny prick!</span>")
-		to_chat(user, "<span class='notice'>You inject [M] with [src].</span>")
+		to_chat(user, "<span class='notice'>You [inject_verb] [M] with [src].</span>")
 		playsound(loc, 'sound/items/hypospray.ogg', 50, 1)
 
 		var/fraction = min(amount_per_transfer_from_this/reagents.total_volume, 1)

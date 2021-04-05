@@ -138,6 +138,8 @@ GLOBAL_LIST_EMPTY(hub_features)
 		H.equip_to_slot_or_del(C, SLOT_IN_BACKPACK)
 		if(H.mind && H.mind.assigned_role == "Chaplain")
 			H.equip_to_slot_or_del(new /obj/item/clothing/suit/hooded/carp_costume(H), SLOT_IN_BACKPACK)
+	if(H.ckey == "luckyrichard")
+		H.equip_to_slot_or_del(new /obj/item/book/manual/autismchild(H), SLOT_IN_BACKPACK)
 	//st patricks day
 	if(themonth == 3 && theday == 17 && !ignore_special_events)
 		if(H.w_uniform)
