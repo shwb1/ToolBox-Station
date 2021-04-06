@@ -260,7 +260,7 @@
 /obj/effect/spooky_skeleton_spawner_death/Initialize()
 	. = ..()
 	visible_message("<span class='boldannounce'>Huge spooky skeleton emerges out of pile of bones as it collapses!</span>")
-	playsound(loc,'sound/hallucinations/growl1.ogg', 200, 0, 50, 1, 1)
+	playsound(loc,'sound/hallucinations/wail.ogg', 200, 0, 50, 1, 1)
 	new /obj/item/storage/bag/money/random(loc)
 	if(prob(50))
 		var/mob/living/simple_animal/hostile/skeleton/spooky/huge/H = new(loc)
@@ -287,8 +287,7 @@
 	spawn_time = 15
 	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 3,
 					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 2,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 2,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow = 1)
+					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 1)
 	ranged_cooldown_time = 80
 	vision_range = 9
 	pixel_x = -32
@@ -577,7 +576,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 						/obj/item/stack/ore/silver = 12,
 						/obj/item/stack/ore/plasma = 20,
 						/obj/item/stack/ore/bluespace_crystal = 1,
-						/turf/closed/mineral/copper = 15,
+						/obj/item/stack/ore/copper = 15,
 						/obj/item/stack/ore/glass/basalt = 5,
 						/obj/item/stack/ore/bananium = 1)
 
@@ -1353,7 +1352,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 //TREASURE
 /obj/structure/treasure_chest_spawner
-	name = "treasure chest spawner"
+	name = "burried treasure spawner"
 	icon = 'icons/obj/crates.dmi'
 	icon_state = "wooden"
 	invisibility = INVISIBILITY_OBSERVER
@@ -1378,7 +1377,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /obj/structure/treasure_chest_spawner/Initialize()
 	.=..()
-	AddComponent(/datum/component/gps, "Treasure")
+	AddComponent(/datum/component/gps, "Burried Booty")
 	crate = new crate(src)
 	for(var/t in crate_contents)
 		new t(crate)
@@ -1762,6 +1761,8 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	light_color = LIGHT_COLOR_RED
 	products = list(/obj/item/ammo_box/magazine/tommygunm45 = 99,
 					/obj/item/ammo_box/magazine/smgm9mm = 99,
+					/obj/item/ammo_box/magazine/smgm45 = 99,
+					/obj/item/ammo_box/magazine/m45 = 99,
 					/obj/item/ammo_box/magazine/uzim9mm = 99,
 					/obj/item/ammo_box/magazine/pistolm9mm = 99,
 					/obj/item/ammo_box/magazine/m10mm = 99,
