@@ -51,7 +51,11 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		auto_fit_viewport = TRUE
 	if(current_version < 32)
 		//Okay this is gonna s u c k
-		var/list/legacy_purchases = purchased_gear.Copy()
+		var/list/legacy_purchases = list()
+		if(islist(purchased_gear))
+			legacy_purchases = purchased_gear.Copy()
+		else
+			purchased_gear = list()
 		purchased_gear.Cut()
 		equipped_gear.Cut() //Not gonna bother.
 		for(var/l_gear in legacy_purchases)
@@ -357,8 +361,10 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["facial_hair_color"]	>> facial_hair_color
 	S["eye_color"]			>> eye_color
 	S["skin_tone"]			>> skin_tone
-	S["hair_style_name"]	>> hair_style
-	S["facial_style_name"]	>> facial_hair_style
+	S["hair_style_name"] >> hair_style
+	hair_style = convert_hairs(hair_style,GLOB.hair_styles_list)
+	S["facial_style_name"] >> facial_hair_style
+	facial_hair_style = convert_hairs(facial_hair_style,GLOB.facial_hair_styles_list)
 	S["underwear"]			>> underwear
 	S["underwear_color"]	>> underwear_color
 	S["undershirt"]			>> undershirt

@@ -354,7 +354,7 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 	return newckey
 
 //giving more character slots
-/*GLOBAL_VAR_INIT(extraplayerslotspath,"data/other_saves/extraplayerslots.sav")
+GLOBAL_VAR_INIT(extraplayerslotspath,"data/other_saves/extraplayerslots.sav")
 GLOBAL_VAR_CONST(min_player_slots, 3)
 GLOBAL_VAR_CONST(max_player_slots, 8)
 
@@ -445,7 +445,7 @@ GLOBAL_VAR_CONST(max_player_slots, 8)
 					C.prefs.max_save_slots = newvalue
 					break
 		return newvalue
-	return 0*/
+	return 0
 
 /*GLOBAL_LIST_EMPTY(Player_Client_Cache)
 

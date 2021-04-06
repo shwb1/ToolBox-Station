@@ -135,11 +135,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			load_path(C.ckey)
 			unlock_content = C.IsByondMember()
 			if(unlock_content)
-				max_save_slots = 8
+				max_save_slots = GLOB.max_player_slots
+			else
+				var/newsaveslots = get_playerslots(C.ckey)
+				if(isnum(newsaveslots) && newsaveslots > GLOB.min_player_slots)
+					max_save_slots = min(newsaveslots,GLOB.max_player_slots)
 	var/loaded_preferences_successfully = load_preferences()
 	if(loaded_preferences_successfully)
 		if("6030fe461e610e2be3a2c3e75c06067e" in purchased_gear) //MD5 hash of, "extra character slot"
-			max_save_slots += 1
+			max_save_slots = min(max_save_slots+1,GLOB.max_player_slots)
 		if(load_character())
 			return
 	//we couldn't load character data so just randomize the character appearance + name

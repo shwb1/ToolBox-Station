@@ -522,3 +522,33 @@ area/ai_monitored/nuke_storage
 		var/list/banned = generateMapList("[global.config.directory]/randomroomblacklist.txt")
 		if(banned.Find(R.mappath))
 			. = TRUE
+
+//converting hair and bears from old source to new source
+/proc/convert_hairs(oldhair,list/haircheck)
+	if(!(oldhair in haircheck))
+		var/Oldhair = oldhair
+		var/list/words = list()
+		var/thespace = findtext(Oldhair," ",1,length(Oldhair)+1)
+		if(thespace)
+			var/timeout = 10 //dont like infinite loops
+			while(thespace && timeout > 0)
+				timeout--
+				thespace = findtext(Oldhair," ",1,length(Oldhair)+1)
+				words += copytext(Oldhair,1,thespace)
+				Oldhair = copytext(Oldhair,thespace+1,length(Oldhair)+1)
+		else
+			words += Oldhair
+		var/new_hair
+		for(var/hair in haircheck)
+			var/lowertext = lowertext(hair)
+			var/wordcount = words.len
+			for(var/w in words)
+				if(!w)
+					continue
+				if(findtext(lowertext,lowertext(w),1,length(lowertext)+1))
+					wordcount--
+			if(wordcount <= 0)
+				new_hair = hair
+		if(new_hair)
+			return new_hair
+	return oldhair
