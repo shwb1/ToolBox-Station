@@ -760,13 +760,13 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 /obj/machinery/incubator/examine(mob/user)
 	. = ..()
 	if(incubation_failed)
-		to_chat(user, "<span class='warning'>Incubation Failed!</span>")
+		. += "<span class='warning'>Incubation Failed!</span>"
 		return
 	if(egg)
-		to_chat(user, "Progress: [amount_grown]%")
+		. += "Progress: [amount_grown]%"
 		return
 	else
-		to_chat(user, "It is empty.")
+		. += "It is empty."
 		return
 
 /obj/machinery/incubator/update_icon()
@@ -901,6 +901,9 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 //obj/item/ammo_casing/shotgun/beanbag
 //obj/item/ammo_box/magazine/internal/shot/dual
 
+/obj/item/gun/ballistic/automatic/pistol/deagle/sound/gold
+	desc = "A gold plated Desert Eagle folded over a million times by superior martian gunsmiths. Uses .50 AE ammo."
+	icon_state = "deagleg"
 
 
 //FIRING PINS
@@ -1656,13 +1659,13 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 					/obj/item/gun/ballistic/automatic/pistol/m1911 = 200,
 		            /obj/item/gun/ballistic/automatic/pistol/deagle/sound = 600,
 		            /obj/item/gun/ballistic/revolver/mateba = 500,
-		            /obj/item/gun/ballistic/automatic/pistol/deagle/gold = 1200)
+		            /obj/item/gun/ballistic/automatic/pistol/deagle/sound/gold = 1200)
 
-	premium_price_override = list(/obj/item/gun/ballistic/automatic/proto = 700,
-				/obj/item/gun/ballistic/automatic/pistol/APS = 600,
-				/obj/item/gun/ballistic/automatic/mini_uzi = 850,
-				/obj/item/gun/ballistic/automatic/c20r/unrestricted = 1000,
-				/obj/item/gun/ballistic/automatic/tommygun = 1200)
+	premium_price_override = list(/obj/item/gun/ballistic/automatic/proto = 800,
+				/obj/item/gun/ballistic/automatic/pistol/APS = 700,
+				/obj/item/gun/ballistic/automatic/mini_uzi = 950,
+				/obj/item/gun/ballistic/automatic/c20r/unrestricted = 1200,
+				/obj/item/gun/ballistic/automatic/tommygun = 1400)
 
 
 /obj/machinery/vending/z_level_locked/rifle_and_shotgun
@@ -1695,11 +1698,11 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	default_price = 50
 	extra_price = 100
 	price_override = list(/obj/item/gun/ballistic/rifle/boltaction = 200,
-					/obj/item/gun/ballistic/automatic/surplus = 400,
-					/obj/item/gun/ballistic/automatic/wt550 = 800,
-					/obj/item/gun/ballistic/automatic/ar = 1200,
-					/obj/item/gun/ballistic/automatic/m90 = 2200,
-					/obj/item/gun/ballistic/automatic/l6_saw = 2500)
+					/obj/item/gun/ballistic/automatic/surplus = 450,
+					/obj/item/gun/ballistic/automatic/wt550 = 950,
+					/obj/item/gun/ballistic/automatic/ar = 1500,
+					/obj/item/gun/ballistic/automatic/m90 = 2700,
+					/obj/item/gun/ballistic/automatic/l6_saw = 4000)
 
 	premium_price_override = list(/obj/item/gun/ballistic/shotgun/doublebarrel = 150,
 				/obj/item/gun/ballistic/shotgun/lethal = 250,
@@ -1739,16 +1742,16 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	extra_price = 100
 	price_override = list(/obj/item/gun/energy/laser/retro = 350,
 					/obj/item/gun/energy/laser/scatter = 400,
-					/obj/item/gun/energy/lasercannon = 850,
+					/obj/item/gun/energy/lasercannon = 1200,
 					/obj/item/gun/energy/pulse/pistol = 3000,
-					/obj/item/gun/energy/beam_rifle = 4000,
+					/obj/item/gun/energy/beam_rifle = 7000,
 					/obj/item/gun/medbeam = 2500)
 
-	premium_price_override = list(/obj/item/gun/ballistic/automatic/sniper_rifle = 2000,
-								/obj/item/gun/ballistic/revolver/grenadelauncher = 1900,
-								/obj/item/gun/ballistic/automatic/gyropistol = 3000,
-								/obj/item/gun/energy/meteorgun = 4500,
-								/obj/item/gun/ballistic/rocketlauncher = 2500)
+	premium_price_override = list(/obj/item/gun/ballistic/automatic/sniper_rifle = 3000,
+								/obj/item/gun/ballistic/revolver/grenadelauncher = 2200,
+								/obj/item/gun/ballistic/automatic/gyropistol = 9000,
+								/obj/item/gun/energy/meteorgun = 15000,
+								/obj/item/gun/ballistic/rocketlauncher = 3500)
 
 
 /obj/machinery/vending/z_level_locked/ammo
@@ -1799,12 +1802,12 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 					/obj/item/ammo_box/magazine/wt550m9 = 20,
 					/obj/item/ammo_box/magazine/m10mm/rifle = 10)
 
-	premium_price_override = list(/obj/item/ammo_box/magazine/mm712x82 = 100,
+	premium_price_override = list(/obj/item/ammo_box/magazine/mm712x82 = 150,
 								/obj/item/ammo_box/magazine/m556 = 35,
 								/obj/item/ammo_box/magazine/sniper_rounds = 50,
-								/obj/item/ammo_box/magazine/m75 = 180,
-								/obj/item/ammo_casing/a40mm = 60,
-								/obj/item/ammo_casing/caseless/rocket = 80)
+								/obj/item/ammo_box/magazine/m75 = 250,
+								/obj/item/ammo_casing/a40mm = 65,
+								/obj/item/ammo_casing/caseless/rocket = 90)
 
 
 
