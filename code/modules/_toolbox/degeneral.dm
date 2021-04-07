@@ -889,6 +889,9 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	item_state = "gun"
 	icon_state = "dshotgun_l"
 	sawn_off = TRUE
+	item_state = "gun"
+	lefthand_file = 'icons/mob/inhands/weapons/guns_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons/guns_righthand.dmi'
 
 /obj/item/gun/ballistic/shotgun/doublebarrel/sawnoff/Initialize()
 	.=..()
