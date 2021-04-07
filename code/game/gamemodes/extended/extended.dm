@@ -17,6 +17,7 @@
 	config_tag ="secret_extended"
 	report_type = "traitor"	//So this won't appear with traitor report
 	secret = TRUE
+	required_players = 1
 
 /datum/game_mode/extended/pre_setup()
 	return 1
