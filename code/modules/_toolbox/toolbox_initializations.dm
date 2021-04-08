@@ -336,12 +336,6 @@ GLOBAL_LIST_EMPTY(hub_features)
 			if(theletter != "#")
 				. += theletter
 
-//making drone dispensers start with metal.
-/obj/machinery/droneDispenser/Initialize(thing)
-	if(thing)
-		starting_amount = 5000
-	return ..()
-
 //tooblox on mob login -falaskian
 /*/client
 	var/datum/mind/previous_mind
