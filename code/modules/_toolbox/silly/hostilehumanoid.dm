@@ -21,6 +21,7 @@ A hostile human animal mob that is customizable. -Falaskian
 	var/list/lizardskincolor_red = list(50,200) //these are to choose the lizards skin color based on RGB, range is 1-255. You can instead just enter one number instead of a list of two.
 	var/list/lizardskincolor_green = list(50,200) //^
 	var/list/lizardskincolor_blue = list(50,200) //^
+	var/adjustsize = null
 	var/skincolor //Final calculated skincolor for memeory. Change this to force a specific skin color. Must be a 6 character html tag. Example (#32ADHE)
 	var/list/human_traits = list( //this is only used for human. hair and facial hair.
 		"hair_style" = null,
@@ -197,6 +198,8 @@ A hostile human animal mob that is customizable. -Falaskian
 		humanoid_held_items.Remove(path)
 		overlayslist += I
 	add_overlay(overlayslist)
+	if(isnum(adjustsize) && adjustsize != 1)
+		transform *= adjustsize
 	if(start_dead)
 		death()
 
@@ -280,12 +283,16 @@ A hostile human animal mob that is customizable. -Falaskian
 	for(var/obj/item/item in humanoid_held_items)
 		H.put_in_hands(item)
 	H.faction = faction.Copy()
+	if(isnum(adjustsize) && adjustsize != 1)
+		H.transform *= adjustsize
 	return H
 
-/mob/living/simple_animal/hostile/randomhumanoid/death()
+/mob/living/simple_animal/hostile/randomhumanoid/death(gibbed)
 	. = ..()
 	var/mob/living/carbon/human/H = create_human()
 	H.death()
+	if(gibbed)
+		H.gib()
 	qdel(src)
 
 /mob/living/simple_animal/hostile/randomhumanoid/Login()
