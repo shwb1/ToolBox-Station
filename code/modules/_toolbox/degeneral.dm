@@ -472,16 +472,7 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 	var/obj/structure/lizard_ore_node/node_target
 	var/list/memory_nodes = list()
 	var/obj/structure/closet/crate/crate_memory
-	var/size_modifier = 0.85
-
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/Initialize()
-	.=..()
-	transform *= size_modifier
-
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/create_human()
-	var/mob/M = ..()
-	M.transform *= size_modifier
-	return M
+	adjustsize = 0.85
 
 /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/ListTargets()
 	var/list/targs = ..()
