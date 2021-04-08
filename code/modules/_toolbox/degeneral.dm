@@ -877,6 +877,70 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			)
 
 
+/obj/effect/spawner/lootdrop/cash
+	loot = list(
+				/obj/item/stack/spacecash/c10 = 4,
+				/obj/item/stack/spacecash/c20 = 4,
+				/obj/item/stack/spacecash/c50 = 2,
+				/obj/item/stack/spacecash/c100 = 1,
+				/obj/item/coin/silver = 4,
+				/obj/item/coin/gold = 4,
+				/obj/item/coin/plasma = 3
+				)
+
+/obj/effect/spawner/lootdrop/cash/six
+	lootcount = 6
+
+/obj/effect/spawner/lootdrop/booty
+	lootcount = 6
+	loot = list(
+			/obj/item/book/granter/spell/forcewall,
+			/obj/item/book/granter/spell/knock,
+			/obj/item/book/granter/spell/smoke/lesser,
+			/obj/item/book/granter/spell/charge,
+			/obj/item/book/granter/spell/summonitem,
+			/obj/item/clothing/suit/space/hardsuit/ert/paranormal/inquisitor,
+			/obj/item/clothing/suit/space/hardsuit/cult,
+			/obj/item/gun/ballistic/automatic/pistol/deagle/sound/gold,
+			/obj/item/gun/ballistic/automatic/pistol/deagle/sound,
+			/obj/item/gun/ballistic/revolver/golden,
+			/obj/item/storage/belt/utility/full,
+			/obj/item/storage/firstaid/regular,
+			/obj/item/storage/fancy/cigarettes/cigpack_robustgold,
+			/obj/item/instrument/violin/golden,
+			/obj/item/reagent_containers/food/snacks/grown/apple/gold,
+			/obj/item/reagent_containers/food/drinks/trophy/gold_cup,
+			/obj/item/stack/sheet/mineral/gold,
+			/obj/item/bikehorn/golden,
+			/obj/item/coin/gold,
+			/obj/item/clothing/accessory/medal/gold,
+			/obj/item/stack/sheet/mineral/silver,
+			/obj/item/clothing/accessory/medal/silver,
+			/obj/item/reagent_containers/food/drinks/trophy/silver_cup,
+			/obj/item/coin/silver,
+			/obj/item/seeds/banana/bluespace,
+			/obj/item/seeds/watermelon/holy,
+			/obj/item/seeds/random,
+			/obj/item/seeds/tomato/killer,
+			/obj/item/seeds/tomato/blue/bluespace,
+			/obj/item/seeds/tower/steel,
+			/obj/item/seeds/corn/snapcorn,
+			/obj/effect/spawner/lootdrop/warp_cube,
+			/obj/item/wisp_lantern,
+			/obj/item/borg/upgrade/modkit/lifesteal,
+			/obj/item/nullrod/scythe/talking,
+			/obj/item/melee/ghost_sword,
+			/obj/item/book/granter/spell/summonitem,
+			/obj/item/pickaxe/diamond,
+			/obj/item/rod_of_asclepius,
+			/obj/item/book_of_babel,
+			/obj/item/reagent_containers/glass/bottle/potion/flight,
+			)
+
+/obj/effect/spawner/lootdrop/warp_cube/Initialize()
+	.=..()
+	new /obj/item/warp_cube/red
+	new /obj/item/warp_cube
 
 /********************** OBJECTS **************************/
 
@@ -1140,6 +1204,48 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 		new t(src)
 	new /obj/effect/decal/remains/human(src)
 
+//TREASURE
+/obj/structure/treasure_chest_spawner
+	name = "buried treasure spawner"
+	icon = 'icons/obj/crates.dmi'
+	icon_state = "wooden"
+	invisibility = INVISIBILITY_OBSERVER
+	alpha = 150
+	anchored = 1
+	density = 0
+	var/obj/structure/closet/crate/crate = /obj/structure/closet/crate
+	var/list/crate_contents = list()
+
+/obj/structure/treasure_chest_spawner/proc/getDug()
+	if(QDELETED(src))
+		return
+	crate.forceMove(loc)
+	qdel(src)
+
+/obj/structure/treasure_chest_spawner/Destroy()
+	.=..()
+	getDug()
+	var/datum/component/C = GetComponent(/datum/component/gps)
+	if(C)
+		C.RemoveComponent()
+
+
+/obj/structure/treasure_chest_spawner/Initialize()
+	.=..()
+	AddComponent(/datum/component/gps, "Buried Booty")
+	crate = new crate(src)
+	for(var/t in crate_contents)
+		new t(crate)
+
+/obj/structure/treasure_chest_spawner/wooden_crate
+	crate = /obj/structure/closet/crate/wooden
+	crate_contents = list(/obj/effect/spawner/lootdrop/booty, /obj/effect/spawner/lootdrop/cash/six)
+
+/obj/structure/treasure_chest_spawner/wooden_crate/Initialize()
+	.=..()
+	if(crate)
+		crate.color = "#999999"
+
 
 
 /********************** MOBS **************************/
@@ -1214,12 +1320,17 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /********************** GROUNDBASE TURFS **************************/
 
+/turf/open/floor/plating/asteroid/getDug()
+	.=..()
+	for(var/obj/structure/treasure_chest_spawner/T in src)
+		T.getDug()
 
 /turf/open/floor/plating/asteroid/has_air    //asteroid turf that smooths with basalt and lava
 	name = "sand"
 	baseturfs = /turf/open/lava/smooth
 	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 	digResult = /obj/item/stack/ore/glass
+
 
 /turf/open/floor/plating/asteroid/has_air/Initialize()
 	.=..()
@@ -1349,53 +1460,6 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air/has_data //subtype for producing a tunnel with given data
 	has_data = TRUE
-
-/turf/open/floor/plating/asteroid/getDug()
-	.=..()
-	for(var/obj/structure/treasure_chest_spawner/T in src)
-		T.getDug()
-
-
-//TREASURE
-/obj/structure/treasure_chest_spawner
-	name = "burried treasure spawner"
-	icon = 'icons/obj/crates.dmi'
-	icon_state = "wooden"
-	invisibility = INVISIBILITY_OBSERVER
-	anchored = 1
-	density = 0
-	var/obj/structure/closet/crate/crate = /obj/structure/closet/crate
-	var/list/crate_contents = list()
-
-/obj/structure/treasure_chest_spawner/proc/getDug()
-	if(QDELETED(src))
-		return
-	crate.forceMove(loc)
-	qdel(src)
-
-/obj/structure/treasure_chest_spawner/Destroy()
-	.=..()
-	getDug()
-	var/datum/component/C = GetComponent(/datum/component/gps)
-	if(C)
-		C.RemoveComponent()
-
-
-/obj/structure/treasure_chest_spawner/Initialize()
-	.=..()
-	AddComponent(/datum/component/gps, "Burried Booty")
-	crate = new crate(src)
-	for(var/t in crate_contents)
-		new t(crate)
-
-/obj/structure/treasure_chest_spawner/wooden_crate
-	crate = /obj/structure/closet/crate/wooden
-	crate_contents = list(/obj/item/clothing/under/rank/prisoner)
-
-/obj/structure/treasure_chest_spawner/wooden_crate/Initialize()
-	.=..()
-	if(crate)
-		crate.color = "#999999"
 
 
 //ABANDONED MINE
