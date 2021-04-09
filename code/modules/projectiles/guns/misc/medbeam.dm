@@ -13,6 +13,8 @@
 	var/active = 0
 	var/datum/beam/current_beam = null
 	var/mounted = 0 //Denotes if this is a handheld or mounted version
+	var/explode_on_crossed_beams = 1
+	var/atom/source
 
 	weapon_weight = WEAPON_MEDIUM
 
@@ -34,6 +36,7 @@
 	LoseTarget()
 
 /obj/item/gun/medbeam/proc/LoseTarget()
+	source = null
 	if(active)
 		qdel(current_beam)
 		current_beam = null
@@ -49,7 +52,7 @@
 		LoseTarget()
 	if(!isliving(target))
 		return
-
+	source = user
 	current_target = target
 	active = TRUE
 	current_beam = new(user,current_target,time=6000,beam_icon_state="medbeam",btype=/obj/effect/ebeam/medical)
@@ -59,7 +62,8 @@
 
 /obj/item/gun/medbeam/process()
 
-	var/source = loc
+	if(!source)
+		source = loc
 	if(!mounted && !isliving(source))
 		LoseTarget()
 		return
@@ -100,11 +104,12 @@
 			if(!AM.CanPass(dummy,turf,1))
 				qdel(dummy)
 				return 0
-		for(var/obj/effect/ebeam/medical/B in turf)// Don't cross the str-beams!
-			if(B.owner.origin != current_beam.origin)
-				explosion(B.loc,0,3,5,8)
-				qdel(dummy)
-				return 0
+		if(explode_on_crossed_beams)
+			for(var/obj/effect/ebeam/medical/B in turf)// Don't cross the str-beams!
+				if(B.owner.origin != current_beam.origin)
+					explosion(B.loc,0,3,5,8)
+					qdel(dummy)
+					return 0
 	qdel(dummy)
 	return 1
 

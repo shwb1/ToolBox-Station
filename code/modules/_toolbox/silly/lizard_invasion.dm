@@ -146,33 +146,134 @@
 
 
 /********************** SPELLS **************************/
+//builder
 /obj/effect/proc_holder/spell/targeted/conjure_item/wood
 	name = "Wood"
 	desc = "Concentrates necropolis magic to conjure wood, useful for construction."
-	item_type = /obj/item/stack/sheet/mineral/wood
+	item_type = /obj/item/stack/sheet/mineral/wood/twentyfive
 //	summon_amt = 25
 	charge_max = 600
 	action_icon = 'icons/obj/hydroponics/harvest.dmi'
 	action_icon_state = "logs"
 
+/obj/item/stack/sheet/mineral/wood/twentyfive
+	amount = 25
+
 /obj/effect/proc_holder/spell/targeted/conjure_item/bamboo
 	name = "Bamboo"
 	desc = "Concentrates necropolis magic to conjure bamboo cuttings, useful for crafting punji stick traps."
-	item_type = /obj/item/stack/sheet/mineral/bamboo
-//	summon_amt = 5
+	item_type = /obj/item/stack/sheet/mineral/bamboo/five
 	charge_max = 250
 	action_icon = 'icons/obj/stack_objects.dmi'
 	action_icon_state = "sheet-bamboo"
 
-/*Shaman heal spell
-	.adjustBruteLoss(-10)
-	.adjustFireLoss(-10)
+/obj/item/stack/sheet/mineral/bamboo/five
+	amount = 5
 
- Shaman conjure warrior*/
+//shaman
+//heal spell
+/obj/effect/proc_holder/spell/aimed/shaman_heal
+	name = "Ritual Healing"
+	desc = ""
+	school = "restoration"
+	projectile_type = null
+	deactive_msg = "You cancel your healing spell."
+	active_msg = "You ready your healing spell."
+	action_icon = 'icons/obj/decals.dmi'
+	base_icon_state = "minskymedicb"
+	active_icon_state = "minskymedicb"
+	sound = null
+	charge_max = 150
+	clothes_req = 0
+	var/channel_time = 50
+	var/obj/item/gun/medbeam/gun
 
-/mob/living/carbon/human/warriorlizard
+/obj/effect/proc_holder/spell/aimed/shaman_heal/Initialize()
+	. = ..()
+	gun = new()
+	gun.explode_on_crossed_beams = 0
+	gun.mounted = 1
 
-/mob/living/carbon/human/warriorlizard/Initialize()
+/obj/effect/proc_holder/spell/aimed/shaman_heal/Destroy()
+	. = ..()
+	qdel(gun)
+
+/obj/effect/proc_holder/spell/aimed/shaman_heal/fire_projectile(mob/living/user, atom/target)
+	. = TRUE
+	spawn(0)
+		if(gun)
+			spawn(0)
+				gun.process_fire(target, user)
+			do_after(user, channel_time, target = user)
+			if(gun)
+				gun.LoseTarget()
+
+//summon spell
+/obj/effect/proc_holder/spell/aimed/summon_lizard
+	name = "Summon Soldier"
+	desc = ""
+	school = "conjuration"
+	projectile_type = null
+	deactive_msg = "You cancel your summoning spell."
+	active_msg = "You prepare to summon..."
+	action_icon = 'icons/mob/actions/actions_spells.dmi'
+	base_icon_state = "summons"
+	active_icon_state = "summons"
+	sound = null
+	charge_max = 300
+	clothes_req = 0
+	var/summontype = /mob/living/simple_animal/hostile/randomhumanoid/ashligger/green
+	var/max_summons = 8
+	var/list/spawned_mobs = list()
+
+/obj/effect/proc_holder/spell/aimed/summon_lizard/fire_projectile(mob/living/user, atom/target)
+	if(!target)
+		return
+	var/turf/T = get_turf(target)
+	if(!is_turf_cool(T))
+		to_chat(user, "<span class='warning'>You cannot cast that there.</span>")
+	new /obj/effect/lizard_bhole(T)
+	var/mob/living/simple_animal/hostile/randomhumanoid/H = new summontype(T)
+	H.faction = user.faction
+	H.adjustsize = 0.9
+	H.transform *= 0.9
+	H.maxHealth = 60
+	H.health = 60
+	H.real_name = "Ashwalker Thrall"
+	H.name = "Ashwalker Thrall"
+	spawned_mobs += H
+	H.handle_automated_action()
+
+/obj/effect/proc_holder/spell/aimed/summon_lizard/can_cast(mob/user = usr)
+	. = ..()
+	if(.)
+		var/mobcount = 0
+		for(var/l in spawned_mobs)
+			if(!istype(l,/mob/living) )
+				spawned_mobs.Remove(l)
+			else if(istype(l,/atom/movable))
+				var/atom/movable/AM = l
+				if(QDELETED(AM))
+					spawned_mobs.Remove(AM)
+			mobcount++
+		if(mobcount >= 8)
+			to_chat(user, "<span class='warning'>You control too many soldiers already.</span>")
+			. = FALSE
+
+/obj/effect/proc_holder/spell/aimed/summon_lizard/proc/is_turf_cool(turf/T)
+	. = 1
+	if(istype(T,/turf/open) && T != loc && !istype(T,/turf/open/space))
+		for(var/obj/O in T)
+			if(O.density)
+				. = 0
+				break
+	else
+		. = 0
+
+/mob/living/carbon/human/testlizard
+	var/picked = 0
+
+/mob/living/carbon/human/testlizard/Initialize()
 	. = ..()
 	real_name = lizard_name(MALE)
 	sync_mind()
@@ -191,35 +292,89 @@
 	underwear = "Nude"
 	undershirt = "Nude"
 	socks = "Nude"
-	equipOutfit(/datum/outfit/ashwalker/warrior)
 	regenerate_icons()
 	name = real_name
-	give_extra_role(/datum/extra_role/lizard_invader/warrior)
 
+/mob/living/carbon/human/testlizard/Login()
+	. = ..()
+	if(!picked)
+		var/list/classes = list("warrior","shaman","archer","builder")
+		var/selected_role
+		var/selected_outfit
+		var/class = input(usr,"Pick a class","Pick a class","warrior") as null|anything in classes
+		if(!(class in classes))
+			gib()
+			return
+		switch(class)
+			if("warrior")
+				selected_role = /datum/extra_role/lizard_invader/warrior
+				selected_outfit = /datum/outfit/ashwalker/warrior
+			if("shaman")
+				selected_role = /datum/extra_role/lizard_invader/shaman
+				selected_outfit = /datum/outfit/ashwalker/shaman
+			if("archer")
+				selected_role = /datum/extra_role/lizard_invader/archer
+				selected_outfit = /datum/outfit/ashwalker/archer
+			if("builder")
+				selected_role = /datum/extra_role/lizard_invader/builder
+				selected_outfit = /datum/outfit/ashwalker/builder
+		give_extra_role(selected_role)
+		equipOutfit(selected_outfit)
+		regenerate_icons()
+		picked = 1
+
+//lizard invader extra role datum.
 /datum/extra_role/lizard_invader
 	var/faction = list()
 	var/resize = 1
+	var/list/spell_list = list()
 
+/datum/extra_role/lizard_invader/on_gain(mob/user)
+	. = ..()
+	if(resize != 1 && user)
+		user.transform *= resize
+	if(spell_list.len)
+		for(var/t in spell_list)
+			if(!ispath(t))
+				continue
+			var/obj/effect/proc_holder/spell/S = new t()
+			user.AddSpell(S)
+
+//shaman
+/datum/extra_role/lizard_invader/shaman
+	resize = 0.9
+	spell_list = list(/obj/effect/proc_holder/spell/aimed/summon_lizard,/obj/effect/proc_holder/spell/aimed/shaman_heal)
+
+/datum/extra_role/lizard_invader/shaman/on_gain(mob/user)
+	. = ..()
+	ADD_TRAIT(user, TRAIT_PACIFISM, TRAIT_GENERIC)
+
+//warrior
 /datum/extra_role/lizard_invader/warrior
 	var/last_charge_attack = 0
 	var/charge_cooldown = 200
+	resize = 1.1
 
 /datum/extra_role/lizard_invader/warrior/on_click(atom/A)
-	if((last_charge_attack+charge_cooldown > world.time)||(!istype(affecting.current,/mob/living/carbon))||!(affecting.current.mobility_flags & MOBILITY_STAND))
+	if(last_charge_attack+charge_cooldown > world.time)
+		var/secondsremaining = (last_charge_attack+charge_cooldown)-world.time
+		to_chat(affecting.current,"<span class='warning'>Your charge attack is on cooldown. [round(secondsremaining/10,1)] seconds remaining.</span>")
+		return
+	if((!istype(affecting.current,/mob/living/carbon))||!(affecting.current.mobility_flags & MOBILITY_STAND))
 		return
 	var/chargetext = "[affecting.current] charges"
 	if(istype(A,/atom/movable))
 		chargetext += "at [A]"
 	affecting.current.visible_message("<span class='danger'>[chargetext].</span>")
-	playsound(affecting.current.loc, 'sound/toolbox/charge.ogg', 50, 0)
+	playsound(affecting.current.loc, 'sound/toolbox/charge.ogg', 100, 0)
 	var/turf/T = get_turf(affecting.current)
 	var/turf/Aturf = get_turf(A)
 	if(get_dist(T,Aturf) <= 1 || T == Aturf)
 		return
 	last_charge_attack = world.time
-	var/steps = 11
+	var/steps = 12
 	var/turf/current = T
-	while(steps > 0 && get_dist(current,Aturf) > 1)
+	while(steps > 0 && current != Aturf)
 		if(!Aturf || !T)
 			break
 		if(affecting.current.stat || affecting.current.restrained()||!(affecting.current.mobility_flags & MOBILITY_STAND))
@@ -227,14 +382,33 @@
 		steps--
 		var/thedir = get_dir(current,Aturf)
 		var/turf/newT = get_step(current,thedir)
-		if(newT.density || istype(newT,/turf/closed) || !Aturf.Adjacent(current))
-			step(affecting.current,thedir)
+		if(!newT.density && !istype(newT,/turf/closed) && newT.Adjacent(current))
+			if(!step(affecting.current,thedir))
+				break
 			current = get_turf(affecting.current)
 			sleep(0.5)
-			Aturf = get_turf(A)
+			if(A && A.loc)
+				Aturf = get_turf(A)
 		else
 			break
+	var/atom/the_target
 	if(affecting.current.Adjacent(A))
+		the_target = A
+	else if(Aturf.Adjacent(current))
+		var/list/adjacentmobs = list()
+		var/list/adjacentobjs = list()
+		for(var/atom/movable/AM in Aturf)
+			if(!AM.Adjacent(affecting.current))
+				continue
+			if(istype(AM,/mob/living))
+				adjacentmobs += AM
+			else if(istype(AM,/obj) && AM.density)
+				adjacentobjs += AM
+		if(adjacentmobs.len)
+			the_target = pick(adjacentmobs)
+		else if(adjacentobjs.len)
+			the_target = pick(adjacentobjs)
+	if(the_target)
 		var/obj/item/W = affecting.current.get_active_held_item()
 		if(W)
 			W.melee_attack_chain(affecting.current, A)
@@ -244,10 +418,21 @@
 			affecting.current.visible_message("<span class='danger'>[affecting.current]'s charge knocks down [A].</span>")
 			var/mob/living/M = A
 			M.Paralyze(30)
-		for(var/mob/living/M in orange(1,affecting.current))
-			if(M == A || M == affecting.current)
-				continue
-			if(affecting.current.faction_check_mob(M))
-				continue
-			affecting.current.visible_message("<span class='danger'>[affecting.current]'s charge knocks down [M].</span>")
-			M.Paralyze(20)
+	for(var/mob/living/M in orange(1,affecting.current))
+		if(M == the_target || M == affecting.current)
+			continue
+		if(affecting.current.faction_check_mob(M))
+			continue
+		affecting.current.visible_message("<span class='danger'>[affecting.current]'s charge knocks down [M].</span>")
+		M.Paralyze(20)
+
+/datum/extra_role/lizard_invader/archer
+
+/datum/extra_role/lizard_invader/builder
+	spell_list = list(/obj/effect/proc_holder/spell/targeted/conjure_item/wood,/obj/effect/proc_holder/spell/targeted/conjure_item/bamboo)
+
+//need door
+//need nest
+//archer spell
+//need fix spell reset on heal spell
+//fix charge

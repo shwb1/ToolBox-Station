@@ -484,6 +484,7 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 			for(var/obj/structure/lizard_ore_node/node in GLOB.lizard_ore_nodes)
 				if(src_turf.z == node.z)
 					targs += node
+					wander = FALSE
 		else
 			var/list/dropoff_points = list()
 			if(src_turf)
@@ -508,7 +509,7 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 					if(!crate_memory || !(crate_memory in crates))
 						crate_memory = pick(crates)
 					targs += crate_memory
-	wander = FALSE
+					wander = FALSE
 	return targs
 
 /mob/living/simple_animal/hostile/randomhumanoid/handle_automated_movement() //This is to make sure he doesnt do a random wander between mining actions. This was causing him to bump into shit he shouldnt bump in to.
