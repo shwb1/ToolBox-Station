@@ -27,3 +27,5 @@
 	mobsay_color = "#FFFFFF"
 	do_footstep = TRUE
 	faction = list("mad_cow")
+	obj_damage = 21
+	melee_damage = 10

@@ -212,9 +212,9 @@
 	faction = list(GBCAVESPIDER)
 	light_power = 0.5
 	light_range = 7
-	max_mobs = 5
-	spawn_time = 30
-	mob_types = list(/mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave = 7, /mob/living/simple_animal/hostile/poison/giant_spider/cave = 1)
+	max_mobs = 6
+	spawn_time = 25
+	mob_types = list(/mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave = 6, /mob/living/simple_animal/hostile/poison/giant_spider/cave = 1)
 	loot = list(/obj/effect/cave_spider_nest_death)
 
 /mob/living/simple_animal/hostile/spawner/cave_spider/Initialize()
@@ -249,7 +249,7 @@
 	light_power = 0.5
 	light_range = 7
 	max_mobs = 4
-	spawn_time = 20
+	spawn_time = 10
 	mob_types = list(/mob/living/simple_animal/hostile/skeleton/spooky = 1)
 	loot = list(/obj/effect/spooky_skeleton_spawner_death)
 
@@ -1059,7 +1059,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	icon = 'icons/obj/crates.dmi'
 	icon_state = "wooden"
 	invisibility = INVISIBILITY_OBSERVER
-	alpha = 150
+	alpha = 100
 	anchored = 1
 	density = 0
 	var/obj/structure/closet/crate/crate = /obj/structure/closet/crate
@@ -1210,7 +1210,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	initial_gas_mix = OPENTURF_DEFAULT_ATMOS
 	smooth = SMOOTH_MORE | SMOOTH_BORDER
 	canSmoothWith = list(/turf/open/floor/plating/asteroid/has_air, /turf/open/floor/plating/asteroid/has_air_smooth, /turf/open/floor/plasteel,
-						/turf/closed/wall, /turf/closed/mineral, /turf/open/floor/plating/astplate, /turf/open/floor/pod)
+						/turf/closed/wall, /turf/closed/mineral, /turf/open/floor/plating/astplate, /turf/open/floor/pod, /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine)
 
 
 
@@ -1227,7 +1227,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 		/turf/closed/mineral/uranium/has_air = 5, /turf/closed/mineral/diamond/has_air = 1, /turf/closed/mineral/gold/has_air = 10,
 		/turf/closed/mineral/titanium/has_air = 11, /turf/closed/mineral/copper = 15,
 		/turf/closed/mineral/silver/has_air = 12, /turf/closed/mineral/plasma/has_air = 20, /turf/closed/mineral/iron/has_air = 40,
-		/turf/closed/mineral/gibtonite/has_air = 4, /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine = 1,
+		/turf/closed/mineral/gibtonite/has_air = 4, /turf/open/floor/plating/asteroid/airless/cave_has_air/abandoned_mine = 4,
 		/turf/closed/mineral/bscrystal/has_air = 1, /turf/closed/mineral/bananium/has_air = 1)
 
 /turf/closed/mineral/uranium/has_air
@@ -1282,13 +1282,12 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 /********************** CAVE GENERATION **************************/
 
-#define SPAWN_MEGAFAUNA "bluh bluh huge boss"
-#define SPAWN_BUBBLEGUM 6
+#define SPAWN_SPAWNER "bluh bluh"
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air
 	var/length = 100
 	var/list/mob_spawn_list
-	var/list/megafauna_spawn_list
+	var/list/deepmine_spawn_list
 	var/list/flora_spawn_list
 	var/list/structure_spawn_list
 	var/list/item_spawn_list
@@ -1299,12 +1298,14 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	var/has_data = FALSE
 	var/data_having_type = /turf/open/floor/plating/asteroid/airless/cave_has_air/has_data
 	var/mob_spawn_chance = 30 //Chance to spawn mobs on every tile
-	var/mob_spawn_radius = 8 // How close can mobs spawn to eachother, reduces number of mobs and stops them from clumping up.
+	var/mob_spawn_radius = 8 // How close can mobs spawn to eachother, reduces number of mobs and stops them from clumping up
+	var/spawner_distance = 10 // Distance between spawners
 	var/structure_spawn_chance = 12
 	var/item_spawn_chance = 12
 	var/flora_spawn_chance = 2
 	var/area/caveless_area = /area/gb_away/explored
 	var/area/mobless_area = /area/gb_away/explored
+	var/area/spawner_area = /area/gb_away/mines/deep //area where monster spawners appear
 	turf_type = /turf/open/floor/plating/asteroid/has_air
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air/has_data //subtype for producing a tunnel with given data
@@ -1317,12 +1318,15 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 	mob_spawn_list = list(/mob/living/simple_animal/hostile/skeleton/plasmaminer = 1, /mob/living/simple_animal/hostile/poison/giant_spider/hunter/cave = 5, \
 		/mob/living/simple_animal/hostile/retaliate/bat/cave = 2, /mob/living/simple_animal/hostile/poison/giant_spider/cave = 3, \
-		/mob/living/simple_animal/hostile/skeleton/spooky = 5, /mob/living/simple_animal/hostile/skeleton/spooky/huge = 1)
+		/mob/living/simple_animal/hostile/skeleton/spooky = 5, /mob/living/simple_animal/hostile/skeleton/spooky/huge = 1, SPAWN_SPAWNER = 4)
+
+	deepmine_spawn_list = list(/mob/living/simple_animal/hostile/spawner/cave_spider = 1, /mob/living/simple_animal/hostile/spawner/spooky_skeleton = 1, \
+		/mob/living/simple_animal/hostile/morph = 1)
 
 	flora_spawn_list = list(/obj/structure/glowshroom/single/unidirectional = 1)
 
 	structure_spawn_list = list(/obj/structure/barricade/wooden = 10, /obj/structure/closet/crate/miningcar/minecart/loot = 6, /obj/structure/spider/stickyweb/aoe_spawn = 1, \
-	/obj/structure/ore_box = 3)
+	/obj/structure/ore_box = 3, /obj/structure/treasure_chest_spawner = 1)
 
 	item_spawn_list = list(/obj/item/stack/ore/iron = 5, /obj/effect/decal/remains/human = 2, /obj/item/stack/sheet/mineral/wood = 2, \
 	/obj/item/pickaxe = 2, /obj/item/ammo_casing/shotgun/buckshot = 2, /obj/item/flashlight/lantern/on = 2,/obj/item/shovel = 1, \
@@ -1433,18 +1437,16 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 		if(istype(loc, mobless_area))
 			return
 		var/randumb = pickweight(mob_spawn_list)
-		while(randumb == SPAWN_MEGAFAUNA)
-			if(istype(loc, /area/lavaland/surface/outdoors/unexplored/danger)) //this is danger. it's boss time.
-				var/maybe_boss = pickweight(megafauna_spawn_list)
-				if(megafauna_spawn_list[maybe_boss])
+		while(randumb == SPAWN_SPAWNER)
+			if(istype(loc, spawner_area)) //this is danger. it's spawner time.
+				var/maybe_boss = pickweight(deepmine_spawn_list)
+				if(deepmine_spawn_list[maybe_boss])
 					randumb = maybe_boss
-					if(ispath(maybe_boss, /mob/living/simple_animal/hostile/megafauna/bubblegum)) //there can be only one bubblegum, so don't waste spawns on it
-						megafauna_spawn_list[maybe_boss] = 0
 			else //this is not danger, don't spawn a boss, spawn something else
 				randumb = pickweight(mob_spawn_list)
 
 		for(var/mob/living/simple_animal/hostile/H in urange(mob_spawn_radius,T)) //prevents mob clumps
-			if((ispath(randumb, /mob/living/simple_animal/hostile/megafauna) || ismegafauna(H)) && get_dist(src, H) <= 7)
+			if((ispath(randumb, /mob/living/simple_animal/hostile/megafauna) || ismegafauna(H)) && get_dist(src, H) <= spawner_distance)
 				return //if there's a megafauna within standard view don't spawn anything at all
 			return
 		for(var/S in structure_spawn_list)
@@ -1456,8 +1458,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 
 	return
 
-#undef SPAWN_MEGAFAUNA
-#undef SPAWN_BUBBLEGUM
+#undef SPAWN_SPAWNER
 
 /turf/open/floor/plating/asteroid/airless/cave_has_air/proc/SpawnFlora(turf/T)
 	if(prob(flora_spawn_chance))
@@ -1521,11 +1522,19 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	ambient_buzz = 'sound/ambience/shipambience.ogg'
 	ambient_effects = MINING
 
-/area/lavaland/surface/outdoors/unexplored/GB
+/area/gb_away/mines
 	name = "Ground Base Wasteland"
+	icon_state = "awaycontent4"
 
-/area/lavaland/surface/outdoors/unexplored/danger/GB
+/area/gb_away/mines/deep
 	name = "Ground Base Wasteland"
+	icon_state = "awaycontent5"
+	ambient_effects = list('sound/ambience/ambimo1.ogg','sound/ambience/ambimo2.ogg','sound/ambience/ambiruin7.ogg','sound/ambience/ambiruin6.ogg',\
+							'sound/ambience/ambiodd.ogg', 'sound/ambience/ambimystery.ogg', 'sound/effects/ghost.ogg', 'sound/effects/ghost2.ogg','sound/effects/heart_beat.ogg', 'sound/effects/screech.ogg',\
+							'sound/hallucinations/behind_you1.ogg', 'sound/hallucinations/behind_you2.ogg', 'sound/hallucinations/far_noise.ogg', 'sound/hallucinations/growl1.ogg', 'sound/hallucinations/growl2.ogg',\
+							'sound/hallucinations/growl3.ogg', 'sound/hallucinations/im_here1.ogg', 'sound/hallucinations/im_here2.ogg', 'sound/hallucinations/i_see_you1.ogg', 'sound/hallucinations/i_see_you2.ogg',\
+							'sound/hallucinations/look_up1.ogg', 'sound/hallucinations/look_up2.ogg', 'sound/hallucinations/over_here1.ogg', 'sound/hallucinations/over_here2.ogg', 'sound/hallucinations/over_here3.ogg',\
+							'sound/hallucinations/turn_around1.ogg', 'sound/hallucinations/turn_around2.ogg', 'sound/hallucinations/veryfar_noise.ogg', 'sound/hallucinations/wail.ogg')
 
 
 
@@ -1581,7 +1590,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 				/obj/item/gun/ballistic/automatic/pistol/APS = 700,
 				/obj/item/gun/ballistic/automatic/mini_uzi = 950,
 				/obj/item/gun/ballistic/automatic/c20r/unrestricted = 1200,
-				/obj/item/gun/ballistic/automatic/tommygun = 1400)
+				/obj/item/gun/ballistic/automatic/tommygun = 1850)
 
 
 /obj/machinery/vending/z_level_locked/rifle_and_shotgun
@@ -1660,7 +1669,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 					/obj/item/gun/energy/laser/scatter = 400,
 					/obj/item/gun/energy/lasercannon = 1200,
 					/obj/item/gun/energy/pulse/pistol = 3000,
-					/obj/item/gun/energy/beam_rifle = 7000,
+					/obj/item/gun/energy/beam_rifle = 7300,
 					/obj/item/gun/medbeam = 2500)
 
 	premium_price_override = list(/obj/item/gun/ballistic/automatic/sniper_rifle = 3000,

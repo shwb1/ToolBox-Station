@@ -11,7 +11,7 @@
 	emote_taunt = list("stares ferociously", "hisses")
 	speak_chance = 1
 	taunt_chance = 25
-	turns_per_move = 5
+	turns_per_move = 4
 	see_in_dark = 6
 	response_help  = "pets"
 	response_disarm = "gently pushes aside"
