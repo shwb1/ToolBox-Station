@@ -59,11 +59,7 @@
 		/obj/item/clothing/head/helmet/gladiator = SLOT_HEAD,
 		/obj/item/clothing/under/costume/gladiator/ash_walker = SLOT_W_UNIFORM)
 	humanoid_held_items = list(/obj/item/twohanded/fireaxe/boneaxe)
-
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe/Initialize()
-	.=..()
-	resize = 1.2
-	update_transform()
+	adjustsize = 1.2
 
 //Warchief
 /mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe/warchief
