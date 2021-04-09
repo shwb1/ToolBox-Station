@@ -10,6 +10,11 @@
 		if(ispAI(M))
 			return FALSE
 		return TRUE	//AI can do whatever it wants
+	if(istype(M,/mob/living/carbon))
+		if(M.mind && istype(M.mind.extra_roles,/list))
+			for(var/datum/extra_role/extra_role in M.mind.extra_roles)
+				if(check_access_list(extra_role.GetAccess()))
+					return TRUE
 	if(IsAdminGhost(M))
 		//Access can't stop the abuse
 		return TRUE

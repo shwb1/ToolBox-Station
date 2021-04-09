@@ -1233,6 +1233,7 @@
 #include "code\modules\_toolbox\admin.dm"
 #include "code\modules\_toolbox\degeneral.dm"
 #include "code\modules\_toolbox\emojis.dm"
+#include "code\modules\_toolbox\extra_roles.dm"
 #include "code\modules\_toolbox\fal_new_player_cam.dm"
 #include "code\modules\_toolbox\graffiti.dm"
 #include "code\modules\_toolbox\hairstyles.dm"

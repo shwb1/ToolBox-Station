@@ -170,3 +170,84 @@
 
  Shaman conjure warrior*/
 
+/mob/living/carbon/human/warriorlizard
+
+/mob/living/carbon/human/warriorlizard/Initialize()
+	. = ..()
+	real_name = lizard_name(MALE)
+	sync_mind()
+	var/lizardskincolor_red = clamp(rand(1,25),50,200)
+	var/lizardskincolor_green = clamp(rand(150,200),50,200)
+	var/lizardskincolor_blue = clamp(rand(1,25),50,200)
+	var/theskincolor = sanitize_hexcolor(rgb(lizardskincolor_red,lizardskincolor_green,lizardskincolor_blue),include_crunch=0)
+	set_species(/datum/species/lizard/ashwalker, icon_update=1)
+	dna.features["body_markings"] = "Light Tiger Body"
+	dna.features["tail_lizard"] = "Spikes"
+	dna.features["snout"] = "Round + Light"
+	dna.features["horns"] = "Curled"
+	dna.features["frills"] = "Aquatic"
+	dna.features["spines"] = "Long + Membrane"
+	dna.features["mcolor"] = theskincolor
+	underwear = "Nude"
+	undershirt = "Nude"
+	socks = "Nude"
+	equipOutfit(/datum/outfit/ashwalker/warrior)
+	regenerate_icons()
+	name = real_name
+	give_extra_role(/datum/extra_role/lizard_invader/warrior)
+
+/datum/extra_role/lizard_invader
+	var/faction = list()
+	var/resize = 1
+
+/datum/extra_role/lizard_invader/warrior
+	var/last_charge_attack = 0
+	var/charge_cooldown = 200
+
+/datum/extra_role/lizard_invader/warrior/on_click(atom/A)
+	if((last_charge_attack+charge_cooldown > world.time)||(!istype(affecting.current,/mob/living/carbon))||!(affecting.current.mobility_flags & MOBILITY_STAND))
+		return
+	var/chargetext = "[affecting.current] charges"
+	if(istype(A,/atom/movable))
+		chargetext += "at [A]"
+	affecting.current.visible_message("<span class='danger'>[chargetext].</span>")
+	playsound(affecting.current.loc, 'sound/toolbox/charge.ogg', 50, 0)
+	var/turf/T = get_turf(affecting.current)
+	var/turf/Aturf = get_turf(A)
+	if(get_dist(T,Aturf) <= 1 || T == Aturf)
+		return
+	last_charge_attack = world.time
+	var/steps = 11
+	var/turf/current = T
+	while(steps > 0 && get_dist(current,Aturf) > 1)
+		if(!Aturf || !T)
+			break
+		if(affecting.current.stat || affecting.current.restrained()||!(affecting.current.mobility_flags & MOBILITY_STAND))
+			return
+		steps--
+		var/thedir = get_dir(current,Aturf)
+		var/turf/newT = get_step(current,thedir)
+		if(newT.density || istype(newT,/turf/closed) || !Aturf.Adjacent(current))
+			step(affecting.current,thedir)
+			current = get_turf(affecting.current)
+			sleep(0.5)
+			Aturf = get_turf(A)
+		else
+			break
+	if(affecting.current.Adjacent(A))
+		var/obj/item/W = affecting.current.get_active_held_item()
+		if(W)
+			W.melee_attack_chain(affecting.current, A)
+		else
+			affecting.current.UnarmedAttack(A,1)
+		if(istype(A,/mob/living))
+			affecting.current.visible_message("<span class='danger'>[affecting.current]'s charge knocks down [A].</span>")
+			var/mob/living/M = A
+			M.Paralyze(30)
+		for(var/mob/living/M in orange(1,affecting.current))
+			if(M == A || M == affecting.current)
+				continue
+			if(affecting.current.faction_check_mob(M))
+				continue
+			affecting.current.visible_message("<span class='danger'>[affecting.current]'s charge knocks down [M].</span>")
+			M.Paralyze(20)
