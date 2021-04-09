@@ -1,0 +1,29 @@
+/mob/living/simple_animal/hostile/mad_cow
+	name = "mad cow"
+	desc = "It has an evil glare."
+	icon_state = "cow"
+	icon_living = "cow"
+	icon_dead = "cow_dead"
+	icon_gib = "cow_gib"
+	gender = FEMALE
+	speak = list("moo?","moo","MOOOOOO")
+	speak_emote = list("moos hauntingly")
+	emote_hear = list("brays.")
+	emote_see = list("shakes its head.")
+	speak_chance = 1
+	turns_per_move = 4
+	see_in_dark = 6
+	butcher_results = list(/obj/item/reagent_containers/food/snacks/meat/slab = 6)
+	response_help  = "pets"
+	response_disarm = "gently pushes aside"
+	response_harm   = "kicks"
+	attacktext = "kicks"
+	attack_sound = 'sound/weapons/punch1.ogg'
+	health = 50
+	maxHealth = 50
+	var/obj/item/udder/udder = null
+	gold_core_spawnable = HOSTILE_SPAWN
+	blood_volume = BLOOD_VOLUME_NORMAL
+	mobsay_color = "#FFFFFF"
+	do_footstep = TRUE
+	faction = list("mad_cow")

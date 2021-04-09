@@ -55,6 +55,7 @@
 	if(stat & (BROKEN|NOPOWER))
 		if(egg)
 			QDEL_NULL(egg)
+			egg_printslast = null
 			amount_grown = 0
 			incubation_failed = TRUE
 			update_icon()
@@ -68,8 +69,12 @@
 				clonecount = 2
 			for(var/i=clonecount,i>0,i--)
 				if(egg.type == /obj/item/reagent_containers/food/snacks/egg/lizard_egg)
-					var/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave(src.loc)
-					log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
+					if(GLOB.lizard_ore_nodes.len == 0 || is_station_level(z))
+						incubation_failed = TRUE
+						continue
+					else
+						var/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave(src.loc)
+						log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
 				else
 					var/mob/living/simple_animal/chicken/C = new /mob/living/simple_animal/chicken(src.loc)
 					C.eggsFertile = 0
