@@ -1095,7 +1095,11 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	if(crate)
 		crate.color = "#999999"
 
-
+/obj/structure/punji_sticks/wood
+	name = "wooden spikes"
+	icon = 'icons/oldschool/objects.dmi'
+	icon_state = "spikes"
+	color = "#cc9966"
 
 /********************** MOBS **************************/
 
