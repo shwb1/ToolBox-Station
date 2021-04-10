@@ -931,7 +931,7 @@
 "arU" = (/obj/structure/disposalpipe/segment,/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3{dir = 6},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 6},/turf/open/floor/wood,/area/lawoffice)
 "arV" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3{dir = 6},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 1},/turf/open/floor/plasteel/grimy,/area/security/detectives_office)
 "arW" = (/obj/structure/disposalpipe/segment{dir = 4},/obj/structure/cable/yellow{icon_state = "4-8"},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3{dir = 8},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 8},/obj/effect/spawner/lootdrop/trash,/turf/open/floor/plating,/area/maintenance/starboard/aft)
-"arX" = (/obj/structure/table/wood,/obj/item/folder/blue,/obj/item/folder/blue,/obj/item/folder/blue,/obj/item/folder/blue,/obj/item/stamp/law,/turf/open/floor/wood,/area/lawoffice)
+"arX" = (/obj/structure/table/wood,/obj/item/folder/blue,/obj/item/folder/blue,/obj/item/folder/blue,/obj/item/folder/blue,/obj/item/stamp/law,/obj/item/clothing/glasses/sunglasses/advanced/big{pixel_y = 16},/turf/open/floor/wood,/area/lawoffice)
 "arY" = (/obj/structure/disposalpipe/segment{dir = 10},/obj/effect/spawner/lootdrop/trash,/turf/open/floor/plating,/area/maintenance/aft)
 "arZ" = (/obj/structure/filingcabinet,/obj/structure/disposalpipe/segment,/turf/open/floor/plasteel/grimy,/area/security/detectives_office)
 "asa" = (/obj/machinery/status_display/evac{pixel_x = 32},/obj/effect/turf_decal/tile/red{dir = 4},/turf/open/floor/plasteel,/area/hallway/primary/fore)
