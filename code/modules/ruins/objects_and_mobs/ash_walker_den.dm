@@ -13,10 +13,11 @@
 	resistance_flags = FIRE_PROOF | LAVA_PROOF
 	max_integrity = 200
 
-
+	var/spawn_threshold = ASH_WALKER_SPAWN_THRESHOLD
 	var/faction = list("ashwalker")
 	var/meat_counter = 6
 	var/datum/team/ashwalkers/ashies
+	var/list/drops_on_deconstruct = list(/obj/effect/collapse = 0, /obj/item/assembly/signaler/anomaly, 1) //adding this list so we can adjust a child. The number will indicate if we drop the item on the src loc (0) or near by (1).
 
 /obj/structure/lavaland/ash_walker/Initialize()
 	.=..()
@@ -29,8 +30,11 @@
 	START_PROCESSING(SSprocessing, src)
 
 /obj/structure/lavaland/ash_walker/deconstruct(disassembled)
-	new /obj/item/assembly/signaler/anomaly (get_step(loc, pick(GLOB.alldirs)))
-	new	/obj/effect/collapse(loc)
+	for(var/t in drops_on_deconstruct)
+		var/turf/T = loc
+		if(drops_on_deconstruct[t])
+			T = get_step(loc, pick(GLOB.alldirs))
+		new t(T)
 	return ..()
 
 /obj/structure/lavaland/ash_walker/process()
@@ -40,6 +44,8 @@
 /obj/structure/lavaland/ash_walker/proc/consume()
 	for(var/mob/living/H in hearers(1, src)) //Only for corpse right next to/on same tile
 		if(H.stat)
+			if(!can_consume(H))
+				continue
 			visible_message("<span class='warning'>Serrated tendrils eagerly pull [H] to [src], tearing the body apart as its blood seeps over the eggs.</span>")
 			playsound(get_turf(src),'sound/magic/demon_consume.ogg', 100, 1)
 			for(var/obj/item/W in H)
@@ -57,8 +63,11 @@
 				else
 					SEND_SIGNAL(L, COMSIG_ADD_MOOD_EVENT, "oogabooga", /datum/mood_event/sacrifice_bad)
 
+/obj/structure/lavaland/ash_walker/proc/can_consume(mob/living/M)
+	return TRUE
+
 /obj/structure/lavaland/ash_walker/proc/spawn_mob()
-	if(meat_counter >= ASH_WALKER_SPAWN_THRESHOLD)
+	if(meat_counter >= spawn_threshold)
 		new /obj/effect/mob_spawn/human/ash_walker(get_step(loc, pick(GLOB.alldirs)), ashies)
 		visible_message("<span class='danger'>One of the eggs swells to an unnatural size and tumbles free. It's ready to hatch!</span>")
-		meat_counter -= ASH_WALKER_SPAWN_THRESHOLD
+		meat_counter -= spawn_threshold

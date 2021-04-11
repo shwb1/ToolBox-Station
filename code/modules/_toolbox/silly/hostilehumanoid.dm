@@ -44,9 +44,14 @@ A hostile human animal mob that is customizable. -Falaskian
 	//for retaliation
 	var/retaliation = 0
 	var/list/enemies = list()
+	var/init_on_spawn = 1
 
 /mob/living/simple_animal/hostile/randomhumanoid/Initialize()
 	. = ..()
+	if(init_on_spawn)
+		Initialize_icons()
+
+/mob/living/simple_animal/hostile/randomhumanoid/proc/Initialize_icons()
 	//we default back to human if race isnt properly chosen.
 	if(!(race in list("human","lizard","ashwalker")))
 		race = "human"
