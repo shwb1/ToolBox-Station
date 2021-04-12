@@ -1196,6 +1196,9 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 			ChangeTurf(/turf/open/floor/plating/asteroid/has_air_smooth)
 
 /turf/open/floor/plating/asteroid/has_air/desert_flora   //asteroid turf with flora and fauna spawning
+	light_power = 0.1
+	light_range = 1.6
+	light_color = "#945c34"
 
 /turf/open/floor/plating/asteroid/has_air/desert_flora/Initialize()
 	.=..()
