@@ -97,6 +97,7 @@
 	new_dock.last_dock_time = world.time
 	setDir(new_dock.dir)
 
+	bolt_and_unbolt_exits(1)
 	// remove any stragglers just in case, and clear the list
 	remove_ripples()
 	return DOCKING_SUCCESS

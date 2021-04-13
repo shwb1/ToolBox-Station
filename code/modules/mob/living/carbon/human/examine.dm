@@ -280,7 +280,15 @@
 			if(InCritical())
 				msg += "[t_He] [t_is] barely conscious.\n"
 		if(getorgan(/obj/item/organ/brain))
+			var/catatonic = 0
 			if(!key)
+				catatonic = 1
+				if(mind)
+					for(var/mob/dead/observer/O in GLOB.mob_list)
+						if(O.mind == mind && O.mind.current == src && O.can_reenter_corpse)
+							catatonic = 0
+							break
+			if(catatonic)
 				msg += "<span class='deadsay'>[t_He] [t_is] totally catatonic. The stresses of life in deep-space must have been too much for [t_him]. Any recovery is unlikely.</span>\n"
 			else if(!client)
 				msg += "[t_He] [t_has] a blank, absent-minded stare and appears completely unresponsive to anything. [t_He] may snap out of it soon.\n"

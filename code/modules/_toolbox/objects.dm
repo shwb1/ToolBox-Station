@@ -54,12 +54,6 @@
 		return
 	to_chat(user, "<span class='notice'>[olditem.name] replaced with [newitem.name].</span>")*/
 
-//Cells construct with fullhealth
-/*/obj/machinery/rnd/production/proc/Make_Cells_Fucking_Full_Charge_Because_Thats_So_Gay(obj/item/stock_parts/cell/C)
-	if(istype(C))
-		C.charge = C.maxcharge
-		C.update_icon()*/
-
 //reinforced delivery window. allows items to be placed on tables underneath it
 /obj/structure/window/reinforced/fulltile/delivery
 	name = "reinforced delivery window"
@@ -503,32 +497,31 @@
 	bound_width = 64 // 2x1
 
 //make shuttles bolt the door on launch
-/*/obj/docking_port/mobile/proc/bolt_and_unbolt_exits(unbolt = 0)
+/obj/docking_port/mobile/proc/bolt_and_unbolt_exits(unbolt = 0)
 	var/area/A = get_area(src)
 	var/list/airlocks = list()
-	for(var/area/related in A.related)
-		for(var/obj/machinery/door/airlock/airlock in related)
-			if(airlock in airlocks)
+	for(var/obj/machinery/door/airlock/airlock in A)
+		if(airlock in airlocks)
+			continue
+		airlocks += airlock
+		var/has_space = 0
+		for(var/turf/T in orange(1,airlock))
+			if(T.x != airlock.x && T.y != airlock.y)
 				continue
-			airlocks += airlock
-			var/has_space = 0
-			for(var/turf/T in orange(1,airlock))
-				if(T.x != airlock.x && T.y != airlock.y)
-					continue
-				if(T.density)
-					continue
-				if(istype(T,/turf/open/space))
-					has_space = 1
-					break
-				var/area/TA = get_area(T)
-				if(TA.type != related.type)
-					has_space = 1
-					break
-			if(has_space)
-				if(!unbolt)
-					airlock.bolt()
-				else
-					airlock.unbolt()*/
+			if(T.density)
+				continue
+			if(istype(T,/turf/open/space))
+				has_space = 1
+				break
+			var/area/TA = get_area(T)
+			if(TA.type != A.type)
+				has_space = 1
+				break
+		if(has_space)
+			if(!unbolt)
+				airlock.bolt()
+			else
+				airlock.unbolt()
 
 //disease logging
 /*/datum/disease/proc/log_disease_transfer_attempt(atom/cause,atom/victim,method)

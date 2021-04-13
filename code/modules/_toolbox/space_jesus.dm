@@ -5,6 +5,7 @@
 	incorporeal_move = 1
 	omnipotent_access = 1
 	var/datum/mind/saved_mind
+	var/list/owned_items = list()
 
 /mob/living/carbon/human/jesus/Life()
 	. = ..()
@@ -33,6 +34,12 @@
 			ghost.mind = saved_mind
 		ghost.can_reenter_corpse = TRUE
 		saved_mind = null
+	for(var/obj/item/I in get_contents())
+		if(!(I in owned_items))
+			I.forceMove(loc)
+			I.dropped()
+		else
+			qdel(I)
 	qdel(src)
 
 /mob/living/carbon/human/jesus/verb/hallelujah()
@@ -185,6 +192,8 @@
 			else
 				M.real_name = "[outfit.name]"
 			M.name = M.real_name
+			for(var/obj/item/I in M.get_contents())
+				M.owned_items += I
 			QDEL_IN(src, 1)
 		return M
 

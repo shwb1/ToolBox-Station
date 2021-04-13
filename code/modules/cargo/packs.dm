@@ -117,7 +117,7 @@
 	cost = 800
 	contains = list(/obj/item/clothing/head/bomb_hood,
 					/obj/item/clothing/suit/bomb_suit,
-					/obj/item/clothing/mask/gas,
+					/obj/item/clothing/mask/gas/old,
 					/obj/item/screwdriver,
 					/obj/item/wirecutters,
 					/obj/item/multitool)
@@ -153,9 +153,9 @@
 	name = "Internals Crate"
 	desc = "Master your life energy and control your breathing with three breath masks, three emergency oxygen tanks and three large air tanks."//IS THAT A
 	cost = 600
-	contains = list(/obj/item/clothing/mask/gas,
-					/obj/item/clothing/mask/gas,
-					/obj/item/clothing/mask/gas,
+	contains = list(/obj/item/clothing/mask/gas/old,
+					/obj/item/clothing/mask/gas/old,
+					/obj/item/clothing/mask/gas/old,
 					/obj/item/clothing/mask/breath,
 					/obj/item/clothing/mask/breath,
 					/obj/item/clothing/mask/breath,

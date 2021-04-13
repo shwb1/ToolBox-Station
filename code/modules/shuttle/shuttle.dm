@@ -459,6 +459,7 @@
 				qdel(S0, TRUE)
 			else
 				previous = S0
+				bolt_and_unbolt_exits()
 	else
 		WARNING("shuttle \"[id]\" could not enter transit space. S0=[S0 ? S0.id : "null"] S1=[S1 ? S1.id : "null"]")
 

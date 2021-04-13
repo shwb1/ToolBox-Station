@@ -206,6 +206,8 @@ SUBSYSTEM_DEF(ticker)
 		if(GAME_STATE_SETTING_UP)
 			if(!setup())
 				//setup failed
+				if(start_immediately)
+					start_immediately = !start_immediately
 				current_state = GAME_STATE_STARTUP
 				start_at = world.time + (CONFIG_GET(number/lobby_countdown) * 10)
 				timeLeft = null

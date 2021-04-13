@@ -69,14 +69,14 @@
 	..()
 
 	new /obj/item/clothing/suit/fire/firefighter(src)
-	new /obj/item/clothing/mask/gas(src)
+	new /obj/item/clothing/mask/gas/old(src)
 	new /obj/item/tank/internals/oxygen/red(src)
 	new /obj/item/extinguisher(src)
 	new /obj/item/clothing/head/hardhat/red(src)
 
 /obj/structure/closet/firecloset/full/PopulateContents()
 	new /obj/item/clothing/suit/fire/firefighter(src)
-	new /obj/item/clothing/mask/gas(src)
+	new /obj/item/clothing/mask/gas/old(src)
 	new /obj/item/flashlight(src)
 	new /obj/item/tank/internals/oxygen/red(src)
 	new /obj/item/extinguisher(src)

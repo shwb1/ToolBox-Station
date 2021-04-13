@@ -182,7 +182,7 @@
 		clonemind = locate(mindref) in SSticker.minds
 		if(!istype(clonemind))	//not a mind
 			return NONE
-		if(clonemind.last_death != last_death) //The soul has advanced, the record has not.
+		if(last_death > 0 && clonemind.last_death != last_death) //The soul has advanced, the record has not.
 			return NONE
 		if(!QDELETED(clonemind.current))
 			if(clonemind.current.stat != DEAD)	//mind is associated with a non-dead body
@@ -249,7 +249,7 @@
 			to_chat(H, "<span class='notice'><b>Consciousness slowly creeps over you as your body regenerates.</b><br><i>So this is what cloning feels like?</i></span>")
 
 		if(grab_ghost_when == CLONER_MATURE_CLONE)
-			H.ghostize(TRUE)	//Only does anything if they were still in their old body and not already a ghost
+			//H.ghostize(TRUE)	//Only does anything if they were still in their old body and not already a ghost
 			to_chat(H.get_ghost(TRUE), "<span class='notice'>Your body is beginning to regenerate in a cloning pod. You will become conscious when it is complete.</span>")
 
 	if(H)
