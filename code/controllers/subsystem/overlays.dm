@@ -88,7 +88,7 @@ SUBSYSTEM_DEF(overlays)
 		. = iconbro.appearance
 		icon_cache[icon] = .
 
-/atom/proc/build_appearance_list(old_overlays)
+/atom/proc/build_appearance_list(old_overlays,alternate_icon)
 	var/static/image/appearance_bro = new()
 	var/list/new_overlays = list()
 	if (!islist(old_overlays))
@@ -97,7 +97,10 @@ SUBSYSTEM_DEF(overlays)
 		if(!overlay)
 			continue
 		if (istext(overlay))
-			new_overlays += iconstate2appearance(icon, overlay)
+			if(alternate_icon)
+				new_overlays += iconstate2appearance(icon, overlay,alternate_icon = alternate_icon)
+			else
+				new_overlays += iconstate2appearance(icon, overlay)
 		else if(isicon(overlay))
 			new_overlays += icon2appearance(overlay)
 		else
@@ -154,11 +157,13 @@ SUBSYSTEM_DEF(overlays)
 	if(NOT_QUEUED_ALREADY && (fa_len != a_len || fr_len != r_len || fp_len != p_len))
 		QUEUE_FOR_COMPILE
 
-/atom/proc/add_overlay(list/overlays, priority = FALSE)
+/atom/proc/add_overlay(list/overlays, priority = FALSE, alternate_icon)
 	if(!overlays)
 		return
-
-	overlays = build_appearance_list(overlays)
+	if(alternate_icon)
+		overlays = build_appearance_list(overlays,alternate_icon = alternate_icon)
+	else
+		overlays = build_appearance_list(overlays)
 
 	LAZYINITLIST(add_overlays) //always initialized after this point
 	LAZYINITLIST(priority_overlays)

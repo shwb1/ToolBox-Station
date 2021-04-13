@@ -55,7 +55,6 @@
 	set name = "github"
 	set desc = "Visit Github"
 	set hidden = 1
-	return //We present this a different way.
 	var/githuburl = CONFIG_GET(string/githuburl)
 	if(githuburl)
 		if(alert("This will open the Github repository in your browser. Are you sure?",,"Yes","No")!="Yes")

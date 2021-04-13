@@ -112,15 +112,25 @@ window "infowindow"
 	elem "infowindow"
 		type = MAIN
 		pos = 281,0
-		size = 672x577
+		size = 768x811
 		anchor1 = none
 		anchor2 = none
 		background-color = none
 		saved-params = "pos;size;is-minimized;is-maximized"
 		statusbar = false
 		is-pane = true
-		outer-size = 672x577
-		inner-size = 656x538
+		outer-size = 768x811
+		inner-size = 752x772
+	elem "github"
+		type = BUTTON
+		pos = 280,5
+		size = 88x20
+		anchor1 = 53,0
+		anchor2 = 69,0
+		background-color = none
+		saved-params = "is-checked"
+		text = "GitHub"
+		command = "github"
 	elem "discord"
 		type = BUTTON
 		pos = 607,5
@@ -135,7 +145,7 @@ window "infowindow"
 	elem "info"
 		type = CHILD
 		pos = 0,32
-		size = 640x528
+		size = 704x776
 		anchor1 = 0,0
 		anchor2 = 100,100
 		background-color = none
