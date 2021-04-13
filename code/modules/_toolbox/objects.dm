@@ -711,7 +711,7 @@
 			break
 		stoplag(1) //Dont wanna crash server if something goes wrong here.
 
-//autobuckling noose, formapping purposes. yeah thats it.
+//autobuckling noose, for mapping purposes. yeah thats it.
 /obj/structure/chair/noose/autobuckle/Initialize()
 	. = ..()
 	var/mob/to_buckle
@@ -723,3 +723,12 @@
 		buckle_mob(to_buckle)
 		return
 	qdel(src)
+
+
+/obj/effect/spawner/structure/window/plastitanium/station_to_space
+	name = "plastitanium window spawner"
+	icon_state = "plastitaniumwindow_spawner"
+	spawn_list = list(/obj/machinery/door/firedoor/window, /obj/structure/grille, /obj/structure/window/plastitanium/station_to_space)
+
+/obj/structure/window/plastitanium/station_to_space
+	max_integrity = 400

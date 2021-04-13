@@ -162,3 +162,136 @@
 	<P>When you’re looking after a child with ASD, it’s also important to take care of yourself. Being emotionally strong allows you to be the best parent you can be to your child in need. These parenting tips can help by making life with an autistic child easier.</P>
 	</body>
 	</html>"}
+
+
+
+//***************************
+//        Holo Lamp
+//***************************
+
+/obj/item/flashlight/lamp/holo
+	name = "holo projector"
+	desc = "Holographic projector desk lamp."
+	icon = 'icons/oldschool/items.dmi'
+	icon_state = "hololamp"
+	item_state = "flashdark"
+	lefthand_file = 'icons/mob/inhands/misc/devices_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/misc/devices_righthand.dmi'
+	w_class = WEIGHT_CLASS_BULKY
+	flashlight_power = 0.8
+	brightness_on = 3
+	on = 0
+	var/holo_icon = "hololamp_gorilla"
+	var/emagged = 0
+	var/mob/living/spawned_mob = null
+	var/rainbow_mode = 0
+	var/list/colors = list("#9400D3","#4B0082","#00FF00","#FFFF00","#FF7F00","#FF0000")
+
+
+/obj/item/flashlight/lamp/holo/attack_self(mob/user)
+	if(emagged)
+		playsound(src, 'sound/items/flashlight_off.ogg', 25, 1)
+		return
+	if(!on)
+		light_color = pick(colors)
+	.=..()
+
+/obj/item/flashlight/lamp/holo/Initialize()
+	light_color = pick(colors)
+	.=..()
+
+/obj/item/flashlight/lamp/holo/Destroy()
+	.=..()
+	qdel(spawned_mob)
+
+/obj/item/flashlight/lamp/holo/update_brightness(mob/user = null)
+	if(on)
+		if(flashlight_power)
+			set_light(l_range = brightness_on, l_power = flashlight_power)
+		else
+			set_light(brightness_on)
+		playsound(src, 'sound/items/flashlight_on.ogg', 25, 1)
+		update_icon()
+	else
+		set_light(0)
+		playsound(src, 'sound/items/flashlight_off.ogg', 25, 1)
+		update_icon()
+
+/obj/item/flashlight/lamp/holo/update_icon()
+	overlays.Cut()
+	if(on)
+		var/image/I = new()
+		I.icon = icon
+		I.icon_state = holo_icon
+		I.pixel_x = 0
+		I.pixel_y = 6
+		I.color = light_color
+		overlays += I
+	else
+		return
+
+/obj/item/flashlight/lamp/holo/attackby(obj/item/I, mob/user, params)
+	.=..()
+	if(istype(I, /obj/item/multitool))
+		if(rainbow_mode == 0)
+			rainbow()
+		else
+			rainbow_mode = 0
+		to_chat(user, "<span class='notice'>You [rainbow_mode ? "scramble" : "reset"] [src]'s internal electronics.</span>")
+
+/obj/item/flashlight/lamp/holo/proc/rainbow()
+	if(rainbow_mode)
+		return
+	rainbow_mode = 1
+	spawn(0)
+		var/currentcolor = 1
+		while(1)
+			if(!rainbow_mode)
+				return
+			light_color = colors[currentcolor]
+			currentcolor++
+			if(currentcolor >= colors.len)
+				currentcolor = 1
+			update_icon()
+			update_light()
+			sleep(1)
+
+/obj/item/flashlight/lamp/holo/emag_act(mob/user)
+	if (emagged)
+		return
+	to_chat(user, "<span class='danger'>You emag \the [src].</span>")
+	emagged = 1
+	on = 0
+	icon_state = "hololamp_broken"
+	update_brightness()
+	update_icon()
+	new /obj/effect/particle_effect/sparks(get_turf(src))
+	var/mob/living/simple_animal/hostile/gorilla/holo/G = new(get_turf(src))
+	G.rainbow(colors)
+	G.rainbow_mode = 1
+	spawned_mob = G
+
+
+/mob/living/simple_animal/hostile/gorilla/holo
+	name = "Holographic Gorilla"
+	real_name = "Holographic Gorilla"
+	alpha = 160
+	maxHealth = 100
+	health = 100
+	var/rainbow_mode = 0
+
+/mob/living/simple_animal/hostile/gorilla/holo/proc/rainbow(list/colors = list())
+	if(rainbow_mode)
+		return
+	rainbow_mode = 1
+	spawn(0)
+		var/currentcolor = 1
+		while(1)
+			if(!rainbow_mode)
+				return
+			color = colors[currentcolor]
+			currentcolor++
+			if(currentcolor >= colors.len)
+				currentcolor = 1
+			update_icon()
+			sleep(1)
