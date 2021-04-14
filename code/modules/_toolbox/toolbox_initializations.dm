@@ -459,13 +459,13 @@ area/ai_monitored/nuke_storage
 /area/medical
 	rgb_remake = list(230, 255, 235)
 /area/medical/virology
-	rgb_remake = list(145, 255, 156)
+	rgb_remake = list(194, 255, 210)
 /area/medical/apothecary
 	rgb_remake = list(255, 230, 161)
 /area/medical/surgery
 	rgb_remake = list(255, 255, 255)
 /area/medical/morgue
-	rgb_remake = list(69, 125, 255)
+	rgb_remake = list(105, 199, 130)
 
 //engineering areas
 /area/engine
@@ -484,6 +484,7 @@ area/ai_monitored/nuke_storage
 /area/tcommsat/computer
 	rgb_remake = list(255, 205, 105) //telecoms office has engineering color.
 /area/tcommsat/server
+	rgb_remake = list(0, 94, 0)
 	lighting_brightness_tube = 5
 	lighting_brightness_bulb = 4
 	lighting_brightness_night = 4
@@ -496,7 +497,7 @@ area/ai_monitored/nuke_storage
 	lighting_brightness_bulb = 5
 	lighting_brightness_night = 5
 /area/science/server
-	rgb_remake = list(98, 0, 255)
+	rgb_remake = list(0, 94, 0)
 	lighting_brightness_tube = 6
 	lighting_brightness_bulb = 5
 	lighting_brightness_night = 5
@@ -513,9 +514,11 @@ area/ai_monitored/nuke_storage
 /proc/toolboxhatesthisroom(datum/map_template/random_room/R)
 	. = FALSE
 	if(istype(R))
-		var/list/banned = generateMapList("[global.config.directory]/randomroomblacklist.txt")
-		if(banned.Find(R.mappath))
-			. = TRUE
+		var/thefile = "[global.config.directory]/randomroomblacklist.txt"
+		if(fexists(thefile))
+			var/list/banned = generateMapList(thefile)
+			if(banned.Find(R.mappath))
+				. = TRUE
 
 //converting hair and bears from old source to new source
 /proc/convert_hairs(oldhair,list/haircheck)

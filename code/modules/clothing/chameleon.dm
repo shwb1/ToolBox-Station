@@ -467,8 +467,8 @@
 /obj/item/clothing/mask/chameleon
 	name = "gas mask"
 	desc = "A face-covering mask that can be connected to an air supply. While good for concealing your identity, it isn't good for blocking gas flow." //More accurate
-	icon_state = "gas_alt"
-	item_state = "gas_alt"
+	icon_state = "gas_alt_old"
+	item_state = "gas_alt_old"
 	resistance_flags = NONE
 	armor = list("melee" = 5, "bullet" = 5, "laser" = 5, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 50)
 	clothing_flags = BLOCK_GAS_SMOKE_EFFECT | MASKINTERNALS

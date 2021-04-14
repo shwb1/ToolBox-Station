@@ -469,24 +469,20 @@
 		var/empty = href_list["empty"]
 		//Look for that player! They better be dead!
 		if(C)
+			var/temp_entry_text
 			if(C.fields["body_only"] && !empty)
-				temp = "<font class='bad'>Cannot initiate regular cloning with body-only scans.</font>"
-				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, 0)
+				temp_entry_text = "Cannot initiate regular cloning with body-only scans."
 			var/obj/machinery/clonepod/pod = GetAvailablePod()
 			var/success = FALSE
 			//Can't clone without someone to clone.  Or a pod.  Or if the pod is busy. Or full of gibs.
 			if(!LAZYLEN(pods))
-				temp = "<font class='bad'>No Clonepods detected.</font>"
-				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, 0)
+				temp_entry_text = "No Clonepods detected."
 			else if(!pod)
-				temp = "<font class='bad'>No Clonepods available.</font>"
-				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, 0)
+				temp_entry_text = "No Clonepods available."
 			else if(!CONFIG_GET(flag/revival_cloning) && !empty)
-				temp = "<font class='bad'>Unable to initiate cloning cycle.</font>"
-				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, 0)
+				temp_entry_text = "Unable to initiate cloning cycle, Equipment Disabled."
 			else if(pod.occupant)
-				temp = "<font class='bad'>Cloning cycle already in progress.</font>"
-				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, 0)
+				temp_entry_text = "Cloning cycle already in progress."
 			else
 				var/result = grow_clone_from_record(pod, C, empty)
 				if(result & CLONING_SUCCESS)
@@ -507,7 +503,9 @@
 					records -= C
 
 			if(!success)
-				temp = "[C.fields["name"]] => <font class='bad'>Initialisation failure.</font>"
+				if(!temp_entry_text)
+					temp_entry_text = "Initialisation failure."
+				temp = "[C.fields["name"]] => <font class='bad'>[temp_entry_text]</font>"
 				playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, 0)
 
 		else
