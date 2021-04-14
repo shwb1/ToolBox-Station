@@ -724,11 +724,15 @@
 		return
 	qdel(src)
 
+/obj/effect/spawner/structure/window/plastitanium/tough
+	name = "plastitanium window spawner"
+	icon_state = "plastitaniumwindow_spawner"
+	spawn_list = list(/obj/structure/grille, /obj/structure/window/plastitanium/tough)
 
 /obj/effect/spawner/structure/window/plastitanium/station_to_space
 	name = "plastitanium window spawner"
 	icon_state = "plastitaniumwindow_spawner"
-	spawn_list = list(/obj/machinery/door/firedoor/window, /obj/structure/grille, /obj/structure/window/plastitanium/station_to_space)
+	spawn_list = list(/obj/machinery/door/firedoor/window, /obj/structure/grille, /obj/structure/window/plastitanium/tough)
 
-/obj/structure/window/plastitanium/station_to_space
+/obj/structure/window/plastitanium/tough
 	max_integrity = 400

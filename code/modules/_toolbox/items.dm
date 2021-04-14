@@ -197,7 +197,8 @@
 	.=..()
 
 /obj/item/flashlight/lamp/holo/Initialize()
-	light_color = pick(colors)
+	if(!light_color)
+		light_color = pick(colors)
 	.=..()
 
 /obj/item/flashlight/lamp/holo/Destroy()
