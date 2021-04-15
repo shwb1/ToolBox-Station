@@ -1256,6 +1256,7 @@
 #include "code\modules\_toolbox\silly\hostilehumanoid.dm"
 #include "code\modules\_toolbox\silly\lawnmower.dm"
 #include "code\modules\_toolbox\silly\lizard_invasion.dm"
+#include "code\modules\_toolbox\silly\outthebottom.dm"
 #include "code\modules\_toolbox\silly\pokerchips.dm"
 #include "code\modules\_toolbox\silly\redphones.dm"
 #include "code\modules\_toolbox\silly\silly_mobs.dm"

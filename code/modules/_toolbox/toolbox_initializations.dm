@@ -25,9 +25,9 @@ proc/Initialize_Falaskians_Shit()
 	//SaveStation()
 	load_chaos_assistant_chance()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
-	//GLOB.cable_coil_recipes += new/datum/stack_recipe("noose", /obj/structure/chair/noose, 10, time = 0, on_floor = TRUE)
 	new_player_cam = new()
 	world.update_status()
+	generate_items_in_the_bottom()
 
 /atom/movable/screen/toolboxlogo
 	name = "Toolbox Station"
@@ -155,8 +155,8 @@ GLOBAL_LIST_EMPTY(hub_features)
 
 //giving detective back his telescopic baton
 /datum/outfit/job/detective/New()
-	backpack_contents.Remove(/obj/item/melee/classic_baton)
-	backpack_contents[/obj/item/melee/classic_baton/telescopic] = 1
+	backpack_contents.Remove(/obj/item/melee/classic_baton/police)
+	backpack_contents[/obj/item/melee/classic_baton/police/telescopic] = 1
 	. = ..()
 
 /datum/outfit/job/warden/New()

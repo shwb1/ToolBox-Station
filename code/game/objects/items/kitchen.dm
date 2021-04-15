@@ -212,7 +212,7 @@
 
 // Shank - Makeshift weapon that can embed on throw
 /obj/item/kitchen/knife/shank
-	name = "Shank"
+	name = "shank"
 	desc = "A crude knife fashioned by wrapping some cable around a glass shard. It looks like it could be thrown with some force.. and stick. Good to throw at someone chasing you"
 	icon = 'icons/obj/items_and_weapons.dmi'
 	icon_state = "shank"
