@@ -296,3 +296,15 @@
 				currentcolor = 1
 			update_icon()
 			sleep(1)
+
+//rainbowlabcoats
+/obj/item/clothing/suit/toggle/labcoat/machine_wash(obj/machinery/washing_machine/WM)
+	. = ..()
+	if(WM.color_source && istype(WM.color_source, /obj/item/toy/crayon))
+		var/obj/item/toy/crayon/C = WM.color_source
+		var/obj/item/clothing/suit/toggle/labcoat/S = /obj/item/clothing/suit/toggle/labcoat
+		icon_state = initial(S.icon_state)
+		item_color = WM.color_source.item_color
+		name = initial(S.name)
+		color = C.paint_color
+		desc = "The colors are a bit dodgy."
