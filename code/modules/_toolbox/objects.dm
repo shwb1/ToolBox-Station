@@ -729,3 +729,9 @@
 
 /obj/structure/window/plastitanium/tough
 	max_integrity = 400
+
+/obj/structure/sign/poster/contraband/mime
+	name = "Mime"
+	desc = "Some kind of modern art piece."
+	icon = 'icons/oldschool/objects.dmi'
+	icon_state = "poster_mime"
