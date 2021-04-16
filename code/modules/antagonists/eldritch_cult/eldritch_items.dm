@@ -16,7 +16,9 @@
 		return
 	var/dist = get_dist(user.loc,target.loc)
 	var/dir = get_dir(user.loc,target.loc)
-	if(user.z != target.z)
+	var/turf/targetturf = get_turf(target)
+	var/turf/userturf = get_turf(user)
+	if(!targetturf || !userturf || (userturf.z != targetturf.z))
 		to_chat(user,"<span class='warning'>[target.real_name] is on another plane of existance!</span>")
 	else
 		switch(dist)

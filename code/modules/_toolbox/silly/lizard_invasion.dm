@@ -206,19 +206,24 @@
 /********************** OUTFITS **************************/
 /datum/outfit/ashwalker/warrior
 	r_hand = /obj/item/twohanded/bonespear
+	r_pocket = /obj/item/flashlight/lantern
 
 /datum/outfit/ashwalker/archer
 	r_hand = /obj/item/gun/ballistic/bow/ashen
 	belt = /obj/item/storage/belt/quiver/full
 	l_pocket = /obj/item/kitchen/knife/combat/bone
+	r_pocket = /obj/item/flashlight/lantern
 
 /datum/outfit/ashwalker/builder
 	l_pocket = /obj/item/kitchen/knife/combat/bone
+	r_pocket = /obj/item/flashlight/lantern
+	belt = /obj/item/storage/belt/utility/servant
 
 /datum/outfit/ashwalker/shaman
 	head = null
 	mask = /obj/item/clothing/mask/rat/tribal
 	l_pocket = /obj/item/kitchen/knife/combat/bone
+	r_pocket = /obj/item/flashlight/lantern
 
 /obj/item/storage/belt/quiver/full/PopulateContents()
 	var/static/items_inside = list(

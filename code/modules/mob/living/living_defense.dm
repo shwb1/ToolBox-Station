@@ -128,7 +128,11 @@
 	IgniteMob()
 
 /mob/living/proc/grabbedby(mob/living/carbon/user, supress_message = FALSE)
-	if(user == src || anchored || !isturf(user.loc))
+	if(!isturf(user.loc))
+		return FALSE
+	if(user == src && pull_shit_out_of_your_ass())
+		return
+	if(user == src || anchored)
 		return FALSE
 	if(!user.pulling || user.pulling != src)
 		user.start_pulling(src, supress_message = supress_message)

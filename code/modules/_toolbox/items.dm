@@ -296,3 +296,107 @@
 				currentcolor = 1
 			update_icon()
 			sleep(1)
+
+//rainbowlabcoats
+/obj/item/clothing/suit/toggle/labcoat/machine_wash(obj/machinery/washing_machine/WM)
+	. = ..()
+	if(WM.color_source && istype(WM.color_source, /obj/item/toy/crayon))
+		var/obj/item/toy/crayon/C = WM.color_source
+		var/obj/item/clothing/suit/toggle/labcoat/S = /obj/item/clothing/suit/toggle/labcoat
+		icon_state = initial(S.icon_state)
+		item_color = WM.color_source.item_color
+		name = initial(S.name)
+		color = C.paint_color
+		desc = "The colors are a bit dodgy."
+
+//south park recorder
+/obj/item/recorderflute
+	name = "recorder"
+	desc = "Used by third graders for music class."
+	icon = 'icons/oldschool/items.dmi'
+	icon_state = "recorder"
+	item_state = "recorder"
+	lefthand_file = 'icons/oldschool/inhand_left.dmi'
+	righthand_file = 'icons/oldschool/inhand_right.dmi'
+	w_class = 2
+	var/last_used = 0
+	var/ismain = 0
+
+/obj/item/recorderflute/attack_self(mob/living/user)
+	if(last_used+200 > world.time)
+		to_chat(user,"\blue You can't use that yet.")
+		return
+	last_used = world.time
+	var/turf/theturf = get_turf(src)
+	var/locsave = loc
+	to_chat(user,"<span class='notice'>You begin to play the [src].</span>")
+	sleep(20)
+	if(get_turf(src) != theturf||loc != locsave||user.get_active_held_item() != src)
+		to_chat(user,"<span class='notice'> You stop playing the [src].</span>")
+		return
+	for(var/mob/living/C in range(7,theturf))
+		if(audible_range(src, C))
+			if(C != user)
+				to_chat(C,"<span class='warning'>[user] begins playing the [src].</span>")
+			if(can_hear_me(C))
+				C << sound('sound/toolbox/flutestart.ogg',0,0,0,100)
+		spawn(28)
+			if(((get_turf(src) != theturf)|(loc != locsave)|(user.get_active_held_item() != src)))
+				to_chat(user,"\blue You stop playing the [src].")
+				return
+			if(!audible_range(src, C))
+				continue
+			if(get_dist(theturf,C) > 7)
+				continue
+			if(!can_hear_me(C))
+				sleep(10)
+				to_chat(C,"<span class='warning'> You feel strange vibrations but cannot hear whats causing it.</span>")
+			else
+				C << sound('sound/toolbox/brownend.ogg',0,0,0,100)
+				sleep(10)
+				to_chat(C,"<span class='danger'>You hear a very brown noise.</span>")
+				C.shit_pants(1,0)
+				C.Paralyze(30)
+	for(var/mob/dead/observer/O in range(7,theturf))
+		to_chat(O,"<span class='notice'>[user] begins playing the [src].</span>")
+		O << sound('sound/toolbox/flutestart.ogg',0,0,0,100)
+		spawn(28)
+			O << sound('sound/toolbox/brownend.ogg',0,0,0,100)
+
+/obj/item/recorderflute/proc/can_hear_me(mob/living/target)
+	. = FALSE
+	if(target.can_hear())
+		. = TRUE
+		if(istype(target,/mob/living/carbon))
+			var/mob/living/carbon/C = target
+			if(istype(C.ears,/obj/item/clothing/ears))
+				var/obj/item/clothing/ears/E = C.ears
+				if(E.bang_protect > 1)
+					. = FALSE
+
+/obj/item/recorderflute/Destroy()
+	if(ismain)
+		var/turf/respawnturf = locate(54,153,1)
+		var/obj/item/recorderflute/R = new(respawnturf)
+		R.ismain = 1
+	..()
+
+/obj/item/recorderflute/proc/audible_range(var/source, var/listener)
+	var/turf/listenerturf = get_turf(listener)
+	var/turf/sourceturf = get_turf(source)
+	var/turf/current = get_step_towards(sourceturf,listenerturf)
+	var/solid = 0
+	while(current != listenerturf && !solid)
+		if(current.density)
+			solid = 1
+			return 0
+		for(var/obj/O in current)
+			if(O.opacity)
+				solid = 1
+				return 0
+		current = get_step_towards(current,listenerturf)
+	if(solid)
+		return 0
+	if(current == listenerturf)
+		return 1
+	return 0

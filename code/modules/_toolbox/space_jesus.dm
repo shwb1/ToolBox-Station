@@ -6,6 +6,7 @@
 	omnipotent_access = 1
 	var/datum/mind/saved_mind
 	var/list/owned_items = list()
+	var/obj/item/gun/energy/pulse/destroyer/destroyer
 
 /mob/living/carbon/human/jesus/Life()
 	. = ..()
@@ -34,6 +35,7 @@
 			ghost.mind = saved_mind
 		ghost.can_reenter_corpse = TRUE
 		saved_mind = null
+	moveToNullspace()
 	for(var/obj/item/I in get_contents())
 		if(!(I in owned_items))
 			I.forceMove(loc)
@@ -41,6 +43,16 @@
 		else
 			qdel(I)
 	qdel(src)
+
+/mob/living/carbon/human/jesus/verb/destroyer()
+	set category = "Space Jesus"
+	set name = "Spawn Destroyer"
+	set desc = "Gives you a divine destroyer weapon."
+	if(destroyer)
+		qdel(destroyer)
+	destroyer = new()
+	owned_items += destroyer
+	put_in_hands(destroyer)
 
 /mob/living/carbon/human/jesus/verb/hallelujah()
 	set category = "Space Jesus"
@@ -179,11 +191,11 @@
 			if (!istype(M))
 				to_chat(usr, "Oops! There was a problem. Contact a developer.")
 				return
-			if(mind)
-				M.saved_mind = mind
-			M.key = savedkey
 			if(M.mind)
 				M.mind.assigned_role = "Space Jesus"
+			if(mind && mind.assigned_role != M.mind.assigned_role)
+				M.saved_mind = mind
+			M.key = savedkey
 			if(!istype(outfit))
 				outfit = /datum/outfit/jesus
 			M.equipOutfit(outfit)
@@ -317,3 +329,19 @@
 	var/obj/item/clothing/suit/hooded/hooded = H.wear_suit
 	if(istype(hooded) && !hooded.suittoggled)
 		hooded.ToggleHood()
+
+/obj/item/gun/energy/pulse/destroyer/jesus
+	name = "Jesus' Destroyer"
+	var/unlocked = 0
+
+/obj/item/gun/energy/pulse/destroyer/jesus/Initialize()
+	. = ..()
+	for(var/obj/item/ammo_casing/energy/A in ammo_type)
+		A.e_cost = 0
+
+/obj/item/gun/energy/pulse/destroyer/jesus/can_shoot()
+	if(!unlocked && istype(loc,/mob/living/carbon))
+		var/mob/living/carbon/C = loc
+		if(!(C.mind && C.mind.assigned_role == "Space Jesus"))
+			return FALSE
+	return TRUE
