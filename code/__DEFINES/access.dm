@@ -63,6 +63,8 @@
 #define ACCESS_WEAPONS 66 //! Weapon authorization for secbots
 #define ACCESS_NETWORK 67 //! NTnet diagnostics/monitoring software
 #define ACCESS_CLONING 68 //! Cloning room and clone pod ejection
+#define ACCESS_HONK 69
+#define ACCESS_SILENT 70
 
 /// Room and launching.
 #define ACCESS_AUX_BASE 72

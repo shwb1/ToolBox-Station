@@ -12,8 +12,8 @@
 
 	outfit = /datum/outfit/job/clown
 
-	access = list(ACCESS_THEATRE)
-	minimal_access = list(ACCESS_THEATRE)
+	access = list(ACCESS_THEATRE,ACCESS_HONK)
+	minimal_access = list(ACCESS_THEATRE,ACCESS_HONK)
 	paycheck = PAYCHECK_MINIMAL
 	paycheck_department = ACCOUNT_SRV
 

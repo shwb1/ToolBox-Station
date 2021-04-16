@@ -1163,7 +1163,8 @@
 			return FALSE
 		if(!protected_door)
 			use_power(50)
-		playsound(src, doorOpen, 30, 1)
+		if(doorOpen)
+			playsound(src, doorOpen, 30, 1)
 		if(closeOther != null && istype(closeOther, /obj/machinery/door/airlock/) && !closeOther.density)
 			closeOther.close()
 	else
@@ -1211,7 +1212,8 @@
 			return
 		if(!protected_door)
 			use_power(50)
-		playsound(src, doorClose, 30, TRUE)
+		if(doorClose)
+			playsound(src, doorClose, 30, TRUE)
 	else
 		playsound(src, 'sound/machines/airlockforced.ogg', 30, TRUE)
 

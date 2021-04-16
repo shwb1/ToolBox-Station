@@ -6,7 +6,7 @@
 	omnipotent_access = 1
 	var/datum/mind/saved_mind
 	var/list/owned_items = list()
-	var/obj/item/gun/energy/pulse/destroyer/destroyer
+	var/obj/item/gun/energy/pulse/destroyer/jesus/destroyer
 
 /mob/living/carbon/human/jesus/Life()
 	. = ..()
@@ -35,6 +35,8 @@
 			ghost.mind = saved_mind
 		ghost.can_reenter_corpse = TRUE
 		saved_mind = null
+	else
+		ghostize(0)
 	moveToNullspace()
 	for(var/obj/item/I in get_contents())
 		if(!(I in owned_items))
@@ -50,6 +52,7 @@
 	set desc = "Gives you a divine destroyer weapon."
 	if(destroyer)
 		qdel(destroyer)
+		return
 	destroyer = new()
 	owned_items += destroyer
 	put_in_hands(destroyer)

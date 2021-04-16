@@ -13,8 +13,8 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 	. = TRUE
 	usr.visible_message("[src] begins to reach way inside their own asshole.","<span class='notice'>You begin to reach deep up your own asshole.</span>")
 	playsound(loc, 'sound/weapons/pierce.ogg', 50, 0)
+	last_bottom_pull = world.time
 	if(do_after(src, 50, target = src))
-		last_bottom_pull = world.time
 		if(get_active_held_item())
 			to_chat(src, "<span class='notice'>You are carrying something already.</span>")
 			return

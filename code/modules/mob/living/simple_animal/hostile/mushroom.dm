@@ -35,7 +35,7 @@ GLOBAL_LIST_EMPTY(walking_mushrooms)
 	var/faint_ticker = 0 //If we hit three, another mushroom's gonna eat us
 	var/static/mutable_appearance/cap_living //Where we store our cap icons so we dont generate them constantly to update our icon
 	var/static/mutable_appearance/cap_dead
-	var/overpopulation_theshold = 30
+	var/overpopulation_theshold = 70
 
 /mob/living/simple_animal/hostile/mushroom/examine(mob/user)
 	. = ..()
@@ -59,11 +59,11 @@ GLOBAL_LIST_EMPTY(walking_mushrooms)
 	cap_color = rgb(rand(0, 255), rand(0, 255), rand(0, 255))
 	UpdateMushroomCap()
 	health = maxHealth
-	GLOB.walking_mushrooms += src
+	GLOB.walking_mushrooms.Add(src)
 	. = ..()
 
 /mob/living/simple_animal/hostile/mushroom/Destroy()
-	GLOB.walking_mushrooms -= src
+	GLOB.walking_mushrooms.Remove(src)
 	return ..()
 
 /mob/living/simple_animal/hostile/mushroom/CanAttack(atom/the_target) // Mushroom-specific version of CanAttack to handle stupid attack_same = 2 crap so we don't have to do it for literally every single simple_animal/hostile because this shit never gets spawned
@@ -80,12 +80,7 @@ GLOBAL_LIST_EMPTY(walking_mushrooms)
 			return FALSE
 		if(L.stat > stat_attack)
 			return FALSE
-
-		var/mushrooms = 0
-		for(var/mob/living/simple_animal/hostile/mushroom/M in GLOB.walking_mushrooms)
-			if(M.z == z && get_dist(M,src) <= 8)
-				mushrooms++
-		if(mushrooms <= overpopulation_theshold)
+		if(GLOB.walking_mushrooms.len < overpopulation_theshold)
 			return FALSE
 
 		return TRUE
@@ -121,6 +116,7 @@ GLOBAL_LIST_EMPTY(walking_mushrooms)
 
 /mob/living/simple_animal/hostile/mushroom/revive(full_heal = 0, admin_revive = 0)
 	if(..())
+		GLOB.walking_mushrooms.Add(src)
 		icon_state = "mushroom_color"
 		UpdateMushroomCap()
 		. = 1
@@ -128,6 +124,7 @@ GLOBAL_LIST_EMPTY(walking_mushrooms)
 /mob/living/simple_animal/hostile/mushroom/death(gibbed)
 	..(gibbed)
 	UpdateMushroomCap()
+	GLOB.walking_mushrooms.Remove(src)
 
 /mob/living/simple_animal/hostile/mushroom/proc/UpdateMushroomCap()
 	cut_overlays()
