@@ -68,6 +68,9 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_mime
 	doorOpen = null
 	doorClose = null
+	doorDeni = null
+	boltUp = null
+	boltDown = null
 
 /obj/machinery/door/airlock/mime/glass
 	opacity = 0

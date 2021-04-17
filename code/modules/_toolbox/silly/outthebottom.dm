@@ -10,6 +10,8 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 		return
 	if(last_bottom_pull+50 > world.time)
 		return
+	if(!(mobility_flags & MOBILITY_MOVE) || restrained() || stat)
+		return
 	. = TRUE
 	usr.visible_message("[src] begins to reach way inside their own asshole.","<span class='notice'>You begin to reach deep up your own asshole.</span>")
 	playsound(loc, 'sound/weapons/pierce.ogg', 50, 0)
@@ -18,14 +20,19 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 		if(get_active_held_item())
 			to_chat(src, "<span class='notice'>You are carrying something already.</span>")
 			return
-		var/newitem = pick(GLOB.out_the_bottom_items)
+		var/newitem
+		if(prob(5))
+			newitem = /obj/item/recorderflute
+		if(!newitem)
+			newitem = pick(GLOB.out_the_bottom_items)
 		if(prob(15))
-			shit_pants(1)
+			shit_pants(1,full_power = 1)
 		if(prob(40))
 			emote("scream")
 		var/obj/item/I = new newitem(loc)
-		put_in_hands(I)
-		usr.visible_message("[src] pulls an object out of their ass!.","<span class='notice'>You manage to pull a [I] out of your ass!</span>")
+		if(I)
+			put_in_hands(I)
+			usr.visible_message("[src] pulls an object out of their ass!.","<span class='notice'>You manage to pull a [I] out of your ass!</span>")
 
 /proc/generate_items_in_the_bottom()
 	if(!CONFIG_GET(flag/out_the_bottom))
@@ -68,7 +75,7 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 		if(initial(U.item))
 			GLOB.out_the_bottom_items += initial(U.item)
 
-/mob/living/proc/shit_pants(var/deleteoldshit = 0, var/delay = 0)
+/mob/living/proc/shit_pants(var/deleteoldshit = 0, var/delay = 0, full_power = 0)
 	if(!isturf(loc))
 		return
 	spawn(delay)
@@ -103,6 +110,8 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 			return
 		while(amountofshits && turflist.len)
 			var/obj/item/reagent_containers/food/snacks/shit/shit = new(get_turf(src))
+			if(full_power)
+				shit.make_fullpower()
 			var/layersave = shit.layer
 			shit.layer = layer+0.1
 			var/turf/shitmove = pick(turflist)
@@ -140,6 +149,23 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 	list_reagents = list(/datum/reagent/toxin = 3)
 	tastes = list("shit" = 1)
 	foodtype = GROSS
+	var/full_power = 0
+
+/obj/item/reagent_containers/food/snacks/shit/proc/make_fullpower()
+	full_power = 1
+	AddComponent(/datum/component/slippery, 20)
+
+/obj/item/reagent_containers/food/snacks/shit/ComponentInitialize()
+	. = ..()
+	if(full_power)
+		make_fullpower()
+
+/obj/item/reagent_containers/food/snacks/shit/Crossed(atom/movable/O)
+	. = ..()
+	if(full_power && ishuman(O))
+		var/mob/living/carbon/human/H = O
+		H.set_hygiene(HYGIENE_LEVEL_DISGUSTING)
+		splat(O)
 
 /obj/item/reagent_containers/food/snacks/shit/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
 	. = ..()

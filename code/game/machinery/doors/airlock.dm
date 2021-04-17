@@ -284,7 +284,8 @@
 	if(locked || protected_door)
 		return
 	locked = TRUE
-	playsound(src,boltDown,30,0,3)
+	if(boltDown)
+		playsound(src,boltDown,30,0,3)
 	audible_message("<span class='italics'>You hear a click from the bottom of the door.</span>", null,  1)
 	update_icon()
 
@@ -295,7 +296,8 @@
 	if(!locked)
 		return
 	locked = FALSE
-	playsound(src,boltUp,30,0,3)
+	if(boltUp)
+		playsound(src,boltUp,30,0,3)
 	audible_message("<span class='italics'>You hear a click from the bottom of the door.</span>", null,  1)
 	update_icon()
 
@@ -683,7 +685,8 @@
 		if("deny")
 			if(!stat)
 				update_icon(AIRLOCK_DENY)
-				playsound(src,doorDeni,50,0,3)
+				if(doorDeni)
+					playsound(src,doorDeni,50,0,3)
 				sleep(6)
 				update_icon(AIRLOCK_CLOSED)
 

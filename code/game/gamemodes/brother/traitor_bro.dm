@@ -6,6 +6,7 @@
 	name = "traitor+brothers"
 	config_tag = "traitorbro"
 	restricted_jobs = list("AI", "Cyborg")
+	required_players = 12
 
 	announce_span = "danger"
 	announce_text = "There are Syndicate agents and Blood Brothers on the station!\n\
