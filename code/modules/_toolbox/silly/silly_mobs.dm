@@ -194,6 +194,8 @@
 	exploded = 1
 	explosion(loc,-1,0,1,-1)
 	for(var/mob/living/carbon/C in range(1,src))
+		var/randdamage = rand(10-30)
+		C.apply_damage(randdamage, BRUTE)
 		C.Paralyze(30)
 	spawn(5)
 		var/count
