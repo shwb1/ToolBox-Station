@@ -679,3 +679,28 @@ var/global/list/backup_admin_verbs = list(
 				centerstation.wait = gettime
 	else
 		to_chat(usr,"<B>There are no away missions to spawn.</B>")
+
+/client/proc/play_featured_sound()
+	set category = "Fun"
+	set name = "Play Featured Sound"
+	if(!check_rights(R_SOUND))
+		return
+	var/filelocation = "sound/toolbox/featured/"
+	var/list/thefiles = flist(filelocation)
+	if(!thefiles.len)
+		to_chat(usr,"No sound files found.")
+		return
+	var/selected = input(usr,"Choose a sound file.","Play Featured Sound",null) as null|anything in thefiles
+	if(!selected)
+		return
+	selected = "[filelocation][selected]"
+	if(!fexists(selected))
+		return
+	selected = file(selected)
+	var/choice = alert(usr,"Choose an option.","Play Featured Sound","Play Local?","Play Global?")
+	if(!choice)
+		return
+	if(choice == "Play Local?")
+		play_local_sound(selected)
+	else
+		play_sound(selected)

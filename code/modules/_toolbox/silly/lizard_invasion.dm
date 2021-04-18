@@ -1,4 +1,4 @@
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger
+/mob/living/simple_animal/hostile/customhumanoid/ashligger
 	name = "lizard"
 	race = "ashwalker"
 	attacktext = "slashes"
@@ -9,23 +9,23 @@
 		/obj/item/clothing/under/costume/gladiator/ash_walker = SLOT_W_UNIFORM)
 	humanoid_held_items = list(/obj/item/twohanded/bonespear)
 
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/red
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/red
 	lizardskincolor_red = list(150,200) //Red is the dominant color.
 	lizardskincolor_green = list(1,25)
 	lizardskincolor_blue = list(1,25)
 
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/green
 	lizardskincolor_red = list(1,25)
 	lizardskincolor_green = list(150,200)
 	lizardskincolor_blue = list(1,25)
 
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/blue
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/blue
 	lizardskincolor_red = list(1,25)
 	lizardskincolor_green = list(1,25)
 	lizardskincolor_blue = list(150,200)
 
 //Archers
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged
 	maxHealth = 80
 	health = 80
 	gold_core_spawnable = 1
@@ -40,14 +40,14 @@
 	retreat_distance = 2
 	minimum_distance = 6
 
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged/ash_arrow
 	casingtype = /obj/item/ammo_casing/caseless/arrow/ash
 
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/bone_arrow
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged/bone_arrow
 	casingtype = /obj/item/ammo_casing/caseless/arrow/bone
 
 //Axemen
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/axe
 	maxHealth = 120
 	health = 120
 	name = "lizard"
@@ -62,7 +62,7 @@
 	adjustsize = 1.2
 
 //Warchief
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe/warchief
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/axe/warchief
 	equipped_items = list(
 		/obj/item/clothing/mask/rat/tribal = SLOT_WEAR_MASK,
 		/obj/item/clothing/under/costume/gladiator/ash_walker = SLOT_W_UNIFORM)
@@ -352,7 +352,7 @@
 	sound = null
 	charge_max = 600
 	clothes_req = 0
-	var/summontype = /mob/living/simple_animal/hostile/randomhumanoid/ashligger/no_icon
+	var/summontype = /mob/living/simple_animal/hostile/customhumanoid/ashligger/no_icon
 	var/max_summons = 8
 	var/list/spawned_mobs = list()
 	var/theskincolor
@@ -369,7 +369,7 @@
 	if(!is_turf_cool(T))
 		to_chat(user, "<span class='warning'>You cannot cast that there.</span>")
 	new /obj/effect/lizard_bhole(T)
-	var/mob/living/simple_animal/hostile/randomhumanoid/H = new summontype(T)
+	var/mob/living/simple_animal/hostile/customhumanoid/H = new summontype(T)
 	H.skincolor = user.dna.features["mcolor"]
 	H.Initialize_icons()
 	H.faction = user.faction
@@ -383,7 +383,7 @@
 	H.handle_automated_action()
 	remove_ranged_ability()
 
-/mob/living/simple_animal/hostile/randomhumanoid/ashligger/no_icon
+/mob/living/simple_animal/hostile/customhumanoid/ashligger/no_icon
 	init_on_spawn = 0
 
 /obj/effect/proc_holder/spell/aimed/summon_lizard/can_cast(mob/user = usr)

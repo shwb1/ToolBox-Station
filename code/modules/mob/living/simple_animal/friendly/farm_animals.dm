@@ -28,7 +28,7 @@
 	environment_smash = ENVIRONMENT_SMASH_NONE
 	stop_automated_movement_when_pulled = 1
 	blood_volume = BLOOD_VOLUME_NORMAL
-	var/obj/item/udder/udder = null
+	var/obj/item/udder/udder = /obj/item/udder
 	mobsay_color = "#B2CEB3"
 
 	do_footstep = TRUE
@@ -36,7 +36,7 @@
 	var/gleam_chance = 1
 
 /mob/living/simple_animal/hostile/retaliate/goat/Initialize()
-	udder = new()
+	udder = new udder()
 	. = ..()
 
 /mob/living/simple_animal/hostile/retaliate/goat/Destroy()
@@ -75,6 +75,7 @@
 		eat_plants()
 
 /mob/living/simple_animal/hostile/retaliate/goat/proc/eat_plants()
+	. = FALSE
 	var/eaten = FALSE
 	var/obj/structure/spacevine/SV = locate(/obj/structure/spacevine) in loc
 	if(SV)
@@ -88,6 +89,7 @@
 
 	if(eaten && prob(10))
 		INVOKE_ASYNC(src, /atom/movable/proc/say, "Nom")
+	return eaten
 
 /mob/living/simple_animal/hostile/retaliate/goat/attackby(obj/item/O, mob/user, params)
 	if(stat == CONSCIOUS && istype(O, /obj/item/reagent_containers/glass))
@@ -370,15 +372,16 @@
 
 /obj/item/udder
 	name = "udder"
+	var/produced_reagent = /datum/reagent/consumable/milk
 
 /obj/item/udder/Initialize()
 	create_reagents(50)
-	reagents.add_reagent(/datum/reagent/consumable/milk, 20)
+	reagents.add_reagent(produced_reagent, 20)
 	. = ..()
 
 /obj/item/udder/proc/generateMilk()
 	if(prob(5))
-		reagents.add_reagent(/datum/reagent/consumable/milk, rand(5, 10))
+		reagents.add_reagent(produced_reagent, rand(5, 10))
 
 /obj/item/udder/proc/milkAnimal(obj/O, mob/user)
 	var/obj/item/reagent_containers/glass/G = O

@@ -1,7 +1,7 @@
 /*
 A hostile human animal mob that is customizable. -Falaskian
 */
-/mob/living/simple_animal/hostile/randomhumanoid
+/mob/living/simple_animal/hostile/customhumanoid
 	name = "human"
 	icon = 'icons/mob/human.dmi'
 	icon_state = "human_basic" //This is simply so it's not blank when viewed in the map editor.
@@ -46,12 +46,12 @@ A hostile human animal mob that is customizable. -Falaskian
 	var/list/enemies = list()
 	var/init_on_spawn = 1
 
-/mob/living/simple_animal/hostile/randomhumanoid/Initialize()
+/mob/living/simple_animal/hostile/customhumanoid/Initialize()
 	. = ..()
 	if(init_on_spawn)
 		Initialize_icons()
 
-/mob/living/simple_animal/hostile/randomhumanoid/proc/Initialize_icons()
+/mob/living/simple_animal/hostile/customhumanoid/proc/Initialize_icons()
 	//we default back to human if race isnt properly chosen.
 	if(!(race in list("human","lizard","ashwalker")))
 		race = "human"
@@ -209,7 +209,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		death()
 
 //made this a proc because I use it more then once.
-/mob/living/simple_animal/hostile/randomhumanoid/proc/get_skincolor()
+/mob/living/simple_animal/hostile/customhumanoid/proc/get_skincolor()
 	. = skincolor
 	if(!.)
 		if(race == "lizard" || race == "ashwalker")
@@ -240,7 +240,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		. = copytext(.,2,length(.)+1)
 
 //doing this as its own proc so it can be used in other ways.
-/mob/living/simple_animal/hostile/randomhumanoid/proc/create_human()
+/mob/living/simple_animal/hostile/customhumanoid/proc/create_human()
 	var/mob/living/carbon/human/H = new(loc)
 	if(gender == FEMALE)
 		H.gender = FEMALE
@@ -292,7 +292,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		H.transform *= adjustsize
 	return H
 
-/mob/living/simple_animal/hostile/randomhumanoid/death(gibbed)
+/mob/living/simple_animal/hostile/customhumanoid/death(gibbed)
 	. = ..()
 	var/mob/living/carbon/human/H = create_human()
 	H.death()
@@ -300,7 +300,7 @@ A hostile human animal mob that is customizable. -Falaskian
 		H.gib()
 	qdel(src)
 
-/mob/living/simple_animal/hostile/randomhumanoid/Login()
+/mob/living/simple_animal/hostile/customhumanoid/Login()
 	. = ..()
 	if(client)
 		var/mob/living/carbon/human/H = create_human()
@@ -310,7 +310,7 @@ A hostile human animal mob that is customizable. -Falaskian
 
 //retaliation flag. because fuckin tg sucks
 //this is literally copy pasted from retaltiate.dm
-/mob/living/simple_animal/hostile/randomhumanoid/Found(atom/A)
+/mob/living/simple_animal/hostile/customhumanoid/Found(atom/A)
 	if(retaliation)
 		if(isliving(A))
 			var/mob/living/L = A
@@ -324,7 +324,7 @@ A hostile human animal mob that is customizable. -Falaskian
 				return A
 	return ..()
 
-/mob/living/simple_animal/hostile/randomhumanoid/ListTargets()
+/mob/living/simple_animal/hostile/customhumanoid/ListTargets()
 	if(retaliation)
 		if(!enemies.len)
 			return list()
@@ -334,7 +334,7 @@ A hostile human animal mob that is customizable. -Falaskian
 	else
 		return ..()
 
-/mob/living/simple_animal/hostile/randomhumanoid/proc/Retaliate()
+/mob/living/simple_animal/hostile/customhumanoid/proc/Retaliate()
 	if(retaliation)
 		for(var/atom/movable/A as obj|mob in oview(vision_range, src))
 			if(isliving(A))
@@ -352,7 +352,7 @@ A hostile human animal mob that is customizable. -Falaskian
 					enemies |= M.occupant
 		return FALSE
 
-/mob/living/simple_animal/hostile/randomhumanoid/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
+/mob/living/simple_animal/hostile/customhumanoid/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
 	. = ..()
 	if(retaliation)
 		if(. > 0 && stat == CONSCIOUS)

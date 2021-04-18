@@ -1,4 +1,4 @@
-/mob/living/simple_animal/hostile/randomhumanoid/weeaboo
+/mob/living/simple_animal/hostile/customhumanoid/weeaboo
 	name = "Weeaboo"
 	forcename = 1
 	melee_damage = 10 //we are using a toy katana which is too weak, so we must override its damage.
@@ -25,7 +25,7 @@
 		"green" = /obj/item/clothing/under/costume/schoolgirl/green)
 
 //Choosing differant colored costumes before the parent initialization code
-/mob/living/simple_animal/hostile/randomhumanoid/weeaboo/Initialize()
+/mob/living/simple_animal/hostile/customhumanoid/weeaboo/Initialize()
 	if(!(clothingcolor in colors))
 		clothingcolor = pick(colors)
 	var/thecolor = colors[clothingcolor]
@@ -33,11 +33,11 @@
 	equipped_items[thecolor] = SLOT_W_UNIFORM
 	. = ..()
 
-/mob/living/simple_animal/hostile/randomhumanoid/weeaboo/blue
+/mob/living/simple_animal/hostile/customhumanoid/weeaboo/blue
 	clothingcolor = "blue"
-/mob/living/simple_animal/hostile/randomhumanoid/weeaboo/red
+/mob/living/simple_animal/hostile/customhumanoid/weeaboo/red
 	clothingcolor = "red"
-/mob/living/simple_animal/hostile/randomhumanoid/weeaboo/orange
+/mob/living/simple_animal/hostile/customhumanoid/weeaboo/orange
 	clothingcolor = "orange"
-/mob/living/simple_animal/hostile/randomhumanoid/weeaboo/green
+/mob/living/simple_animal/hostile/customhumanoid/weeaboo/green
 	clothingcolor = "green"

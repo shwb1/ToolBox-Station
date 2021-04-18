@@ -11,6 +11,7 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 	if(last_bottom_pull+50 > world.time)
 		return
 	if(!(mobility_flags & MOBILITY_MOVE) || restrained() || stat)
+		to_chat(src, "<span class='warning'>You must be able to move to do this.</span>")
 		return
 	. = TRUE
 	usr.visible_message("[src] begins to reach way inside their own asshole.","<span class='notice'>You begin to reach deep up your own asshole.</span>")
@@ -35,7 +36,7 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 			usr.visible_message("[src] pulls an object out of their ass!.","<span class='notice'>You manage to pull a [I] out of your ass!</span>")
 
 /proc/generate_items_in_the_bottom()
-	if(!CONFIG_GET(flag/out_the_bottom))
+	if(!CONFIG_GET(flag/out_the_bottom) && !SSevents.holidays[APRIL_FOOLS])
 		return
 	var/list/oklocs = list(/turf,/obj/item/storage,/obj/structure/closet)
 	for(var/obj/item/I in world)

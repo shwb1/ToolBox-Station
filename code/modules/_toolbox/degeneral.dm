@@ -114,7 +114,7 @@
 	light_range = 7
 	light_color = "#FA9632"
 	max_mobs = 3
-	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1)
+	mob_types = list(/mob/living/simple_animal/hostile/customhumanoid/ashligger/green = 1)
 	loot = list(/obj/effect/lizard_nest_gib)
 	var/spawn_props = 0
 
@@ -180,25 +180,25 @@
 	spawn_props = 1
 
 /mob/living/simple_animal/hostile/spawner/lizard/archers //mostly spearmen with some archers
-	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 2,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 1)
+	mob_types = list(/mob/living/simple_animal/hostile/customhumanoid/ashligger/green = 2,
+					/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged = 1)
 
 /mob/living/simple_animal/hostile/spawner/lizard/archers/with_props
 	spawn_props = 1
 
 /mob/living/simple_animal/hostile/spawner/lizard/axemen
 	max_mobs = 4
-	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 1,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 3,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 2)
+	mob_types = list(/mob/living/simple_animal/hostile/customhumanoid/ashligger/green = 1,
+					/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/axe = 3,
+					/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged = 2)
 
 /mob/living/simple_animal/hostile/spawner/lizard/axemen/with_props
 	spawn_props = 1
 
 /mob/living/simple_animal/hostile/spawner/lizard/elite
 	max_mobs = 5
-	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 1,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged/ash_arrow = 1)
+	mob_types = list(/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/axe = 1,
+					/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged/ash_arrow = 1)
 
 /mob/living/simple_animal/hostile/spawner/lizard/elite/with_props
 	spawn_props = 1
@@ -285,9 +285,9 @@
 	light_range = 14
 	max_mobs = 8
 	spawn_time = 15
-	mob_types = list(/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green = 3,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/axe = 2,
-					/mob/living/simple_animal/hostile/randomhumanoid/ashligger/green/ranged = 1)
+	mob_types = list(/mob/living/simple_animal/hostile/customhumanoid/ashligger/green = 3,
+					/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/axe = 2,
+					/mob/living/simple_animal/hostile/customhumanoid/ashligger/green/ranged = 1)
 	ranged_cooldown_time = 80
 	vision_range = 9
 	pixel_x = -32
@@ -454,7 +454,7 @@
 
 GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave
+/mob/living/simple_animal/hostile/customhumanoid/tribal_slave
 	name = "lizard slave"
 	forcename = 1
 	race = "lizard"
@@ -474,7 +474,7 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 	var/obj/structure/closet/crate/crate_memory
 	adjustsize = 0.85
 
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/ListTargets()
+/mob/living/simple_animal/hostile/customhumanoid/tribal_slave/ListTargets()
 	var/list/targs = ..()
 	if(!islist(targs))
 		targs = list()
@@ -512,13 +512,13 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 					wander = FALSE
 	return targs
 
-/mob/living/simple_animal/hostile/randomhumanoid/handle_automated_movement() //This is to make sure he doesnt do a random wander between mining actions. This was causing him to bump into shit he shouldnt bump in to.
+/mob/living/simple_animal/hostile/customhumanoid/handle_automated_movement() //This is to make sure he doesnt do a random wander between mining actions. This was causing him to bump into shit he shouldnt bump in to.
 	if(!wander)
 		wander = !wander //only one attempt to wander in a random direction is skipped after seeing a target in the previous tick.
 		return FALSE
 	. = ..()
 
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/AttackingTarget()
+/mob/living/simple_animal/hostile/customhumanoid/tribal_slave/AttackingTarget()
 	if(istype(target, /obj/structure/lizard_ore_node))
 		var/obj/structure/lizard_ore_node/N = target
 		N.enter_node(src)
@@ -534,13 +534,13 @@ GLOBAL_LIST_EMPTY(tribalslave_ore_dropoff_point)
 		return
 	.=..()
 
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/proc/has_ore()
+/mob/living/simple_animal/hostile/customhumanoid/tribal_slave/proc/has_ore()
 	for(var/obj/item/stack/ore/ore in src)
 		return 1
 	return 0
 
 
-/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/dead
+/mob/living/simple_animal/hostile/customhumanoid/tribal_slave/dead
 	humanoid_held_items = list()
 	start_dead = 1
 
@@ -557,7 +557,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	anchored = 1
 	density = 0
 	var/list/miners = list()
-	var/list/allowed_miners = list(/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave = "time=15;amount=3")
+	var/list/allowed_miners = list(/mob/living/simple_animal/hostile/customhumanoid/tribal_slave = "time=15;amount=3")
 	var/eject_dir = SOUTH
 	resistance_flags = INDESTRUCTIBLE
 	var/list/ore = list(/obj/item/stack/ore/iron = 40,

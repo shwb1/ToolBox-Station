@@ -73,7 +73,7 @@
 						incubation_failed = TRUE
 						continue
 					else
-						var/mob/living/simple_animal/hostile/randomhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/randomhumanoid/tribal_slave(src.loc)
+						var/mob/living/simple_animal/hostile/customhumanoid/tribal_slave/L = new /mob/living/simple_animal/hostile/customhumanoid/tribal_slave(src.loc)
 						log_game("[L] spawned via incubator by [egg_printslast] at [AREACOORD(src)]")
 				else
 					var/mob/living/simple_animal/chicken/C = new /mob/living/simple_animal/chicken(src.loc)
