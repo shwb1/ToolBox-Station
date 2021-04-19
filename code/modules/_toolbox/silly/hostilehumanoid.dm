@@ -45,6 +45,7 @@ A hostile human animal mob that is customizable. -Falaskian
 	var/retaliation = 0
 	var/list/enemies = list()
 	var/init_on_spawn = 1
+	gold_core_spawnable = NO_SPAWN
 
 /mob/living/simple_animal/hostile/customhumanoid/Initialize()
 	. = ..()

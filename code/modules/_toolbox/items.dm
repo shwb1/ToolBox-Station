@@ -304,6 +304,8 @@
 		var/obj/item/toy/crayon/C = WM.color_source
 		var/obj/item/clothing/suit/toggle/labcoat/S = /obj/item/clothing/suit/toggle/labcoat
 		icon_state = initial(S.icon_state)
+		if(suittoggled)
+			icon_state = "[icon_state]_t"
 		item_color = WM.color_source.item_color
 		name = initial(S.name)
 		color = C.paint_color

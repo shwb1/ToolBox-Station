@@ -50,8 +50,7 @@
 					break
 				if((!laststaminahit || laststaminahit+10 < world.time) && C.getStaminaLoss() < 50)
 					laststaminahit = world.time
-					C.staminaloss = 50
-					C.adjustStaminaLoss(50)
+					C.setStaminaLoss(50)
 				for(var/obj/effect/hallucination/simple/zerg_mouse/mouse in mouses)
 					spawn(0)
 						var/turf/NewCturf = get_turf(C)
