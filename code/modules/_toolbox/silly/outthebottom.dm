@@ -64,9 +64,14 @@
 /datum/toolbox_event/out_the_bottom/proc/generate_items_in_the_bottom()
 	if(out_the_bottom_items.len)
 		return
+	out_the_bottom_items = generate_safe_items_list()
+
+//creates a large list of most items in the game that shouldnt break the game if spawned in.
+/proc/generate_safe_items_list()
+	. = list()
 	var/list/oklocs = list(/turf,/obj/item/storage,/obj/structure/closet)
 	for(var/obj/item/I in world)
-		if(I.type in out_the_bottom_items)
+		if(I.type in .)
 			continue
 		var/okloc = 0
 		for(var/l in oklocs)
@@ -80,7 +85,7 @@
 			continue
 		if(!SSmapping.level_trait(Iturf.z, ZTRAIT_STATION))
 			continue
-		out_the_bottom_items += I.type
+		. += I.type
 	var/list/checked_vendings = list()
 	for(var/obj/machinery/vending/V in world)
 		if(V.type in checked_vendings)
@@ -88,19 +93,24 @@
 		if(!SSmapping.level_trait(V.z, ZTRAIT_STATION))
 			continue
 		for(var/t in V.products)
-			if(ispath(t) && !(t in out_the_bottom_items))
-				out_the_bottom_items += t
+			if(ispath(t) && !(t in .))
+				. += t
 		for(var/t in V.premium)
-			if(ispath(t) && !(t in out_the_bottom_items))
-				out_the_bottom_items += t
+			if(ispath(t) && !(t in .))
+				. += t
 		for(var/t in V.contraband)
-			if(ispath(t) && !(t in out_the_bottom_items))
-				out_the_bottom_items += t
+			if(ispath(t) && !(t in .))
+				. += t
 		checked_vendings += V.type
 	for(var/path in GLOB.uplink_items)
 		var/datum/uplink_item/U = path
 		if(initial(U.item))
-			out_the_bottom_items += initial(U.item)
+			. += initial(U.item)
+	for(var/path in subtypesof(/datum/design))
+		var/datum/design/D = path
+		var/thepath = initial(D.build_path)
+		if(thepath && ispath(thepath) && !(thepath in .))
+			. += thepath
 
 /mob/living/proc/shit_pants(var/deleteoldshit = 0, var/delay = 0, full_power = 0)
 	if(!isturf(loc))
