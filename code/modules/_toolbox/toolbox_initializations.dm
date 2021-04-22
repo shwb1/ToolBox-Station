@@ -27,7 +27,6 @@ proc/Initialize_Falaskians_Shit()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
 	new_player_cam = new()
 	world.update_status()
-	generate_items_in_the_bottom()
 
 /atom/movable/screen/toolboxlogo
 	name = "Toolbox Station"
@@ -337,26 +336,35 @@ GLOBAL_LIST_EMPTY(hub_features)
 				. += theletter
 
 //tooblox on mob login -falaskian
-/*/client
+/client
 	var/datum/mind/previous_mind
 	var/previous_mob_type
 /mob/proc/toolbox_on_mob_login()
+	if(SStoolbox_events && SStoolbox_events.cached_events.len)
+		for(var/e in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.is_active(e)
+			if(E && E.active)
+				E.on_login(src)
 	if(client)
+		var/skip = 0
 		if(!client.previous_mind)
 			client.previous_mind = mind
+			skip = 1
 		if(!client.previous_mob_type)
 			client.previous_mob_type = type
-		var/list/skip_types = list(
-			/mob/dead/new_player,
-			/mob/living/carbon/human/jesus,
-			/mob/living/carbon/human/virtual_reality)
-		if(!(client.previous_mind.assigned_role == client.previous_mind.special_role) && !(type in skip_types) && !(client.previous_mob_type in skip_types))
-			if(client.previous_mind != mind)
-				alert(client,"You are in control of another entity. You remember nothing that happened previously up until this point.","Memories Wiped.","Ok")
-		client.previous_mind = mind
-		client.previous_mob_type = type
+			skip = 1
+		if(!skip)
+			var/list/skip_types = list(
+				/mob/dead/new_player,
+				/mob/living/carbon/human/jesus,
+				/mob/living/carbon/human/virtual_reality)
+			if(!(type in skip_types) && !(client.previous_mob_type in skip_types))
+				if(client.previous_mind != mind)
+					alert(client,"You are in control of another entity. You remember nothing that happened previously up until this point.","Memories Wiped.","Ok")
+			client.previous_mind = mind
+			client.previous_mob_type = type
 
-		if (client.prefs)
+		/*if (client.prefs)
 			var/datum/preferences/prefs = client.prefs
 			if (!prefs.fps_asked) // Asks client if they want to try 60 fps
 				prefs.fps_asked = 1
@@ -520,7 +528,7 @@ area/ai_monitored/nuke_storage
 			if(banned.Find(R.mappath))
 				. = TRUE
 
-//converting hair and bears from old source to new source
+//converting hair and beards from old source to new source
 /proc/convert_hairs(oldhair,list/haircheck)
 	if(!(oldhair in haircheck))
 		var/Oldhair = oldhair

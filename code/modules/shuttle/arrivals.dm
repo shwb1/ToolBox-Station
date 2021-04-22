@@ -112,6 +112,9 @@
 	return FALSE
 
 /obj/docking_port/mobile/arrivals/proc/PersonCheck()
+	if(delay_person_check && delay_person_check > world.time)
+		return FALSE
+	delay_person_check = 0
 	for(var/V in GLOB.player_list)
 		var/mob/M = V
 		if((get_area(M) in areas) && M.stat != DEAD)

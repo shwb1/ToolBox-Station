@@ -424,22 +424,30 @@ SUBSYSTEM_DEF(job)
 	//If we joined at roundstart we should be positioned at our workstation
 	if(!joined_late)
 		var/obj/S = null
-		for(var/obj/effect/landmark/start/sloc in GLOB.start_landmarks_list)
-			if(sloc.name != rank)
-				S = sloc //so we can revert to spawning them on top of eachother if something goes wrong
-				continue
-			if(locate(/mob/living) in sloc.loc)
-				continue
-			S = sloc
-			sloc.used = TRUE
-			break
-		if(length(GLOB.jobspawn_overrides[rank]))
-			S = pick(GLOB.jobspawn_overrides[rank])
-		if(S)
-			S.JoinPlayerHere(living_mob, FALSE)
-		if(!S) //if there isn't a spawnpoint send them to latejoin, if there's no latejoin go yell at your mapper
-			log_world("Couldn't find a round start spawn point for [rank]")
-			SendToLateJoin(living_mob)
+		var/no_toolbox_event = 0
+		if(SStoolbox_events)
+			for(var/t in SStoolbox_events.cached_events)
+				var/datum/toolbox_event/E = SStoolbox_events.is_active(t)
+				if(E && E.override_job_spawn(living_mob))
+					no_toolbox_event = 1
+					break
+		if(!no_toolbox_event)
+			for(var/obj/effect/landmark/start/sloc in GLOB.start_landmarks_list)
+				if(sloc.name != rank)
+					S = sloc //so we can revert to spawning them on top of eachother if something goes wrong
+					continue
+				if(locate(/mob/living) in sloc.loc)
+					continue
+				S = sloc
+				sloc.used = TRUE
+				break
+			if(length(GLOB.jobspawn_overrides[rank]))
+				S = pick(GLOB.jobspawn_overrides[rank])
+			if(S)
+				S.JoinPlayerHere(living_mob, FALSE)
+			if(!S) //if there isn't a spawnpoint send them to latejoin, if there's no latejoin go yell at your mapper
+				log_world("Couldn't find a round start spawn point for [rank]")
+				SendToLateJoin(living_mob)
 
 
 	if(living_mob.mind)

@@ -28,5 +28,4 @@
 	if(changeling)
 		changeling.regain_powers()
 
-	if(GLOB.out_the_bottom_items.len)
-		alert(src,"If you touch your self with GRAB Intent you can pull objects out of your butt!","There is something up there!","Ok")
+	toolbox_on_mob_login()

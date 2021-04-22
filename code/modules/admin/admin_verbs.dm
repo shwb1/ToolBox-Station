@@ -194,7 +194,8 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/client/proc/toggle_cdn,
 	/datum/admins/proc/check_who_has_admin_midis_disabled,
 	/datum/admins/proc/check_hub,
-	/client/proc/EditedStepFinder
+	/client/proc/EditedStepFinder,
+	/datum/admins/proc/toggle_tb_event
 	)
 
 GLOBAL_LIST_INIT(admin_verbs_possess, list(/proc/possess, /proc/release))

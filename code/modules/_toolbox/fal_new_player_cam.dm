@@ -144,7 +144,7 @@ var/global/obj/new_player_cam/new_player_cam = null
 				var/turf/newturf = get_step(loc,finaldir)
 				if(newturf)
 					loc = newturf
-					for(var/mob/dead/new_player/P in world) // Parallax Update - Killing Torcher
+					for(var/mob/dead/new_player/P in GLOB.player_list) // Parallax Update - Killing Torcher
 						if (!P || !P.client || P.client.eye != src || !P.hud_used || P.client.byond_version < 511)
 							continue
 						P.hud_used.update_parallax()

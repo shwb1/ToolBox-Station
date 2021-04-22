@@ -1,12 +1,38 @@
-/datum/config_entry/flag/out_the_bottom
-GLOBAL_LIST_EMPTY(out_the_bottom_items)
+//tb event
+/datum/toolbox_event/out_the_bottom
+	title = "Out The Ass"
+	desc = "Everyone can pull random items out of their butts."
+	eventid = "out_the_bottom"
+	var/list/out_the_bottom_items = list()
 
+/datum/toolbox_event/out_the_bottom/on_activate()
+	. = ..()
+	generate_items_in_the_bottom()
+
+/datum/toolbox_event/out_the_bottom/on_deactivate()
+	. = ..()
+	out_the_bottom_items.Cut()
+
+/datum/toolbox_event/out_the_bottom/should_auto_activate()
+	if(islist(SSevents.holidays) && SSevents.holidays.len && SSevents.holidays[APRIL_FOOLS])
+		return TRUE
+	return ..()
+
+/datum/toolbox_event/out_the_bottom/on_login(mob/living/M)
+	alert(M,"If you touch your self with GRAB Intent you can pull objects out of your butt!","There is something up there!","Ok")
+
+//so that you cant spam this ability.
 /mob/living
 	var/last_bottom_pull = 0
 
 /mob/living/proc/pull_shit_out_of_your_ass()
 	. = FALSE
-	if(!GLOB.out_the_bottom_items.len)
+	var/datum/toolbox_event/out_the_bottom/E
+	if(SStoolbox_events)
+		E = SStoolbox_events.is_active("out_the_bottom")
+	if(!istype(E) || !E.out_the_bottom_items.len)
+		return
+	if(!istype(src,/mob/living/carbon/human))
 		return
 	if(last_bottom_pull+50 > world.time)
 		return
@@ -17,7 +43,7 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 	usr.visible_message("[src] begins to reach way inside their own asshole.","<span class='notice'>You begin to reach deep up your own asshole.</span>")
 	playsound(loc, 'sound/weapons/pierce.ogg', 50, 0)
 	last_bottom_pull = world.time
-	if(do_after(src, 50, target = src))
+	if(do_after(src, 50, target = src) && E && E.out_the_bottom_items.len)
 		if(get_active_held_item())
 			to_chat(src, "<span class='notice'>You are carrying something already.</span>")
 			return
@@ -25,7 +51,7 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 		if(prob(5))
 			newitem = /obj/item/recorderflute
 		if(!newitem)
-			newitem = pick(GLOB.out_the_bottom_items)
+			newitem = pick(E.out_the_bottom_items)
 		if(prob(15))
 			shit_pants(1,full_power = 1)
 		if(prob(40))
@@ -35,12 +61,12 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 			put_in_hands(I)
 			usr.visible_message("[src] pulls an object out of their ass!.","<span class='notice'>You manage to pull a [I] out of your ass!</span>")
 
-/proc/generate_items_in_the_bottom()
-	if(!CONFIG_GET(flag/out_the_bottom) && !SSevents.holidays[APRIL_FOOLS])
+/datum/toolbox_event/out_the_bottom/proc/generate_items_in_the_bottom()
+	if(out_the_bottom_items.len)
 		return
 	var/list/oklocs = list(/turf,/obj/item/storage,/obj/structure/closet)
 	for(var/obj/item/I in world)
-		if(I.type in GLOB.out_the_bottom_items)
+		if(I.type in out_the_bottom_items)
 			continue
 		var/okloc = 0
 		for(var/l in oklocs)
@@ -54,7 +80,7 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 			continue
 		if(!SSmapping.level_trait(Iturf.z, ZTRAIT_STATION))
 			continue
-		GLOB.out_the_bottom_items += I.type
+		out_the_bottom_items += I.type
 	var/list/checked_vendings = list()
 	for(var/obj/machinery/vending/V in world)
 		if(V.type in checked_vendings)
@@ -62,19 +88,19 @@ GLOBAL_LIST_EMPTY(out_the_bottom_items)
 		if(!SSmapping.level_trait(V.z, ZTRAIT_STATION))
 			continue
 		for(var/t in V.products)
-			if(ispath(t) && !(t in GLOB.out_the_bottom_items))
-				GLOB.out_the_bottom_items += t
+			if(ispath(t) && !(t in out_the_bottom_items))
+				out_the_bottom_items += t
 		for(var/t in V.premium)
-			if(ispath(t) && !(t in GLOB.out_the_bottom_items))
-				GLOB.out_the_bottom_items += t
+			if(ispath(t) && !(t in out_the_bottom_items))
+				out_the_bottom_items += t
 		for(var/t in V.contraband)
-			if(ispath(t) && !(t in GLOB.out_the_bottom_items))
-				GLOB.out_the_bottom_items += t
+			if(ispath(t) && !(t in out_the_bottom_items))
+				out_the_bottom_items += t
 		checked_vendings += V.type
 	for(var/path in GLOB.uplink_items)
 		var/datum/uplink_item/U = path
 		if(initial(U.item))
-			GLOB.out_the_bottom_items += initial(U.item)
+			out_the_bottom_items += initial(U.item)
 
 /mob/living/proc/shit_pants(var/deleteoldshit = 0, var/delay = 0, full_power = 0)
 	if(!isturf(loc))

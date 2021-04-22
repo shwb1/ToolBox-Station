@@ -1265,6 +1265,7 @@
 #include "code\modules\_toolbox\silly\tidepods.dm"
 #include "code\modules\_toolbox\silly\trollcloset.dm"
 #include "code\modules\_toolbox\silly\weeb.dm"
+#include "code\modules\_toolbox\tbsusbystems\eventtriggering.dm"
 #include "code\modules\admin\admin.dm"
 #include "code\modules\admin\admin_follow.dm"
 #include "code\modules\admin\admin_investigate.dm"
