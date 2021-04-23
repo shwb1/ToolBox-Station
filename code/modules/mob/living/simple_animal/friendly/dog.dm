@@ -364,29 +364,49 @@
 	var/record_age = 1
 	var/memory_saved = FALSE
 	var/saved_head //path
+	var/dressup_from_floor_on_init = 0
 
 /mob/living/simple_animal/pet/dog/corgi/Ian/Initialize()
 	. = ..()
 	//parent call must happen first to ensure IAN
 	//is not in nullspace when child puppies spawn
-	Read_Memory()
-	if(age == 0)
-		var/turf/target = get_turf(loc)
-		if(target)
-			var/mob/living/simple_animal/pet/dog/corgi/puppy/P = new /mob/living/simple_animal/pet/dog/corgi/puppy(target)
-			P.name = "Ian"
-			P.real_name = "Ian"
-			P.gender = MALE
-			P.desc = "It's the HoP's beloved corgi puppy."
-			Write_Memory(FALSE)
-			return INITIALIZE_HINT_QDEL
-	else if(age == record_age)
-		icon_state = "old_corgi"
-		icon_living = "old_corgi"
-		icon_dead = "old_corgi_dead"
-		desc = "At a ripe old age of [record_age], Ian's not as spry as he used to be, but he'll always be the HoP's beloved corgi." //RIP
-		turns_per_move = 20
-		held_state = "old_corgi"
+	if(!dressup_from_floor_on_init)
+		Read_Memory()
+		if(age == 0)
+			var/turf/target = get_turf(loc)
+			if(target)
+				var/mob/living/simple_animal/pet/dog/corgi/puppy/P = new /mob/living/simple_animal/pet/dog/corgi/puppy(target)
+				P.name = "Ian"
+				P.real_name = "Ian"
+				P.gender = MALE
+				P.desc = "It's the HoP's beloved corgi puppy."
+				Write_Memory(FALSE)
+				return INITIALIZE_HINT_QDEL
+		else if(age == record_age)
+			icon_state = "old_corgi"
+			icon_living = "old_corgi"
+			icon_dead = "old_corgi_dead"
+			desc = "At a ripe old age of [record_age], Ian's not as spry as he used to be, but he'll always be the HoP's beloved corgi." //RIP
+			turns_per_move = 20
+			held_state = "old_corgi"
+	else
+		var/success = 0
+		for(var/obj/item/I in loc)
+			if(!pcollar && istype(I,/obj/item/clothing/neck/petcollar))
+				I.forceMove(src)
+				pcollar = I
+				success = 1
+			else if(!inventory_back && ispath(I.dog_fashion, /datum/dog_fashion/back))
+				I.forceMove(src)
+				inventory_back = I
+				success = 1
+			else if(!inventory_head && ispath(I.dog_fashion, /datum/dog_fashion/head))
+				I.forceMove(src)
+				inventory_head = I
+				success = 1
+		if(success)
+			regenerate_icons()
+			update_corgi_fluff()
 
 /mob/living/simple_animal/pet/dog/corgi/Ian/Life()
 	if(!stat && SSticker.current_state == GAME_STATE_FINISHED && !memory_saved)
