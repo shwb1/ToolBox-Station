@@ -1877,3 +1877,38 @@ GLOBAL_LIST_EMPTY(gateway_components)
 
 #undef GBCAVESPIDER
 #undef GBLIZARDGREEN
+
+
+//MAPPING HELPERS
+
+/obj/effect/dead_body_spawner
+	name = "Dead Assistant"
+	icon = 'icons/effects/mapping_helpers.dmi'
+	icon_state = "deadbodyplacer"
+	color = "#00cc00"
+	var/outfit = /datum/outfit/job/assistant
+
+/obj/effect/dead_body_spawner/Initialize()
+	.=..()
+	var/mob/living/carbon/human/h = new /mob/living/carbon/human(loc)
+	if(outfit)
+		h.equipOutfit(outfit)
+	h.death()
+	qdel(src)
+
+
+/obj/effect/explosion_spawner
+	name = "explosion"
+	icon = 'icons/effects/96x96.dmi'
+	icon_state = "explosion"
+	var/delay = 0
+	var/devastation_range = 3
+	var/heavy_impact_range = 7
+	var/light_impact_range = 14
+	var/flash_range = 0
+
+/obj/effect/explosion_spawner/Initialize()
+	.=..()
+	spawn(delay)
+		explosion(loc,devastation_range,heavy_impact_range,light_impact_range,flash_range)
+		qdel(src)

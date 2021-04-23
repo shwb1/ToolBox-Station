@@ -87,8 +87,7 @@
 	"hair_style" = "Long Bedhead",
 	"facial_hair_style" = "Beard (Moonshiner)",
 	"hair_color" = "663",
-	"facial_hair_color" = "663",
-	"undershirt" = "Shirt (Peace)")
+	"facial_hair_color" = "663")
 	dont_wander_atoms = list(/turf/open/chasm,/turf/open/lava,/obj/structure/bonfire)
 	randomback = list(null)
 	randommask = list(null)
@@ -107,6 +106,48 @@
 
 	randomweapon1 = list(null, /obj/item/picket_sign, /obj/item/instrument/guitar)
 	randomweapon2 = list(null)
+
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/hippie/joint
+	melee_damage_type = "burn"
+	melee_damage = 5
+	override_attacktext = 1
+	attacktext = "singed"
+	randomweapon1 = list(/obj/item/clothing/mask/cigarette/rollie/cannabis)
+
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/antifa
+	name = "mostly peaceful protester"
+	race = "human"
+	attacktext = "punches"
+	override_attacktext = 1
+	speak = list("ACAB!","This is what democracy looks like!","No Justice, No Peace!","Defund shitcurity!!")
+	speak_chance = 1
+	gold_core_spawnable = 0
+	retaliation = 0
+	humanskincolor = "caucasian2"
+	human_traits = list(
+	"hair_style" = "Bedhead",
+	"hair_color" = "111",
+	"facial_hair_color" = "111")
+	dont_wander_atoms = list(/turf/open/chasm, /turf/open/lava, /obj/structure/bonfire)
+	randomback = list(null)
+	randommask = list(/obj/item/clothing/mask/bandana/black)
+	randombelt = list(null)
+	randomears = list(null)
+	randomglasses = list(null, /obj/item/clothing/glasses/sunglasses)
+	randomgloves = list(null, /obj/item/clothing/gloves/fingerless)
+	randomhead = list(null, /obj/item/clothing/head/beanie/black, /obj/item/clothing/head/soft/black)
+	randomshoes = list(/obj/item/clothing/shoes/sneakers/black)
+	randomsuit = list(null)
+	randomuniform = list(/obj/item/clothing/under/color/black)
+
+	randomweapon1 = list(null, /obj/item/stack/rods, /obj/item/crowbar)
+	randomweapon2 = list(null)
+
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/antifa/death()
+	.=..()
+	if(prob(50))
+		new /obj/item/toy/crayon/spraycan(loc)
+
 
 /mob/living/simple_animal/hostile/customhumanoid/randomequip/hippie/joint
 	melee_damage_type = "burn"
