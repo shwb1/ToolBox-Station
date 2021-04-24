@@ -74,7 +74,8 @@
 
 // Hippie
 /mob/living/simple_animal/hostile/customhumanoid/randomequip/hippie
-	name = "hippie"
+	name = "Hippie"
+	forcename = 1
 	race = "human"
 	attacktext = "punches"
 	override_attacktext = 1
@@ -107,20 +108,65 @@
 	randomweapon1 = list(null, /obj/item/picket_sign, /obj/item/instrument/guitar)
 	randomweapon2 = list(null)
 
-/mob/living/simple_animal/hostile/customhumanoid/randomequip/hippie/joint
-	melee_damage_type = "burn"
-	melee_damage = 5
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/hippie/death()
+	.=..()
+	if(prob(80))
+		new /obj/item/clothing/mask/cigarette/rollie/cannabis(loc)
+
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/junkie
+	name = "Junkie"
+	forcename = 1
+	race = "human"
+	attacktext = "punches"
 	override_attacktext = 1
-	attacktext = "singed"
-	randomweapon1 = list(/obj/item/clothing/mask/cigarette/rollie/cannabis)
+	speak = list("Im coming down!","I need more.")
+	speak_chance = 10
+	gold_core_spawnable = 0
+	retaliation = 0
+	move_to_delay = 2
+	maxHealth = 60
+	humanskincolor = "albino"
+	human_traits = list()
+	randomsuit = list(null, /obj/item/clothing/suit/toggle/labcoat/chemist)
+
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/junkie/death()
+	.=..()
+	if(prob(70))
+		new /obj/item/reagent_containers/syringe/used(loc)
+
+/mob/living/simple_animal/hostile/customhumanoid/randomequip/shitcurity
+	name = "Shitcurity Officer"
+	forcename = 1
+	race = "human"
+	attacktext = "punches"
+	override_attacktext = 1
+	speak = list("I AM THE LAW!","CRIMINAL SCUM!","I EXECUTE WHO I WANT!!")
+	speak_chance = 15
+	gold_core_spawnable = 0
+	retaliation = 1
+	humanskincolor = "caucasian2"
+	human_traits = list(
+	"hair_style" = "Crewcut",
+	"hair_color" = "333")
+	dont_wander_atoms = list(/turf/open/chasm,/turf/open/lava,/obj/structure/bonfire)
+	randomglasses = list(null)
+	randomgloves = list(/obj/item/clothing/gloves/color/yellow)
+	randomhead = list(/obj/item/clothing/head/helmet/sec)
+	randomshoes = list(/obj/item/clothing/shoes/jackboots)
+	randomsuit = list(/obj/item/clothing/suit/armor/vest/alt)
+	randomuniform = list(/obj/item/clothing/under/rank/security/officer)
+
+	randomweapon1 = list(/obj/item/melee/baton/loaded)
+	randomweapon2 = list(null)
 
 /mob/living/simple_animal/hostile/customhumanoid/randomequip/antifa
-	name = "mostly peaceful protester"
+	name = "Antifa"
+	forcename = 1
 	race = "human"
 	attacktext = "punches"
 	override_attacktext = 1
 	speak = list("ACAB!","This is what democracy looks like!","No Justice, No Peace!","Defund shitcurity!!")
-	speak_chance = 1
+	speak_chance = 15
 	gold_core_spawnable = 0
 	retaliation = 0
 	humanskincolor = "caucasian2"
@@ -148,15 +194,7 @@
 	if(prob(50))
 		new /obj/item/toy/crayon/spraycan(loc)
 
-
-/mob/living/simple_animal/hostile/customhumanoid/randomequip/hippie/joint
-	melee_damage_type = "burn"
-	melee_damage = 5
-	override_attacktext = 1
-	attacktext = "singed"
-	randomweapon1 = list(/obj/item/clothing/mask/cigarette/rollie/cannabis)
-
-//Punk
+/*/Punk
 /mob/living/simple_animal/hostile/customhumanoid/randomequip/punk
 	name = "punk"
 	race = "human"
@@ -170,16 +208,17 @@
 	"facial_hair_style" = "Beard (Hipster)",
 	"hair_color" = "f00",
 	"facial_hair_color" = "f00")
-
+*/
 //Drunk
 /mob/living/simple_animal/hostile/customhumanoid/randomequip/drunk
-	name = "drunk"
+	name = "Drunk"
+	forcename = 1
 	race = "human"
 	attacktext = "punches"
 	override_attacktext = 1
 	speak = list("Fffight me yo'u cowarddd!","Fuckk...huuuhhh...yo'u aschhhole!",
 		"WWhat do'   you...huuuhhh...mmmean i had enuug'h?","Foock yuu!!","Fuck' oooff yiffie.","I   will beaht yuoo up!")
-	speak_chance = 1
+	speak_chance = 20
 	retaliation = 1
 	humanskincolor = "caucasian1"
 	human_traits = list(
