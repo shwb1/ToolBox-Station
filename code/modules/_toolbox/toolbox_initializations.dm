@@ -147,6 +147,11 @@ GLOBAL_LIST_EMPTY(hub_features)
 			H.w_uniform.item_state = "g_suit"
 			H.w_uniform.item_color = "green"
 			H.regenerate_icons()
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.is_active(t)
+			if(E)
+				E.update_player_inventory(H)
 
 /client
 	var/list/shared_ips = list()

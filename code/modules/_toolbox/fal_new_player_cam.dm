@@ -27,6 +27,11 @@ var/global/obj/new_player_cam/new_player_cam = null
 	return ..()
 
 /obj/new_player_cam/proc/lock_eyes_to_cam()
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.is_active(t)
+			if(E && E.block_new_player_cam())
+				return
 	for(var/mob/dead/new_player/P in GLOB.player_list)
 		if(!P.client)
 			continue
