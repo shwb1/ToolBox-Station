@@ -98,7 +98,7 @@ SUBSYSTEM_DEF(overlays)
 			continue
 		if (istext(overlay))
 			if(alternate_icon)
-				new_overlays += iconstate2appearance(icon, overlay,alternate_icon = alternate_icon)
+				new_overlays += iconstate2appearance(alternate_icon, overlay)
 			else
 				new_overlays += iconstate2appearance(icon, overlay)
 		else if(isicon(overlay))

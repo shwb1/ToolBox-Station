@@ -62,9 +62,9 @@
 	cut_overlays()
 	SSvis_overlays.remove_vis_overlay(src, managed_vis_overlays)
 	if(stat & NOPOWER)
-		add_overlay("[icon_keyboard]_off")
+		add_overlay("[icon_keyboard]_off", alternate_icon = original_icon)
 		return
-	add_overlay(icon_keyboard,original_icon)
+	add_overlay(icon_keyboard, alternate_icon = original_icon)
 
 	// This whole block lets screens ignore lighting and be visible even in the darkest room
 	// We can't do this for many things that emit light unfortunately because it layers over things that would be on top of it

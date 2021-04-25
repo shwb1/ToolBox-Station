@@ -130,10 +130,6 @@ SUBSYSTEM_DEF(toolbox_events)
 	if(!moved_shuttle && SSshuttle && SSshuttle.arrivals)
 		moved_shuttle = 1
 		SSshuttle.arrivals.delay_person_check = world.time+200
-		/*SSshuttle.request_transit_dock(SSshuttle.arrivals)
-		var/requester = popleft(SSshuttle.transit_requesters)
-		SSshuttle.generate_transit_dock(requester)
-		SSshuttle.arrivals.enterTransit()*/
 		SSshuttle.arrivals.Launch(TRUE)
 		while(SSshuttle.arrivals.mode != SHUTTLE_CALL && !SSshuttle.arrivals.damaged)
 			stoplag()
@@ -199,12 +195,17 @@ GLOBAL_LIST_EMPTY(meme_machine_items)
 	var/unpowered_color = "#878787"
 	var/lastprint = 0
 	var/list/thecolors = list("red","blue","yellow","green")
+	var/corruption_level = 0
+	var/corruption_cap = 10
+	var/min_corruption_visible = 3
+	var/next_corruption = 0
 
 /obj/machinery/item_converter/Initialize()
 	. = ..()
 	if(!GLOB.meme_machine_items.len)
 		GLOB.meme_machine_items = list(list(),list(),list())
 		GLOB.meme_machine_items[MAIN_ITEM_LIST] = shuffle(generate_list())
+	next_corruption = rand(15,40)
 	var/currentcolor = 1
 	spawn(0)
 		while(1)
@@ -218,6 +219,24 @@ GLOBAL_LIST_EMPTY(meme_machine_items)
 				if(currentcolor > length(thecolors))
 					currentcolor = 1
 			sleep(1)
+
+/obj/machinery/item_converter/update_icon()
+	overlays.Cut()
+	if(corruption_level >= min_corruption_visible)
+		var/total_theshold = corruption_cap - min_corruption_visible
+		var/current_threshold = corruption_level - min_corruption_visible
+		var/current_alpha_modifier
+		if(total_theshold == 0) //No dividing by zero.
+			current_alpha_modifier = 0
+		else
+			current_alpha_modifier = current_threshold/total_theshold
+		var/image/I = new()
+		I.icon = 'icons/mob/smelly.dmi'
+		I.icon_state = "generic_mob_smell"
+		I.layer = layer+0.1
+		I.alpha = round(255*current_alpha_modifier,1)
+		I.transform*=2
+		overlays += I
 
 /obj/machinery/item_converter/attackby(obj/item/W, mob/user, params)
 	if(lastprint+24 <= world.time && GLOB.meme_machine_items.len && user.a_intent != "harm")
@@ -251,6 +270,7 @@ GLOBAL_LIST_EMPTY(meme_machine_items)
 						playsound(src, 'sound/machines/ding.ogg', 50, 0)
 						sleep(14)
 						var/obj/item/I = new linkeditem(loc)
+						increase_corruption()
 						visible_message("The <B>[Wname]</B> has converted into a <B>[I.name]</B>.")
 					return
 				else
@@ -264,6 +284,35 @@ GLOBAL_LIST_EMPTY(meme_machine_items)
 			playsound(src, 'sound/machines/buzz-sigh.ogg', 50, 0)
 		return
 	return ..()
+
+/obj/machinery/item_converter/proc/increase_corruption()
+	if(corruption_level < corruption_cap)
+		if(next_corruption <= 0)
+			next_corruption = rand(15,40)
+			corruption_level = min(corruption_level+1,corruption_cap)
+			update_icon()
+			if(corruption_level >= min_corruption_visible)
+				if(corruption_level <= min_corruption_visible)
+					visible_message("<span class='warning'>The [src] seems to grow a strange aura of corruption.</span>")
+				else
+					visible_message("<span class='warning'>The aura of corruption on the [src] seems to get thicker.</span>")
+		else
+			next_corruption--
+	else
+		var/thefaction = "neutral"
+		var/spawntype = FRIENDLY_SPAWN
+		if(prob(30))
+			thefaction = "hostile"
+			spawntype = HOSTILE_SPAWN
+		playsound(loc, 'sound/effects/phasein.ogg', 100, 1)
+		for(var/mob/living/carbon/C in viewers(loc))
+			C.flash_act()
+		for(var/i=rand(1,3),i>0,i--)
+			var/mob/living/simple_animal/S = create_random_mob(loc, mob_class = spawntype)
+			S.faction |= thefaction
+		visible_message("<span class='warning'>Strange creatures seem to appear out of the [src] as the corruption fades.</span>")
+		corruption_level = 0
+		update_icon()
 
 /obj/machinery/item_converter/proc/generate_list()
 	var/list/returnlist = list()
