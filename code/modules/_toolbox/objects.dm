@@ -1,4 +1,4 @@
-/*/obj/effect/turf_decal/plaque/toolbox
+/obj/effect/turf_decal/plaque/toolbox
 	name = "plaque"
 	icon = 'icons/oldschool/ss13sign1rowdecals.dmi'
 	var/ismain = 0
@@ -19,7 +19,7 @@
 					P = new(T)
 				P.icon_state = "S[i]"
 			startx++
-		ismain = 0*/
+		ismain = 0
 
 /*
 //rapid parts exchanger can now replace apc cells
