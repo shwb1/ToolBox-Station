@@ -18,7 +18,9 @@
 			/obj/effect/decal/cleanable/blood/old = 2,
 			/obj/effect/decal/cleanable/vomit = 2,
 			/obj/effect/decal/cleanable/vomit/old = 2,
+			/obj/effect/decal/cleanable/oil = 1,
 			/obj/effect/decal/cleanable/shreds = 1,
+			/obj/item/trash/can/food/beans = 1,
 			/mob/living/simple_animal/cockroach = 1)
 			//"" = 2)
 
