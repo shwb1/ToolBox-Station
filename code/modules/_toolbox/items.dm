@@ -402,3 +402,53 @@
 	if(current == listenerturf)
 		return 1
 	return 0
+
+
+/obj/item/book/manual/nkvd_directives
+	name = "NKVD Directives"
+	icon_state ="bookDetective"
+	author = "The Supreme Leader"
+	title = "NKVD Directives"
+	//book contents below
+	dat = {"<html>
+				<head>
+				<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+				<style>
+				h1 {font-size: 18px; margin: 15px 0px 5px;}
+				h2 {font-size: 15px; margin: 15px 0px 5px;}
+				li {margin: 2px 0px 2px 15px;}
+				ul {list-style: none; margin: 5px; padding: 0px;}
+				ol {margin: 5px; padding: 0px 15px;}
+				</style>
+				</head>
+				<body>
+				<h3>NKVD Directives</h3>
+
+				Your duties:
+				<ol>
+				<li>Protect The Supreme Leader and enforce his directives at all costs.</li>
+				<li>Confiscate contraband.</li>
+				<li>Uphold social harmony and peace.</li>
+				<li>Crewmembers who engage in hate speech against The Supreme Leader are to be severely punished.</li>
+				<li>Killing crewmembers or detaining them for unreasonable lengths is counterproductive to our great communist goal and should be avoided.</li>
+				</ol>
+				<p>
+				The attitude of officers towards crewmember who has made mistakes should be one of persuasion in
+				order to help him change and start afresh and not one of exclusion, unless he is incorrigible.
+				<p>
+				Contraband and unacceptable behaviour:
+				<ol>
+				<li><b>Luxury items</b> - PDAs, western snacks and drinks, any clothes that are not grey jumpsuits.</li>
+				<li><b>Contraband posters</b> - are all non-communist posters.</li>
+				<li><b>Books</b> - are western propaganda. Model crewmembers dont waste their time reading them.</li>
+				<li><b>Religion</b> - is the opium of the masses and it should be dismantled.</li>
+				<li><b>Music Instruments</b> - are banned with the only exception being the accordion.</li>
+				<li><b>Weapons</b> - guns, knives, switchblades, baseball bats, stunprods, etc.</li>
+				</ol>
+				<p>
+				P.S. Clown is a western provocateur and should be treated as such.
+
+				</body>
+				</html>
+				"}
+
