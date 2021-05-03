@@ -1401,7 +1401,7 @@
 "aAW" = (/obj/structure/rack,/obj/item/tank/jetpack/carbondioxide,/obj/effect/turf_decal/stripes/line{dir = 1},/turf/open/floor/plasteel,/area/ai_monitored/storage/eva)
 "aAX" = (/turf/template_noop,/area/maintenance/port)
 "aAY" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3{dir = 8},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 8},/turf/open/floor/plating,/area/maintenance/port/fore)
-"aAZ" = (/obj/machinery/door/airlock{name = "Unisex Showers"},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 1},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3,/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 1},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3,/turf/open/floor/plasteel/freezer,/area/crew_quarters/fitness)
+"aAZ" = (/obj/machinery/door/airlock{name = "Unisex Showers"},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1{dir = 1},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3,/turf/open/floor/plasteel/freezer,/area/crew_quarters/fitness)
 "aBa" = (/turf/closed/wall/r_wall,/area/ai_monitored/nuke_storage)
 "aBb" = (/obj/effect/spawner/structure/window/plastitanium/station_to_space,/turf/open/floor/plating,/area/maintenance/solars/starboard/aft)
 "aBc" = (/obj/machinery/atmospherics/pipe/layer_manifold,/obj/effect/spawner/structure/window/plastitanium/station_to_space,/turf/open/floor/plating,/area/maintenance/solars/starboard/aft)

@@ -239,6 +239,11 @@
 /* General ai_law functions */
 
 /datum/ai_laws/proc/set_laws_config()
+	if(SStoolbox_events)
+		for(var/i in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[i]
+			if(E && E.active && E.override_ai_laws(src))
+				return
 	var/list/law_ids = CONFIG_GET(keyed_list/random_laws)
 	switch(CONFIG_GET(number/default_laws))
 		if(0)

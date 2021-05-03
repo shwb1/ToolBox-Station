@@ -365,7 +365,8 @@ GLOBAL_LIST_EMPTY(hub_features)
 				/mob/living/carbon/human/virtual_reality)
 			if(!(type in skip_types) && !(client.previous_mob_type in skip_types))
 				if(client.previous_mind != mind)
-					alert(client,"You are in control of another entity. You remember nothing that happened previously up until this point.","Memories Wiped.","Ok")
+					spawn(0)
+						alert(client,"You are in control of another entity. You remember nothing that happened previously up until this point.","Memories Wiped.","Ok")
 			client.previous_mind = mind
 			client.previous_mob_type = type
 

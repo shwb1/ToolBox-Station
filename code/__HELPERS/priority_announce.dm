@@ -32,6 +32,11 @@
 		announcement += "<span class='alert'>-[auth_id]</span><br>"
 
 	var/s = sound(sound)
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active && E.override_priority_announce_sound)
+				s = sound(E.override_priority_announce_sound)
 	for(var/mob/M in GLOB.player_list)
 		if(!isnewplayer(M) && M.can_hear())
 			to_chat(M, announcement)
@@ -66,3 +71,9 @@
 					SEND_SOUND(M, sound('sound/misc/notice1.ogg'))
 				else
 					SEND_SOUND(M, sound('sound/misc/notice2.ogg'))
+				if(SStoolbox_events)
+					for(var/t in SStoolbox_events.cached_events)
+						var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+						if(E && E.active && E.override_priority_announce_sound)
+							SEND_SOUND(M, E.override_priority_announce_sound)
+							break

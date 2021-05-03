@@ -735,3 +735,19 @@
 	desc = "Some kind of modern art piece."
 	icon = 'icons/oldschool/objects.dmi'
 	icon_state = "poster_mime"
+
+//dried bread machine
+/obj/machinery/vending/snack/dried_bread
+	name = "\improper sustenance vendor"
+	desc = null
+	product_slogans = null
+	product_ads = null
+	icon_state = "snack"
+	products = list(/obj/item/reagent_containers/food/snacks/breadslice/dried = 15)
+	contraband = list()
+	refill_canister = /obj/item/vending_refill/snack/dried_bread
+	default_price = 10
+	extra_price = 20
+
+/obj/item/vending_refill/snack/dried_bread
+	machine_name = "\improper sustenance vendor"

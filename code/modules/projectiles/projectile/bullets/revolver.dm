@@ -14,11 +14,13 @@
 
 /obj/item/projectile/bullet/c38
 	name = ".38 bullet"
-	damage = 25
+	damage = 10
+	knockdown = 60
+	stamina = 50
 
 /obj/item/projectile/bullet/c38/trac
 	name = ".38 TRAC bullet"
-	damage = 10
+	damage = 8
 
 /obj/item/projectile/bullet/c38/trac/on_hit(atom/target, blocked = FALSE)
 	. = ..()
@@ -27,7 +29,7 @@
 		return
 	if(locate(/obj/item/implant/tracking/c38) in M.implants) //checks if the target already contains a tracking implant
 		return
-	
+
 	var/obj/item/implant/tracking/c38/imp = new (M)
 	imp.implant(M)
 
@@ -67,7 +69,7 @@
 			M.apply_damage(5, BRUTE, CHEST, defense)
 			M.visible_message("<span class='danger'>A bullet wound appears in [M]'s chest!</span>", \
 							"<span class='userdanger'>You get hit with a .38 bullet from a finger gun! Those hurt!...</span>")
-		else 
+		else
 			to_chat(M, "<span class='userdanger'>You get shot with the finger gun!</span>")
 
 // .357 (Syndie Revolver)

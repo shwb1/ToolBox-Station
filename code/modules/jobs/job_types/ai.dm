@@ -36,6 +36,13 @@
 			qdel(lateJoinCore)
 	var/mob/living/silicon/ai/AI = H
 	AI.apply_pref_name("ai", M.client)			//If this runtimes oh well jobcode is fucked.
+
+	if(SStoolbox_events)
+		for(var/i in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[i]
+			if(E && E.active && E.override_AI_name)
+				AI.fully_replace_character_name(AI.real_name,E.override_AI_name)
+
 	AI.set_core_display_icon(null, M.client)
 
 	//we may have been created after our borg

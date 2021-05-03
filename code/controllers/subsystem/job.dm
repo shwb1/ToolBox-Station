@@ -87,6 +87,11 @@ SUBSYSTEM_DEF(job)
 			return FALSE
 		if(job.required_playtime_remaining(player.client))
 			return FALSE
+		if(SStoolbox_events)
+			for(var/t in SStoolbox_events.cached_events)
+				var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+				if(E && E.active && (rank in E.job_whitelist) && player.ckey && !(player.ckey in E.job_whitelist[rank]))
+					return FALSE
 		var/position_limit = job.total_positions
 		if(!latejoin)
 			position_limit = job.spawn_positions
@@ -126,6 +131,16 @@ SUBSYSTEM_DEF(job)
 		if(player.mind && (job.title in player.mind.restricted_roles))
 			JobDebug("FOC incompatible with antagonist role, Player: [player]")
 			continue
+		if(SStoolbox_events)
+			var/tb_event_whitelisted = 0
+			for(var/t in SStoolbox_events.cached_events)
+				var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+				if(E && E.active && (job.title in E.job_whitelist) && player.ckey && !(player.ckey in E.job_whitelist[job.title]))
+					tb_event_whitelisted = 1
+					break
+			if(tb_event_whitelisted)
+				JobDebug("Toolbox_event has blocked a player from using this role because it is temporarily whitelisted, Player: [player]")
+				continue
 		if(player.client.prefs.job_preferences[job.title] == level)
 			JobDebug("FOC pass, Player: [player], Level:[level]")
 			candidates += player
@@ -454,7 +469,16 @@ SUBSYSTEM_DEF(job)
 		living_mob.mind.assigned_role = rank
 	to_chat(M, "<b>You are the [rank].</b>")
 	if(job)
-		var/new_mob = job.equip(living_mob, null, null, joined_late , null, M.client)
+		var/override_outfit = null
+		if(SStoolbox_events)
+			for(var/t in SStoolbox_events.cached_events)
+				var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+				if(E && E.active)
+					if(job.title in E.overriden_outfits)
+						override_outfit = E.overriden_outfits[job.title]
+					else if(job.outfit)
+						override_outfit = E.custom_modify_job_outfit(job,living_mob)
+		var/new_mob = job.equip(living_mob, null, null, joined_late , override_outfit, M.client)
 		if(ismob(new_mob))
 			living_mob = new_mob
 			if(!joined_late)

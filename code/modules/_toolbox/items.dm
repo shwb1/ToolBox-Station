@@ -403,52 +403,193 @@
 		return 1
 	return 0
 
+/*
+Stun bullets for the revolver and mateba
+*/
+//rubber revolver bullets
+/obj/item/ammo_casing/a357/rubber
+	name = ".357 rubber bullet casing"
+	desc = "A .357 rubber bullet casing."
+	projectile_type = /obj/item/projectile/bullet/a357/rubber
 
-/obj/item/book/manual/nkvd_directives
-	name = "NKVD Directives"
-	icon_state ="bookDetective"
-	author = "The Supreme Leader"
-	title = "NKVD Directives"
-	//book contents below
-	dat = {"<html>
-				<head>
-				<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
-				<style>
-				h1 {font-size: 18px; margin: 15px 0px 5px;}
-				h2 {font-size: 15px; margin: 15px 0px 5px;}
-				li {margin: 2px 0px 2px 15px;}
-				ul {list-style: none; margin: 5px; padding: 0px;}
-				ol {margin: 5px; padding: 0px 15px;}
-				</style>
-				</head>
-				<body>
-				<h3>NKVD Directives</h3>
+/obj/item/projectile/bullet/a357/rubber
+	name = ".357 rubber bullet"
+	damage = 20
+	knockdown = 80 //The stun should be a little bit higher then the detective bullets.
+	stamina = 60 //The stamina damage is higher as well.
 
-				Your duties:
-				<ol>
-				<li>Protect The Supreme Leader and enforce his directives at all costs.</li>
-				<li>Confiscate contraband.</li>
-				<li>Uphold social harmony and peace.</li>
-				<li>Crewmembers who engage in hate speech against The Supreme Leader are to be severely punished.</li>
-				<li>Killing crewmembers or detaining them for unreasonable lengths is counterproductive to our great communist goal and should be avoided.</li>
-				</ol>
-				<p>
-				The attitude of officers towards crewmember who has made mistakes should be one of persuasion in
-				order to help him change and start afresh and not one of exclusion, unless he is incorrigible.
-				<p>
-				Contraband and unacceptable behaviour:
-				<ol>
-				<li><b>Luxury items</b> - PDAs, western snacks and drinks, any clothes that are not grey jumpsuits.</li>
-				<li><b>Contraband posters</b> - are all non-communist posters.</li>
-				<li><b>Books</b> - are western propaganda. Model crewmembers dont waste their time reading them.</li>
-				<li><b>Religion</b> - is the opium of the masses and it should be dismantled.</li>
-				<li><b>Music Instruments</b> - are banned with the only exception being the accordion.</li>
-				<li><b>Weapons</b> - guns, knives, switchblades, baseball bats, stunprods, etc.</li>
-				</ol>
-				<p>
-				P.S. Clown is a western provocateur and should be treated as such.
+//Speed loader filled with rubber bullets.
+/obj/item/ammo_box/a357/rubber
+	name = "speed loader (rubber .357)"
+	icon = 'icons/oldschool/items.dmi'
+	icon_state = "357stun"
+	ammo_type = /obj/item/ammo_casing/a357/rubber
 
-				</body>
-				</html>
-				"}
+//Revolver internal cynlinder preloaded with rubber shots
+/obj/item/ammo_box/magazine/internal/cylinder/rubber
+	ammo_type = /obj/item/ammo_casing/a357/rubber
 
+//Preloaded guns. These can be emptied and refilled with lethals any time in game.
+//regular revolver preloaded with rubber bullets.
+/obj/item/gun/ballistic/revolver/rubber
+	mag_type = /obj/item/ammo_box/magazine/internal/cylinder/rubber
+
+//russian mateba preloaded with rubber bullets.
+/obj/item/gun/ballistic/revolver/mateba/rubber
+	mag_type = /obj/item/ammo_box/magazine/internal/cylinder/rubber
+
+/datum/design/a357loaderrubber
+	name = "speed loader (rubber .357)"
+	id = "a357_loader_rubber"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 28000)
+	build_path = /obj/item/ammo_box/a357/rubber
+	category = list("hacked", "Security")
+
+/datum/design/a357loader
+	name = "speed loader (.357)"
+	id = "a357_loader"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 28000)
+	build_path = /obj/item/ammo_box/a357
+	category = list("hacked", "Security")
+
+//ak47
+/obj/item/gun/ballistic/automatic/ak47
+	name = "ak47"
+	desc = "One of countless obsolete ballistic rifles that still sees use as a cheap deterrent. So simple a child could use it."
+	icon = 'icons/oldschool/guns.dmi'
+	icon_state = "ak47"
+	item_state = "ak47"
+	lefthand_file = 'icons/oldschool/inhand_left.dmi'
+	righthand_file = 'icons/oldschool/inhand_right.dmi'
+	weapon_weight = WEAPON_LIGHT
+	w_class = WEIGHT_CLASS_NORMAL
+	mag_type = /obj/item/ammo_box/magazine/ak47
+	can_suppress = FALSE
+	slot_flags = ITEM_SLOT_BACK
+	actions_types = list()
+	mag_display = TRUE
+	dual_wield_spread = 60
+	fire_sound = 'sound/toolbox/ak47.ogg'
+	fire_rate = 4
+
+/obj/item/gun/ballistic/automatic/ak47/update_icon()
+	overlays.Cut()
+	if(magazine)
+		var/image/I = new()
+		I.icon = icon
+		if(istype(magazine,/obj/item/ammo_box/magazine/ak47/disable))
+			I.icon_state = "ak47-mag-nonlethal"
+		else
+			I.icon_state = "ak47-mag"
+		overlays.Add(I)
+
+/obj/item/gun/ballistic/automatic/ak47/examine()
+	. = ..()
+	if(istype(magazine,/obj/item/ammo_box/magazine/ak47/disable))
+		to_chat(usr,"Loaded with rubber bullets.")
+
+//disabler preloaded ak47
+/obj/item/gun/ballistic/automatic/ak47/disable
+	name = "ak47"
+	mag_type = /obj/item/ammo_box/magazine/ak47/disable
+
+/obj/item/gun/ballistic/automatic/ak47/disable/Initialize()
+	. = ..()
+	mag_type = /obj/item/ammo_box/magazine/ak47
+
+//ak47 ammo
+/obj/item/ammo_box/magazine/ak47
+	name = "AK47 magazine (7.62x39mm AK)"
+	icon = 'icons/oldschool/guns.dmi'
+	icon_state = "ak_mag"
+	max_ammo = 30
+	caliber = "7.62x38_ak"
+	ammo_type = /obj/item/ammo_casing/ak47
+
+/obj/item/ammo_box/magazine/ak47/update_icon()
+	if(stored_ammo.len)
+		icon_state = initial(icon_state)
+	else
+		icon_state = "[initial(icon_state)]-e"
+
+/obj/item/ammo_casing/ak47
+	name = "7.62x39mm AK bullet casing"
+	desc = "An AK47 bullet casing."
+	caliber = "7.62x38_ak"
+	projectile_type = /obj/item/projectile/bullet/ak47
+	fire_sound = 'sound/toolbox/ak47.ogg'
+
+/obj/item/projectile/bullet/ak47
+	name = "7.62x39mm AK bullet"
+	damage = 25
+
+//ak47 disabler ammo
+/obj/item/ammo_box/magazine/ak47/disable
+	name = "AK47 disable magazine (7.62x39mm AK)"
+	icon_state = "ak_mag-nonlethal"
+	ammo_type = /obj/item/ammo_casing/ak47/disable
+
+/obj/item/ammo_casing/ak47/disable
+	name = "7.62x39mm AK disabling bullet casing"
+	desc = "A disabling AK47 bullet casing."
+	projectile_type = /obj/item/projectile/bullet/ak47/disable
+
+/obj/item/projectile/bullet/ak47/disable
+	name = "7.62x39mm AK disabling bullet"
+	damage = 10
+	stamina = 45
+
+//designs
+/datum/design/a357
+	name = "ak47 Casing"
+	id = "ak47casing"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 38000)
+	build_path = /obj/item/ammo_box/magazine/ak47
+	category = list("hacked","Security")
+
+/datum/design/a357rubber
+	name = "ak47 Rubber Casing"
+	id = "ak47casing_rubber"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 38000)
+	build_path = /obj/item/ammo_box/magazine/ak47/disable
+	category = list("hacked","Security")
+
+//golden ak
+/obj/item/gun/ballistic/automatic/ak47/gold
+	name = "golden ak47"
+	icon_state = "ak47_gold"
+	item_state = "ak47_gold"
+
+//disabler preloaded ak47
+/obj/item/gun/ballistic/automatic/ak47/disable/gold
+	name = "golden ak47"
+	icon_state = "ak47_gold"
+	item_state = "ak47_gold"
+
+//aviator sunglasses
+/obj/item/clothing/glasses/sunglasses/advanced/aviator
+	name = "aviator sunglasses"
+	icon = 'icons/oldschool/clothing/headitem.dmi'
+	alternate_worn_icon = 'icons/oldschool/clothing/headmob.dmi'
+	lefthand_file = 'icons/oldschool/inhand_left.dmi'
+	righthand_file = 'icons/oldschool/inhand_right.dmi'
+	icon_state = "aviator_s"
+	item_state = "aviator_s"
+
+//dried bread
+/obj/item/reagent_containers/food/snacks/breadslice/dried
+	name = "dried bread"
+	desc = "Old stale bread."
+	list_reagents = list(/datum/reagent/consumable/nutriment = 1)
+	icon_state = "breadslice"
+
+/obj/item/reagent_containers/food/snacks/breadslice/dried/Initialize()
+	. = ..()
+	var/additional_reagent = /datum/reagent/consumable/nutriment
+	if(prob(20))
+		additional_reagent = /datum/reagent/toxin/bad_food
+	reagents.add_reagent(additional_reagent, 1)

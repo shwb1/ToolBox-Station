@@ -283,6 +283,13 @@
 		alert(src, "An administrator has disabled late join spawning.")
 		return FALSE
 
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active && (rank in E.job_whitelist) && !(ckey in E.job_whitelist[rank]))
+				alert(src, "The current round is running a Special Event. This job is currently reserved for the event.")
+				return FALSE
+
 	var/arrivals_docked = TRUE
 	if(SSshuttle.arrivals)
 		close_spawn_windows()	//In case we get held up

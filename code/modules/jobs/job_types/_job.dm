@@ -283,12 +283,21 @@
 	if(!J)
 		J = SSjob.GetJob(H.job)
 
+	var/thetitle = J.title
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active && (J.title in E.overriden_job_titles))
+				thetitle = E.overriden_job_titles[J.title]
+				if(H && H.mind)
+					H.mind.assigned_role = thetitle
+
 	var/obj/item/card/id/C = H.wear_id
 	if(istype(C))
 		C.access = J.get_access()
 		shuffle_inplace(C.access) // Shuffle access list to make NTNet passkeys less predictable
 		C.registered_name = H.real_name
-		C.assignment = J.title
+		C.assignment = thetitle
 		C.update_label()
 		for(var/A in SSeconomy.bank_accounts)
 			var/datum/bank_account/B = A
@@ -301,7 +310,7 @@
 	var/obj/item/pda/PDA = H.get_item_by_slot(pda_slot)
 	if(istype(PDA))
 		PDA.owner = H.real_name
-		PDA.ownjob = J.title
+		PDA.ownjob = thetitle
 		PDA.update_label()
 
 /datum/outfit/job/get_chameleon_disguise_info()

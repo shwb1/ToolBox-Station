@@ -32,7 +32,10 @@
 
 /datum/job/captain/announce(mob/living/carbon/human/H)
 	..()
-	SSticker.OnRoundstart(CALLBACK(GLOBAL_PROC, .proc/minor_announce, "Captain [H.real_name] on deck!"))
+	var/therank = "[title]"
+	if(H.mind && H.mind.assigned_role && H.mind.assigned_role != therank)
+		therank = H.mind.assigned_role
+	SSticker.OnRoundstart(CALLBACK(GLOBAL_PROC, .proc/minor_announce, "[therank] [H.real_name] on deck!"))
 
 /datum/outfit/job/captain
 	name = "Captain"

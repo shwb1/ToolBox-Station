@@ -21,7 +21,15 @@
 	account_holder = newname
 	account_job = job
 	account_id = rand(111111,999999)
-	paycheck_amount = account_job.paycheck
+	var/payment = account_job.paycheck
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active)
+				var/modification = E.override_paycheck(src)
+				if(modification && isnum(modification))
+					payment = modification
+	paycheck_amount = payment
 
 /datum/bank_account/Destroy()
 	if(add_to_accounts)
