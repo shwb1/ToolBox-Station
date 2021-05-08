@@ -18,6 +18,7 @@
 	default_price = 20
 	extra_price = 30
 	payment_department = ACCOUNT_SRV
+	var/spawn_on_random = 1
 
 /obj/item/vending_refill/snack
 	machine_name = "Getmore Chocolate Corp"
@@ -95,7 +96,12 @@
 
 /obj/machinery/vending/snack/random/Initialize()
 	..()
-	var/T = pick(subtypesof(/obj/machinery/vending/snack) - /obj/machinery/vending/snack/random)
+	var/list/vendings = pick(subtypesof(/obj/machinery/vending/snack) - /obj/machinery/vending/snack/random)
+	for(var/t in vendings)
+		var/obj/machinery/vending/snack/S = t
+		if(!initial(S.spawn_on_random))
+			vendings.Remove(t)
+	var/T = pick(vendings)
 	new T(loc)
 	return INITIALIZE_HINT_QDEL
 

@@ -674,8 +674,12 @@ GLOBAL_LIST_EMPTY(PDAs)
 		t = Gibberish(t, TRUE)
 	return t
 
-/obj/item/pda/proc/send_message(mob/living/user, list/obj/item/pda/targets, everyone)
-	var/message = msg_input(user)
+/obj/item/pda/proc/send_message(mob/living/user, list/obj/item/pda/targets, everyone, pre_made_message)
+	var/message
+	if(pre_made_message)
+		message = trim(html_encode(pre_made_message), MAX_MESSAGE_LEN)
+	else
+		message = msg_input(user)
 	if(!message || !targets.len)
 		return
 	if((last_text && world.time < last_text + 10) || (everyone && last_everyone && world.time < last_everyone + PDA_SPAM_DELAY))
@@ -696,7 +700,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 	if (!string_targets.len)
 		return
 
-	if(CHAT_FILTER_CHECK(message))
+	if(CHAT_FILTER_CHECK(message) && user)
 		to_chat(user, "<span class='warning'>ERROR: Prohibited word(s) detected in message.</span>")
 		return
 
@@ -713,7 +717,8 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 	// If it didn't reach, note that fact
 	if (!signal.data["done"])
-		to_chat(user, "<span class='notice'>ERROR: Server isn't responding.</span>")
+		if(user)
+			to_chat(user, "<span class='notice'>ERROR: Server isn't responding.</span>")
 		if(!silent)
 			playsound(src, 'sound/machines/terminal_error.ogg', 15, TRUE)
 		return
@@ -729,10 +734,11 @@ GLOBAL_LIST_EMPTY(PDAs)
 	var/ghost_message = "<span class='name'>[owner] </span><span class='game say'>PDA Message</span> --> <span class='name'>[target_text]</span>: <span class='message'>[signal.format_message()]</span>"
 	for(var/mob/M in GLOB.player_list)
 		if(isobserver(M) && M.client && (M.client.prefs.chat_toggles & CHAT_GHOSTPDA))
-			to_chat(M, "[FOLLOW_LINK(M, user)] [ghost_message]")
+			to_chat(M, "[user ? "[FOLLOW_LINK(M, user)]" : "[M] received message:"] [ghost_message]")
 	// Log in the talk log
-	user.log_talk(message, LOG_PDA, tag="PDA: [initial(name)] to [target_text]")
-	to_chat(user, "<span class='info'>PDA message sent to [target_text]: \"[message]\"</span>")
+	if(user)
+		user.log_talk(message, LOG_PDA, tag="PDA: [initial(name)] to [target_text]")
+		to_chat(user, "<span class='info'>PDA message sent to [target_text]: \"[message]\"</span>")
 	if(!silent)
 		playsound(src, 'sound/machines/terminal_success.ogg', 15, TRUE)
 	// Reset the photo
@@ -749,12 +755,18 @@ GLOBAL_LIST_EMPTY(PDAs)
 		audible_message("[icon2html(src, hearers(src))] *[ttone]*", null, 3)
 	//Search for holder of the PDA.
 	var/mob/living/L = null
-	if(loc && isliving(loc))
-		L = loc
-	//Maybe they are a pAI!
-	else
-		L = get(src, /mob/living/silicon)
+	if(istype(signal.source,/obj/item/pda))
+		var/obj/item/pda/pdasource = signal.source
+		L = pdasource.find_receiver_mob(src)
+	if(!L)
+		if(loc && isliving(loc))
+			L = loc
+		//Maybe they are a pAI!
+		else
+			L = get(src, /mob/living/silicon)
 
+	var/inbound_message = signal.format_message()
+	on_receive(inbound_message,L,signal.source)
 	if(L && L.stat != UNCONSCIOUS)
 		var/reply = "(<a href='byond://?src=[REF(src)];choice=Message;skiprefresh=1;target=[REF(signal.source)]'>Reply</a>)"
 		var/hrefstart
@@ -766,7 +778,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 		if(signal.data["automated"])
 			reply = "\[Automated Message\]"
 
-		var/inbound_message = signal.format_message()
+		//var/inbound_message = signal.format_message()
 		if(signal.data["emojis"] == TRUE)//so will not parse emojis as such from pdas that don't send emojis
 			inbound_message = emoji_parse(inbound_message)
 
@@ -774,6 +786,11 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 	update_icon()
 	add_overlay(icon_alert)
+
+/obj/item/pda/proc/on_receive(inbound_message,mob/living/receiver,obj/item/pda/source)
+
+/obj/item/pda/proc/find_receiver_mob(obj/item/pda/receiver_pda)
+	return null
 
 /obj/item/pda/proc/send_to_all(mob/living/U)
 	if (last_everyone && world.time < last_everyone + PDA_SPAM_DELAY)

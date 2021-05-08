@@ -748,6 +748,7 @@
 	refill_canister = /obj/item/vending_refill/snack/dried_bread
 	default_price = 10
 	extra_price = 20
+	spawn_on_random = 0
 
 /obj/item/vending_refill/snack/dried_bread
 	machine_name = "\improper sustenance vendor"

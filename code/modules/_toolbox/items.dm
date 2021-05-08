@@ -438,9 +438,9 @@ Stun bullets for the revolver and mateba
 /obj/item/gun/ballistic/revolver/mateba/rubber
 	mag_type = /obj/item/ammo_box/magazine/internal/cylinder/rubber
 
-/datum/design/a357loaderrubber
+/datum/design/rubbera357loader
 	name = "speed loader (rubber .357)"
-	id = "a357_loader_rubber"
+	id = "a357rubberloader"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 28000)
 	build_path = /obj/item/ammo_box/a357/rubber
@@ -448,11 +448,11 @@ Stun bullets for the revolver and mateba
 
 /datum/design/a357loader
 	name = "speed loader (.357)"
-	id = "a357_loader"
+	id = "a357loader"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 28000)
 	build_path = /obj/item/ammo_box/a357
-	category = list("hacked", "Security")
+	category = list("initial", "Security")
 
 //ak47
 /obj/item/gun/ballistic/automatic/ak47
@@ -501,7 +501,7 @@ Stun bullets for the revolver and mateba
 
 //ak47 ammo
 /obj/item/ammo_box/magazine/ak47
-	name = "AK47 magazine (7.62x39mm AK)"
+	name = "AK47 magazine (7.62x39mm)"
 	icon = 'icons/oldschool/guns.dmi'
 	icon_state = "ak_mag"
 	max_ammo = 30
@@ -518,6 +518,7 @@ Stun bullets for the revolver and mateba
 	name = "7.62x39mm AK bullet casing"
 	desc = "An AK47 bullet casing."
 	caliber = "7.62x38_ak"
+	icon_state = "762-casing"
 	projectile_type = /obj/item/projectile/bullet/ak47
 	fire_sound = 'sound/toolbox/ak47.ogg'
 
@@ -527,36 +528,36 @@ Stun bullets for the revolver and mateba
 
 //ak47 disabler ammo
 /obj/item/ammo_box/magazine/ak47/disable
-	name = "AK47 disable magazine (7.62x39mm AK)"
+	name = "   AK47 magazine (rubber 7.62x39mm)"
 	icon_state = "ak_mag-nonlethal"
 	ammo_type = /obj/item/ammo_casing/ak47/disable
 
 /obj/item/ammo_casing/ak47/disable
-	name = "7.62x39mm AK disabling bullet casing"
-	desc = "A disabling AK47 bullet casing."
+	name = "7.62x39mm AK rubber bullet casing"
+	desc = "Less than lethal AK 47 munition useful for dispersing crowds."
 	projectile_type = /obj/item/projectile/bullet/ak47/disable
 
 /obj/item/projectile/bullet/ak47/disable
-	name = "7.62x39mm AK disabling bullet"
-	damage = 10
+	name = "7.62x39mm AK rubber bullet"
+	damage = 8
 	stamina = 45
 
 //designs
 /datum/design/a357
-	name = "ak47 Casing"
-	id = "ak47casing"
+	name = "ak47 magazine"
+	id = "ak47lethalcasing"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 38000)
 	build_path = /obj/item/ammo_box/magazine/ak47
 	category = list("hacked","Security")
 
-/datum/design/a357rubber
-	name = "ak47 Rubber Casing"
-	id = "ak47casing_rubber"
+/datum/design/rubbera357
+	name = "ak47 rubber magazine"
+	id = "ak47rubbercasing"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 38000)
 	build_path = /obj/item/ammo_box/magazine/ak47/disable
-	category = list("hacked","Security")
+	category = list("initial","Security")
 
 //golden ak
 /obj/item/gun/ballistic/automatic/ak47/gold
@@ -582,7 +583,7 @@ Stun bullets for the revolver and mateba
 
 //dried bread
 /obj/item/reagent_containers/food/snacks/breadslice/dried
-	name = "dried bread"
+	name = "stale bread"
 	desc = "Old stale bread."
 	list_reagents = list(/datum/reagent/consumable/nutriment = 1)
 	icon_state = "breadslice"
