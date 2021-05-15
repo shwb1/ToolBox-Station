@@ -117,6 +117,11 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 
 //Check if you can't open a new position for a certain job
 /obj/machinery/computer/card/proc/job_blacklisted(jobtitle)
+	if(SStoolbox_events)
+		for(var/i in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[i]
+			if(E && E.active && jobtitle in E.block_job_position_changes)
+				return TRUE
 	return (jobtitle in blacklisted)
 
 
@@ -175,7 +180,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			ID = 0
 		for(var/datum/job/job in SSjob.occupations)
 			dat += "<tr>"
-			if(job.title in blacklisted)
+			if(job_blacklisted(job.title))
 				continue
 			dat += "<td>[job.title]</td>"
 			dat += "<td>[job.current_positions]/[job.total_positions]</td>"

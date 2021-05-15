@@ -51,10 +51,11 @@
 	loot = list(
 				/obj/item/gun/ballistic/automatic/pistol = 8,
 				/obj/item/gun/ballistic/shotgun/automatic/combat = 3,
-				/obj/item/gun/ballistic/revolver/mateba,
-				/obj/item/gun/ballistic/automatic/pistol/deagle,
+				/obj/item/gun/ballistic/revolver/mateba = 2,
+				/obj/item/gun/ballistic/automatic/pistol/deagle = 2,
 				/obj/item/storage/box/syndie_kit/throwing_weapons = 3,
-				/obj/item/grenade/clusterbuster
+				/obj/item/grenade/clusterbuster = 2,
+				/obj/item/gun/ballistic/automatic/ak47/disable = 3
 				)
 
 /obj/effect/spawner/lootdrop/gambling
@@ -192,7 +193,7 @@
 		/obj/item/organ/tongue/snail = 1,
 		/obj/item/organ/appendix = 5,
 		/obj/effect/gibspawner/human = 1,
-		/obj/item/organ/wings = 1, 
+		/obj/item/organ/wings = 1,
 		/obj/item/organ/wings/moth = 1,
 		/obj/item/organ/wings/bee = 1,
 		/obj/item/organ/wings/dragon/fake = 1)
@@ -255,7 +256,7 @@
 		/mob/living/simple_animal/hostile/retaliate/spaceman = 2,
 		/obj/effect/mob_spawn/human/corpse/assistant/brainrot_infection = 1,
 		/mob/living/simple_animal/hostile/retaliate/frog = 2)
-	
+
 /obj/effect/spawner/lootdrop/costume
 	name = "random costume spawner"
 

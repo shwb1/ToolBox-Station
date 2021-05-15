@@ -66,7 +66,9 @@ The event. Make children of this to make a new event.
 	var/active = 0
 	var/list/overriden_outfits = list() //populate list like this list("Clown" = /datum/outfit/new_clown). This replaces the outfit for any job you put the title in for.
 	var/list/overriden_job_titles = list() //populate list like this list("Clown" = "Fuckhead"). This replaces the name of the job with the associated entry.
-	var/list/overriden_total_job_positions = list() //populate list like this list "Clown" = 50). This overrides the max jobs available of the mentioned job. Make 0 to ban the job.
+	var/list/overriden_total_job_positions = list() //populate list like this list("Clown" = 50). This overrides the max jobs available of the mentioned job. Make 0 to ban the job.
+	var/list/allow_job_multispawn_on_loc = list() //populate list like this list("Clown"). This allows the jobs in this list to spawn on the same tile for meme reasons. Like having 50 mime players spawn all ontop of eachother.
+	var/list/block_job_position_changes = list() //populate list like this list("Clown"). This allows you to block the HOP console from modifying how many positions of a job are available.
 	var/list/job_whitelist = list() //populate list like this list("Clown" = "player_ckey"). This whitelists a job for a specific player.
 	var/override_priority_announce_sound //Put a link to a sound file to override the sound played when any station announcement happens.
 	var/override_AI_name //text string. forces the job start AI to be named this.
@@ -103,6 +105,11 @@ The event. Make children of this to make a new event.
 
 /datum/toolbox_event/proc/override_ai_laws(datum/ai_laws/laws) //Called after the main job spawned AI has been given its laws. This is not called on a constructed AI.
 	return FALSE
+
+/datum/toolbox_event/proc/modify_player_rank(rank,mob/dead/new_player/player) //Called when assigning a rank to a player. Use this to modify what their rank should be changed to by returning the new rank as text. The new rank title should be the title of an existing /datum/job in game.
+	return null
+
+/datum/toolbox_event/proc/PostRoundSetup() //Called when the round is successfully set up and is about to switch over to round playing mode but ticker.current_state is still GAME_STATE_SETTING_UP
 
 /datum/admins/proc/toggle_tb_event()
 	set category = "Server"

@@ -871,7 +871,7 @@
 "aqM" = (/obj/machinery/atmospherics/pipe/simple/supply/hidden{dir = 6},/turf/open/floor/plating,/area/maintenance/port/fore)
 "aqN" = (/obj/machinery/atmospherics/pipe/simple/supply/hidden{dir = 9},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/structure/disposalpipe/segment,/turf/open/floor/plating,/area/maintenance/port/fore)
 "aqO" = (/obj/machinery/space_heater,/turf/open/floor/plating,/area/maintenance/port)
-"aqP" = (/obj/structure/cable/yellow{icon_state = "1-8"},/obj/structure/cable/yellow{icon_state = "1-4"},/obj/effect/landmark/observer_start,/obj/effect/turf_decal/plaque/toolbox,/turf/open/floor/plasteel,/area/hallway/primary/central)
+"aqP" = (/obj/structure/cable/yellow{icon_state = "1-8"},/obj/structure/cable/yellow{icon_state = "1-4"},/obj/effect/landmark/observer_start,/obj/effect/turf_decal/plaque/toolbox{ismain = 1},/turf/open/floor/plasteel,/area/hallway/primary/central)
 "aqQ" = (/obj/structure/table,/obj/structure/cable/yellow{icon_state = "4-8"},/obj/item/folder/red,/obj/item/restraints/handcuffs,/obj/item/clothing/head/cone{pixel_x = -4; pixel_y = 4},/obj/item/clothing/head/cone{pixel_x = -4; pixel_y = 4},/obj/item/clothing/head/cone{pixel_x = -4; pixel_y = 4},/obj/item/clothing/head/cone{pixel_x = -4; pixel_y = 4},/obj/item/clothing/head/cone{pixel_x = -4; pixel_y = 4},/obj/item/phone,/turf/open/floor/plasteel/showroomfloor,/area/security/warden)
 "aqR" = (/obj/effect/spawner/room/fivexfour,/turf/open/floor/plating,/area/maintenance/port)
 "aqS" = (/obj/machinery/atmospherics/pipe/simple/supply/hidden,/obj/effect/turf_decal/stripes/line,/turf/open/floor/plating,/area/maintenance/port)

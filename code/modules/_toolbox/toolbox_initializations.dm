@@ -116,9 +116,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 	world.status = dat
 
 //modifying a player after hes equipped when spawning in as crew member.
-/datum/outfit
-	var/ignore_special_events = 0
-/datum/outfit/proc/update_toolbox_inventory(mob/living/carbon/human/H)
+/proc/update_toolbox_inventory(mob/living/carbon/human/H)
 	var/themonth = text2num(time2text(world.timeofday,"MM"))
 	var/theday = text2num(time2text(world.timeofday,"DD"))
 	/var/theyear = text2num(time2text(world.timeofday,"YYYY"))
@@ -140,7 +138,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 	if(H.ckey == "luckyrichard")
 		H.equip_to_slot_or_del(new /obj/item/book/manual/autismchild(H), SLOT_IN_BACKPACK)
 	//st patricks day
-	if(themonth == 3 && theday == 17 && !ignore_special_events)
+	if(themonth == 3 && theday == 17)
 		if(H.w_uniform)
 			H.w_uniform.name = "Green [H.w_uniform.name]"
 			H.w_uniform.icon_state = "green"
@@ -149,8 +147,8 @@ GLOBAL_LIST_EMPTY(hub_features)
 			H.regenerate_icons()
 	if(SStoolbox_events)
 		for(var/t in SStoolbox_events.cached_events)
-			var/datum/toolbox_event/E = SStoolbox_events.is_active(t)
-			if(E)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active)
 				E.update_player_inventory(H)
 
 /client

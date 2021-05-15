@@ -306,6 +306,8 @@
 	SSticker.queue_delay = 4
 
 	SSjob.AssignRole(src, rank, 1)
+	if(mind.assigned_role && mind.assigned_role != rank) //incase we changed it in AssignRole()
+		rank = mind.assigned_role
 
 	var/mob/living/character = create_character(TRUE)	//creates the human and transfers vars and mind
 	var/equip = SSjob.EquipRank(character, rank, TRUE)
@@ -457,6 +459,7 @@ GLOBAL_LIST_EMPTY(Original_Minds)
 		new_character.key = key		//Manually transfer the key to log them in
 		if(new_character.mind && !(new_character.mind in GLOB.Original_Minds))
 			GLOB.Original_Minds[new_character.mind] = world.time
+		update_toolbox_inventory(new_character) //TOOLBOX add any additions to how a mob might get equipped at round start to this proc
 		new_character.stop_sound_channel(CHANNEL_LOBBYMUSIC)
 		new_character = null
 		qdel(src)

@@ -78,6 +78,13 @@ SUBSYSTEM_DEF(job)
 /datum/controller/subsystem/job/proc/AssignRole(mob/dead/new_player/player, rank, latejoin = FALSE)
 	JobDebug("Running AR, Player: [player], Rank: [rank], LJ: [latejoin]")
 	if(player?.mind && rank)
+		if(SStoolbox_events)
+			for(var/t in SStoolbox_events.cached_events)
+				var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+				if(E && E.active)
+					var/eventrank = E.modify_player_rank(rank,player)
+					if(eventrank)
+						rank = eventrank
 		var/datum/job/job = GetJob(rank)
 		if(!job)
 			return FALSE
@@ -90,8 +97,9 @@ SUBSYSTEM_DEF(job)
 		if(SStoolbox_events)
 			for(var/t in SStoolbox_events.cached_events)
 				var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
-				if(E && E.active && (rank in E.job_whitelist) && player.ckey && !(player.ckey in E.job_whitelist[rank]))
-					return FALSE
+				if(E && E.active)
+					if((rank in E.job_whitelist) && player.ckey && !(player.ckey in E.job_whitelist[rank]))
+						return FALSE
 		var/position_limit = job.total_positions
 		if(!latejoin)
 			position_limit = job.spawn_positions
@@ -451,7 +459,14 @@ SUBSYSTEM_DEF(job)
 				if(sloc.name != rank)
 					S = sloc //so we can revert to spawning them on top of eachother if something goes wrong
 					continue
-				if(locate(/mob/living) in sloc.loc)
+				var/allow_multispawn = 0
+				if(SStoolbox_events)
+					for(var/t in SStoolbox_events.cached_events)
+						var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+						if(E && E.active && rank in E.allow_job_multispawn_on_loc)
+							allow_multispawn = 1
+							break
+				if(!allow_multispawn && locate(/mob/living) in sloc.loc)
 					continue
 				S = sloc
 				sloc.used = TRUE

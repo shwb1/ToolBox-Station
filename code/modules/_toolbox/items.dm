@@ -438,22 +438,6 @@ Stun bullets for the revolver and mateba
 /obj/item/gun/ballistic/revolver/mateba/rubber
 	mag_type = /obj/item/ammo_box/magazine/internal/cylinder/rubber
 
-/datum/design/rubbera357loader
-	name = "speed loader (rubber .357)"
-	id = "a357rubberloader"
-	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 28000)
-	build_path = /obj/item/ammo_box/a357/rubber
-	category = list("hacked", "Security")
-
-/datum/design/a357loader
-	name = "speed loader (.357)"
-	id = "a357loader"
-	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 28000)
-	build_path = /obj/item/ammo_box/a357
-	category = list("initial", "Security")
-
 //ak47
 /obj/item/gun/ballistic/automatic/ak47
 	name = "ak47"
@@ -543,21 +527,69 @@ Stun bullets for the revolver and mateba
 	stamina = 45
 
 //designs
-/datum/design/a357
+//revolver
+/datum/design/a357loader
+	name = "speed loader (.357)"
+	id = "a357loader"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 28000)
+	build_path = /obj/item/ammo_box/a357
+	category = list("hacked", "Security")
+
+/datum/design/rubbera357loader
+	name = "speed loader (rubber .357)"
+	id = "a357stunloader"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 28000)
+	build_path = /obj/item/ammo_box/a357/rubber
+	category = list("hacked", "Security")
+
+/datum/design/a357loader/sec
+	id = "sec_a357loader"
+	build_type = PROTOLATHE
+	category = list("Ammo")
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
+
+/datum/design/rubbera357loader/sec
+	id = "sec_a357stunloader"
+	build_type = PROTOLATHE
+	category = list("Ammo")
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
+
+//ak47
+/datum/design/ak47mag
 	name = "ak47 magazine"
-	id = "ak47lethalcasing"
+	id = "ak47mag"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 38000)
 	build_path = /obj/item/ammo_box/magazine/ak47
 	category = list("hacked","Security")
 
-/datum/design/rubbera357
+/datum/design/ak47stunmag
 	name = "ak47 rubber magazine"
-	id = "ak47rubbercasing"
+	id = "ak47stunmag"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 38000)
 	build_path = /obj/item/ammo_box/magazine/ak47/disable
-	category = list("initial","Security")
+	category = list("hacked","Security")
+
+/datum/design/ak47mag/sec
+	id = "sec_ak47mag"
+	build_type = PROTOLATHE
+	category = list("Ammo")
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
+
+/datum/design/ak47stunmag/sec
+	id = "sec_ak47stunmag"
+	build_type = PROTOLATHE
+	category = list("Ammo")
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
+
+/datum/techweb_node/base/New()
+	. = ..()
+	var/list/ourshit = list("sec_ak47mag","sec_ak47stunmag","sec_a357loader","sec_a357stunloader")
+	for(var/t in ourshit)
+		design_ids += t
 
 //golden ak
 /obj/item/gun/ballistic/automatic/ak47/gold
