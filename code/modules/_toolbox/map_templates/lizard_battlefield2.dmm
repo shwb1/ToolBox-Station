@@ -1,0 +1,107 @@
+"a" = (/turf/closed/mineral/random/volcanic,/area/space)
+"b" = (/turf/open/lava/smooth/lava_land_surface,/area/space)
+"c" = (/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"d" = (/obj/item/pickaxe,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"e" = (/obj/structure/lavaland/ash_walker/invasion/red,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"f" = (/obj/structure/lavaland/ash_walker/invasion/green,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"g" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"h" = (/obj/structure/stone_tile/block,/turf/open/lava/smooth/lava_land_surface,/area/space)
+"i" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 4},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"j" = (/obj/structure/stone_tile/block{dir = 4},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"k" = (/obj/structure/fluff/drake_statue,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"l" = (/obj/structure/stone_tile/block{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"m" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"n" = (/obj/structure/stone_tile/block{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"o" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/center,/turf/open/lava/smooth/lava_land_surface,/area/space)
+"p" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/center,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"q" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/center/cracked,/turf/open/lava/smooth/lava_land_surface,/area/space)
+"r" = (/obj/structure/fluff/drake_statue/falling,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"s" = (/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/center/cracked,/turf/open/lava/smooth/lava_land_surface,/area/space)
+"t" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile/cracked{dir = 1},/obj/structure/stone_tile/center,/turf/open/lava/smooth/lava_land_surface,/area/space)
+"u" = (/turf/closed/indestructible/riveted/boss,/area/space)
+"v" = (/obj/structure/stone_tile/cracked,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"w" = (/obj/structure/stone_tile/cracked{dir = 4},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"x" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"y" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"z" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block/cracked{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"A" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"B" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"C" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block/cracked{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"D" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"E" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"F" = (/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/structure/stone_tile/block{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
+"G" = (/obj/structure/stone_tile/block/cracked{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"L" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block{dir = 1},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+
+(1,1,1) = {"
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbaaaaaaaaaaaaacccbbbbbbcccccbbbbaaacccccaaabbbaaacccccaaabbbbcccccbbbbbbccccaaaaaaaaaaaaabbbbbb
+bbbbbaaaaaaaaaaaaacccccbbbccccccccbbaaaaaccccccaaaaaccccccaaaaabbccccccccbbbccccccaaaaaaaaaaaaabbbbb
+bbbbaaaaaaaaaccaaccccccccccccccccccaaaaacccccccccccccccccccaaaaacccccccccccccccccccaaccaaaaaaaaabbbb
+bbbaaaaaaaaaccccaccccccccccccccccccccaaacccccccccccccccccccaaacccccccccccccccccccccaccccaaaaaaaaabbb
+bbaaaaaaaaacccccccccccccccccccccbbccccacccccccccccccccccccccaccccbbccccccccccccccccccccccaaaaaaaaabb
+bbbaaaaaacccccccccccccccccccccccbbbcccccccccccccccccccccccccccccbbbccccccccccccccccccccccccaaaaaabbb
+bbbaaaaaccccccccccccccccccccccccbbbcccccccccccccccccccccccccccccbbbcccccccccccccccccccccccccaaaaabbb
+bbbaaaccccccccccccccccccccccccccbbbccccccccccccccccaacccccccccccbbbcccccccccccccccccccccccccccaaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbbbbbacccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbghibccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbjklbccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbmnobccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccuubbbuuccccccccccbbbbbccccccccccuubbbuuccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccvLyzAxwccccccccccaaaccccccccccccvLyzAxwccccccccccccccccccccccccccaabbb
+bbbaaccccccccccccccccccccccccGwBBCALcvccccccccccaaaccccccccccGwBBCALcvcccccccccccccccccccccccccaabbb
+bbbaaccccccccccccccccccccccccvcxDEFBvccccccccccccaaacccccccccvcxDEFBvccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccuubbbuuccccccccccbbbbbccccccccccuubbbuuccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbphqbccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbjrlbccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccbsntbccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbcccccccccccabbbbbccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbcccccccccccaaccccccccccccccccbbbccccccccccccccccccccccccccccaabbb
+bbbaacccccccccccccccccccccccccccbbbccccccccccccccccccccccccccccabbbccccccccccccccccccccccccccccaabbb
+bbbaaaccccccccccccccccccccccccccbbbcccccccccccccccccccccccccccaabbbcccccccccccccccccccccccccccaaabbb
+bbbaaaacccccccccccccccccccccccccbbbcccaacccccccccccccccccccccaaabbbccccccccccccccccccccccccccaaaabbb
+bbbaaaaaacccccccccccccccccccccccbbbcccaacccccccccacccccccccccaaabbbccccccccccccccccccccccccaaaaaabbb
+bbbaaaaaaaccccccccccccccccccccccbbbcccccccccccccaaacccccccccaaaabbbcccccccccccccccccccccccaaaaaaabbb
+bbbaaaaaaaccccccccccccccccccccccbbbbcccccccccccaaaaaccccccccaaabbbbcccccccccccccccccccccccaaaaaaabbb
+bbbaaaaaacccccccccccccccccccccccbbbbbccccccccccaabaacccccccaaabbbbbccccccccccccccccccccccccaaaaaabbb
+bbbaaaaaaccccaacccccccccccccccccbbbbbbbbbbbbbccabbbaccbbbbbbbbbbbbbcccccccccccccccccaacccccaaaaaabbb
+bbbaaaaaccccaaaacccccccccccccccaabbbbbbbbbbbbcccbbbcccbbbbbbbbbbbbaacccccccccccccccaaaacccccaaaaabbb
+bbbaaaaccccccaaaacccccccccccccaaaabbbbbbbbbbbcccbbbcccbbbbbbbbbbbaaaacccccccccccccaaaacccccccaaaabbb
+bbaaaaccccccaaaaccccccccccccccaaaaaaaaaaaaaacccaabaacccaaaaaaaaaaaaaaccccccccccccccaaaacccccccaaaabb
+bbbaaccccccaaaaccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccccccccccaaaacccccccaabbb
+bbbaacccccccaaccccccccaccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccaccccccccaaccccccccaabbb
+bbbaaccccccccccccccccaaaccccccccaaaaaaaaaaaaaaaabbbaaaaaaaaaaaaaaaaccccccccaaacccccccccccccccccaabbb
+bbbaacccccccccccccccbbaaacccccaaaaaaaaaaaaaaaaaabbbaaaaaaaaaaaaaaaaaaaccccaaabbccccccccccccccccaabbb
+bbbaacccccccccccccbbbbbaaaccaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaacaaabbbbbccccccccccccccaabbb
+bbbaaaccccccaaaaaaaaabbbaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaabbbaaaaaaaaaaccccccaaabbb
+bbbaaaaccccaaaaaaaaaaabbaaaaabbbcaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacbbbaaaabbbaaaaaaaaaaaaccccaaaabbb
+bbbaaaaaaaaaaaaaaaaaaabbbbbbbbaaccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccaabbbbbbbbaaaaaaaaaaaaaaaaaaaabbb
+bbbaaaaaaaaaaaaaaaaaabbaabbaaaaccaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaccaaaabbaabbaaaaaaaaaaaaaaaaaaabbb
+bbbaaaaacdaaaaaaaaaaaaaaaaaaaaaccaaaaaaaaaaaaaaabbbaaaaaaaaaaaaaaaccaaaaaaaaaaaaaaaaaaaaaadcaaaaabbb
+bbbaaaaccccaaaaaaaaaaaaaaaaaaaccdccaaaaaaaaaaaaabbbaaaaaaaaaaaaaccdccaaaaaaaaaaaaaaaaaaaaccccaaaabbb
+bbbaaaaccccaaaccccccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacccccccccccccccccccccaaaccccaaaabbb
+bbbaaaccccccacccccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccccccccccccccaccccccaaabbb
+bbbaaccccccccccccccccbbccccccccbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabccccccccbbcccccccccccccccccaabbb
+bbbaccccccccccccccccbbbbbbbbbbbbbaabbbbbbbbbbbaaaaaaabbbbbbbbbbbaabbbbbbbbbbbbbcccccccccccccccccabbb
+bbbcccccccccccccccccbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccbbb
+bbbcccccccaccccccccaabbbccccccaabbbbaaaaaaaaabbbaaabbbaaaaaaaaabbbbaaccccccbbbaacccccccccacccccccbbb
+bbbccccccaaaccccccaaaaaccccccccaaaaaaaaaaaaaaabbbbbbbaaaaaaaaaaaaaaaccccccccaaaaacccccccaaaccccccbbb
+bbbccccaaaaccccccaaaaacccaaaacccaaaaaaaaaaaaaaabbbbbaaaaaaaaaaaaaaacccaaaacccaaaaacccccccaaaaccccbbb
+bbbcccccaacccccccaaaccccccaaccccccccccccccccaaabbabbaaaccccccccccccccccaaccccccaaaccccccccaacccccbbb
+bbbccccccccccccccaaacccccccccccccccccccccccccaabbabbaacccccccccccccccccccccccccaaacccccccccccccccbbb
+bbbbccccccccccccccaccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccacccccccccccccccbbbb
+bbbbcccccccccccccccccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccccccccccccccccccbbbb
+bbbcccccccccccccccccccccccccccccccccbbbccccccaabbabbaaccccccbbbccccccccccccccccccccccccccccccccccbbb
+bbbcccccccccccccccccccccccccccccccccbebccccccaabbabbaaccccccbfbccccccccccccccccccccccccccccccccccbbb
+bbbcccccccccccccccccccccccccccccccccbbbccccccaabbabbaaccccccbbbccccccccccccccccccccccccccccccccccbbb
+bbabcccccccccccccccccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccccccccccccccccccbabb
+bbbbbaacccccccccccaccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccaccccccccccccaabbbbb
+bbbbaaaacccccccccaaaccccccccccccccccccccccccaaabbabbaaaccccccccccccccccccccccccaaaccccccccccaaaabbbb
+bbbbbaaaaacccccccaaaccccccbaaaaaaaaaaaaaaaaaaaabbbbbaaaaaaaaaaaaaaaaaaaabccccccaaaccccccccaaaaabbbbb
+bbbbbbaaaaacccccaaaaacccbbbaaaaaaaaaaaaaaaaaaabbbbbbbaaaaaaaaaaaaaaaaaaabbbcccaaaaaccccccaaaaabbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+"}
