@@ -1,107 +1,176 @@
-"a" = (/turf/closed/mineral/random/volcanic,/area/space)
-"b" = (/turf/open/lava/smooth/lava_land_surface,/area/space)
-"c" = (/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"d" = (/obj/item/pickaxe,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"e" = (/obj/structure/lavaland/ash_walker/invasion/red,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"f" = (/obj/structure/lavaland/ash_walker/invasion/green,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"g" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"h" = (/obj/structure/stone_tile/block,/turf/open/lava/smooth/lava_land_surface,/area/space)
-"i" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 4},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"j" = (/obj/structure/stone_tile/block{dir = 4},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"k" = (/obj/structure/fluff/drake_statue,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"l" = (/obj/structure/stone_tile/block{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"m" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"n" = (/obj/structure/stone_tile/block{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"o" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/center,/turf/open/lava/smooth/lava_land_surface,/area/space)
-"p" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/center,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"q" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/center/cracked,/turf/open/lava/smooth/lava_land_surface,/area/space)
-"r" = (/obj/structure/fluff/drake_statue/falling,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"s" = (/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/center/cracked,/turf/open/lava/smooth/lava_land_surface,/area/space)
-"t" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile/cracked{dir = 1},/obj/structure/stone_tile/center,/turf/open/lava/smooth/lava_land_surface,/area/space)
-"u" = (/turf/closed/indestructible/riveted/boss,/area/space)
-"v" = (/obj/structure/stone_tile/cracked,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"w" = (/obj/structure/stone_tile/cracked{dir = 4},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"x" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"y" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"z" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block/cracked{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"A" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"B" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"C" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block/cracked{dir = 1},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"D" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"E" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"F" = (/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/structure/stone_tile/block{dir = 8},/turf/open/lava/smooth/lava_land_surface,/area/space)
-"G" = (/obj/structure/stone_tile/block/cracked{dir = 8},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
-"L" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block{dir = 1},/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/space)
+"aa" = (/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ab" = (/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"ac" = (/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"ad" = (/obj/effect/mapping_helpers/no_lava,/turf/closed/mineral/random/volcanic,/area/lavaland/surface/outdoors)
+"ae" = (/obj/structure/stone_tile/block/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"af" = (/obj/effect/mapping_helpers/no_lava,/turf/closed/indestructible/riveted/boss,/area/ruin/unpowered/ash_walkers)
+"ag" = (/turf/closed/mineral/random/volcanic,/area/lavaland/surface/outdoors)
+"ah" = (/turf/closed/indestructible/riveted/boss,/area/ruin/unpowered/ash_walkers)
+"ai" = (/obj/effect/mapping_helpers/no_lava,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"aj" = (/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"ak" = (/obj/effect/mapping_helpers/no_lava,/turf/closed/mineral/random/volcanic,/area/ruin/unpowered/ash_walkers)
+"al" = (/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"am" = (/obj/effect/mapping_helpers/no_lava,/turf/closed/indestructible/riveted/boss,/area/lavaland/surface/outdoors)
+"an" = (/obj/effect/mapping_helpers/no_lava,/obj/effect/mapping_helpers/no_lava,/turf/closed/indestructible/riveted/boss,/area/lavaland/surface/outdoors)
+"ao" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/hivelord/legion/random,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"ap" = (/obj/structure/pike_torch,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aq" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/goliath/beast/random,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ar" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/goliath/beast/random,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"as" = (/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"at" = (/obj/structure/stone_tile/block/cracked{dir = 1},/obj/structure/stone_tile/block,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"au" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"av" = (/obj/structure/stone_tile/block,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aw" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"ax" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/center,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"ay" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/center/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"az" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/block{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aA" = (/obj/structure/stone_tile/block{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aB" = (/obj/structure/fluff/drake_statue,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aC" = (/obj/structure/stone_tile/block{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aD" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aE" = (/obj/structure/fluff/drake_statue/falling,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aF" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/hivelord/legion/random,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"aG" = (/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/center/cracked,/obj/structure/stone_tile/surrounding_tile/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aH" = (/obj/structure/stone_tile/block{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aI" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/center,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aJ" = (/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/center/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aK" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile/cracked{dir = 1},/obj/structure/stone_tile/center,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aL" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aM" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aN" = (/obj/structure/stone_tile/cracked,/obj/structure/barricade/wooden{color = "#999999"; max_integrity = 40},/obj/structure/barricade/wooden/crude{color = "#999999"; max_integrity = 20},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"aO" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"aP" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"aQ" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"aR" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"aS" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aT" = (/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/pike_torch,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aU" = (/obj/structure/stone_tile/block{dir = 8},/obj/structure/stone_tile/surrounding_tile,/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aV" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/structure/stone_tile/cracked{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aW" = (/obj/structure/stone_tile/block{dir = 4},/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aX" = (/obj/structure/stone_tile/cracked,/obj/structure/pike_torch,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aY" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"aZ" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"ba" = (/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/barricade/wooden{color = "#999999"; max_integrity = 40},/obj/structure/barricade/wooden/crude{color = "#999999"; max_integrity = 20},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bb" = (/obj/structure/spawner/lavaland/legion,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bc" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bd" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"be" = (/obj/structure/stone_tile/block/cracked,/obj/structure/stone_tile/block/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"bf" = (/obj/structure/stone_tile/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bg" = (/obj/structure/stone_tile/block/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bh" = (/obj/structure/stone_tile/cracked{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bi" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bj" = (/obj/structure/barricade/wooden{color = "#999999"; max_integrity = 40},/obj/structure/barricade/wooden/crude{color = "#999999"; max_integrity = 20},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bk" = (/obj/structure/stone_tile/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bl" = (/obj/structure/stone_tile/cracked,/obj/item/pickaxe,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bm" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/cracked{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"bn" = (/obj/structure/stone_tile/block/cracked{dir = 4},/obj/structure/stone_tile/block{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bo" = (/obj/structure/stone_tile/cracked,/obj/structure/stone_tile/cracked{dir = 1},/obj/structure/stone_tile/block{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/lavaland/surface/outdoors)
+"bp" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/basilisk/watcher/random,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bq" = (/obj/item/pickaxe,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"br" = (/obj/structure/stone_tile/surrounding_tile,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bs" = (/obj/structure/stone_tile/block/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bt" = (/obj/structure/stone_tile/surrounding_tile{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bu" = (/obj/structure/stone_tile/cracked{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bv" = (/obj/structure/stone_tile/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bw" = (/obj/structure/stone_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bx" = (/obj/structure/stone_tile/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"by" = (/obj/structure/stone_tile/surrounding_tile{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bz" = (/obj/structure/stone_tile/block/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bA" = (/obj/structure/stone_tile/block{dir = 4},/obj/structure/stone_tile/block{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bB" = (/obj/structure/stone_tile/surrounding_tile{dir = 4},/obj/effect/mapping_helpers/no_lava,/turf/open/lava/smooth/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bC" = (/obj/structure/stone_tile/block/cracked{dir = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bD" = (/obj/structure/pike_torch,/obj/structure/stone_tile/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bE" = (/obj/structure/pike_torch,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bF" = (/obj/effect/mapping_helpers/no_lava,/obj/effect/mapping_helpers/no_lava,/turf/closed/mineral/random/volcanic,/area/lavaland/surface/outdoors)
+"bG" = (/obj/effect/mapping_helpers/no_lava,/obj/effect/mapping_helpers/no_lava,/turf/closed/indestructible/riveted/boss,/area/ruin/unpowered/ash_walkers)
+"bH" = (/obj/structure/closet/crate/wooden{color = "#999999"},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bI" = (/obj/structure/pike_torch,/obj/structure/stone_tile/cracked{dir = 8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bJ" = (/obj/structure/pike_torch,/obj/structure/stone_tile/cracked,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bK" = (/obj/structure/bonfire/prelit/waitforatmos{density = 1},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bL" = (/obj/effect/mapping_helpers/no_lava,/turf/closed/wall/mineral/wood/nonmetal,/area/ruin/unpowered/ash_walkers)
+"bM" = (/obj/effect/mapping_helpers/no_lava,/turf/closed/wall/mineral/wood/nonmetal,/area/lavaland/surface/outdoors)
+"bN" = (/obj/structure/table/wood,/obj/item/flashlight/lantern{icon_state = "lantern-on"},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bO" = (/obj/structure/table/wood,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bP" = (/obj/effect/decal/cleanable/blood/old,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bQ" = (/obj/effect/decal/cleanable/blood,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bR" = (/obj/structure/closet/crate/wooden{color = "#999999"},/obj/item/ammo_casing/caseless/arrow/wood,/obj/item/ammo_casing/caseless/arrow/wood{pixel_x = 6},/obj/item/ammo_casing/caseless/arrow/wood,/obj/item/ammo_casing/caseless/arrow/wood{pixel_x = -8},/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bS" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/gutlunch/gubbuck,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bT" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/gutlunch/guthen,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/lavaland/surface/outdoors)
+"bU" = (/obj/item/twohanded/bonespear,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bV" = (/obj/structure/lavaland/ash_walker/invasion/red,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bW" = (/obj/structure/lavaland/ash_walker/invasion/green,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bX" = (/obj/effect/mapping_helpers/no_lava,/mob/living/simple_animal/hostile/asteroid/gutlunch/grublunch,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
+"bY" = (/obj/structure/closet/crate/wooden{color = "#999999"},/obj/item/pickaxe,/obj/effect/mapping_helpers/no_lava,/turf/open/floor/plating/asteroid/basalt/lava_land_surface,/area/ruin/unpowered/ash_walkers)
 
 (1,1,1) = {"
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbaaaaaaaaaaaaacccbbbbbbcccccbbbbaaacccccaaabbbaaacccccaaabbbbcccccbbbbbbccccaaaaaaaaaaaaabbbbbb
-bbbbbaaaaaaaaaaaaacccccbbbccccccccbbaaaaaccccccaaaaaccccccaaaaabbccccccccbbbccccccaaaaaaaaaaaaabbbbb
-bbbbaaaaaaaaaccaaccccccccccccccccccaaaaacccccccccccccccccccaaaaacccccccccccccccccccaaccaaaaaaaaabbbb
-bbbaaaaaaaaaccccaccccccccccccccccccccaaacccccccccccccccccccaaacccccccccccccccccccccaccccaaaaaaaaabbb
-bbaaaaaaaaacccccccccccccccccccccbbccccacccccccccccccccccccccaccccbbccccccccccccccccccccccaaaaaaaaabb
-bbbaaaaaacccccccccccccccccccccccbbbcccccccccccccccccccccccccccccbbbccccccccccccccccccccccccaaaaaabbb
-bbbaaaaaccccccccccccccccccccccccbbbcccccccccccccccccccccccccccccbbbcccccccccccccccccccccccccaaaaabbb
-bbbaaaccccccccccccccccccccccccccbbbccccccccccccccccaacccccccccccbbbcccccccccccccccccccccccccccaaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbbbbbacccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbghibccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbjklbccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbmnobccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccuubbbuuccccccccccbbbbbccccccccccuubbbuuccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccvLyzAxwccccccccccaaaccccccccccccvLyzAxwccccccccccccccccccccccccccaabbb
-bbbaaccccccccccccccccccccccccGwBBCALcvccccccccccaaaccccccccccGwBBCALcvcccccccccccccccccccccccccaabbb
-bbbaaccccccccccccccccccccccccvcxDEFBvccccccccccccaaacccccccccvcxDEFBvccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccuubbbuuccccccccccbbbbbccccccccccuubbbuuccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbphqbccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbjrlbccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccbsntbccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbcccccccccccabbbbbccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbcccccccccccaaccccccccccccccccbbbccccccccccccccccccccccccccccaabbb
-bbbaacccccccccccccccccccccccccccbbbccccccccccccccccccccccccccccabbbccccccccccccccccccccccccccccaabbb
-bbbaaaccccccccccccccccccccccccccbbbcccccccccccccccccccccccccccaabbbcccccccccccccccccccccccccccaaabbb
-bbbaaaacccccccccccccccccccccccccbbbcccaacccccccccccccccccccccaaabbbccccccccccccccccccccccccccaaaabbb
-bbbaaaaaacccccccccccccccccccccccbbbcccaacccccccccacccccccccccaaabbbccccccccccccccccccccccccaaaaaabbb
-bbbaaaaaaaccccccccccccccccccccccbbbcccccccccccccaaacccccccccaaaabbbcccccccccccccccccccccccaaaaaaabbb
-bbbaaaaaaaccccccccccccccccccccccbbbbcccccccccccaaaaaccccccccaaabbbbcccccccccccccccccccccccaaaaaaabbb
-bbbaaaaaacccccccccccccccccccccccbbbbbccccccccccaabaacccccccaaabbbbbccccccccccccccccccccccccaaaaaabbb
-bbbaaaaaaccccaacccccccccccccccccbbbbbbbbbbbbbccabbbaccbbbbbbbbbbbbbcccccccccccccccccaacccccaaaaaabbb
-bbbaaaaaccccaaaacccccccccccccccaabbbbbbbbbbbbcccbbbcccbbbbbbbbbbbbaacccccccccccccccaaaacccccaaaaabbb
-bbbaaaaccccccaaaacccccccccccccaaaabbbbbbbbbbbcccbbbcccbbbbbbbbbbbaaaacccccccccccccaaaacccccccaaaabbb
-bbaaaaccccccaaaaccccccccccccccaaaaaaaaaaaaaacccaabaacccaaaaaaaaaaaaaaccccccccccccccaaaacccccccaaaabb
-bbbaaccccccaaaaccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccccccccccaaaacccccccaabbb
-bbbaacccccccaaccccccccaccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccaccccccccaaccccccccaabbb
-bbbaaccccccccccccccccaaaccccccccaaaaaaaaaaaaaaaabbbaaaaaaaaaaaaaaaaccccccccaaacccccccccccccccccaabbb
-bbbaacccccccccccccccbbaaacccccaaaaaaaaaaaaaaaaaabbbaaaaaaaaaaaaaaaaaaaccccaaabbccccccccccccccccaabbb
-bbbaacccccccccccccbbbbbaaaccaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaacaaabbbbbccccccccccccccaabbb
-bbbaaaccccccaaaaaaaaabbbaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaabbbaaaaaaaaaaccccccaaabbb
-bbbaaaaccccaaaaaaaaaaabbaaaaabbbcaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacbbbaaaabbbaaaaaaaaaaaaccccaaaabbb
-bbbaaaaaaaaaaaaaaaaaaabbbbbbbbaaccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccaabbbbbbbbaaaaaaaaaaaaaaaaaaaabbb
-bbbaaaaaaaaaaaaaaaaaabbaabbaaaaccaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaccaaaabbaabbaaaaaaaaaaaaaaaaaaabbb
-bbbaaaaacdaaaaaaaaaaaaaaaaaaaaaccaaaaaaaaaaaaaaabbbaaaaaaaaaaaaaaaccaaaaaaaaaaaaaaaaaaaaaadcaaaaabbb
-bbbaaaaccccaaaaaaaaaaaaaaaaaaaccdccaaaaaaaaaaaaabbbaaaaaaaaaaaaaccdccaaaaaaaaaaaaaaaaaaaaccccaaaabbb
-bbbaaaaccccaaaccccccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacccccccccccccccccccccaaaccccaaaabbb
-bbbaaaccccccacccccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccccccccccccccccccccaccccccaaabbb
-bbbaaccccccccccccccccbbccccccccbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabccccccccbbcccccccccccccccccaabbb
-bbbaccccccccccccccccbbbbbbbbbbbbbaabbbbbbbbbbbaaaaaaabbbbbbbbbbbaabbbbbbbbbbbbbcccccccccccccccccabbb
-bbbcccccccccccccccccbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccbbb
-bbbcccccccaccccccccaabbbccccccaabbbbaaaaaaaaabbbaaabbbaaaaaaaaabbbbaaccccccbbbaacccccccccacccccccbbb
-bbbccccccaaaccccccaaaaaccccccccaaaaaaaaaaaaaaabbbbbbbaaaaaaaaaaaaaaaccccccccaaaaacccccccaaaccccccbbb
-bbbccccaaaaccccccaaaaacccaaaacccaaaaaaaaaaaaaaabbbbbaaaaaaaaaaaaaaacccaaaacccaaaaacccccccaaaaccccbbb
-bbbcccccaacccccccaaaccccccaaccccccccccccccccaaabbabbaaaccccccccccccccccaaccccccaaaccccccccaacccccbbb
-bbbccccccccccccccaaacccccccccccccccccccccccccaabbabbaacccccccccccccccccccccccccaaacccccccccccccccbbb
-bbbbccccccccccccccaccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccacccccccccccccccbbbb
-bbbbcccccccccccccccccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccccccccccccccccccbbbb
-bbbcccccccccccccccccccccccccccccccccbbbccccccaabbabbaaccccccbbbccccccccccccccccccccccccccccccccccbbb
-bbbcccccccccccccccccccccccccccccccccbebccccccaabbabbaaccccccbfbccccccccccccccccccccccccccccccccccbbb
-bbbcccccccccccccccccccccccccccccccccbbbccccccaabbabbaaccccccbbbccccccccccccccccccccccccccccccccccbbb
-bbabcccccccccccccccccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccccccccccccccccccbabb
-bbbbbaacccccccccccaccccccccccccccccccccccccccaabbabbaaccccccccccccccccccccccccccaccccccccccccaabbbbb
-bbbbaaaacccccccccaaaccccccccccccccccccccccccaaabbabbaaaccccccccccccccccccccccccaaaccccccccccaaaabbbb
-bbbbbaaaaacccccccaaaccccccbaaaaaaaaaaaaaaaaaaaabbbbbaaaaaaaaaaaaaaaaaaaabccccccaaaccccccccaaaaabbbbb
-bbbbbbaaaaacccccaaaaacccbbbaaaaaaaaaaaaaaaaaaabbbbbbbaaaaaaaaaaaaaaaaaaabbbcccaaaaaccccccaaaaabbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+aaaaaaababababababababababababababababababababababababababababababacacacacacacacababacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaa
+aaaaabababababababababababababababababababababababababababababababacacacacacacacababacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaa
+aaababababababababababababababababababababababababababababababababacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaa
+aaabababababadadadadadadadadadadadadadaaaaaaabababababababaaaaaaaaacacacacafafafafafafafafafafafacacacafafafafafafafafafafafacacacacaaaaaaaaacacacacacacacaaaaaaaaadadadadadadadadadadadadadacacacacacac
+abababababadadadadadadadadadadadadadaaaaaaaaaaabababadadaaaaaaaaaaaiacacafafakakakalalalalakakafafafafafakakalalalalakakakafafacacaaaaaaaaaaaaadadacacacaaaaaaaaaaaaadadadadadadadadadadadadadacacacacac
+ababababadadadadadadadadadaaaaadadaaaaaaaaaaaaaaaaadadadaaaaaaaaaaaiaiafafakakakalalalalalalakakalalalakakalalalalalalakakakafafaaaaaaaaaaaaaaadadadaaaaaaaaaaaaaaaaaaadadaaaaadadadadadadadadadacacacac
+abababadadadadadadadadadaaaaaaaaadaaaaaaaaaaaaaaaaaaadaaaaaaadadamaiaialalakakakalalalalalalalalalalalalalalalalalalalakakakalalaaaaamadadaaaaaaadaaaaaaaaaaaaaaaaaaaaadaaaaaaaaadadadadadadadadadacacac
+abababadadadadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadamanaialalalakalalalalalalalalalalalalalalalalalalalalalakalalalaaamamadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadadadadacacac
+abababadadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadamadalalalalalaoalalapakalalalalalalalalalakapalalaoalalalalaladamadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadadacacac
+abababadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaqaaaaaaaaaaaaadadacamadakalalalalalalalakakakalalalaralalalakakakalalalalalalalakadamacadadaaaaaaaaaaaaaqaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadacacac
+abababadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacadakakalalalalalalalakakakalalalalalakakakalalalalalalalakakadacacadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacadakakakapakasasatasasakakakakalakakakakasasatasasakapakakakadacacadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacacakakakakakasauavawasalakakakakakakakalasaxavayasakakakakakacacacadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaadadaaaaaaaaaaaaaaaaaaadadadacacacakakakakakazaAaBaCaDalalalalakalalalalazaAaEaCaDakakakakakacacacadadadaaaaaaaaaaaaaaaaaaadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadadadaaaFaaaaaaaaaaaaaaadadadadadadaaaaaaaaaaaaaaaaadadadacacacakalakakakasaGaHaIasalalalalalalalalalasaJaHaKasakakakalakacacacadadadaaaaaaaaaaaaaaaaadadadadadadaaaaaaaaaaaaaaaaaFaaadadadacacac
+abababadadadaaaaaaaaaaaaaaaaadadadadadadaaaaaaaaaaaaaaaaaaadadadacacacafalalakakasasaLasasalalalalalalalalalasasaLasasakakalalafacacacadadadaaaaaaaaaaaaaaaaaaadadadadadadaaaaaaaaaaaaaaaaaaadadadacacac
+ababababadadadaaaaaaaaaaadadadadadadaaaaaaaaaaaaaaaaaaaaadadadaaacacacafalalakalalalalalalalalalalaMalalalalalalalalalalakalalafacacacaaadadadaaaaaaaaaaaaaaaaaaaaadadadadadadaaaaaaaaaaaaadadadacacacac
+ababababadadadaaaaaaaaadadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadaaacacacafalalalalalalalalalalapalalaMalalapalalalalalalalalalalafacacacaaadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadadaaaaaaaaaaadadadacacacac
+abababadadadadaaaaaaaaadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadamamacacacafafalalalalalalalalalalalalaMalalalalalalalalalalalalafafacacacamamadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaadadadadacacac
+abababadadadaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadaNaOaPaQaRaSaTalalalalalalalalalalalaUaVaWalalalalalalalalalalalaXaYaPaQaRaZbaadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaadadadacacac
+abababadadaaaaaaaaaaaaaaadadadaaaaaaaabbaaaaaaaaaaadadadadbcbabdbdbeaRaYalbfalalalalalalalalalalalalalalalalalalalalalalalbgbhbibdbeaRaObjbkadadadadaaaaaaaaaabbaaaaaaaaadadadaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaadadadaaaaaaaaaaaaaaaaaaaaadadadadblbjaZbmbnbobiaXalalalalbpalalalalalalalalalalalalalalalbpalalalbfapaSbmbnbobdaNbqadadadadadaaaaaaaaaaaaaaaaaaadadadaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaadadadadadadamamacacacafafalalalalalalalalalalalalalalalalalalalalalalalalalafafacacacamamadadadadadadadaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaadadadadadadadaaaaacacacakalalalalalalalbrbsaCaCaCaCaCaCbtaCaCbsbtalalalalalalalakacacacaaaaadadadadadadadaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaadadadadadaaaaaaaaadadadadadadadaaaaaaaaacacacakalalalalalalalbuasasasasasbvasasasasasbwalalalalalalalakacacacaaaaaaaaadadadadadadadaaaaaaaaadadadadadaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaaaadadadadadadadadadadadadadaaaaaaaaaaaaacacacakakalalalalalalbvasaCasasasasasasaCasasbxalalalalalalakakacacacaaaaaaaaaaaaadadadadadadadadadadadadadaaaaaaaaaaaaaaaaaaadadacacac
+abababadadadaaaaaaaaaaaaaaaaaaadadadadadadadadadaaaaaaaaaaaaaaaaacacacakakalalalalalalbybzbAaAaAbyaAaAaAbAaAbzbBalalalalalalakakacacacaaaaaaaaaaaaaaaaadadadadadadadadadaaaaaaaaaaaaaaaaaaaaadadadacacac
+abababadadadadaaaaaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaaaaaacacacacakakakalalalalalalalalalalalalalalalalalalalalalalalakakakacacacacaaaaaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaaaaaaaadadadadacacac
+ababababadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacacakakakalalalalalalalalalalalalalalalalalalalalalalalakakakacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadacacacac
+abababababadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacacacakakakakalalalalalalalalalalalalalalalalalalalalalakakakakacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadacacacacac
+ababababababadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacacacacakakakakalalalalalapbfbhbfbCbfbhalbDalalalalalakakakakacacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadacacacacacac
+ababababadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacacacacakakakafafafafafafaSaSafafafbiaSafafafafafafakakakacacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadacacacac
+abababadadadadadadaaaaaaaaadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaamamacacacacacacacacacacacacacamaQaRamacamaPaQamacacacacacacacacacacacacacamamaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadaaaaaaaaaaadadadadadadacacac
+abababadadadadadaaaaaaaaadadadadaaaaaaaaaaaaaaaaaabEaaaaaaamamadadacacacacacacacacacacacacacbeaRacacacbdbeacacacacacacacacacacacacacadadamamaaaaaabEaaaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaadadadadadacacac
+abababadadadadaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaaaafalalafadadadbFacacacacacacacacacacacambnboamacambmbnamacacacacacacacacacacacadadadadafalalafaaaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaadadadadacacac
+abababadadadaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaafafbGalalafafadadbFadadadadadadadadadadaaambdaZamamamaZaZamaaadadadadadadadadadadadadadafafalalafafafaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaadadadacacac
+abababadadaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaaaafafbHalalalalafafadbFadadadadadadadadadadadbIaeadadadadadaebJadadadadadadadadadadadadadafafalalalalbHafafaaaaaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaadadaaaaaaaaaaaaaaaaadafalalalalalalajakadbFadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadakalalalalalalalafadaaaaaaaaaaaaaaaaadadaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadafalalbKalajajajajadbFadadadadadadadadadadadadadadacacacadadadadadadadadadadadadadadadadalalalalalbKalalafadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababadahahajajajajajahahagadadadadadadadadadadadadadadadacacacadadadadadadadadadadadadadadadadafafalalalalalafafadacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaabababababadahahajajahahahadagadadadadadadadadadadadadadadadadacadadadadadadadadadadadadadadadadadadafafafalalafafadacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadadadaaaaaaaaaaaaadadadadadadadadadabababadahahahahadadabagadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadacadadafafafafadacacacadadadadadadadadadadaaaaaaaaaaaaadadadacacac
+abababadadadadaaaaaaaaadadadadadadadadadadadababadadadadadabababaaadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadaaacacacadadadadacacacadadadadadadadadadadadadaaaaaaaaadadadadacacac
+abababadadadadadadadadadadadadadadadadadadadababababababababadadaaaaadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadaaaaadadacacacacacacacacadadadadadadadadadadadadadadadadadadadadacacac
+abababadadadadadadadadadadadadadadadadadadababadadababadadadadaaaaadadadadadadadadadadadadadadadadacadadadadadadadadadadadadadadadadaaaaadadadadacacadadacacadadadadadadadadadadadadadadadadadadadacacac
+abababadadadadadaabqadadadadadadadadadadadadadadadadadadadadadaaaaadadadadadadadadadadadadadadadacacacadadadadadadadadadadadadadadadaaaaadadadadadadadadadadadadadadadadadadadadadadbqaaadadadadadacacac
+abababadadadadbEaaaabEadadadadadaaaaadadadadadadadadadadadadbEaabqaaaaadadadadadadadadadadadadadacacacadadadadadadadadadadadadadaaaabqaabEadadadadadadadadadadadadadaaaaadadadadadbEaaaabEadadadadacacac
+abababadadadadaaaaaaaaadadadaaaaaaaaaaaaaaaaaaaaaaaaadadaaaaaaaaaaaaadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadaaaaaaaaaaaaadadaaaaaaaaaaaaaaaaaaaaaaaaaaadadadaaaaaaaaadadadadacacac
+abababadadadaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaadadadacacac
+abababadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababaaaaaaaaaaaaaaaaabagadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadacaaaaaaaaaaaaaaaaacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadacacac
+abababadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababaaaaabababababadadacacacacacacacacacacacadadadadadadadacacacacacacacacacacacadadacacacacacaaaaacacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadacacac
+abababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabababababababababababababacacacacacacacacacacacacacacadadadadadacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacac
+abababaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaabFadacacacaaaaaaaaaaaaadadacacacacakakakakakakakakakacacacadadadacacacakakakakakakakakakacacacacadadaaaaaaaaaaaaacacacadadaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaacacac
+abababaaaaaaaaaaaaadadadaaaaaaaaaaaaadbFadadadaaaaaaaaaaaaaaaaadakakakakakakakakakakakakakakacacacacacacacakakakakakakakakakakakakakakadaaaaaaaaaaaaaaaaadadadadadaaaaaaaaaaaaaaadadadaaaaaaaaaaaaacacac
+abababaaaaaaaaadadadadaaaaaaaaaaaaadadadadadaaaaaaadadadadbLalbLakakakakakakakakakakakakakakakacacacacacakakakakakakakakakakakakakakakbLalbLadadadadaaaaaaadadadadadaaaaaaaaaaaaaaadadadadaaaaaaaaacacac
+abababaaaaaaaaaaadadbEaaaaaaaaaaaaadadadaaaaaaaaaaaaadadbMbLalalalakakbNbObOalalakakbHalakakakacacadacacakakakalbHakakalalbObObNakakalalalbLbMadadaaaaaaaaaaaaadadadaaaaaaaaaaaaaabEadadaaaaaaaaaaacacac
+abababaaaaaaaaaaaaaaaaaaaaaaaaaaaaadadadaaaaaaaabEaaaabMbMbPalalalalalalalalalbQalalalalbRakakacacadacacakakbRalalalalbQalalalalalalalalalbPbMbMaaaabEaaaaaaaaadadadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacac
+abababacaaaaaaaaaaaaaaaaaaaaaaaaaabEadbMaaaaaaaaaaaaaaaabMalalalalalalalalalalalalbSalalalakakacacadacacakakalalalbSalalalalalalalalalalalalbMaaaaaaaaaaaaaaaabMadbEaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacac
+abababacaaaaaaaaaaaaaabTaaaaaaaaaaaabMbMaaaaaaaaaaaaaaaaaaalalbUalalalalalalalalalalalakakakakacacadacacakakakakalalalalalalalalalalalbUalalaaaaaaaaaaaaaaaaaabMbMaaaaaaaaaaaabTaaaaaaaaaaaaaaaaacacacac
+abababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalalalalalalalalalalalalalalbPakakakacacadacacakakakbPalalalalalalalalalalalalalalaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacac
+abababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalalalalalalapalbValapalalalalbOakakacacadacacakakbOalalalalapalbWalapalalalalalalaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacac
+abababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalalalalalalalalalalalalalalbUbOakakacacadacacakakbObUalalalalalalalalalalalalalalaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacac
+abababacaaaaaaaaaaaaaaaaaaaaaaaaaaaabMbMaaaaaaaaaaaaaaaabMalalalalalbXbQalalalalalalalalalakakacacadacacakakalalalalalalalalalbQbXalalalalalbMaaaaaaaaaaaaaaaabMbMaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacacac
+abababacacadadaaaaaaaaaaaaaaaaaaaabEadbMaaaaaaaaaaaaaaaabMapalalalalalalalalalalalalalalalakakacacadacacakakalalalalalalalalalalalalalalalapbMaaaaaaaaaaaaaaaabMadbEaaaaaaaaaaaaaaaaaaaaaaadadacacacacac
+abababacadadadadaaaaaaaaaaaaaaaaaaadadadaaaaaaaaaaaaaaaabMbLakakalalalalakakakalalbYalalakakakacacadacacakakakalalbYalalakakakalalalalakakbLbMaaaaaaaaaaaaaaaaadadadaaaaaaaaaaaaaaaaaaaaadadadadacacacac
+abababacacadadadadadaaaaaaaaaaaaadadadadaaaaaaaaaaaaacadadakakakakakakakakakakakakakakakakakakacacacacacakakakakakakakakakakakakakakakakakakadadacaaaaaaaaaaaaadadadadaaaaaaaaaaaaaaadadadadadacacacacac
+abababacacacadadadadadadaaaaadadadadadadadaaaaaaacacacacadakakakakakakakakakakakakakakakakakacacacacacacacakakakakakakakakakakakakakakakakakadacacacacaaaaaaadadadadadadadaaaaadadadadadadadacacacacacac
+aaababacacacacacacadadadadadadadadadacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacadadadadadadadadadacacacacacacacacacaa
+aaaaabababababababababababababababababababababababababababababababacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaa
+aaaaaaababababababababababababababababababababababababababababababacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaaaaaa
 "}
