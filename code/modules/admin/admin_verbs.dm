@@ -80,7 +80,8 @@ GLOBAL_PROTECT(admin_verbs_admin)
 	/client/proc/stabilize_atmos,
 	/client/proc/openTicketManager,
 	/datum/admins/proc/space_jesus,
-	/client/proc/force_rules
+	/client/proc/force_rules,
+	/datum/admins/proc/AdminFixStation
 	)
 GLOBAL_LIST_INIT(admin_verbs_ban, list(/client/proc/unban_panel, /client/proc/ban_panel, /client/proc/stickybanpanel))
 GLOBAL_PROTECT(admin_verbs_ban)

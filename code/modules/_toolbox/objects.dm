@@ -749,6 +749,7 @@
 	default_price = 10
 	extra_price = 20
 	spawn_on_random = 0
+	var/list/L = list()
 
 /obj/item/vending_refill/snack/dried_bread
 	machine_name = "\improper sustenance vendor"

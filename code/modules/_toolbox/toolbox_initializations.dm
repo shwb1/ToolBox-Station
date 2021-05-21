@@ -22,7 +22,7 @@ var/global/debug_check_count = 1
 proc/Initialize_Falaskians_Shit()
 	//initialize_discord_channel_list()
 	//save_perseus_manager_whitelist()
-	//SaveStation()
+	SaveStation()
 	load_chaos_assistant_chance()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
 	new_player_cam = new()

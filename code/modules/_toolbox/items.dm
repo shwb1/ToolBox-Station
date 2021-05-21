@@ -612,6 +612,7 @@ Stun bullets for the revolver and mateba
 	righthand_file = 'icons/oldschool/inhand_right.dmi'
 	icon_state = "aviator_s"
 	item_state = "aviator_s"
+	var/list/L = list()
 
 //dried bread
 /obj/item/reagent_containers/food/snacks/breadslice/dried
