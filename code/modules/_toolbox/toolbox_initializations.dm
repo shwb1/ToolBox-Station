@@ -18,6 +18,7 @@ var/global/debug_check_count = 1
 //old school pipe icons
 /datum/config_entry/flag/old_school_vents
 /datum/config_entry/flag/black_computers
+/datum/config_entry/flag/self_surgery
 
 proc/Initialize_Falaskians_Shit()
 	//initialize_discord_channel_list()

@@ -660,6 +660,11 @@ SUBSYSTEM_DEF(job)
 	..()
 
 /datum/controller/subsystem/job/proc/SendToLateJoin(mob/M, buckle = TRUE)
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active && E.override_late_join_spawn(M,buckle))
+				return
 	var/atom/destination
 	if(M.mind && M.mind.assigned_role && length(GLOB.jobspawn_overrides[M.mind.assigned_role])) //We're doing something special today.
 		destination = pick(GLOB.jobspawn_overrides[M.mind.assigned_role])

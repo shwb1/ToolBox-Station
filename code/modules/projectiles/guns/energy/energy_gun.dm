@@ -81,6 +81,15 @@
 	ammo_x_offset = 1
 	fire_rate = 1.5
 	w_class = WEIGHT_CLASS_NORMAL
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
+
+/obj/item/gun/energy/e_gun/dragnet/update_ammo_types()
+	. = ..()
+	for(var/i in ammo_type)
+		var/obj/item/ammo_casing/energy/E = ammo_type[i]
+		if(istype(E,/obj/item/ammo_casing/energy/net))
+			var/obj/item/ammo_casing/energy/net/N = E
+			N.beaconfrequency = beaconfrequency
 
 /obj/item/gun/energy/e_gun/dragnet/snare
 	name = "Energy Snare Launcher"

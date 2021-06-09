@@ -63,13 +63,25 @@ SUBSYSTEM_DEF(mapping)
 	preloadTemplates()
 #ifndef LOWMEMORYMODE
 	// Create space ruin levels
-	while (space_levels_so_far < config.space_ruin_levels)
+	var/spacezlevels = config.space_ruin_levels
+	var/spawn_empty_zlevel = 1
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active)
+				if(E.override_space_zlevel_count >= 0)
+					spacezlevels = E.override_space_zlevel_count
+				if(E.delete_empty_z_level)
+					spawn_empty_zlevel = 0
+				E.generate_event_z_levels()
+	while (space_levels_so_far < spacezlevels)
 		++space_levels_so_far
 		add_new_zlevel("Empty Area [space_levels_so_far]", ZTRAITS_SPACE)
 	// and one level with no ruins
-	for (var/i in 1 to config.space_empty_levels)
-		++space_levels_so_far
-		empty_space = add_new_zlevel("Empty Area [space_levels_so_far]", list(ZTRAIT_LINKAGE = CROSSLINKED))
+	if(spawn_empty_zlevel)
+		for (var/i in 1 to config.space_empty_levels)
+			++space_levels_so_far
+			empty_space = add_new_zlevel("Empty Area [space_levels_so_far]", list(ZTRAIT_LINKAGE = CROSSLINKED))
 	// and the transit level
 	transit = add_new_zlevel("Transit/Reserved", list(ZTRAIT_RESERVED = TRUE))
 
@@ -243,15 +255,25 @@ SUBSYSTEM_DEF(mapping)
 
 #ifndef LOWMEMORYMODE
 	// TODO: remove this when the DB is prepared for the z-levels getting reordered
-	while (world.maxz < (5 - 1) && space_levels_so_far < config.space_ruin_levels)
+	var/spacezlevels = config.space_ruin_levels
+	var/miningname = config.minetype
+	if(SStoolbox_events)
+		for(var/t in SStoolbox_events.cached_events)
+			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]
+			if(E && E.active)
+				if(E.override_space_zlevel_count >= 0)
+					spacezlevels = E.override_space_zlevel_count
+				if(E.override_mining != -1)
+					miningname = E.override_mining
+	while (world.maxz < (5 - 1) && space_levels_so_far < spacezlevels)
 		++space_levels_so_far
 		add_new_zlevel("Empty Area [space_levels_so_far]", ZTRAITS_SPACE)
 
 	// load mining
-	if(config.minetype == "lavaland")
+	if(miningname == "lavaland")
 		LoadGroup(FailedZs, "Lavaland", "map_files/Mining", "Lavaland.dmm", default_traits = ZTRAITS_LAVALAND)
-	else if (!isnull(config.minetype))
-		INIT_ANNOUNCE("WARNING: An unknown minetype '[config.minetype]' was set! This is being ignored! Update the maploader code!")
+	else if (!isnull(miningname))
+		INIT_ANNOUNCE("WARNING: An unknown minetype '[miningname]' was set! This is being ignored! Update the maploader code!")
 #endif
 
 	if(LAZYLEN(FailedZs))	//but seriously, unless the server's filesystem is messed up this will never happen

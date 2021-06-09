@@ -26,6 +26,7 @@
 	throw_speed = 3
 	throw_range = 7
 	materials = list(/datum/material/iron=400)
+	var/beaconfrequency = "standard"
 
 /obj/item/locator/attack_self(mob/user)
 	user.set_machine(src)
@@ -57,7 +58,7 @@
 			if (sr)
 				temp += "<B>Beacon Signals:</B><BR>"
 				for(var/obj/item/beacon/W in GLOB.teleportbeacons)
-					if (!W.renamed)
+					if (!W.renamed || W.beaconfrequency != beaconfrequency)
 						continue
 					var/turf/tr = get_turf(W)
 					if (tr.z == sr.z && tr)
@@ -76,7 +77,7 @@
 
 				temp += "<B>Implant Signals:</B><BR>"
 				for (var/obj/item/implant/tracking/W in GLOB.tracked_implants)
-					if (!W.imp_in || !isliving(W.loc))
+					if (!W.imp_in || !isliving(W.loc) || W.beaconfrequency != beaconfrequency)
 						continue
 					else
 						var/mob/living/M = W.loc

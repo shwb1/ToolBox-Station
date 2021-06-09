@@ -4,6 +4,7 @@
 	activated = FALSE
 	var/lifespan_postmortem = 6000 //for how many deciseconds after user death will the implant work?
 	var/allow_teleport = TRUE //will people implanted with this act as teleporter beacons?
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/item/implant/tracking/c38
 	name = "TRAC implant"

@@ -571,11 +571,12 @@ proc/FixWiring(list/aoelist = list())
 	var/repairtype = input(usr,"What type of repair do you wish to perform?","Repair Station","AOE repair") as null|anything in repairtypes
 	if(!(repairtype in repairtypes))
 		return
+	var/stationz = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
 	switch(repairtype)
 		if("AOE repair")
 			var/aoerange = input(usr,"This will repair all station turfs around you. Please enter a radius that should be repaired.","Repair Station",7) as num
 			var/turf/T = get_turf(usr)
-			if(T.z != 2)
+			if(T.z != stationz)
 				to_chat(usr,"\red You must be on the station z-level.")
 				return
 			AOEFixStation(aoerange,usr)
@@ -586,7 +587,7 @@ proc/FixWiring(list/aoelist = list())
 		if("AOE restore air")
 			var/aoerange = input(usr,"This will restore the air of the surrounding area to what it was at the start of the round. Please enter a radius that should be restored.","Repair Station",7) as num
 			var/turf/T = get_turf(usr)
-			if(T.z != 2)
+			if(T.z != stationz)
 				to_chat(usr,"\red You must be on the station z-level.")
 				return
 			AOERestoreAir(aoerange,usr)
@@ -620,4 +621,7 @@ proc/FixWiring(list/aoelist = list())
 		for(var/t in mutable_list)
 			var/list/paramslist = params2list(t)
 			if(islist(paramslist) && paramslist.len)
-				T.AddElement(/datum/element/decal, file(paramslist["icon"]), paramslist["icon_state"], text2num(paramslist["thedir"]), FALSE, paramslist["color"], null, null, text2num(paramslist["alpha"]), FALSE)
+				if(paramslist["icon_regular_floor"])
+					icon_regular_floor = paramslist["icon_regular_floor"]
+					icon_state = icon_regular_floor
+				AddElement(/datum/element/decal, file(paramslist["icon"]), paramslist["icon_state"], text2num(paramslist["thedir"]), FALSE, paramslist["color"], null, null, text2num(paramslist["alpha"]), FALSE)

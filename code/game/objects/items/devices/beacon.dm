@@ -9,12 +9,13 @@
 	var/enabled = TRUE
 	var/renamed = FALSE
 	var/nettingportal = FALSE
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/item/beacon/Initialize()
 	. = ..()
 	if (enabled)
 		GLOB.teleportbeacons += src
-	else 
+	else
 		icon_state = "beacon-off"
 
 /obj/item/beacon/Destroy()
@@ -26,7 +27,7 @@
 	if (enabled)
 		icon_state = "beacon"
 		GLOB.teleportbeacons += src
-	else 
+	else
 		icon_state = "beacon-off"
 		GLOB.teleportbeacons.Remove(src)
 	to_chat(user, "<span class='notice'>You [enabled ? "enable" : "disable"] the beacon.</span>")
@@ -41,9 +42,9 @@
 			name = new_name
 			renamed = TRUE
 		return
-	else	
+	else
 		return ..()
-		
+
 /obj/item/beacon/nettingportal
 	//dragnet location beacon
 	name = "\improper DROPnet"

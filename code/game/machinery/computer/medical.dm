@@ -36,6 +36,13 @@
 
 /obj/machinery/computer/med_data/ui_interact(mob/user)
 	. = ..()
+	var/independentz = 0
+	var/turf/srcturf = get_turf(src)
+	if(srcturf && srcturf.z == SSmapping.levels_by_trait(INDEPENDENTMACHINERY)[1])
+		independentz = 1
+	if(independentz)
+		to_chat(user, "<span class='boldannounce'>Unable to establish a connection</span>: \black You're too far away from the station!")
+		return
 	var/dat
 	if(temp)
 		dat = text("<TT>[temp]</TT><BR><BR><A href='?src=[REF(src)];temp=1'>Clear Screen</A>")

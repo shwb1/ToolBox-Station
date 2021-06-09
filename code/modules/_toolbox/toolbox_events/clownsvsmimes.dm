@@ -22,18 +22,21 @@
 
 /datum/toolbox_event/clownsvsmimes/on_activate(mob/admin_user)
 	. = ..()
-	if(!istype(teamclown))
-		var/gangtype = pick_n_take(GLOB.possible_gangs)
-		teamclown = new gangtype()
-		teamclown.color = "#ffabf9"
-		teamclown.inner_outfits = list(/obj/item/clothing/under/rank/civilian/clown/jester)
-		teamclown.outer_outfits = list(/obj/item/clothing/suit/chaplainsuit/clownpriest)
-	if(!istype(teammime))
-		var/gangtype = pick_n_take(GLOB.possible_gangs)
-		teammime = new gangtype()
-		teammime.color = "#ffffff"
-		teammime.inner_outfits = list(/obj/item/clothing/under/rank/civilian/mime/true)
-		teammime.outer_outfits = list(/obj/item/clothing/suit/imperium_monk)
+	spawn(0)
+		while(!SSmapping || !SSmapping.initialized)
+			stoplag()
+		if(!istype(teamclown))
+			var/gangtype = pick_n_take(GLOB.possible_gangs)
+			teamclown = new gangtype()
+			teamclown.color = "#ffabf9"
+			teamclown.inner_outfits = list(/obj/item/clothing/under/rank/civilian/clown/jester)
+			teamclown.outer_outfits = list(/obj/item/clothing/suit/chaplainsuit/clownpriest)
+		if(!istype(teammime))
+			var/gangtype = pick_n_take(GLOB.possible_gangs)
+			teammime = new gangtype()
+			teammime.color = "#ffffff"
+			teammime.inner_outfits = list(/obj/item/clothing/under/rank/civilian/mime/true)
+			teammime.outer_outfits = list(/obj/item/clothing/suit/imperium_monk)
 
 /datum/toolbox_event/clownsvsmimes/modify_player_rank(rank,mob/dead/new_player/player)
 	if(clowncount > mimecount)

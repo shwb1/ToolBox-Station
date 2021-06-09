@@ -122,7 +122,7 @@
 	var/list/areaindex = list()
 	if(regime_set == "Teleporter")
 		for(var/obj/item/beacon/R in GLOB.teleportbeacons)
-			if(is_eligible(R))
+			if(is_eligible(R) && (power_station && R.beaconfrequency == power_station.beaconfrequency))
 				if(R.renamed)
 					L[avoid_assoc_duplicate_keys("[R.name] ([get_area(R)])", areaindex)] = R
 				else
@@ -130,7 +130,7 @@
 					L[avoid_assoc_duplicate_keys(A.name, areaindex)] = R
 
 		for(var/obj/item/implant/tracking/I in GLOB.tracked_implants)
-			if(!I.imp_in || !isliving(I.loc) || !I.allow_teleport)
+			if(!I.imp_in || !isliving(I.loc) || !I.allow_teleport || !power_station || I.beaconfrequency != power_station.beaconfrequency)
 				continue
 			else
 				var/mob/living/M = I.loc
@@ -148,7 +148,7 @@
 	else
 		var/list/S = power_station.linked_stations
 		for(var/obj/machinery/teleport/station/R in S)
-			if(is_eligible(R) && R.teleporter_hub)
+			if(is_eligible(R) && R.teleporter_hub && (power_station && R.beaconfrequency == power_station.beaconfrequency))
 				var/area/A = get_area(R)
 				L[avoid_assoc_duplicate_keys(A.name, areaindex)] = R
 		if(!L.len)

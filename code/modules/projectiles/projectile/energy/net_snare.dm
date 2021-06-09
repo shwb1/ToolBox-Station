@@ -5,6 +5,7 @@
 	damage_type = STAMINA
 	hitsound = 'sound/weapons/taserhit.ogg'
 	range = 10
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/item/projectile/energy/net/Initialize()
 	. = ..()
@@ -14,7 +15,8 @@
 	if(isliving(target))
 		var/turf/Tloc = get_turf(target)
 		if(!locate(/obj/effect/nettingportal) in Tloc)
-			new /obj/effect/nettingportal(Tloc)
+			var/obj/effect/nettingportal/N = new(Tloc)
+			N.beaconfrequency = beaconfrequency
 	..()
 
 /obj/item/projectile/energy/net/on_range()
@@ -28,13 +30,14 @@
 	icon_state = "dragnetfield"
 	light_range = 3
 	anchored = TRUE
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/effect/nettingportal/Initialize()
 	. = ..()
 	var/obj/item/beacon/teletarget = null
 
 	for(var/obj/item/beacon/bea in GLOB.teleportbeacons)
-		if(is_eligible(bea) && bea.nettingportal) //is it quick dragnet beacon?
+		if(is_eligible(bea) && bea.beaconfrequency == beaconfrequency && bea.nettingportal) //is it quick dragnet beacon?
 			teletarget = bea
 
 	addtimer(CALLBACK(src, .proc/pop, teletarget), 30)

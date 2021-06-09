@@ -8,28 +8,31 @@
 
 /datum/toolbox_event/item_converter/on_activate()
 	. = ..()
-	if(!spawned_machines.len)
-		var/thez = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
-		for(var/turf/T in block(locate(1,1,thez),locate(world.maxx,world.maxy,thez)))
-			if(!istype(get_area(T),/area/hallway))
-				continue
-			var/clear = 1
-			for(var/turf/T2 in range(1,T))
-				if(T2.density || istype(T2,/turf/closed))
-					clear = 0
-					break
-				for(var/obj/O in T2)
-					if(O.density)
+	spawn(0)
+		while(!SSmapping || !SSmapping.initialized)
+			stoplag()
+		if(!spawned_machines.len)
+			var/thez = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
+			for(var/turf/T in block(locate(1,1,thez),locate(world.maxx,world.maxy,thez)))
+				if(!istype(get_area(T),/area/hallway))
+					continue
+				var/clear = 1
+				for(var/turf/T2 in range(1,T))
+					if(T2.density || istype(T2,/turf/closed))
 						clear = 0
 						break
-			if(clear)
-				for(var/obj/machinery/item_converter/C in spawned_machines)
-					if(get_dist(T,C) <= seperation)
-						clear = 0
-						break
-			if(clear)
-				var/obj/machinery/item_converter/C = new(T)
-				spawned_machines += C
+					for(var/obj/O in T2)
+						if(O.density)
+							clear = 0
+							break
+				if(clear)
+					for(var/obj/machinery/item_converter/C in spawned_machines)
+						if(get_dist(T,C) <= seperation)
+							clear = 0
+							break
+				if(clear)
+					var/obj/machinery/item_converter/C = new(T)
+					spawned_machines += C
 
 /datum/toolbox_event/item_converter/on_deactivate()
 	. = ..()

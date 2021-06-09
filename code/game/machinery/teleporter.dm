@@ -105,7 +105,7 @@
 	component_parts += new /obj/item/stock_parts/matter_bin/super(null)
 	RefreshParts()
 
-
+#define STANDARD_BEACON_FREQUENCY "standard"
 /obj/machinery/teleport/station
 	name = "teleporter station"
 	desc = "The power control station for a bluespace teleporter. Used for toggling power, and can activate a test-fire to prevent malfunctions."
@@ -119,6 +119,7 @@
 	var/obj/machinery/teleport/hub/teleporter_hub
 	var/list/linked_stations = list()
 	var/efficiency = 0
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/machinery/teleport/station/Initialize()
 	. = ..()

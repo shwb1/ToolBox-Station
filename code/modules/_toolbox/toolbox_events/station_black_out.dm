@@ -7,32 +7,35 @@
 
 /datum/toolbox_event/station_black_out/on_activate()
 	. = ..()
-	var/thez = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
-	for(var/obj/M in world)
-		if(M.z != thez)
-			continue
-		if(istype(M,/obj/machinery/gravity_generator/main/station))
-			var/obj/machinery/gravity_generator/main/station/S = M
-			S.use_power = NO_POWER_USE
-		if(istype(M,/obj/machinery/power/apc))
-			var/obj/machinery/power/apc/apc = M
-			apc.start_charge = 0
-			if(apc.cell)
-				apc.cell.charge = 0
-		else if(istype(M,/obj/machinery/power/smes))
-			var/obj/machinery/power/smes/smes = M
-			smes.charge = 0
-		else if(istype(M,/obj/machinery/light))
-			var/obj/machinery/light/light = M
-			if(light.cell)
-				light.cell.charge = 0
-			else
-				light.no_emergency = 1
-		else if(istype(M,/obj/item/flashlight))
-			var/obj/item/flashlight/F = M
-			if(F.on)
-				F.on = !F.on
-				F.update_brightness()
+	spawn(0)
+		while(!SSmapping || !SSmapping.initialized)
+			stoplag()
+		var/thez = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
+		for(var/obj/M in world)
+			if(M.z != thez)
+				continue
+			if(istype(M,/obj/machinery/gravity_generator/main/station))
+				var/obj/machinery/gravity_generator/main/station/S = M
+				S.use_power = NO_POWER_USE
+			if(istype(M,/obj/machinery/power/apc))
+				var/obj/machinery/power/apc/apc = M
+				apc.start_charge = 0
+				if(apc.cell)
+					apc.cell.charge = 0
+			else if(istype(M,/obj/machinery/power/smes))
+				var/obj/machinery/power/smes/smes = M
+				smes.charge = 0
+			else if(istype(M,/obj/machinery/light))
+				var/obj/machinery/light/light = M
+				if(light.cell)
+					light.cell.charge = 0
+				else
+					light.no_emergency = 1
+			else if(istype(M,/obj/item/flashlight))
+				var/obj/item/flashlight/F = M
+				if(F.on)
+					F.on = !F.on
+					F.update_brightness()
 
 /datum/toolbox_event/station_black_out/update_player_inventory(mob/living/carbon/human/H)
 	. = ..()

@@ -4,7 +4,7 @@ SUBSYSTEM_DEF(toolbox_events)
 	runlevels = RUNLEVEL_INIT
 	var/savepath = "data/other_saves/toolbox_events.sav"
 	var/list/cached_events = list()
-	init_order = INIT_ORDER_SHUTTLE-1
+	init_order = INIT_ORDER_MAPPING+1
 	flags = SS_NO_FIRE
 
 /datum/controller/subsystem/toolbox_events/Initialize(timeofday)
@@ -72,17 +72,26 @@ The event. Make children of this to make a new event.
 	var/list/job_whitelist = list() //populate list like this list("Clown" = "player_ckey"). This whitelists a job for a specific player.
 	var/override_priority_announce_sound //Put a link to a sound file to override the sound played when any station announcement happens.
 	var/override_AI_name //text string. forces the job start AI to be named this.
+	var/override_space_zlevel_count = -1 //set to 0 or higher to override how many extra space zlevels there will be. -1 means its ignored
+	var/override_mining = -1 //Set as null to delete mining or another text string to change to another mining map. This must be coded in. -1 means its ignored
+	var/delete_empty_z_level = 0 //The game will always add one extra totally empty z-level after finsihing generating all the z-levels. Setting to 1 prevents this.
 
 /datum/toolbox_event/proc/on_activate(mob/admin_user) //this proc must have ..() .... Add any code to this, it will activate when the event is enabled.
-	for(var/datum/job/J in SSjob.occupations)
-		if((J.title in overriden_total_job_positions) && isnum(overriden_total_job_positions[J.title]))
-			J.spawn_positions = overriden_total_job_positions[J.title]
-			J.total_positions = overriden_total_job_positions[J.title]
+	spawn(0)
+		while(!SSjob || !SSjob.initialized)
+			stoplag()
+		for(var/datum/job/J in SSjob.occupations)
+			if((J.title in overriden_total_job_positions) && isnum(overriden_total_job_positions[J.title]))
+				J.spawn_positions = overriden_total_job_positions[J.title]
+				J.total_positions = overriden_total_job_positions[J.title]
 
 /datum/toolbox_event/proc/on_deactivate(mob/admin_user) //this proc must have ..() .... Add any code to this, it will activate when the event is enabled.
-	for(var/datum/job/J in SSjob.occupations)
-		if(J.title in overriden_total_job_positions)
-			J.total_positions = initial(J.total_positions)
+	spawn(0)
+		while(!SSjob || !SSjob.initialized)
+			stoplag()
+		for(var/datum/job/J in SSjob.occupations)
+			if(J.title in overriden_total_job_positions)
+				J.total_positions = initial(J.total_positions)
 
 /datum/toolbox_event/proc/should_auto_activate() //A way to check if external factors should trigger this event at server start up. Like a holiday.
 	return FALSE
@@ -109,7 +118,12 @@ The event. Make children of this to make a new event.
 /datum/toolbox_event/proc/modify_player_rank(rank,mob/dead/new_player/player) //Called when assigning a rank to a player. Use this to modify what their rank should be changed to by returning the new rank as text. The new rank title should be the title of an existing /datum/job in game.
 	return null
 
+/datum/toolbox_event/proc/override_late_join_spawn(mob/living/M,buckle = TRUE) //Use this to override how a player is spawned in after joining late. Returning true cancels the normal spawning proc.
+	return FALSE
+
 /datum/toolbox_event/proc/PostRoundSetup() //Called when the round is successfully set up and is about to switch over to round playing mode but ticker.current_state is still GAME_STATE_SETTING_UP
+
+/datum/toolbox_event/proc/generate_event_z_levels() //This proc is called right before any extra space z-levels are generated.
 
 /datum/admins/proc/toggle_tb_event()
 	set category = "Server"

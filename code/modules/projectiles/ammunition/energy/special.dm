@@ -43,6 +43,13 @@
 	pellets = 6
 	variance = 40
 	harmful = FALSE
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
+
+/obj/item/ammo_casing/energy/net/newshot()
+	. = ..()
+	if(istype(BB,/obj/item/projectile/energy/net))
+		var/obj/item/projectile/energy/net/N = BB
+		N.beaconfrequency = beaconfrequency
 
 /obj/item/ammo_casing/energy/trap
 	projectile_type = /obj/item/projectile/energy/trap

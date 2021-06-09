@@ -1045,7 +1045,7 @@ PROCESSING_SUBSYSTEM_DEF(flightpacks)
 	else if(locked)
 		usermessage("You can not perform any service while the suit is locked!", "boldwarning")
 		return FALSE
-	else if(istype(I, /obj/item/screwdriver))
+	else if(istype(I) && I.tool_behaviour == TOOL_SCREWDRIVER)
 		if(!maint_panel)
 			maint_panel = TRUE
 		else
@@ -1055,7 +1055,7 @@ PROCESSING_SUBSYSTEM_DEF(flightpacks)
 	else if(!maint_panel)
 		usermessage("The maintenance panel is closed!", "boldwarning")
 		return FALSE
-	else if(istype(I, /obj/item/crowbar))
+	else if(istype(I) && I.tool_behaviour == TOOL_CROWBAR)
 		var/list/inputlist = list()
 		if(pack)
 			inputlist += "Pack"

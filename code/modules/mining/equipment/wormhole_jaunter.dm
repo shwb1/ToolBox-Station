@@ -12,6 +12,7 @@
 	throw_speed = 3
 	throw_range = 5
 	slot_flags = ITEM_SLOT_BELT
+	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/item/wormhole_jaunter/attack_self(mob/user)
 	user.visible_message("<span class='notice'>[user.name] activates the [src.name]!</span>")
@@ -29,6 +30,8 @@
 	var/list/destinations = list()
 
 	for(var/obj/item/beacon/B in GLOB.teleportbeacons)
+		if(B.beaconfrequency != beaconfrequency)
+			continue
 		var/turf/T = get_turf(B)
 		if(is_station_level(T.z))
 			destinations += B
