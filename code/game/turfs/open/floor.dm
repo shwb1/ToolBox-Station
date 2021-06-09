@@ -112,7 +112,7 @@
 	return
 
 /turf/open/floor/update_icon()
-	. = TRUE
+	. = ..()
 	update_visuals()
 
 /turf/open/floor/attack_paw(mob/user)
