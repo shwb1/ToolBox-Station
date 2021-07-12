@@ -276,7 +276,7 @@ GENE SCANNER
 
 
 	//Organ damages report
-	if(ishuman(M))
+	if(ishuman(M) || istype(M,/mob/living/carbon/monkey))
 		var/mob/living/carbon/human/H = M
 		var/minor_damage
 		var/major_damage
@@ -382,7 +382,23 @@ GENE SCANNER
 			if(ishuman(C))
 				var/mob/living/carbon/human/H = C
 				if(H.bleed_rate)
-					to_chat(user, "<span class='alert'><b>Subject is bleeding!</b></span>")
+					var/bleedtext = ""
+					if(H.bleed_rate <= 5)
+						bleedtext = "Negligible"
+					else if(H.bleed_rate <= 10)
+						bleedtext = "Minor"
+					else if(H.bleed_rate <= 15)
+						bleedtext = "Moderate"
+					else if(H.bleed_rate <= 20)
+						bleedtext = "Serious"
+					else if(H.bleed_rate <= 30)
+						bleedtext = "Critical!"
+					else if(H.bleed_rate > 30)
+						bleedtext = "Extreme!"
+					var/bandagetext = ""
+					if(H.bleedsuppress)
+						bandagetext = "Bandaged"
+					to_chat(user, "<span class='alert'><b>Subject is bleeding! [bleedtext ? "([bleedtext])" : ""][bandagetext ? "(Bandaged)" : ""]</b></span>")
 			var/blood_percent =  round((C.blood_volume / BLOOD_VOLUME_NORMAL)*100)
 			var/blood_type = C.dna.blood_type
 			if(blood_id != /datum/reagent/blood)//special blood substance

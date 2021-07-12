@@ -24,10 +24,8 @@ proc
 			if(istype(F,/turf/open/floor/plating))
 				platingtext = "is_plating=1"
 			entrytext += ";icon_regular_floor=[F.icon_regular_floor];[platingtext]"
-			if(F.floor_tile)
-				var/atom/A = F.floor_tile
-				if(istype(A))
-					entrytext += ";floor_tile=[A.type]"
+			if(F.floor_tile && ispath(F.floor_tile))
+				entrytext += ";floor_tile=[F.floor_tile]"
 			if(F.initial_gas_mix)
 				var/newtext = F.initial_gas_mix
 				while(findtext(newtext,";",1,length(newtext)+1))
@@ -207,9 +205,13 @@ proc
 			if(istype(paramslist) && paramslist.len)
 				var/thetype = text2path(paramslist["type"])
 				if(ispath(thetype) && T.type != thetype)
-					T.ChangeTurf(thetype)
+					if(ispath(thetype,/turf/open/floor))
+						T.ChangeTurf(/turf/open/floor/plating)
+						T.PlaceOnTop(thetype, flags = CHANGETURF_INHERIT_AIR)
+					else
+						T.ChangeTurf(thetype)
 					do_icon_update = 1
-				T.dir = text2num(paramslist["dir"])
+					T.dir = text2num(paramslist["dir"])
 				if(istype(T,/turf/open/floor))
 					var/turf/open/floor/F = T
 					if(F.burnt)
@@ -246,7 +248,7 @@ proc
 										break
 						else if(istype(I,/obj/item/shard))
 							qdel(I)
-					F.restore_overlays()
+					F.restore_overlays(1)
 					if(do_icon_update)
 						F.update_icon()
 					var/theinitialgas = paramslist["initial_gas_mix"]
@@ -603,25 +605,29 @@ proc/FixWiring(list/aoelist = list())
 			message_admins("[usr] has performed a full station repair.")
 	return
 
-/turf/open/floor/proc/restore_overlays()
+/turf/open/floor/proc/restore_overlays(force_appearance = 0)
 	var/thecoords = "[x] [y]"
+	var/list/floorparams = params2list(GLOB.savedstationfloors[thecoords])
 	var/list/mutable_list = GLOB.savedstationfloordecals[thecoords]
-	if(!islist(mutable_list) || !mutable_list.len)
-		return
 	var/spacepos = findtext(thecoords," ",1,length(thecoords)+1)
 	var/stationz = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
 	var/turf/T = locate(text2num(copytext(thecoords,1,spacepos)), text2num(copytext(thecoords,spacepos+1,length(thecoords)+1)),stationz)
 	if(!istype(T) || T != src)
 		return
-	if(!istype(src,/turf/open/floor/plating) && (ispath(floor_tile,/obj/item/stack/tile/plasteel) || !floor_tile))
-		if(!islist(managed_overlays))
-			managed_overlays = list()
-		managed_overlays.Cut()
-		overlays.Cut()
-		for(var/t in mutable_list)
-			var/list/paramslist = params2list(t)
-			if(islist(paramslist) && paramslist.len)
-				if(paramslist["icon_regular_floor"])
-					icon_regular_floor = paramslist["icon_regular_floor"]
-					icon_state = icon_regular_floor
-				AddElement(/datum/element/decal, file(paramslist["icon"]), paramslist["icon_state"], text2num(paramslist["thedir"]), FALSE, paramslist["color"], null, null, text2num(paramslist["alpha"]), FALSE)
+	if(!istype(src,/turf/open/floor/plating))
+		var/thetile = text2path(floorparams["floor_tile"])
+		if(!floor_tile || (force_appearance || (thetile && ispath(thetile))))
+			if(floorparams && floorparams.len)
+				if(floorparams["icon_state"])
+					icon_state = floorparams["icon_state"]
+					if(icon_regular_floor != floorparams["icon_regular_floor"])
+						icon_regular_floor = icon_state
+			if(islist(mutable_list) && mutable_list.len)
+				if(!islist(managed_overlays))
+					managed_overlays = list()
+				managed_overlays.Cut()
+				overlays.Cut()
+				for(var/t in mutable_list)
+					var/list/paramslist = params2list(t)
+					if(islist(paramslist) && paramslist.len)
+						AddElement(/datum/element/decal, file(paramslist["icon"]), paramslist["icon_state"], text2num(paramslist["thedir"]), FALSE, paramslist["color"], null, null, text2num(paramslist["alpha"]), FALSE)

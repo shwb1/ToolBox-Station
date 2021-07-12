@@ -61,7 +61,8 @@
 	if(!(end in list("!", ".", "?", ":", "\"", "-")))
 		msg += "."
 
-	user.log_message(msg, LOG_EMOTE)
+	if(ishuman(user) || user.ckey)
+		user.log_message(msg, LOG_EMOTE)
 
 	msg = "<span class='emote'><b>[user]</b> " + msg + "</span>"
 
