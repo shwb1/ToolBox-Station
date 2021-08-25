@@ -649,6 +649,16 @@ GENE SCANNER
 			var/gas_concentration = environment.get_moles(id)/total_moles
 			to_chat(user, "<span class='alert'>[GLOB.meta_gas_info[id][META_GAS_NAME]]: [round(gas_concentration*100, 0.01)] % ([round(environment.get_moles(id), 0.01)] mol)</span>")
 		to_chat(user, "<span class='info'>Temperature: [round(environment.return_temperature()-T0C, 0.01)] &deg;C ([round(environment.return_temperature(), 0.01)] K)</span>")
+	var/obj/effect/bluespace_residue/bluespace_residue
+	for(var/obj/effect/bluespace_residue/B in range(14,get_turf(src)))
+		bluespace_residue = B
+		break
+	if(bluespace_residue)
+		var/thedist = get_dist(get_turf(src),bluespace_residue)
+		to_chat(user, "You detect bluespace residue near by, within [thedist*2] meters.")
+		if(thedist <= 1)
+			bluespace_residue.detect()
+			to_chat(user, "<B>You reveal the location of the bluespace residue!</B>")
 
 /obj/item/analyzer/ranged
 	desc = "A hand-held scanner which uses advanced spectroscopy and infrared readings to analyze gases as a distance. Alt-Click to use the built in barometer function."

@@ -9,6 +9,7 @@
 /datum/round_event/anomaly
 	var/area/impact_area
 	var/obj/effect/anomaly/anomaly_path = /obj/effect/anomaly/flux
+	var/turf/event_turf
 	announceWhen	= 1
 
 
@@ -27,26 +28,40 @@
 
 		//Subtypes from the above that actually should explode.
 		var/list/unsafe_area_subtypes = typecacheof(list(/area/engine/break_room))
-		
+
 		allowed_areas = make_associative(GLOB.the_station_areas) - safe_area_types + unsafe_area_subtypes
 
 	return safepick(typecache_filter_list(GLOB.sortedAreas,allowed_areas))
 
 /datum/round_event/anomaly/setup()
-	impact_area = findEventArea()
-	if(!impact_area)
-		CRASH("No valid areas for anomaly found.")
-	var/list/turf_test = get_area_turfs(impact_area)
-	if(!turf_test.len)
-		CRASH("Anomaly : No valid turfs found for [impact_area] - [impact_area.type]")
+	var/timeout = 5
+	var/fail = 0
+	while(!event_turf && timeout > 0)
+		impact_area = findEventArea()
+		if(!impact_area)
+			CRASH("No valid areas for anomaly found.")
+			return
+		var/list/turf_test = get_area_turfs(impact_area)
+		if(!turf_test.len)
+			fail = 1
+			break
+		for(var/turf/T in turf_test)
+			if(istype(T,/turf/open/space) || istype(T,/turf/closed) || T.density)
+				turf_test -= T
+		if(turf_test.len)
+			event_turf = pick(turf_test)
+	if(fail || timeout <= 0)
+		CRASH("Anomaly : No valid turfs found for anomally event.")
+		//CRASH("Anomaly : No valid turfs found for [impact_area] - [impact_area.type]")
 
 /datum/round_event/anomaly/announce(fake)
 	priority_announce("Localized energetic flux wave detected on long range scanners. Expected location of impact: [impact_area.name].", "Anomaly Alert")
 
 /datum/round_event/anomaly/start()
-	var/turf/T = safepick(get_area_turfs(impact_area))
+	if(!event_turf)
+		return
 	var/newAnomaly
-	if(T)
-		newAnomaly = new anomaly_path(T)
+	if(event_turf)
+		newAnomaly = new anomaly_path(event_turf)
 	if (newAnomaly)
 		announce_to_ghosts(newAnomaly)

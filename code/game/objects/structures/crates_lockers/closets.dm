@@ -42,6 +42,13 @@
 	var/door_anim_angle = 136
 	var/door_hinge = -6.5
 	var/door_anim_time = 2.0 // set to 0 to make the door not animate at all
+	//repairing a broken lock
+	var/lock_panel_open = 0
+	var/circuit_wires = 1
+	var/circuit = 1
+	var/emagged = 0 //So you cant fix an emagged locker
+	var/circuitry_removable = 1
+
 /obj/structure/closet/Initialize(mapload)
 	if(mapload && !opened)		// if closed, any item at the crate's loc is put in the contents
 		addtimer(CALLBACK(src, .proc/take_contents), 0)
@@ -68,7 +75,7 @@
 				add_overlay("[icon_state]_door")
 			if(welded)
 				add_overlay(icon_welded)
-			if(secure && !broken)
+			if(secure && !broken && circuit_wires && circuit)
 				if(locked)
 					add_overlay("locked")
 				else
@@ -134,6 +141,8 @@
 		var/mob/living/L = user
 		if(HAS_TRAIT(L, TRAIT_SKITTISH))
 			. += "<span class='notice'>Ctrl-Shift-click [src] to jump inside.</span>"
+	if(secure && (broken || !circuit || !circuit_wires))
+		to_chat(user, "<span class='warning'>The locking mechanism appears to be malfunctioning.</span>")
 
 /obj/structure/closet/CanPass(atom/movable/mover, turf/target)
 	if(wall_mounted)
@@ -262,6 +271,37 @@
 /obj/structure/closet/attackby(obj/item/W, mob/user, params)
 	if(user in src)
 		return
+	if(istype(W,/obj/item/stack/sheet/plasteel) && opened && !istype(src,/obj/structure/closet/secure_closet) && !istype(src,/obj/structure/closet/crate))
+		var/obj/item/stack/sheet/plasteel/P = W
+		var/required_sheets = 5
+		if(P.amount < required_sheets)
+			to_chat(user, "<span class='warning'>You require more plasteel to reinforce this locker.</span>")
+			return
+		to_chat(user, "<span class='notice'>You begin reinforce the [src].</span>")
+		playsound(src, 'sound/items/crowbar.ogg', 50, 1)
+		if(P.amount >= required_sheets && do_after(user, 80, 1, src) && opened && loc)
+			if(!P || QDELETED(P) || P.amount < required_sheets)
+				to_chat(user, "<span class='warning'>You require more plasteel.</span>")
+				return
+			dump_contents()
+			var/obj/structure/closet/secure_closet/S = new(loc)
+			for(var/atom/movable/AM in S)
+				AM.moveToNullspace()
+				qdel(AM)
+			S.locked = FALSE
+			S.opened = TRUE
+			if(!dense_when_open)
+				density = FALSE
+			S.climb_time *= 0.5
+			S.circuit = 0
+			S.circuit_wires = 0
+			S.name = name
+			S.update_icon()
+			to_chat(user, "<span class='notice'>You upgrade the [src] to a secure locker.</span>")
+			P.use(required_sheets)
+			src.moveToNullspace()
+			qdel(src)
+			return
 	if(src.tool_interact(W,user))
 		return 1 // No afterattack
 	else
@@ -289,7 +329,77 @@
 									"<span class='notice'>You cut \the [src] apart with \the [W].</span>")
 				deconstruct(TRUE)
 				return
-		if(user.transferItemToLoc(W, drop_location())) // so we put in unlit welder too
+		//removing lock circuitry -falaskian
+		var/circuitry_action = 0
+		if(secure && user.a_intent == INTENT_HARM && circuitry_removable)
+			if(istype(W, /obj/item/screwdriver))
+				lock_panel_open = !lock_panel_open
+				to_chat(user, "<span class='notice'>You [lock_panel_open ? "open":"close"] the maintenance panel of the [src].</span>")
+				W.play_tool_sound(src)
+				circuitry_action = 1
+			else if(lock_panel_open)
+				if(istype(W, /obj/item/wirecutters) && circuit_wires)
+					circuit_wires = !circuit_wires
+					var/obj/item/stack/cable_coil/coil = new(loc)
+					coil.amount = 2
+					coil.update_icon()
+					W.play_tool_sound(src)
+					to_chat(user, "<span class='notice'>You cut the wires connecting the locking mechanicism of the [src].</span>")
+					circuitry_action = 1
+				else if(istype(W,/obj/item/stack/cable_coil) && !circuit_wires)
+					var/obj/item/stack/cable_coil/coil = W
+					var/cablesuccess = 0
+					if(coil.amount >= 2)
+						to_chat(user,"<span class='notice'>You begin to wire the [src].</span>")
+						if(do_after(user, 50, 1, src) && coil.amount >= 2 && opened && !circuit_wires && lock_panel_open)
+							coil.use(2)
+							circuit_wires = 1
+							cablesuccess = 1
+							to_chat(user,"<span class='notice'>You successfully wire the [src].</span>")
+					if(!cablesuccess && coil && coil.amount < 2)
+						to_chat(user,"<span class='warning'>You need two wires!</span>")
+					circuitry_action = 1
+				else if(istype(W,/obj/item/crowbar) && !circuit_wires && circuit)
+					if(!emagged)
+						to_chat(user,"<span class='notice'>You begin to remove the lock electronics from the [src].</span>")
+						W.play_tool_sound(src)
+						if(do_after(user, 50, 1, src) && opened && !circuit_wires && lock_panel_open && circuit)
+							if(!broken)
+								var/obj/item/electronics/airlock/ae = new(loc)
+								gen_access()
+								if(req_one_access.len)
+									ae.one_access = 1
+									ae.accesses = src.req_one_access
+								else
+									ae.accesses = src.req_access
+								circuit = 0
+								broken = 1
+								ae.forceMove(loc)
+								to_chat(user,"<span class='notice'>You successfully remove the airlock electronics from the [src].</span>")
+							else
+								to_chat(user,"<span class='warning'>You remove the destroyed airlock electronics from the [src] and toss it away.</span>")
+								circuit = 0
+					else
+						to_chat(user,"<span class='warning'>The mechanism is far to damaged to modify.</span>")
+					circuitry_action = 1
+				else if(istype(W,/obj/item/electronics/airlock) && !circuit_wires && !circuit && !emagged)
+					to_chat(user,"<span class='notice'>You begin to install the airlock electronics in to the [src].</span>")
+					if(do_after(user, 50, 1, src) && !circuit_wires && !circuit && !emagged)
+						to_chat(user,"<span class='notice'>You successfully install the airlock electronics in to the [src].</span>")
+						var/obj/item/electronics/airlock/ae = W
+						if(user.doUnEquip(W))
+							ae.moveToNullspace()
+							if(ae.one_access)
+								src.req_one_access = ae.accesses
+							else
+								src.req_access = ae.accesses
+							circuit = 1
+							broken = 0
+							qdel(ae)
+					circuitry_action = 1
+		if(circuitry_action)
+			update_icon()
+		else if(user.transferItemToLoc(W, drop_location())) // so we put in unlit welder too
 			return
 	else if(W.tool_behaviour == TOOL_WELDER && can_weld_shut)
 		if(!W.tool_start_check(user, amount=0))
@@ -470,6 +580,9 @@
 
 /obj/structure/closet/proc/togglelock(mob/living/user, silent)
 	if(secure && !broken)
+		if(!circuit_wires || !circuit)
+			to_chat(user, "<span class='warning'>The lock circuitry is not wired in properly.</span>")
+			return
 		if(allowed(user))
 			if(iscarbon(user))
 				add_fingerprint(user)
@@ -488,6 +601,7 @@
 						"<span class='warning'>You scramble [src]'s lock, breaking it open!</span>",
 						"<span class='italics'>You hear a faint electrical spark.</span>")
 		playsound(src, "sparks", 50, 1)
+		emagged = 1
 		broken = TRUE
 		locked = FALSE
 		update_icon()

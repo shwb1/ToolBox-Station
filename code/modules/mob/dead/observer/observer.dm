@@ -425,6 +425,23 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	if (!istype(target))
 		return
 
+	//this is for logging when a player orbits someone, useful for finding people using ghost knowledge while dead. This also blocks players from tracking players hiding, no finding ssd players and robbing them.
+	if(isliving(target))
+		var/mob/living/L = target
+		if(client && !client.holder)
+			if(L.ckey && !isturf(L.loc))
+				to_chat(src, "You cannot see [L.name].")
+				return
+		var/targetname = "[L.name]"
+		if(L.real_name && L.real_name != name)
+			targetname = "[L.real_name]"
+		var/logtext = "[key_name(src)] is ghost orbiting [targetname]"
+		if(L.key)
+			logtext += " ([L.key])"
+		logtext += "."
+
+		log_game("[logtext]")
+
 	var/icon/I = icon(target.icon,target.icon_state,target.dir)
 
 	var/orbitsize = (I.Width()+I.Height())*0.5

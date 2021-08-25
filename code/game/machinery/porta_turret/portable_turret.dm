@@ -875,7 +875,11 @@
 		if(obj_flags & EMAGGED)
 			to_chat(user, "<span class='notice'>The turret control is unresponsive.</span>")
 			return
-		locked = !locked
+		//locked = !locked //This was not working in game, not sure why. It was getting stuck as locked no matter what. -falaskian
+		if(locked)
+			locked = 0
+		else
+			locked = 1
 		to_chat(user, "<span class='notice'>You [ locked ? "lock" : "unlock"] the panel.</span>")
 	else
 		to_chat(user, "<span class='warning'>Access denied.</span>")
