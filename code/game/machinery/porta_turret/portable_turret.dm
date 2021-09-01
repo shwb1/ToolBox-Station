@@ -885,6 +885,8 @@
 		to_chat(user, "<span class='warning'>Access denied.</span>")
 
 /obj/machinery/turretid/AltClick(mob/user)
+	if(!user.canUseTopic(src, BE_CLOSE) || !isturf(loc))
+		return
 	if(stat & BROKEN)
 		return
 	togglelock(user)

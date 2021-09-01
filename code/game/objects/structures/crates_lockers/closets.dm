@@ -332,13 +332,13 @@
 		//removing lock circuitry -falaskian
 		var/circuitry_action = 0
 		if(secure && user.a_intent == INTENT_HARM && circuitry_removable)
-			if(istype(W, /obj/item/screwdriver))
+			if(W.tool_behaviour == TOOL_SCREWDRIVER)
 				lock_panel_open = !lock_panel_open
 				to_chat(user, "<span class='notice'>You [lock_panel_open ? "open":"close"] the maintenance panel of the [src].</span>")
 				W.play_tool_sound(src)
 				circuitry_action = 1
 			else if(lock_panel_open)
-				if(istype(W, /obj/item/wirecutters) && circuit_wires)
+				if(W.tool_behaviour == TOOL_WIRECUTTER && circuit_wires)
 					circuit_wires = !circuit_wires
 					var/obj/item/stack/cable_coil/coil = new(loc)
 					coil.amount = 2
@@ -359,7 +359,7 @@
 					if(!cablesuccess && coil && coil.amount < 2)
 						to_chat(user,"<span class='warning'>You need two wires!</span>")
 					circuitry_action = 1
-				else if(istype(W,/obj/item/crowbar) && !circuit_wires && circuit)
+				else if(W.tool_behaviour == TOOL_CROWBAR && !circuit_wires && circuit)
 					if(!emagged)
 						to_chat(user,"<span class='notice'>You begin to remove the lock electronics from the [src].</span>")
 						W.play_tool_sound(src)
