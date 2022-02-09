@@ -385,7 +385,11 @@
 		user.forceMove(get_turf(link_holder))
 		qdel(link_holder)
 		return
-	do_teleport(link_holder, get_turf(linked), no_effects = TRUE, channel = TELEPORT_CHANNEL_MAGIC)
+	var/turf/nextturf = get_turf(linked)
+	user.forceMove(nextturf)
+	do_teleport(user, nextturf, no_effects = TRUE, channel = TELEPORT_CHANNEL_MAGIC)
+	link_holder.forceMove(get_turf(nextturf))
+	user.forceMove(link_holder)
 	sleep(2.5)
 	if(QDELETED(user))
 		qdel(link_holder)

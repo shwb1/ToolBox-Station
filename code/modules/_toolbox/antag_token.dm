@@ -7,7 +7,7 @@ GLOBAL_LIST_EMPTY(used_antag_tokens)
 client/verb/check_antag_token()
 	set name = "Antagonist Tokens"
 	set category = "OOC"
-	var/tokens = get_antag_token_count()
+	var/tokens = get_TB_antag_token_count()
 	if(!SSticker || !SSticker.mode || !SSticker.mode.available_antag_tokens || !SSticker.mode.available_antag_tokens.len || (SSticker.current_state < GAME_STATE_PLAYING))
 		alert(src,"You have [tokens] antagonist tokens. You must wait untill the game starts to use one.","Antagonist Tokens","Ok")
 		return
@@ -17,7 +17,7 @@ client/verb/check_antag_token()
 	if(!choices || !choices.len)
 		alert(src,"Antagonist tokens are unavialable at this time.","Antagonist Tokens","Ok")
 		return
-	if((!istype(mob,/mob/living/carbon/human)) || (!mob.mind) || (mob.mind in SSticker.mode.marked_objective))
+	if((!istype(mob,/mob/living/carbon/human)) || (!mob.mind)) // || (mob.mind in SSticker.mode.marked_objective)
 		if(!tokens)
 			alert(src,"You have [tokens] antagonist tokens","Antagonist Tokens","Ok")
 		else
@@ -42,7 +42,7 @@ client/verb/check_antag_token()
 			message_admins("[ckey] has used an antag token to be come a [antagchoice].")
 			log_game("[ckey] has used an antag token to be come a [antagchoice].")
 
-/client/proc/get_antag_token_count()
+/client/proc/get_TB_antag_token_count()
 	if(!ckey)
 		return 0
 	var/path = GLOB.antagtokenpath
@@ -62,7 +62,7 @@ client/verb/check_antag_token()
 	if(SSticker && SSticker.current_state < GAME_STATE_PLAYING)
 		to_chat(src, "<B>Wait untill the game starts to use an antagonist token.</B>")
 		return 0
-	if((!ckey) || (!antagtype) || (!istext(antagtype)) || (!mob.mind) || (mob.mind in SSticker.mode.marked_objective))
+	if((!ckey) || (!antagtype) || (!istext(antagtype)) || (!mob.mind)) // || (mob.mind in SSticker.mode.marked_objective)
 		to_chat(src, "<B>You can't use an antagonist token right now.</B>")
 		return 0
 	if(!(mob.mind in GLOB.Original_Minds))
@@ -88,8 +88,8 @@ client/verb/check_antag_token()
 				to_chat(src, "<B>You are already an antagonist.</B>")
 				return 0
 			if(mob.mind.assigned_role)
-				var/datum/job/J = SSjob.GetJob("[mob.mind.assigned_role]")
-				if((CONFIG_GET(flag/protect_roles_from_antagonist) && (mob.mind.assigned_role in GLOB.memorized_restricted_jobs))||(J && J.antagonist_immune))
+				//var/datum/job/J = SSjob.GetJob("[mob.mind.assigned_role]")
+				if((CONFIG_GET(flag/protect_roles_from_antagonist) && (mob.mind.assigned_role in GLOB.memorized_restricted_jobs)))//||(J && J.antagonist_immune)
 					to_chat(src, "<B>A [mob.mind.assigned_role] cannot be an antagonist at this time.</B>")
 					return 0
 			var/list/choices = SSticker.mode.available_antag_tokens.Copy()
@@ -103,7 +103,7 @@ client/verb/check_antag_token()
 				"changeling" = ROLE_CHANGELING,
 				"cult" = ROLE_CULTIST,
 				"revs" = ROLE_REV_HEAD)
-			if((antagtype in roles_names) && jobban_isbanned(mob, roles_names[antagtype]))
+			if((antagtype in roles_names) && is_banned_from(mob.key, roles_names[antagtype]))
 				to_chat(mob, "<B>You are currently banned from this antagonist role.</B>")
 				return
 			switch(antagtype)
@@ -113,7 +113,9 @@ client/verb/check_antag_token()
 						success = 1
 				if("changeling")
 					if(istype(mob,/mob/living/carbon/human))
-						mob.mind.make_Changling()
+						var/datum/antagonist/changeling/new_antag = new()
+						mob.mind.add_antag_datum(new_antag)
+						//mob.mind.make_Changling()
 						success = 1
 				if("cult")
 					if(istype(mob,/mob/living/carbon/human) && !(mob.mind.assigned_role in SSticker.mode.restricted_jobs))

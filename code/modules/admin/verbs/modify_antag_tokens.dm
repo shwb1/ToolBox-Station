@@ -4,7 +4,8 @@
 /client/proc/cmd_admin_mod_antag_tokens(client/C in GLOB.clients, var/operation)
 	set category = "Adminbus"
 	set name = "Modify Antagonist Tokens"
-
+	to_chat(usr,"This has been disabled. Access antag tokens from special verbs and ooc tab")
+	return
 	if(!check_rights(R_ADMIN))
 		return
 

@@ -9,9 +9,10 @@
 	active_power_usage = 5000
 	req_access = list(ACCESS_ROBOTICS)
 	circuit = /obj/item/circuitboard/machine/mechfab
+	var/fabtype = MECHFAB
 	var/time_coeff = 1
 	var/component_coeff = 1
-	var/datum/techweb/specialized/autounlocking/exofab/stored_research
+	var/datum/techweb/specialized/autounlocking/stored_research = /datum/techweb/specialized/autounlocking/exofab
 	var/sync = 0
 	var/part_set
 	var/datum/design/being_built
@@ -37,7 +38,7 @@
 								)
 
 /obj/machinery/mecha_part_fabricator/Initialize(mapload)
-	stored_research = new
+	stored_research = new stored_research()
 	rmat = AddComponent(/datum/component/remote_materials, "mechfab", mapload && link_on_init)
 	RefreshParts() //Recalculating local material sizes if the fab isn't linked
 	return ..()
@@ -84,7 +85,7 @@
 	var/output = ""
 	for(var/v in stored_research.researched_designs)
 		var/datum/design/D = SSresearch.techweb_design_by_id(v)
-		if(D.build_type & MECHFAB)
+		if(D.build_type & fabtype)
 			if(!(set_name in D.category))
 				continue
 			output += "<div class='part'>[output_part_info(D)]<br>\["
@@ -184,7 +185,7 @@
 	if(set_name in part_sets)
 		for(var/v in stored_research.researched_designs)
 			var/datum/design/D = SSresearch.techweb_design_by_id(v)
-			if(D.build_type & MECHFAB)
+			if(D.build_type & fabtype)
 				if(set_name in D.category)
 					add_to_queue(D)
 
@@ -340,7 +341,7 @@
 		var/T = href_list["part"]
 		for(var/v in stored_research.researched_designs)
 			var/datum/design/D = SSresearch.techweb_design_by_id(v)
-			if(D.build_type & MECHFAB)
+			if(D.build_type & fabtype)
 				if(D.id == T)
 					if(!processing_queue)
 						build_part(D)
@@ -351,7 +352,7 @@
 		var/T = href_list["add_to_queue"]
 		for(var/v in stored_research.researched_designs)
 			var/datum/design/D = SSresearch.techweb_design_by_id(v)
-			if(D.build_type & MECHFAB)
+			if(D.build_type & fabtype)
 				if(D.id == T)
 					add_to_queue(D)
 					break
@@ -389,7 +390,7 @@
 		var/T = href_list["part_desc"]
 		for(var/v in stored_research.researched_designs)
 			var/datum/design/D = SSresearch.techweb_design_by_id(v)
-			if(D.build_type & MECHFAB)
+			if(D.build_type & fabtype)
 				if(D.id == T)
 					var/obj/part = D.build_path
 					temp = {"<h1>[initial(part.name)] description:</h1>
