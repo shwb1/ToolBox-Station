@@ -1068,8 +1068,8 @@
 	crate_name = "particle accelerator crate"
 
 /datum/supply_pack/engine/collector
-	name = "Radiation Collector Crate"
-	desc = "Contains three radiation collectors. Useful for collecting energy off nearby Supermatter Crystals, Singularities or Teslas!"
+	name = "Cosmic Radiation Collector Crate"
+	desc = "Contains three cosmic radiation collectors. Useful for collecting energy off nearby Supermatter Crystals, Singularities or Teslas!"
 	cost = 2200
 	contains = list(/obj/machinery/power/rad_collector,
 					/obj/machinery/power/rad_collector,

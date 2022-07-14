@@ -27,7 +27,7 @@
 	..()
 	add_avail(power_gen)
 	if(panel_open && irradiate)
-		radiation_pulse(src, 60)
+		radiation_pulse(src, 60, _cosmic = 1)
 
 /obj/machinery/power/rtg/RefreshParts()
 	var/part_level = 0

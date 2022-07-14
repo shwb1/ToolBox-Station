@@ -263,7 +263,7 @@
 	build_path = /obj/machinery/rnd/production/protolathe/department/engineering
 
 /obj/item/circuitboard/machine/rad_collector
-	name = "radiation collector (Machine Board)"
+	name = "cosmic radiation collector (Machine Board)"
 	icon_state = "engineering"
 	build_path = /obj/machinery/power/rad_collector
 	req_components = list(

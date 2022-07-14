@@ -37,11 +37,14 @@
 	var/intensity[8] //How strong it is, except the distance falloff
 	var/range_modifier //Higher than 1 makes it drop off faster, 0.5 makes it drop off half etc
 	var/can_contaminate
+	var/is_cosmic = 0
 	var/static/list/prc_behavior_cache
 
-/datum/radiation_wave/New(atom/_source, _intensity=0, _range_modifier=RAD_DISTANCE_COEFFICIENT, _can_contaminate=TRUE)
+/datum/radiation_wave/New(atom/_source, _intensity=0, _range_modifier=RAD_DISTANCE_COEFFICIENT, _can_contaminate=TRUE, _cosmic = 0)
 
 	source = "[_source] \[[REF(_source)]\]"
+
+	is_cosmic = _cosmic
 
 	master_turf = get_turf(_source)
 
@@ -231,7 +234,7 @@
 		var/atom/thing = atoms[k]
 		if(!thing)
 			continue
-		thing.rad_act(strength)
+		thing.rad_act(strength,is_cosmic)
 
 		// This list should only be for types which don't get contaminated but you want to look in their contents
 		// If you don't want to look in their contents and you don't want to rad_act them:
@@ -284,5 +287,5 @@
 #undef PRC_BEHAVIOR_D
 #undef PRC_BEHAVIOR_HL
 #undef PRC_BEHAVIOR_HLSTAR
-#undef PRC_BEHAVIOR_HR	
+#undef PRC_BEHAVIOR_HR
 #undef PRC_BEHAVIOR_HRSTAR

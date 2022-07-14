@@ -156,11 +156,20 @@ GLOBAL_LIST_INIT(nonreactive_gases, typecacheof(list(/datum/gas/oxygen, /datum/g
 	moles_visible = MOLES_GAS_VISIBLE * 60
 	rarity = 250
 
-/datum/gas/unobtanium //C++ monstermos expects 14 gas types to exist, we only had 13
+//Im erasing this for the time being.
+/*/datum/gas/unobtanium //C++ monstermos expects 14 gas types to exist, we only had 13
 	id = "unobtanium"
 	specific_heat = 20
 	name = "Unobtanium"
-	rarity = 2500
+	rarity = 2500*/
+
+/datum/gas/nucleium
+	id = "nucleium"
+	specific_heat = 450 //jesus god why
+	name = "Nucleium"
+	gas_overlay = "nucleium"
+	moles_visible = MOLES_GAS_VISIBLE
+	//flags = GAS_FLAG_DANGEROUS
 
 /obj/effect/overlay/gas
 	icon = 'icons/effects/atmospherics.dmi'

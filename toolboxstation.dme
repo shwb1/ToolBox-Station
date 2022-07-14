@@ -1266,6 +1266,8 @@
 #include "code\modules\_toolbox\silly\tidepods.dm"
 #include "code\modules\_toolbox\silly\trollcloset.dm"
 #include "code\modules\_toolbox\silly\weeb.dm"
+#include "code\modules\_toolbox\silly\rbmk\reactor\fuel_rods.dm"
+#include "code\modules\_toolbox\silly\rbmk\reactor\rbmk.dm"
 #include "code\modules\_toolbox\stationrepair\stationrepair.dm"
 #include "code\modules\_toolbox\tbsusbystems\antagtokentracking.dm"
 #include "code\modules\_toolbox\tbsusbystems\eventtriggering.dm"

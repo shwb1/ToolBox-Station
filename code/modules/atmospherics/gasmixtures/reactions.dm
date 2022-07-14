@@ -149,7 +149,7 @@
 	if(burned_fuel)
 		energy_released += (FIRE_HYDROGEN_ENERGY_RELEASED * burned_fuel)
 		if(location && prob(10) && burned_fuel > TRITIUM_MINIMUM_RADIATION_ENERGY) //woah there let's not crash the server
-			radiation_pulse(location, energy_released/TRITIUM_BURN_RADIOACTIVITY_FACTOR)
+			radiation_pulse(location, energy_released/TRITIUM_BURN_RADIOACTIVITY_FACTOR,_cosmic = 1)
 
 		//oxygen+more-or-less hydrogen=H2O
 		air.adjust_moles(/datum/gas/water_vapor, burned_fuel )// Yogs -- Conservation of Mass
@@ -322,7 +322,7 @@
 
 	//The decay of the tritium and the reaction's energy produces waste gases, different ones depending on whether the reaction is endo or exothermic
 	var/standard_waste_gas_output = scale_factor * (FUSION_TRITIUM_CONVERSION_COEFFICIENT*FUSION_TRITIUM_MOLES_USED)
-	delta_plasma > 0 ? air.adjust_moles(/datum/gas/water_vapor, standard_waste_gas_output) : air.adjust_moles(/datum/gas/bz, standard_waste_gas_output)	
+	delta_plasma > 0 ? air.adjust_moles(/datum/gas/water_vapor, standard_waste_gas_output) : air.adjust_moles(/datum/gas/bz, standard_waste_gas_output)
 	air.adjust_moles(/datum/gas/oxygen, standard_waste_gas_output) //Oxygen is a bit touchy subject
 
 	if(reaction_energy)
@@ -330,7 +330,7 @@
 			var/standard_energy = 400 * air.get_moles(/datum/gas/plasma) * air.return_temperature() //Prevents putting meaningless waste gases to achieve high rads.
 			if(prob(PERCENT(((PARTICLE_CHANCE_CONSTANT)/(reaction_energy-PARTICLE_CHANCE_CONSTANT)) + 1))) //Asymptopically approaches 100% as the energy of the reaction goes up.
 				location.fire_nuclear_particle(customize = TRUE, custompower = standard_energy)
-			radiation_pulse(location, max(2000 * 3 ** (log(10,standard_energy) - FUSION_RAD_MIDPOINT), 0))
+			radiation_pulse(location, max(2000 * 3 ** (log(10,standard_energy) - FUSION_RAD_MIDPOINT), 0),_cosmic = 1)
 		var/new_heat_capacity = air.heat_capacity()
 		if(new_heat_capacity > MINIMUM_HEAT_CAPACITY)
 			air.set_temperature(clamp(thermal_energy/new_heat_capacity, TCMB, INFINITY))

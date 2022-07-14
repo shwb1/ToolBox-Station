@@ -26,19 +26,22 @@
 			continue
 		processing_list += thing.contents
 
-/proc/radiation_pulse(atom/source, intensity, range_modifier, log=FALSE, can_contaminate=TRUE)
+/proc/radiation_pulse(atom/source, intensity, range_modifier, log=FALSE, can_contaminate=TRUE, _cosmic = 0)
 	if(!SSradiation.can_fire)
 		return
-	
+
+	if(istype(get_turf(source), /turf/open/indestructible/sound/pool)) //Pools heavily block rads. Spent fuel pool!
+		intensity *= 0.05
+
 	var/list/things = get_rad_contents(isturf(source) ? source : get_turf(source)) //copypasta because I don't want to put special code in waves to handle their origin
 	for(var/k in 1 to things.len)
 		var/atom/thing = things[k]
 		if(!thing)
 			continue
-		thing.rad_act(intensity)
+		thing.rad_act(intensity, _cosmic)
 
 	if(intensity >= RAD_WAVE_MINIMUM) // Don't bother to spawn rad waves if they're just going to immediately go out
-		new /datum/radiation_wave(source, intensity, range_modifier, can_contaminate)
+		new /datum/radiation_wave(source, intensity, range_modifier, can_contaminate, _cosmic)
 
 		var/static/last_huge_pulse = 0
 		if(intensity > 3000 && world.time > last_huge_pulse + 200)
@@ -47,5 +50,5 @@
 		if(log)
 			var/turf/_source_T = isturf(source) ? source : get_turf(source)
 			log_game("Radiation pulse with intensity: [intensity] and range modifier: [range_modifier] in [loc_name(_source_T)] ")
-	
+
 	return TRUE

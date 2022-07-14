@@ -500,8 +500,8 @@
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SCIENCE
 
 /datum/design/board/rad_collector
-	name = "Machine Design (Radiation Collector Board)"
-	desc = "The circuit board for a radiation collector array."
+	name = "Machine Design (Cosmic Radiation Collector Board)"
+	desc = "The circuit board for a cosmic radiation collector array."
 	id = "rad_collector"
 	build_path = /obj/item/circuitboard/machine/rad_collector
 	category = list ("Misc. Machinery")

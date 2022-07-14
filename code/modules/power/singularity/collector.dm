@@ -6,7 +6,7 @@
 #define RAD_COLLECTOR_OUTPUT min(stored_energy, (stored_energy*RAD_COLLECTOR_STORED_OUT)+1000) //Produces at least 1000 watts if it has more than that stored
 
 /obj/machinery/power/rad_collector
-	name = "Radiation Collector Array"
+	name = "Cosmic Radiation Collector Array"
 	desc = "A device which uses Hawking Radiation and plasma to produce power."
 	icon = 'icons/obj/singularity.dmi'
 	icon_state = "ca"
@@ -204,9 +204,9 @@
 	else
 		update_icon()
 
-/obj/machinery/power/rad_collector/rad_act(pulse_strength)
+/obj/machinery/power/rad_collector/rad_act(pulse_strength,cosmic)
 	. = ..()
-	if(loaded_tank && active && pulse_strength > RAD_COLLECTOR_EFFICIENCY)
+	if(loaded_tank && active && pulse_strength > RAD_COLLECTOR_EFFICIENCY && cosmic) //We now only collect cosmic radiation, no cheating. Supermatter, singularity, fusion.
 		stored_energy += (pulse_strength-RAD_COLLECTOR_EFFICIENCY)*RAD_COLLECTOR_COEFFICIENT
 
 /obj/machinery/power/rad_collector/update_icon()

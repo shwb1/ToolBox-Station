@@ -334,6 +334,34 @@
 		else
 			SEND_SIGNAL(owner, COMSIG_CLEAR_MOOD_EVENT, "smell")
 
+		// Nucleium
+		var/nucleium_pp = breath.get_breath_partial_pressure(breath.get_moles(/datum/gas/nucleium))
+		switch(nucleium_pp)
+			if(0.1 to 5)
+				H.adjustFireLoss(1)
+				H.radiation += 1
+			if(5 to 15)
+				H.adjustFireLoss(3)
+				H.radiation += 3
+			if(15 to 30)
+				H.adjustFireLoss(5)
+				H.radiation += 5
+			if(30 to INFINITY)
+				H.adjustFireLoss(10)
+				H.radiation += 10
+
+		if(prob(nucleium_pp/4))
+			to_chat(owner, "<span class='warning'>Your lungs feel like they are disintergrating!</span>")
+		if(prob(nucleium_pp))
+			H.emote("gasp")
+		if(nucleium_pp > 15)
+			if(prob(2))
+				to_chat(owner, "<span class='userdanger'>Your lungs violently disintergrate!</span>")
+				src.Remove(H, 1)
+				QDEL_NULL(src)
+				return
+		breath.adjust_moles(/datum/gas/nucleium, -gas_breathed)
+
 		handle_breath_temperature(breath, H)
 	return TRUE
 

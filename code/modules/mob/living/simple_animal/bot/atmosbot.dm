@@ -64,6 +64,7 @@
 		/datum/gas/stimulum = 0,
 		/datum/gas/tritium = 1,
 		/datum/gas/water_vapor = 0,
+		/datum/gas/nucleium = 0
 	)
 	//Tank type
 	var/tank_type = /obj/item/tank/internals/oxygen/empty

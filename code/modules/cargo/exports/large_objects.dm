@@ -73,7 +73,7 @@
 
 /datum/export/large/collector
 	cost = 400
-	unit_name = "radiation collector"
+	unit_name = "cosmic radiation collector"
 	export_types = list(/obj/machinery/power/rad_collector)
 
 /datum/export/large/tesla_coil

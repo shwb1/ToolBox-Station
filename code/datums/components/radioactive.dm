@@ -10,10 +10,12 @@
 	var/hl3_release_date //the half-life measured in ticks
 	var/strength
 	var/can_contaminate
+	var/is_cosmic
 
-/datum/component/radioactive/Initialize(_strength=0, _source, _half_life=RAD_HALF_LIFE, _can_contaminate=TRUE)
+/datum/component/radioactive/Initialize(_strength=0, _source, _half_life=RAD_HALF_LIFE, _can_contaminate=TRUE, _cosmic = 0)
 	strength = _strength
 	source = _source
+	is_cosmic = _cosmic
 	hl3_release_date = _half_life
 	can_contaminate = _can_contaminate
 	if(istype(parent, /atom))
@@ -40,7 +42,7 @@
 
 /datum/component/radioactive/process()
 	if(strength >= RAD_WAVE_MINIMUM)
-		radiation_pulse(parent, strength, RAD_DISTANCE_COEFFICIENT * RAD_DISTANCE_COEFFICIENT_COMPONENT_MULTIPLIER, FALSE, can_contaminate)
+		radiation_pulse(parent, strength, RAD_DISTANCE_COEFFICIENT * RAD_DISTANCE_COEFFICIENT_COMPONENT_MULTIPLIER, FALSE, can_contaminate, _cosmic = is_cosmic)
 	if(!hl3_release_date)
 		return
 	strength -= strength / hl3_release_date
@@ -82,8 +84,8 @@
 	to_chat(user, out.Join())
 
 /datum/component/radioactive/proc/rad_attack(datum/source, atom/movable/target, mob/living/user)
-	radiation_pulse(parent, strength/20)
-	target.rad_act(strength/2)
+	radiation_pulse(parent, strength/20, _cosmic = is_cosmic)
+	target.rad_act(strength/2, is_cosmic)
 	if(!hl3_release_date)
 		return
 	strength -= strength / hl3_release_date
