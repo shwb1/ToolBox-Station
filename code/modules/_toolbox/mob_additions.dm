@@ -131,3 +131,14 @@
 	faction = list("pissed_goat")
 	attack_same = 0
 	gleam_chance = 100
+
+//mob deletes its self if it dies and is still sitting there after a long time.
+/mob/living/simple_animal/proc/delayed_death_delete(timetowait = 18000)
+	spawn(0)
+		if(istype(loc,/turf/open/space))
+			var/turf/deathspot = loc
+			var/stoptime = world.time + timetowait
+			while(stat == DEAD && world.time < stoptime)
+				sleep(10)
+			if(isturf(deathspot) && stat == DEAD && loc == deathspot)
+				qdel(src)

@@ -381,7 +381,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	if(power >= 90)
 		if(last_flicker_power_level <= 0)
 			last_flicker_power_level = power
-		if((power >= 100 || power < last_flicker_power_level + 1) && world.time >= next_flicker) //You're overloading the reactor. Give a more subtle warning that power is getting out of control.
+		if((power >= 100 || power > last_flicker_power_level + 1) && world.time >= next_flicker) //You're overloading the reactor. Give a more subtle warning that power is getting out of control.
 			next_flicker = world.time + 1.5 MINUTES
 			last_flicker_power_level = power
 			for(var/obj/machinery/light/L in GLOB.machines)
@@ -485,7 +485,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	update_icon()
 	STOP_PROCESSING(SSmachines, src)
 	icon_state = "reactor_slagged"
-	AddComponent(/datum/component/radioactive, 15000 , src)
+	AddComponent(/datum/component/radioactive, 15000 , src, 0)
 	//var/obj/structure/overmap/OM = get_overmap()
 	//OM.relay('sound/toolbox/reactor/meltdown.ogg', "<span class='userdanger'>You hear a horrible metallic hissing.</span>")
 	relay('sound/toolbox/reactor/meltdown.ogg', "<span class='userdanger'>You hear a horrible metallic hissing.</span>")
@@ -671,10 +671,10 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	return output
 
 //rods
-/obj/item/twohanded/required/fuel_rod/Initialize()
+/*/obj/item/twohanded/required/fuel_rod/Initialize()
 	. = ..()
 	//AddComponent(/datum/component/two_handed, require_twohands=TRUE)
-	AddComponent(/datum/component/radioactive, 350 , src)
+	AddComponent(/datum/component/radioactive, 350 , src)*/
 
 //Controlling the reactor.
 

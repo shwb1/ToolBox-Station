@@ -41,14 +41,7 @@
 
 /mob/living/simple_animal/hostile/carp/death()
 	. = ..()
-	deathspot = loc
-	if(deathspot)
-		spawn(0)
-			var/stoptime = world.time + 18000
-			while(stat == DEAD && loc == deathspot && world.time < stoptime)
-				sleep(10)
-			if(stat == DEAD)
-				qdel(src)
+	delayed_death_delete()
 
 /mob/living/simple_animal/hostile/carp/holocarp
 	icon_state = "holocarp"
