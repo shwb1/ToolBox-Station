@@ -617,6 +617,8 @@ proc/FixWiring(list/aoelist = list())
 	if(!istype(src,/turf/open/floor/plating))
 		var/thetile = text2path(floorparams["floor_tile"])
 		if(!floor_tile || (force_appearance || (thetile && ispath(thetile))))
+			if(floor_tile != thetile)
+				return
 			if(floorparams && floorparams.len)
 				if(floorparams["icon_state"])
 					icon_state = floorparams["icon_state"]

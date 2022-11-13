@@ -26,7 +26,7 @@
 			continue
 		processing_list += thing.contents
 
-/proc/radiation_pulse(atom/source, intensity, range_modifier, log=FALSE, can_contaminate=TRUE, _cosmic = 0)
+/proc/radiation_pulse(atom/source, intensity, range_modifier, log=FALSE, can_contaminate=TRUE, _cosmic = 0, cancel_log = 0)
 	if(!SSradiation.can_fire)
 		return
 
@@ -47,7 +47,7 @@
 		if(intensity > 3000 && world.time > last_huge_pulse + 200)
 			last_huge_pulse = world.time
 			log = TRUE
-		if(log)
+		if(log && !cancel_log)
 			var/turf/_source_T = isturf(source) ? source : get_turf(source)
 			log_game("Radiation pulse with intensity: [intensity] and range modifier: [range_modifier] in [loc_name(_source_T)] ")
 

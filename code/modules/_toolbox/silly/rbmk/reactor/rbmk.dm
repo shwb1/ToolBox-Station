@@ -186,13 +186,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		to_chat(user, "<span class='notice'>You start to insert [W] into [src]...</span>")
 		radiation_pulse(src, temperature)
 		if(do_after(user, 5 SECONDS, target=src))
-			if(!length(fuel_rods))
-				start_up() //That was the first fuel rod. Let's heat it up.
-			else
-				playsound(src, pick('sound/toolbox/reactor/switch.ogg','sound/toolbox/reactor/switch2.ogg','sound/toolbox/reactor/switch3.ogg'), 100, FALSE)
-			fuel_rods += W
-			W.forceMove(src)
-			radiation_pulse(src, temperature) //Wear protective equipment when even breathing near a reactor!
+			insert_fuel_rod(W)
 		return TRUE
 	if(!slagged && istype(W, /obj/item/reagent_containers/food/snacks/butter))
 		var/obj/item/reagent_containers/food/snacks/butter/B = W
@@ -237,6 +231,46 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		vessel_integrity += 20
 		to_chat(user, "<span class='notice'>You weld together some of [src]'s cracks. This'll do for now.</span>")
 	return TRUE
+
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/insert_fuel_rod(obj/item/twohanded/required/fuel_rod/rod)
+	if(!istype(rod) || !rod.forceMove(src))
+		return
+	fuel_rods[rod] = world.time
+	if(length(fuel_rods) <= 1)
+		start_up() //That was the first fuel rod. Let's heat it up.
+	else
+		playsound(src, pick('sound/toolbox/reactor/switch.ogg','sound/toolbox/reactor/switch2.ogg','sound/toolbox/reactor/switch3.ogg'), 100, FALSE)
+	radiation_pulse(src, temperature) //Wear protective equipment when even breathing near a reactor!
+
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/remove_fuel_rod(obj/item/twohanded/required/fuel_rod/rod)
+	if(!rod)
+		for(var/obj/item/twohanded/required/fuel_rod/F in fuel_rods)
+			rod = F
+			break
+	if(!rod || !rod in fuel_rods)
+		return
+	playsound(src, 'sound/toolbox/reactor/crane_1.wav', 100, FALSE)
+	var/turf/unloadturf = get_turf(src)
+	for(var/obj/item/twohanded/required/fuel_rod/blockingrod in unloadturf)
+		if(blockingrod == rod)
+			continue
+		var/list/otherturfs = list()
+		for(var/turf/T in orange(1,unloadturf))
+			var/foundrod = 0
+			for(var/obj/item/twohanded/required/fuel_rod/anotherblockingrod in T)
+				if(anotherblockingrod == rod)
+					continue
+				foundrod = 1
+				break
+			if(foundrod)
+				continue
+			otherturfs += T
+		if(otherturfs.len)
+			unloadturf = pick(otherturfs)
+		break
+	if(unloadturf)
+		rod.forceMove(unloadturf)
+		fuel_rods.Remove(rod)
 
 //Admin procs to mess with the reaction environment.
 
@@ -793,7 +827,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	desc = "A console which can remotely raise fuel rods out of nuclear reactors."
 	icon_screen = "rbmk_fuel"
 
-/obj/machinery/computer/reactor/fuel_rods/attack_hand(mob/living/user)
+/*/obj/machinery/computer/reactor/fuel_rods/attack_hand(mob/living/user)
 	. = ..()
 	if(!reactor)
 		return FALSE
@@ -809,7 +843,57 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	playsound(src, pick('sound/toolbox/reactor/switch.ogg','sound/toolbox/reactor/switch2.ogg','sound/toolbox/reactor/switch3.ogg'), 100, FALSE)
 	playsound(reactor, 'sound/toolbox/reactor/crane_1.wav', 100, FALSE)
 	fuel_rod.forceMove(get_turf(reactor))
-	reactor.fuel_rods -= fuel_rod
+	reactor.fuel_rods -= fuel_rod*/
+
+/obj/machinery/computer/reactor/fuel_rods/ui_interact(user)
+	if(!reactor)
+		to_chat(user, "<span class='warning'>No reactor found.</span>")
+		return FALSE
+	var/datum/browser/popup = new(user, "fuelrodsmenu", "[name]", 380, 400)
+	var/dat = "<B>Reactor Fuel Rods:</B><BR><BR>"
+	var/poweredup = 0
+	if(reactor.power > 20)
+		poweredup = 1
+		dat += "<B>Notice:</B> You cannot remove fuel from [reactor] while it is running above 20% power.<br><br>"
+	if(reactor.fuel_rods.len)
+		var/number = 0
+		for(var/obj/item/twohanded/required/fuel_rod/F in reactor.fuel_rods)
+			number++
+			var/rodtime = round(((world.time-reactor.fuel_rods[F])/10)/60)
+			var/hours = 0
+			while(rodtime > 60)
+				hours++
+				rodtime -= 60
+			var/minutes = 0
+			if(rodtime > 0)
+				minutes = rodtime
+			rodtime = ""
+			if(hours > 0)
+				rodtime = "[hours]h"
+			rodtime += "[minutes]m"
+			var/removebuttontext = "<A href='?src=\ref[src];fuelrod=\ref[F]'>Remove</A>"
+			if(poweredup)
+				removebuttontext = "<B>Locked</B>"
+			dat += "<B>Rod #[number]: </B>[F.name]<br><B>Duration Inserted:</B> [rodtime]<br>[removebuttontext]<br><br>"
+	else
+		dat += "No fuel rods detected."
+	popup.set_content(dat)
+	popup.open()
+
+/obj/machinery/computer/reactor/fuel_rods/Topic(href, list/href_list)
+	. = ..()
+	if(href_list["fuelrod"])
+		if(!reactor)
+			return
+		if(reactor.power > 20)
+			to_chat(usr, "<span class='warning'>You cannot remove fuel from [reactor] while it is running above 20% power.</span>")
+			return
+		var/obj/item/twohanded/required/fuel_rod/rod = locate(href_list["fuelrod"])
+		if(istype(rod) && rod in reactor.fuel_rods)
+			to_chat(usr, "<span class='notice'>You remove [rod.name] from the [reactor].</span>")
+			reactor.remove_fuel_rod(rod)
+			playsound(src, pick('sound/toolbox/reactor/switch.ogg','sound/toolbox/reactor/switch2.ogg','sound/toolbox/reactor/switch3.ogg'), 100, FALSE)
+			ui_interact(usr)
 
 //debug href console for reactor
 /obj/machinery/computer/reactor/debug

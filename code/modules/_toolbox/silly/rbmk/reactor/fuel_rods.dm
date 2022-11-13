@@ -24,7 +24,7 @@
 	. = ..()
 	time_created = world.time
 	//AddComponent(/datum/component/two_handed, require_twohands=TRUE)
-	AddComponent(/datum/component/radioactive, rad_strength, src, _half_life=0) // This should be temporary for it won't make rads go lower than 350
+	AddComponent(/datum/component/radioactive, rad_strength, src, 0) // This should be temporary for it won't make rads go lower than 350
 	if(process)
 		START_PROCESSING(SSobj, src)
 
@@ -214,7 +214,7 @@
 	name = "exhausted [name]"
 	desc = "A highly energetic, disguised titanium sheathed rod containing a number of slots filled with greatly expanded telecrystals which can be removed by hand. It's extremely efficient as nuclear fuel, but will cause the reaction to get out of control if not properly utilised."
 	icon_state = "tc_used"
-	AddComponent(/datum/component/radioactive, 3000, src, _half_life=0)
+	AddComponent(/datum/component/radioactive, 3000, src, 0)
 
 /obj/item/twohanded/required/fuel_rod/material/bananium
 	name = "bananium fuel rod"
@@ -242,7 +242,7 @@
 	name = "exhausted [name]"
 	desc = "A hilarious heavy-duty fuel rod which fissiles a bit slower than it cowardly counterparts. Its greatly grimacing grwoth stage is now over, and bananium outgrowth hums as if it's blatantly honking bike horns."
 	icon_state = "bananium_used"
-	AddComponent(/datum/component/radioactive, 1250, src, _half_life=0)
+	AddComponent(/datum/component/radioactive, 1250, src, 0)
 
 //supply pack
 /datum/supply_pack/engine/uranium_fuel_rods

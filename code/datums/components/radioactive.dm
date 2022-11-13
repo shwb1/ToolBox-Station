@@ -42,7 +42,10 @@
 
 /datum/component/radioactive/process()
 	if(strength >= RAD_WAVE_MINIMUM)
-		radiation_pulse(parent, strength, RAD_DISTANCE_COEFFICIENT * RAD_DISTANCE_COEFFICIENT_COMPONENT_MULTIPLIER, FALSE, can_contaminate, _cosmic = is_cosmic)
+		var/stoplogging = 0
+		if(hl3_release_date <= 0)
+			stoplogging = 1
+		radiation_pulse(parent, strength, RAD_DISTANCE_COEFFICIENT * RAD_DISTANCE_COEFFICIENT_COMPONENT_MULTIPLIER, FALSE, can_contaminate, _cosmic = is_cosmic, cancel_log = stoplogging)
 	if(!hl3_release_date)
 		return
 	strength -= strength / hl3_release_date
