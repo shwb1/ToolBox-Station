@@ -249,7 +249,20 @@
 	name = "Uranium Fuel Rods"
 	desc = "Contains three uranium fuel rods. Used in nuclear reactors"
 	cost = 5000
+	access = ACCESS_ENGINE
+	crate_type = /obj/structure/closet/crate/secure/lead
 	contains = list(/obj/item/twohanded/required/fuel_rod,
 					/obj/item/twohanded/required/fuel_rod,
 					/obj/item/twohanded/required/fuel_rod)
 	crate_name = "fuel rod crate"
+	dangerous = TRUE
+
+//radiation shielded crate
+/obj/structure/closet/crate/secure/lead
+	name = "Lead shielded crate"
+	desc = "A crate with lead shielding. May contain radioactive material."
+	icon = 'icons/oldschool/objects.dmi'
+	icon_state = "lead_crate"
+	icon_door = "lead_crate"
+	contents_radiation_multiplier = 0.05
+	alternate_lock_icon = 'icons/obj/crates.dmi'

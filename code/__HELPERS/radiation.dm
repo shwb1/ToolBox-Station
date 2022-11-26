@@ -30,8 +30,13 @@
 	if(!SSradiation.can_fire)
 		return
 
-	if(istype(get_turf(source), /turf/open/indestructible/sound/pool)) //Pools heavily block rads. Spent fuel pool!
-		intensity *= 0.05
+	/*if(istype(get_turf(source), /turf/open/indestructible/sound/pool)) //Pools heavily block rads. Spent fuel pool!
+		intensity *= 0.05*/
+	var/atom/theloc = source.loc
+	while(theloc)
+		if(theloc.contents_radiation_multiplier >= 0)
+			intensity *= theloc.contents_radiation_multiplier
+		theloc = theloc.loc
 
 	var/list/things = get_rad_contents(isturf(source) ? source : get_turf(source)) //copypasta because I don't want to put special code in waves to handle their origin
 	for(var/k in 1 to things.len)

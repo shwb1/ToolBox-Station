@@ -1276,7 +1276,6 @@
 #include "code\modules\_toolbox\toolbox_events\renovation_station.dm"
 #include "code\modules\_toolbox\toolbox_events\spawn_in_shuttle.dm"
 #include "code\modules\_toolbox\toolbox_events\station_black_out.dm"
-#include "code\modules\_toolbox\toolbox_events\the_dictator.dm"
 #include "code\modules\admin\admin.dm"
 #include "code\modules\admin\admin_follow.dm"
 #include "code\modules\admin\admin_investigate.dm"

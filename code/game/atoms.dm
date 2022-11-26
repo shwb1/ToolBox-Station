@@ -76,6 +76,8 @@
 	var/list/custom_materials
 	///Bitfield for how the atom handles materials.
 	var/material_flags = NONE
+	//radiation modifier of all atoms inside the contents. 1 means 100% or no modification
+	var/contents_radiation_multiplier = 1
 
 
 /**

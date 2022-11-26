@@ -144,6 +144,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	var/last_output_temperature = 0
 	var/last_heat_delta = 0 //For administrative cheating only. Knowing the delta lets you know EXACTLY what to set K at.
 	var/no_coolant_ticks = 0	//How many times in succession did we not have enough coolant? Decays twice as fast as it accumulates.
+	var/original_dir = 0
 
 //Use this in your maps if you want everything to be preset.
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/preset
@@ -176,6 +177,8 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 			. += msg
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/attackby(obj/item/W, mob/user, params)
+	if(default_change_direction_wrench(user, W))
+		return
 	if(istype(W, /obj/item/twohanded/required/fuel_rod))
 		if(power >= 20)
 			to_chat(user, "<span class='notice'>You cannot insert fuel into [src] when it has been raised above 20% power.</span>")
@@ -285,6 +288,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		FR.depletion = 100
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/Initialize()
+	original_dir = dir
 	. = ..()
 	icon_state = "reactor_off"
 	gas_absorption_effectiveness = rand(5, 6)/10 //All reactors are slightly different. This will result in you having to figure out what the balance is for K.
@@ -303,6 +307,8 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		L.adjust_bodytemperature(CLAMP(temperature, BODYTEMP_COOLING_MAX, BODYTEMP_HEATING_MAX)) //If you're on fire, you heat up!
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/process()
+	if(dir != original_dir)
+		reset_direction()
 	update_parents() //Update the pipenet to register new gas mixes
 	if(next_slowprocess < world.time)
 		slowprocess()
@@ -453,6 +459,36 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 					if(!(grilled_item.foodtype & FRIED))
 						grilled_item.foodtype |= FRIED
 
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/reset_direction()
+	SetInitDirections()
+	for(var/i=1,i<=nodes.len,i++)
+		var/obj/machinery/atmospherics/node = nodes[i]
+		if(node)
+			node.disconnect(src)
+			nodes[i] = null
+	for(var/parent in parents)
+		nullifyPipenet(parent)
+	atmosinit()
+	for(var/i=1,i<=nodes.len,i++)
+		var/obj/machinery/atmospherics/node = nodes[i]
+		node.atmosinit()
+		node.addMember(src)
+	build_network()
+	//SSair.add_to_rebuild_queue(src)
+	original_dir = dir
+
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/default_change_direction_wrench(mob/user, obj/item/I)
+	if(datum_flags & DF_ISPROCESSING)
+		to_chat(user, "<span class='warning'>You cannot rotate the [src] while it is operating.</span>")
+		return FALSE
+	if(I.tool_behaviour == TOOL_WRENCH)
+		I.play_tool_sound(src, 50)
+		setDir(turn(dir,-90))
+		reset_direction()
+		to_chat(user, "<span class='notice'>You rotate the [src]'s piping 90 degrees.</span>")
+		return TRUE
+	return FALSE
+
 //Method to handle sound effects, reactor warnings, all that jazz.
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/handle_alerts()
 	var/alert = FALSE //If we have an alert condition, we'd best let people know.
@@ -515,6 +551,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/meltdown()
 	set waitfor = FALSE
 	SSair.atmos_machinery -= src //Annd we're now just a useless brick.
+	color = null
 	slagged = TRUE
 	update_icon()
 	STOP_PROCESSING(SSmachines, src)
@@ -579,6 +616,13 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 			var/obj/effect/landmark/nuclear_waste_spawner/WS = X
 			if(shares_overmap(src, WS)) //Begin the SLUDGING
 				WS.fire()
+
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/repair()
+	if(!slagged)
+		return
+	SSair.atmos_machinery += src
+	slagged = FALSE
+	shut_down()
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/fail_meltdown_objective()
 	for(var/client/C in GLOB.clients)
@@ -874,7 +918,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 			var/removebuttontext = "<A href='?src=\ref[src];fuelrod=\ref[F]'>Remove</A>"
 			if(poweredup)
 				removebuttontext = "<B>Locked</B>"
-			dat += "<B>Rod #[number]: </B>[F.name]<br><B>Duration Inserted:</B> [rodtime]<br>[removebuttontext]<br><br>"
+			dat += "<B>Fuel Rod #[number]: </B><br><B>Duration Inserted:</B> [rodtime]<br>[removebuttontext]<br><br>"
 	else
 		dat += "No fuel rods detected."
 	popup.set_content(dat)

@@ -9,6 +9,7 @@
 	var/tamperproof = 0
 	icon_door = "crate"
 	icon_door_override = TRUE
+	var/alternate_lock_icon = null
 
 /obj/structure/closet/crate/secure/run_obj_armor(damage_amount, damage_type, damage_flag = 0, attack_dir)
 	if(damage_flag == "melee" && damage_amount < 25)
@@ -17,12 +18,15 @@
 
 /obj/structure/closet/crate/secure/update_icon()
 	..()
+	var/lock_icon = icon
+	if(alternate_lock_icon)
+		lock_icon = alternate_lock_icon
 	if(broken)
-		add_overlay("securecrateemag")
+		add_overlay("securecrateemag", 0, lock_icon)
 	else if(locked)
-		add_overlay("securecrater")
+		add_overlay("securecrater", 0, lock_icon)
 	else
-		add_overlay("securecrateg")
+		add_overlay("securecrateg", 0, lock_icon)
 
 /obj/structure/closet/crate/secure/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1)
 	if(prob(tamperproof) && damage_amount >= DAMAGE_PRECISION)

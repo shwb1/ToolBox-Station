@@ -22,6 +22,7 @@ Place a pool filter somewhere in the pool if you want people to be able to modif
 	icon = 'icons/obj/pool.dmi'
 	icon_state = "pool"
 	sound = 'sound/effects/splash.ogg'
+	contents_radiation_multiplier = 0.05 //Pools heavily block rads. Spent fuel pool!
 	var/id = null //Set me if you don't want the pool and the pump to be in the same area, or you have multiple pools per area.
 	var/obj/effect/water_overlay = null
 
