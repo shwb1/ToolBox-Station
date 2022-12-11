@@ -23,6 +23,8 @@
 
 #define RBMK_POWER_FLAVOURISER 8000 //To turn those KWs into something usable
 
+#define NUCLEAR_REACTOR_RBMK		"rbmk_reactor"
+
 //Reference: Heaters go up to 500K.
 //Hot plasmaburn: 14164.95 C.
 
@@ -145,6 +147,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	var/last_heat_delta = 0 //For administrative cheating only. Knowing the delta lets you know EXACTLY what to set K at.
 	var/no_coolant_ticks = 0	//How many times in succession did we not have enough coolant? Decays twice as fast as it accumulates.
 	var/original_dir = 0
+	var/last_admin_alert = 0
 
 //Use this in your maps if you want everything to be preset.
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/preset
@@ -189,7 +192,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		to_chat(user, "<span class='notice'>You start to insert [W] into [src]...</span>")
 		radiation_pulse(src, temperature)
 		if(do_after(user, 5 SECONDS, target=src))
-			insert_fuel_rod(W)
+			insert_fuel_rod(W,user)
 		return TRUE
 	if(!slagged && istype(W, /obj/item/reagent_containers/food/snacks/butter))
 		var/obj/item/reagent_containers/food/snacks/butter/B = W
@@ -235,12 +238,17 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		to_chat(user, "<span class='notice'>You weld together some of [src]'s cracks. This'll do for now.</span>")
 	return TRUE
 
-/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/insert_fuel_rod(obj/item/twohanded/required/fuel_rod/rod)
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/insert_fuel_rod(obj/item/twohanded/required/fuel_rod/rod,mob/user)
 	if(!istype(rod) || !rod.forceMove(src))
 		return
 	fuel_rods[rod] = world.time
+	//logging whoever inserted this rod.
+	var/logged_user = "no one"
+	if(user)
+		logged_user = "[user]([user.key])"
+	investigate_log("[logged_user] inserted a [rod] into the [src] at [x] [y] [z] in [get_area(src)].", NUCLEAR_REACTOR_RBMK)
 	if(length(fuel_rods) <= 1)
-		start_up() //That was the first fuel rod. Let's heat it up.
+		start_up(user) //That was the first fuel rod. Let's heat it up.
 	else
 		playsound(src, pick('sound/toolbox/reactor/switch.ogg','sound/toolbox/reactor/switch2.ogg','sound/toolbox/reactor/switch3.ogg'), 100, FALSE)
 	radiation_pulse(src, temperature) //Wear protective equipment when even breathing near a reactor!
@@ -281,7 +289,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	slagged = FALSE
 	for(var/I=0;I<5;I++)
 		fuel_rods += new /obj/item/twohanded/required/fuel_rod(src)
-	start_up()
+	start_up("admin")
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/deplete()
 	for(var/obj/item/twohanded/required/fuel_rod/FR in fuel_rods)
@@ -347,6 +355,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 				vessel_integrity -= temperature / 200 //Think fast loser.
 				take_damage(10) //Just for the sound effect, to let you know you've fucked up.
 				color = "[COLOR_RED]"
+				log_reactor("[src] is running with insufficient coolant and may melt down. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",50)
 	//Now, heat up the output and set our pressure.
 	coolant_output.set_temperature(max(CELSIUS_TO_KELVIN(temperature),0)) //Heat the coolant output gas that we just had pass through us.
 	last_output_temperature = KELVIN_TO_CELSIUS(coolant_output.return_temperature())
@@ -500,9 +509,12 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		if(temperature >= RBMK_TEMPERATURE_MELTDOWN)
 			var/temp_damage = min(temperature/100, initial(vessel_integrity)/40)	//40 seconds to meltdown from full integrity, worst-case. Bit less than blowout since it's harder to spike heat that much.
 			vessel_integrity -= temp_damage
+			log_reactor("[src] now at MELTDOWN temperature of [temperature]c. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",50)
 			if(vessel_integrity <= temp_damage) //It wouldn't be able to tank another hit.
 				meltdown() //Oops! All meltdown
 				return
+		else
+			log_reactor("[src] now at critical temperature of [temperature]c. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",150)
 	else
 		alert = FALSE
 	if(temperature < -200) //That's as cold as I'm letting you get it, engineering.
@@ -519,6 +531,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		T.atmos_spawn_air("water_vapor=[pressure/100];TEMP=[CELSIUS_TO_KELVIN(temperature)]")
 		var/pressure_damage = min(pressure/100, initial(vessel_integrity)/45)	//You get 45 seconds (if you had full integrity), worst-case. But hey, at least it can't be instantly nuked with a pipe-fire.. though it's still very difficult to save.
 		vessel_integrity -= pressure_damage
+		log_reactor("[src] now at overpressure of [pressure]. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",50)
 		if(vessel_integrity <= pressure_damage) //It wouldn't be able to tank another hit.
 			blowout()
 			return
@@ -550,6 +563,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 //Results: Engineering becomes unusable and your engine irreparable
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/meltdown()
 	set waitfor = FALSE
+	investigate_log("[src] has got into meltdown at [x] [y] [z] in [get_area(src)].", NUCLEAR_REACTOR_RBMK)
 	SSair.atmos_machinery -= src //Annd we're now just a useless brick.
 	color = null
 	slagged = TRUE
@@ -603,6 +617,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 
 //Failure condition 2: Blowout. Achieved by reactor going over-pressured. This is a round-ender because it requires more fuckery to achieve.
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/blowout()
+	investigate_log("[src] has exploded in full at [x] [y] [z] in [get_area(src)].", NUCLEAR_REACTOR_RBMK)
 	explosion(get_turf(src), GLOB.MAX_EX_DEVESTATION_RANGE, GLOB.MAX_EX_HEAVY_RANGE, GLOB.MAX_EX_LIGHT_RANGE, GLOB.MAX_EX_FLASH_RANGE)
 	meltdown() //Double kill.
 	//var/obj/structure/overmap/OM = get_overmap()
@@ -620,8 +635,14 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/repair()
 	if(!slagged)
 		return
-	SSair.atmos_machinery += src
+	vessel_integrity = initial(vessel_integrity)
 	slagged = FALSE
+	power = 0
+	temperature = 0
+	var/datum/component/R = GetComponent(/datum/component/radioactive)
+	if(istype(R))
+		R.RemoveComponent()
+	SSair.atmos_machinery += src
 	shut_down()
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/fail_meltdown_objective()
@@ -650,10 +671,15 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	if(slagged)
 		icon_state = "reactor_slagged"
 
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/log_reactor(message,nospam)
+	if(nospam > 0 && last_admin_alert && last_admin_alert+nospam > world.time)
+		return
+	last_admin_alert = world.time
+	investigate_log("[message]", NUCLEAR_REACTOR_RBMK)
 
 //Startup, shutdown
 
-/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/start_up()
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/start_up(mob/user)
 	if(slagged)
 		return // No :)
 	START_PROCESSING(SSmachines, src)
@@ -663,9 +689,16 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	AR.set_looping_ambience('sound/toolbox/reactor/reactor_hum.ogg')
 	var/startup_sound = pick('sound/toolbox/reactor/startup.ogg', 'sound/toolbox/reactor/startup2.ogg')
 	playsound(loc, startup_sound, 100)
+	var/logged_user = "noone"
+	if(istype(user))
+		logged_user = "[user]([user.key])"
+	else if(istext(user))
+		logged_user = "[user]"
+	investigate_log("[logged_user] has started up the [src] at  [x] [y] [z] in [get_area(src)].", NUCLEAR_REACTOR_RBMK)
 
 //Shuts off the fuel rods, ambience, etc. Keep in mind that your temperature may still go up!
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/shut_down()
+	investigate_log("[src] has gone into shutdown at [x] [y] [z] in [get_area(src)].", NUCLEAR_REACTOR_RBMK)
 	STOP_PROCESSING(SSmachines, src)
 	set_light(0)
 	var/area/AR = get_area(src)
@@ -805,6 +838,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	if(action == "input")
 		var/input = text2num(params["target"])
 		reactor.desired_k = CLAMP(input, 0, 3)
+		investigate_log("[usr]([usr.key]) has attempted to change the rbmk reactors K to [reactor.desired_k].", NUCLEAR_REACTOR_RBMK)
 
 /obj/machinery/computer/reactor/control_rods/ui_data(mob/user)
 	var/list/data = list()
