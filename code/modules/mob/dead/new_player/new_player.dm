@@ -261,6 +261,8 @@
 					return JOB_UNAVAILABLE_SLOTFULL
 		else
 			return JOB_UNAVAILABLE_SLOTFULL
+	if(job.whitelisted && !job.is_whitelisted(client))
+		return JOB_UNAVAILABLE_GENERIC
 	if(is_banned_from(ckey, rank))
 		return JOB_UNAVAILABLE_BANNED
 	if(QDELETED(src))
@@ -274,6 +276,11 @@
 	return JOB_AVAILABLE
 
 /mob/dead/new_player/proc/AttemptLateSpawn(rank)
+	var/datum/job/job = SSjob.GetJob(rank)
+	if(!job.is_whitelisted(client))
+		message_admins("An illegal attempt to access job \"[rank]\" has been made by [key].")
+		log_game("An illegal attempt to access job \"[rank]\" has been made by [key].")
+		return FALSE
 	var/error = IsJobUnavailable(rank)
 	if(error != JOB_AVAILABLE)
 		alert(src, get_job_unavailable_error_message(error, rank))
@@ -315,8 +322,6 @@
 	if(isliving(equip))	//Borgs get borged in the equip, so we need to make sure we handle the new mob.
 		character = equip
 
-	var/datum/job/job = SSjob.GetJob(rank)
-
 	if(job && !job.override_latejoin_spawn(character))
 		SSjob.SendToLateJoin(character)
 		if(!arrivals_docked)
@@ -332,7 +337,7 @@
 	if(ishuman(character))
 		humanc = character	//Let's retypecast the var to be human,
 
-	if(humanc)	//These procs all expect humans
+	if(humanc && !job.override_station_procedures)	//These procs all expect humans
 		GLOB.data_core.manifest_inject(humanc)
 		if(SSshuttle.arrivals)
 			SSshuttle.arrivals.QueueAnnounce(humanc, rank)
@@ -352,7 +357,7 @@
 
 	GLOB.joined_player_list += character.ckey
 
-	if(CONFIG_GET(flag/allow_latejoin_antagonists) && humanc)	//Borgs aren't allowed to be antags. Will need to be tweaked if we get true latejoin ais.
+	if(CONFIG_GET(flag/allow_latejoin_antagonists) && humanc && !job.antagonist_immune)	//Borgs aren't allowed to be antags. Will need to be tweaked if we get true latejoin ais.
 		if(SSshuttle.emergency)
 			switch(SSshuttle.emergency.mode)
 				if(SHUTTLE_RECALL, SHUTTLE_IDLE)
@@ -401,6 +406,8 @@
 		var/list/dept_dat = list()
 		for(var/job in category)
 			var/datum/job/job_datum = SSjob.name_occupations[job]
+			if(job_datum.whitelisted)
+				continue
 			if(job_datum && IsJobUnavailable(job_datum.title, TRUE) == JOB_AVAILABLE)
 				var/command_bold = ""
 				if(job in GLOB.command_positions)
@@ -416,9 +423,38 @@
 		column_counter++
 		if(column_counter > 0 && (column_counter % 3 == 0))
 			dat += "</td><td valign='top'>"
+
+	//adding whitelisted jobs to viewed list -falaskian
+	var/list/whitelisted_for = list()
+	for(var/datum/job/job in SSjob.whitelisted_occupations)
+		if(!job.is_whitelisted(client))
+			continue
+		if(job && IsJobUnavailable(job.title, TRUE) == JOB_AVAILABLE)
+			whitelisted_for += job
+	var/panel_width = 680
+	if(whitelisted_for.len)
+		panel_width = 880
+		dat += "<fieldset style='width: 185px; border: 2px solid #c7b424; display: inline'>"
+		dat += "<legend align='center' style='color: #c7b424'>Special Jobs:</legend>"
+		var/list/dept_dat = list()
+		for(var/datum/job/job_datum in whitelisted_for)
+			if(IsJobUnavailable(job_datum.title, TRUE) == JOB_AVAILABLE)
+				var/command_bold = ""
+				if(job in GLOB.command_positions)
+					command_bold = " command"
+				if(job_datum in SSjob.prioritized_jobs)
+					dept_dat += "<a class='job[command_bold]' href='byond://?src=[REF(src)];SelectedJob=[job_datum.title]'><span class='priority'>[job_datum.title] ([job_datum.current_positions])</span></a>"
+				else
+					dept_dat += "<a class='job[command_bold]' href='byond://?src=[REF(src)];SelectedJob=[job_datum.title]'>[job_datum.title] ([job_datum.current_positions])</a>"
+		dat += jointext(dept_dat, "")
+		dat += "</fieldset><br>"
+		column_counter++
+		if(column_counter > 0 && (column_counter % 3 == 0))
+			dat += "</td><td valign='top'>"
+
 	dat += "</td></tr></table></center>"
 	dat += "</div></div>"
-	var/datum/browser/popup = new(src, "latechoices", "Choose Profession", 680, 580)
+	var/datum/browser/popup = new(src, "latechoices", "Choose Profession", panel_width, 580)
 	popup.add_stylesheet("playeroptions", 'html/browser/playeroptions.css')
 	popup.set_content(jointext(dat, ""))
 	popup.open(FALSE) // 0 is passed to open so that it doesn't use the onclose() proc
@@ -459,7 +495,6 @@ GLOBAL_LIST_EMPTY(Original_Minds)
 		new_character.key = key		//Manually transfer the key to log them in
 		if(new_character.mind && !(new_character.mind in GLOB.Original_Minds))
 			GLOB.Original_Minds[new_character.mind] = world.time
-		update_toolbox_inventory(new_character) //TOOLBOX add any additions to how a mob might get equipped at round start to this proc
 		new_character.stop_sound_channel(CHANNEL_LOBBYMUSIC)
 		new_character = null
 		qdel(src)

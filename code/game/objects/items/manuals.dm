@@ -251,8 +251,11 @@
 		initialize_wikibook()
 	return ..()
 
+/obj/item/book/manual/wiki/proc/get_wiki_url()
+	return CONFIG_GET(string/wikiurl)
+
 /obj/item/book/manual/wiki/proc/initialize_wikibook()
-	var/wikiurl = CONFIG_GET(string/wikiurl)
+	var/wikiurl = get_wiki_url()
 	if(wikiurl)
 		dat = {"
 

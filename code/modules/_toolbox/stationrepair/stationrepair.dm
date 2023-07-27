@@ -18,14 +18,12 @@ proc
 				continue
 			if(F.density)
 				continue
-			var/thecoords = "[F.x] [F.y]"
+			var/thecoords = "x=[F.x];y=[F.y];z=[F.z]"
 			var/entrytext = "type=[F.type];dir=[F.dir];icon_state=[F.icon_state]"
 			var/platingtext = "is_plating=0"
 			if(istype(F,/turf/open/floor/plating))
 				platingtext = "is_plating=1"
 			entrytext += ";icon_regular_floor=[F.icon_regular_floor];[platingtext]"
-			if(F.floor_tile && ispath(F.floor_tile))
-				entrytext += ";floor_tile=[F.floor_tile]"
 			if(F.initial_gas_mix)
 				var/newtext = F.initial_gas_mix
 				while(findtext(newtext,";",1,length(newtext)+1))
@@ -43,11 +41,7 @@ proc
 					break
 				for(var/obj/structure/window/W in windows)
 					GLOB.savedstationwindows += "x=[W.x];y=[W.y];dir=[W.dir];hasgrille=[hasgrille];type=[W.type]"
-			var/list/mutable_list = list()
-			for(var/mutable_appearance/M in F.managed_overlays)
-				mutable_list += "icon=[M.icon];icon_state=[M.icon_state];thedir=[M.dir];color=[M.color];layer=[M.layer];alpha=[M.alpha]"
-			if(mutable_list.len && !GLOB.savedstationfloordecals[thecoords])
-				GLOB.savedstationfloordecals[thecoords] = mutable_list
+			F.save_overlays()
 		for(var/turf/closed/wall/W in world)
 			if(W.z != stationz || istype(get_area(W),/area/shuttle))
 				continue
@@ -194,8 +188,12 @@ proc
 		if(!stationz)
 			return
 		for(var/text in GLOB.savedstationfloors)
-			var/spacepos = findtext(text," ",1,length(text)+1)
-			var/turf/T = locate(text2num(copytext(text,1,spacepos)), text2num(copytext(text,spacepos+1,length(text)+1)),stationz)
+			//var/spacepos = findtext(text," ",1,length(text)+1)
+			//var/turf/T = locate(text2num(copytext(text,1,spacepos)), text2num(copytext(text,spacepos+1,length(text)+1)),stationz)
+			var/list/turfcoords = params2list(text)
+			if(!islist(turfcoords) || !turfcoords.len)
+				continue
+			var/turf/T = locate(text2num(turfcoords["x"]),text2num(turfcoords["y"]),text2num(turfcoords["z"]))
 			if(!istype(T,/turf))
 				continue
 			if(aoelist.len && !(T in aoelist))
@@ -605,31 +603,48 @@ proc/FixWiring(list/aoelist = list())
 			message_admins("[usr] has performed a full station repair.")
 	return
 
+/turf/open/floor/proc/save_overlays()
+	if(!islist(managed_overlays) || !managed_overlays.len)
+		return
+	var/thecoords = "x=[x];y=[y];z=[z]"
+	if(GLOB.savedstationfloordecals[thecoords])
+		return
+	var/list/mutable_list = list()
+	mutable_list += "icon_state=[icon_state];icon_regular_floor=[icon_regular_floor];floor_tile=[floor_tile]"
+	for(var/mutable_appearance/M in managed_overlays)
+		mutable_list += "icon=[M.icon];icon_state=[M.icon_state];thedir=[M.dir];color=[M.color];layer=[M.layer];alpha=[M.alpha]"
+	GLOB.savedstationfloordecals[thecoords] = mutable_list
+
 /turf/open/floor/proc/restore_overlays(force_appearance = 0)
-	var/thecoords = "[x] [y]"
-	var/list/floorparams = params2list(GLOB.savedstationfloors[thecoords])
+	if(istype(src,/turf/open/floor/plating))
+		return
+	var/list/thecoords = "x=[x];y=[y];z=[z]"
+	if(!thecoords)
+		return
 	var/list/mutable_list = GLOB.savedstationfloordecals[thecoords]
-	var/spacepos = findtext(thecoords," ",1,length(thecoords)+1)
-	var/stationz = SSmapping.levels_by_trait(ZTRAIT_STATION)[1]
-	var/turf/T = locate(text2num(copytext(thecoords,1,spacepos)), text2num(copytext(thecoords,spacepos+1,length(thecoords)+1)),stationz)
+	if(!mutable_list || !mutable_list.len)
+		return
+	thecoords = params2list(thecoords)
+	if(!thecoords || !thecoords.len)
+		return
+	var/turf/T = locate(text2num(thecoords["x"]),text2num(thecoords["y"]),text2num(thecoords["z"]))
 	if(!istype(T) || T != src)
 		return
-	if(!istype(src,/turf/open/floor/plating))
-		var/thetile = text2path(floorparams["floor_tile"])
-		if(!floor_tile || (force_appearance || (thetile && ispath(thetile))))
-			if(floor_tile != thetile)
-				return
-			if(floorparams && floorparams.len)
-				if(floorparams["icon_state"])
-					icon_state = floorparams["icon_state"]
-					if(icon_regular_floor != floorparams["icon_regular_floor"])
-						icon_regular_floor = icon_state
-			if(islist(mutable_list) && mutable_list.len)
-				if(!islist(managed_overlays))
-					managed_overlays = list()
-				managed_overlays.Cut()
-				overlays.Cut()
-				for(var/t in mutable_list)
-					var/list/paramslist = params2list(t)
-					if(islist(paramslist) && paramslist.len)
-						AddElement(/datum/element/decal, file(paramslist["icon"]), paramslist["icon_state"], text2num(paramslist["thedir"]), FALSE, paramslist["color"], null, null, text2num(paramslist["alpha"]), FALSE)
+	var/list/floorparams = params2list(mutable_list[1])
+	var/thetile = text2path(floorparams["floor_tile"])
+	if((thetile && ispath(thetile) && floor_tile && floor_tile == thetile)||force_appearance)
+		if(floorparams && floorparams.len)
+			if(floorparams["icon_state"])
+				icon_state = floorparams["icon_state"]
+				if(icon_regular_floor != floorparams["icon_regular_floor"])
+					icon_regular_floor = icon_state
+		if(islist(mutable_list) && mutable_list.len > 1)
+			if(!islist(managed_overlays))
+				managed_overlays = list()
+			managed_overlays.Cut()
+			overlays.Cut()
+			for(var/i=2,i<=mutable_list.len,i++)
+				var/t = mutable_list[i]
+				var/list/paramslist = params2list(t)
+				if(islist(paramslist) && paramslist.len)
+					AddElement(/datum/element/decal, file(paramslist["icon"]), paramslist["icon_state"], text2num(paramslist["thedir"]), FALSE, paramslist["color"], null, null, text2num(paramslist["alpha"]), FALSE)

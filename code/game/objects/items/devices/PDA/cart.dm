@@ -14,6 +14,7 @@
 #define CART_QUARTERMASTER		(1<<12)
 #define CART_HYDROPONICS		(1<<13)
 #define CART_DRONEPHONE			(1<<14)
+#define CART_CUSTOMMENU (1<<15)
 
 
 /obj/item/cartridge
@@ -49,6 +50,12 @@
 
 	var/mob/living/simple_animal/bot/active_bot
 	var/list/botlist = list()
+
+/obj/item/cartridge/proc/get_custom_menu(mob/user)
+	return ""
+
+/obj/item/cartridge/proc/customreaction(href_list,/mob/user)
+	return
 
 /obj/item/cartridge/Initialize()
 	. = ..()
@@ -574,6 +581,10 @@ Code:
 		usr.unset_machine()
 		usr << browse(null, "window=pda")
 		return
+
+	if(href_list["custommenu"])
+
+		return customreaction(href_list,usr)
 
 	switch(href_list["choice"])
 		if("Medical Records")

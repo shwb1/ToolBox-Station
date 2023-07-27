@@ -105,6 +105,9 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	title = "Haynes nuclear reactor owner's manual"
 	page_link = "Guide_to_the_Nuclear_Reactor"
 
+/obj/item/book/manual/wiki/rbmk/get_wiki_url()
+	return "https://nsv.beestation13.com/wiki"
+
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor
 	name = "\improper Advanced Gas-Cooled Nuclear Reactor"
 	desc = "A tried and tested design which can output stable power at an acceptably low risk. The moderator can be changed to provide different effects."
@@ -1572,3 +1575,8 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	req_components = list(
 		/obj/item/stack/cable_coil = 10,
 		/obj/item/stock_parts/capacitor = 12)
+
+//turbine room turfs
+#define OPENTURF_REACTOR_TURBINE "o2=132;n2=492;TEMP=293.15"
+/turf/open/floor/engine/reactor_turbine
+	initial_gas_mix = OPENTURF_REACTOR_TURBINE

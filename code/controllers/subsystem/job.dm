@@ -4,6 +4,7 @@ SUBSYSTEM_DEF(job)
 	flags = SS_NO_FIRE
 
 	var/list/occupations = list()		//List of all jobs
+	var/list/whitelisted_occupations = list()
 	var/list/datum/job/name_occupations = list()	//Dict of all jobs, keys are titles
 	var/list/type_occupations = list()	//Dict of all jobs, keys are types
 	var/list/unassigned = list()		//Players who need jobs
@@ -58,9 +59,14 @@ SUBSYSTEM_DEF(job)
 		if(!job.map_check())	//Even though we initialize before mapping, this is fine because the config is loaded at new
 			testing("Removed [job.type] due to map config")
 			continue
-		occupations += job
 		name_occupations[job.title] = job
 		type_occupations[J] = job
+		if(job.whitelisted)
+			whitelisted_occupations += job
+		else
+			occupations += job
+	for(var/datum/job/job in whitelisted_occupations)
+		occupations += job
 
 	return 1
 
@@ -364,6 +370,9 @@ SUBSYSTEM_DEF(job)
 					JobDebug("DO incompatible with antagonist role, Player: [player], Job:[job.title]")
 					continue
 
+				if(job.whitelisted && !job.is_whitelisted(player.client))
+					continue
+
 				// If the player wants that job on this level, then try give it to him.
 				if(player.client.prefs.job_preferences[job.title] == level || (job.gimmick && player.client.prefs.job_preferences["Gimmick"] == level))
 					// If the job isn't filled
@@ -443,6 +452,9 @@ SUBSYSTEM_DEF(job)
 	var/datum/job/job = GetJob(rank)
 
 	living_mob.job = rank
+	if(!job.pre_setup(M,joined_late))
+		message_admins("job \"[rank]\" for player \"[M.key]\" failed pre_setup. They have been spawned as an assistant.")
+		return EquipRank(M, "Assistant", joined_late)
 
 	//If we joined at roundstart we should be positioned at our workstation
 	if(!joined_late)

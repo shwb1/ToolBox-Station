@@ -489,6 +489,13 @@
 	chameleon_action.chameleon_blacklist = typecacheof(/obj/item/clothing/mask/changeling, only_root_path = TRUE)
 	chameleon_action.initialize_disguises()
 
+/obj/item/clothing/mask/chameleon/alternate_voice(mob/living/carbon/human/user)
+	. = ..()
+	if(istype(user) && user.wear_mask == src && user.wear_id && vchange)
+		var/obj/item/card/id/idcard = user.wear_id.GetID()
+		if(idcard)
+			. = idcard.registered_name
+
 /obj/item/clothing/mask/chameleon/emp_act(severity)
 	. = ..()
 	if(. & EMP_PROTECT_SELF)

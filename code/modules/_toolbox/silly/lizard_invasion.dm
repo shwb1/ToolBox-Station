@@ -356,7 +356,6 @@
 	var/max_summons = 8
 	var/list/spawned_mobs = list()
 	var/theskincolor
-	var/list/L = list()
 
 /obj/effect/proc_holder/spell/aimed/summon_lizard/update_icon()
 	action.button_icon_state = "[base_icon_state]"

@@ -61,7 +61,9 @@ GLOBAL_LIST_INIT(security_positions, list(
 	"Detective",
 	"Security Officer",
 	"Brig Physician",
-	"Deputy"))
+	"Deputy",
+	"Perseus Security Enforcer",
+	"Perseus Security Commander"))
 
 
 GLOBAL_LIST_INIT(nonhuman_positions, list(

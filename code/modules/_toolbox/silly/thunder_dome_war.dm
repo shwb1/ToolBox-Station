@@ -43,11 +43,14 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 			var/turf/T2 = locate(specialcenter.x+(additional*-1),specialcenter.y,specialcenter.z)
 			specialturfs += T2
 			additional++
-		//var/thepwhitelist = get_pwhitelist()
+		var/list/deathsquadwar_observer = list()
+		for(var/t in subtypesof(/datum/deathsquadwar_observer))
+			var/datum/deathsquadwar_observer/D = new t()
+			deathsquadwar_observer += D
 		to_chat(world,"<font size='5'><B>ITS THUNDERDOME TIME</B></font>")
 		while(GLOB.Thunder_Dome_War_Time)
 			var/list/deathsquads = list()
-			//var/list/perseus = list()
+			var/list/special_observers = list()
 			for(var/client/C in GLOB.clients)
 				if(!istype(C.mob,/mob/dead/observer) && !istype(C.mob,/mob/living))
 					continue
@@ -79,17 +82,19 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 						spawn(0)
 							if(oldmob.mind && oldmob.mind.special_role == "Thunder Dome War" )
 								qdel(oldmob)
-					/*var/perccheck = is_pwhitelisted(C.ckey,thepwhitelist)
-					if(perccheck && (specialturfs.len || specialbackupturfs.len))
-						perseus[C] = perccheck
-					else
-						deathsquads += C*/
-			/*for(var/client/C in perseus)
-				if(perseus[C])
-					var/mob/living/carbon/human/H = new()
-					C.prefs.copy_to(H)
-					H.dna.update_dna_identity()
-					H.sync_mind()
+					if(specialturfs.len || specialbackupturfs.len)
+						for(var/datum/deathsquadwar_observer/D in deathsquadwar_observer)
+							if(D.is_special(C))
+								special_observers[C] = D
+								break
+					if(!(C in special_observers))
+						deathsquads += C
+			for(var/client/C in special_observers)
+				var/datum/deathsquadwar_observer/D = special_observers[C]
+				if(istype(D))
+					var/mob/living/carbon/human/H = D.spawn_deathsquad(C)
+					if(!H)
+						continue
 					var/turf/T
 					if(specialturfs.len)
 						T = specialturfs[1]
@@ -97,16 +102,12 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 						specialbackupturfs += T
 					else if(specialbackupturfs.len)
 						T = pick(specialbackupturfs)
+					if(!T)
+						qdel(H)
+						continue
 					H.forceMove(T)
 					H.ckey = C.ckey
-					if(!(H.mind in GLOB.Thunder_Dome_War_Time_Specials))
-						GLOB.Thunder_Dome_War_Time_Specials += H.mind
-					var/outfitdatum = /datum/outfit/perseus/fullkit
-					if(copytext(perseus[C],1,2) == "2")
-						outfitdatum = /datum/outfit/perseus/commander/fullkit
-					var/datum/outfit/perseus/P = new outfitdatum()
-					H.equipOutfit(P)
-					H.dir = SOUTH*/
+					H.dir = SOUTH
 			for(var/client/C in deathsquads)
 				var/mob/living/carbon/human/H = new()
 				H.real_name = C.key
@@ -122,3 +123,9 @@ GLOBAL_LIST_EMPTY(Thunder_Dome_War_Time_Specials)
 				CHECK_TICK
 			sleep(5)
 
+//for reasons.
+/datum/deathsquadwar_observer
+
+/datum/deathsquadwar_observer/proc/is_special(client/C)
+
+/datum/deathsquadwar_observer/proc/spawn_deathsquad(client/C)

@@ -197,10 +197,11 @@
 		var/turf/newT = new_turfs[i]
 		newT.lateShuttleMove(oldT)
 
-	for(var/i in 1 to moved_atoms.len)
-		CHECK_TICK
-		var/atom/movable/moved_object = moved_atoms[i]
-		if(QDELETED(moved_object))
-			continue
-		var/turf/oldT = moved_atoms[moved_object]
-		moved_object.lateShuttleMove(oldT, movement_force, movement_direction)
+	if(!inertia_dampeners)
+		for(var/i in 1 to moved_atoms.len)
+			CHECK_TICK
+			var/atom/movable/moved_object = moved_atoms[i]
+			if(QDELETED(moved_object))
+				continue
+			var/turf/oldT = moved_atoms[moved_object]
+			moved_object.lateShuttleMove(oldT, movement_force, movement_direction)

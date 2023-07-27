@@ -184,6 +184,7 @@
 			return list(ACCESS_MAILSORTING, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MECH_MINING, ACCESS_MINERAL_STOREROOM, ACCESS_CARGO, ACCESS_QM, ACCESS_VAULT)
 		if(7) //command
 			return list(ACCESS_HEADS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_CHANGE_IDS, ACCESS_AI_UPLOAD, ACCESS_TELEPORTER, ACCESS_EVA, ACCESS_GATEWAY, ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_HOP, ACCESS_CAPTAIN, ACCESS_VAULT)
+	return get_other_accesses("department",code)
 
 /proc/get_region_accesses_name(code)
 	switch(code)
@@ -203,6 +204,7 @@
 			return "Supply"
 		if(7) //command
 			return "Command"
+	return get_other_accesses("department_name",code)
 
 /proc/get_access_desc(A)
 	switch(A)
@@ -346,6 +348,7 @@
 			return "Engineering Mech Access"
 		if(ACCESS_AUX_BASE)
 			return "Auxiliary Base"
+	return get_other_accesses("desc",A)
 
 /proc/get_centcom_access_desc(A)
 	switch(A)

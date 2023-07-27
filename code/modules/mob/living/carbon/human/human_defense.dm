@@ -377,6 +377,8 @@
 /mob/living/carbon/human/ex_act(severity, target, origin)
 	if(origin && istype(origin, /datum/spacevine_mutation) && isvineimmune(src))
 		return
+	if(status_flags & GODMODE)
+		return
 	..()
 	if (!severity || QDELETED(src))
 		return

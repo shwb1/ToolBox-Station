@@ -930,6 +930,7 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 		next_external_rsc = WRAP(next_external_rsc+1, 1, external_rsc_urls.len+1)
 		preload_rsc = external_rsc_urls[next_external_rsc]
 #endif
+	load_toolbox_assets()
 	spawn (10) //removing this spawn causes all clients to not get verbs.
 		//load info on what assets the client has
 		src << browse('code/modules/asset_cache/validate_assets.html', "window=asset_cache_browser")

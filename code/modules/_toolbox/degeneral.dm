@@ -827,7 +827,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "location firing pin"
 	desc = "This safety firing pin only allows weapons to be fired in certain locations."
 	fail_message = "<span class='warning'>LOCATION CHECK FAILED.</span>"
-	pin_removeable = 0
+	can_be_removed = 0
 	var/list/authorised_locations = list(/area/gb_away/ground_base)
 
 /obj/item/firing_pin/area_locked/pin_auth(mob/living/user)
@@ -841,7 +841,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "gateway firing pin"
 	desc = "This safety firing pin only allows weapons to be fired on location in an away mission."
 	fail_message = "<span class='warning'>GATEWAY CHECK FAILED.</span>"
-	pin_removeable = 0
+	can_be_removed = 0
 	var/area/A = null
 
 /obj/item/firing_pin/away_ground_base/pin_auth(mob/living/user)
@@ -854,7 +854,7 @@ GLOBAL_LIST_EMPTY(lizard_ore_nodes)
 	name = "gateway firing pin"
 	desc = "This safety firing pin allows weapons to be fired only on 'away' end of gateway."
 	fail_message = "<span class='warning'>GATEWAY CHECK FAILED.</span>"
-	pin_removeable = 0
+	can_be_removed = 0
 	var/original_z_level = null
 
 /obj/item/firing_pin/z_level_locked/Initialize()

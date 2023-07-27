@@ -834,11 +834,22 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 		var/datum/job/overflow = SSjob.GetJob(SSjob.overflow_role)
 
+		var/list/alljobs = list()
 		for(var/datum/job/job in sortList(SSjob.occupations, /proc/cmp_job_display_asc))
+			alljobs += job
+		var/onwhitelist = 0
+		for(var/datum/job/job in alljobs)
 			if(job.gimmick) //Gimmick jobs run off of a single pref
 				continue
+			if(job.whitelisted)
+				if(!job.is_whitelisted(user.client))
+					continue
+				else if(onwhitelist < 1)
+					onwhitelist = 1
 			index += 1
-			if((index >= limit) || (job.title in splitJobs))
+			if((index >= limit) || (job.title in splitJobs) || (onwhitelist == 1))
+				if(onwhitelist == 1)
+					onwhitelist = 2
 				width += widthPerColumn
 				if((index < limit) && (lastJob != null))
 					//If the cells were broken up by a job in the splitJob list then it will fill in the rest of the cells with

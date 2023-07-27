@@ -1,3 +1,8 @@
+/datum/department_account_init_value
+	var/account_id = ""
+	var/account_name = ""
+	var/account_payout = 2000
+
 SUBSYSTEM_DEF(economy)
 	name = "Economy"
 	wait = 5 MINUTES
@@ -5,13 +10,7 @@ SUBSYSTEM_DEF(economy)
 	runlevels = RUNLEVEL_GAME
 	var/roundstart_paychecks = 5
 	var/budget_pool = 35000
-	var/list/department_accounts = list(ACCOUNT_CIV = ACCOUNT_CIV_NAME,
-										ACCOUNT_ENG = ACCOUNT_ENG_NAME,
-										ACCOUNT_SCI = ACCOUNT_SCI_NAME,
-										ACCOUNT_MED = ACCOUNT_MED_NAME,
-										ACCOUNT_SRV = ACCOUNT_SRV_NAME,
-										ACCOUNT_CAR = ACCOUNT_CAR_NAME,
-										ACCOUNT_SEC = ACCOUNT_SEC_NAME)
+	var/list/department_accounts = list()
 	var/list/generated_accounts = list()
 	var/full_ancap = FALSE // Enables extra money charges for things that normally would be free, such as sleepers/cryo/cloning.
 							//Take care when enabling, as players will NOT respond well if the economy is set up for low cash flows.
@@ -19,60 +18,57 @@ SUBSYSTEM_DEF(economy)
 	var/list/dep_cards = list()
 
 /datum/controller/subsystem/economy/Initialize(timeofday)
-	var/budget_to_hand_out = round(budget_pool / department_accounts.len)
-	for(var/A in department_accounts)
-		new /datum/bank_account/department(A, budget_to_hand_out)
+	var/list/accountinits = subtypesof(/datum/department_account_init_value)
+	budget_pool = accountinits.len * 5000
+	var/budget_to_hand_out = round(budget_pool / accountinits.len)
+	for(var/t in accountinits)
+		var/datum/department_account_init_value/D = t
+		department_accounts[initial(D.account_id)] = initial(D.account_name)
+		new /datum/bank_account/department(initial(D.account_id), budget_to_hand_out,initial(D.account_payout))
 	return ..()
 
 /datum/controller/subsystem/economy/fire(resumed = 0)
-	boring_eng_payout()
-	boring_sci_payout()
-	boring_sec_payout()
-	boring_med_payout()
-	boring_srv_payout()
-	boring_civ_payout()
+	boring_account_payouts()
 	for(var/A in bank_accounts)
 		var/datum/bank_account/B = A
 		B.payday(1)
 
+/datum/department_account_init_value/civ
+	account_id = ACCOUNT_CIV
+	account_name = ACCOUNT_CIV_NAME
+	account_payout = 1000
+/datum/department_account_init_value/eng
+	account_id = ACCOUNT_ENG
+	account_name = ACCOUNT_ENG_NAME
+	account_payout = 2000
+/datum/department_account_init_value/sci
+	account_id = ACCOUNT_SCI
+	account_name = ACCOUNT_SCI_NAME
+	account_payout = 2500
+/datum/department_account_init_value/med
+	account_id = ACCOUNT_MED
+	account_name = ACCOUNT_MED_NAME
+	account_payout = 2000
+/datum/department_account_init_value/srv
+	account_id = ACCOUNT_SRV
+	account_name = ACCOUNT_SRV_NAME
+	account_payout = 1000
+/datum/department_account_init_value/car
+	account_id = ACCOUNT_CAR
+	account_name = ACCOUNT_CAR_NAME
+	account_payout = 0 //cargo doesnt get shit
+/datum/department_account_init_value/sec
+	account_id = ACCOUNT_SEC
+	account_name = ACCOUNT_SEC_NAME
+	account_payout = 2000
 
 /datum/controller/subsystem/economy/proc/get_dep_account(dep_id)
 	for(var/datum/bank_account/department/D in generated_accounts)
 		if(D.department_id == dep_id)
 			return D
 
-/datum/controller/subsystem/economy/proc/boring_eng_payout()
-	var/engineering_cash = 2000
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_ENG)
-	if(D)
-		D.adjust_money(engineering_cash)
-
-/datum/controller/subsystem/economy/proc/boring_sec_payout()
-	var/security_cash = 2000
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_SEC)
-	if(D)
-		D.adjust_money(security_cash)
-
-/datum/controller/subsystem/economy/proc/boring_med_payout()
-	var/medical_cash = 2000
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_MED)
-	if(D)
-		D.adjust_money(medical_cash)
-
-/datum/controller/subsystem/economy/proc/boring_srv_payout()
-	var/service_cash = 1000
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_SRV)
-	if(D)
-		D.adjust_money(service_cash)
-
-/datum/controller/subsystem/economy/proc/boring_sci_payout()
-	var/science_cash = 2500
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_SCI)
-	if(D)
-		D.adjust_money(science_cash)
-
-/datum/controller/subsystem/economy/proc/boring_civ_payout()
-	var/civilian_cash = 1000
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_CIV)
-	if(D)
-		D.adjust_money(civilian_cash)
+/datum/controller/subsystem/economy/proc/boring_account_payouts()
+	for(var/t in department_accounts)
+		var/datum/bank_account/department/D = get_dep_account(t)
+		if(D)
+			D.adjust_money(D.pay_out)

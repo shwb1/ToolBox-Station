@@ -11,12 +11,38 @@
 	circuit = /obj/item/circuitboard/computer/crew
 
 	light_color = LIGHT_COLOR_BLUE
+	var/use_tcoms_relay = 0
 
 /obj/machinery/computer/crew/syndie
 	icon_keyboard = "syndie_key"
 
 /obj/machinery/computer/crew/interact(mob/user)
 	GLOB.crewmonitor.show(user,src)
+
+/obj/machinery/computer/crew/additional_crew_monitor_conditions(mob/living/carbon/human/target,mob/user)
+	. = FALSE
+	if(!use_tcoms_relay)
+		return
+	var/turf/targetturf = get_turf(target)
+	if(!targetturf)
+		return
+	for(var/obj/machinery/telecomms/T in GLOB.telecomms_list)
+		if(istype(T,/obj/machinery/telecomms/receiver) || istype(T,/obj/machinery/telecomms/relay))
+			if(T.z == z || (is_station_level(z) && is_station_level(T.z)))
+				for(var/obj/machinery/telecomms/T2 in T.get_entire_network())
+					if(!T2.z || QDELETED(T2))
+						continue
+					if(istype(T2,/obj/machinery/telecomms/receiver) || istype(T2,/obj/machinery/telecomms/relay))
+						if(T2.z == targetturf.z || (is_station_level(targetturf.z) && is_station_level(T2.z)))
+							. = TRUE
+							break
+		if(.)
+			break
+
+//special crew monitor that can detect other zlevels via tcoms relay
+/obj/machinery/computer/crew/tcomsrelay
+	circuit = /obj/item/circuitboard/computer/crew/tcomsrelay
+	use_tcoms_relay = 1
 
 GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 
@@ -100,16 +126,16 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 	return ui_sources[user]
 
 /datum/crewmonitor/ui_data(mob/user)
-	var/z = user.z
-	if(!z)
-		var/turf/T = get_turf(user)
-		z = T.z
-	var/list/zdata = update_data(z)
+	var/list/zdata = update_data(user)
 	. = list()
 	.["sensors"] = zdata
 	.["link_allowed"] = isAI(user)
 
-/datum/crewmonitor/proc/update_data(z)
+/datum/crewmonitor/proc/update_data(mob/user)
+	var/z = user.z
+	if(!z)
+		var/turf/T = get_turf(user)
+		z = T.z
 	if(data_by_z["[z]"] && last_update["[z]"] && world.time <= last_update["[z]"] + SENSORS_UPDATE_PERIOD)
 		return data_by_z["[z]"]
 
@@ -141,7 +167,8 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		// Check if their z-level is correct and if they are wearing a uniform.
 		// Accept H.z==0 as well in case the mob is inside an object.
 		var/turf/Hturf = get_turf(H)
-		if ((H.z == 0 || H.z == z || (is_station_level(H.z) && is_station_level(z))) && (istype(H.w_uniform, /obj/item/clothing/under) || nanite_sensors))
+		var/additional_conditions = additional_conditions(H,user,ui_sources[user])
+		if ((H.z == 0 || H.z == z || (is_station_level(H.z) && is_station_level(z)) || additional_conditions) && (istype(H.w_uniform, /obj/item/clothing/under) || nanite_sensors))
 			if(independentz && z && Hturf && Hturf.z != z)
 				continue
 
@@ -152,7 +179,7 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 				pos = H.z == 0 || (nanite_sensors || U.sensor_mode == SENSOR_COORDS) ? get_turf(H) : null
 
 				// Special case: If the mob is inside an object confirm the z-level on turf level.
-				if (H.z == 0 && (!pos || (pos.z != z) && !(is_station_level(pos.z) && is_station_level(z))))
+				if (H.z == 0 && (!pos || (pos.z != z && !additional_conditions) && !(is_station_level(pos.z) && is_station_level(z))))
 					continue
 
 				I = H.wear_id ? H.wear_id.GetID() : null
@@ -199,6 +226,16 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 	last_update["[z]"] = world.time
 
 	return results
+
+/datum/crewmonitor/proc/additional_conditions(mob/living/carbon/human/target, mob/user, atom/movable/device)
+	. = FALSE
+	if(!target)
+		return
+	if(device)
+		. = device.additional_crew_monitor_conditions(target,user)
+
+/atom/movable/proc/additional_crew_monitor_conditions(mob/living/carbon/human/target,mob/user)
+	return FALSE
 
 /proc/sensor_compare(list/a,list/b)
 	return a["ijob"] - b["ijob"]

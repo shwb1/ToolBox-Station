@@ -409,7 +409,7 @@ GLOBAL_LIST_INIT(uplink_items, subtypesof(/datum/uplink_item))
 			Comes with a variety of first-aid kits, pill bottles, a compact defibrillator and 4 stimpacks."
 	cost = 12
 	contents = list(
-		/obj/item/storage/firstaid/tactical = 2,	//8 TC
+		/obj/item/storage/firstaid/tactical/syndicate = 2,	//8 TC
 		/obj/item/storage/firstaid/brute = 2,
 		/obj/item/storage/firstaid/fire = 2,
 		/obj/item/storage/firstaid/toxin = 1,
@@ -1685,7 +1685,7 @@ datum/uplink_item/stealthy_tools/taeclowndo_shoes
 	desc = "This first aid kit is a suspicious brown and red. Included is a combat stimulant injector \
 			for rapid healing, a medical night vision HUD for quick identification of injured personnel, \
 			and other supplies helpful for a field medic."
-	item = /obj/item/storage/firstaid/tactical
+	item =/obj/item/storage/firstaid/tactical/syndicate
 	cost = 4
 	include_modes = list(/datum/game_mode/nuclear, /datum/game_mode/nuclear/clown_ops)
 

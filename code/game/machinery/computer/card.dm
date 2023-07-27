@@ -180,7 +180,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			ID = 0
 		for(var/datum/job/job in SSjob.occupations)
 			dat += "<tr>"
-			if(job_blacklisted(job.title))
+			if(job_blacklisted(job.title) || job.override_station_procedures)
 				continue
 			dat += "<td>[job.title]</td>"
 			dat += "<td>[job.current_positions]/[job.total_positions]</td>"
@@ -534,7 +534,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			if(scan && (ACCESS_CHANGE_IDS in scan.access) && !target_dept)
 				var/edit_job_target = href_list["job"]
 				var/datum/job/j = SSjob.GetJob(edit_job_target)
-				if(!j)
+				if(!j || j.override_station_procedures)
 					updateUsrDialog()
 					return 0
 				if(can_open_job(j) != 1)
@@ -551,7 +551,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			if(scan && (ACCESS_CHANGE_IDS in scan.access) && !target_dept)
 				var/edit_job_target = href_list["job"]
 				var/datum/job/j = SSjob.GetJob(edit_job_target)
-				if(!j)
+				if(!j || j.override_station_procedures)
 					updateUsrDialog()
 					return 0
 				if(can_close_job(j) != 1)
@@ -569,7 +569,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			if(scan && (ACCESS_CHANGE_IDS in scan.access) && !target_dept)
 				var/priority_target = href_list["job"]
 				var/datum/job/j = SSjob.GetJob(priority_target)
-				if(!j)
+				if(!j || j.override_station_procedures)
 					updateUsrDialog()
 					return 0
 				var/priority = TRUE

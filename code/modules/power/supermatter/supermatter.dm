@@ -626,7 +626,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	return
 
 /obj/machinery/power/supermatter_crystal/attack_hand(mob/living/user)
-	if(istype(user,/mob/living/carbon/human/jesus) && user.client && user.client in GLOB.admins)
+	if(user.is_space_jesus())
 		admin_menu(user)
 		return
 	. = ..()

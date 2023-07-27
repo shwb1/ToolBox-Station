@@ -262,7 +262,10 @@ SUBSYSTEM_DEF(ticker)
 			mode = null
 			SSjob.ResetOccupations()
 			return 0
-
+	if(mode)
+		for(var/datum/job/J in SSjob.occupations)
+			if(J.antagonist_immune && !(J.title in mode.protected_jobs))
+				mode.protected_jobs += J.title
 	CHECK_TICK
 	//Configure mode and assign player to special mode stuff
 	var/can_continue = 0
@@ -404,6 +407,9 @@ SUBSYSTEM_DEF(ticker)
 	for(var/mob/dead/new_player/N in GLOB.player_list)
 		var/mob/living/carbon/human/player = N.new_character
 		if(istype(player) && player.mind && player.mind.assigned_role)
+			var/datum/job/job = SSjob.GetJob(player.mind.assigned_role)
+			if(!job.is_whitelisted(N.client))
+				player.mind.assigned_role = "Assistant"
 			if(player.mind.assigned_role == "Captain")
 				captainless=0
 			if(player.mind.assigned_role != player.mind.special_role)

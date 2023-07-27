@@ -1,5 +1,6 @@
 
 #define DUALWIELD_PENALTY_EXTRA_MULTIPLIER 1.4
+#define FIRING_PIN_REMOVAL_DELAY 50
 
 /obj/item/gun
 	name = "gun"
@@ -115,14 +116,17 @@
 		clear_gunlight()
 	return ..()
 
-/obj/item/gun/CheckParts(list/parts_list)
+/*/obj/item/gun/CheckParts(list/parts_list)
 	..()
 	var/obj/item/gun/G = locate(/obj/item/gun) in contents
 	if(G)
+		if(G.pin.cant_be_craft_removed)
+			visible_message("[G] can not have its firing pin removed.", null, null, 3)
+			return
 		G.forceMove(loc)
 		QDEL_NULL(G.pin)
 		visible_message("[G] can now fit a new pin, but the old one was destroyed in the process.", null, null, 3)
-		qdel(src)
+		qdel(src)*/
 
 /obj/item/gun/examine(mob/user)
 	. = ..()
@@ -130,6 +134,8 @@
 		return
 	if(pin)
 		. += "It has \a [pin] installed."
+		if(pin.can_be_removed)
+			. += "<span class='info'>[pin] looks like it could be removed with some <b>tools</b>.</span>"
 	else
 		. += "It doesn't have a <b>firing pin</b> installed, and won't fire."
 
@@ -443,6 +449,49 @@
 
 	else if(bayonet && can_bayonet) //if it has a bayonet, and the bayonet can be removed
 		return remove_gun_attachment(user, I, bayonet, "unfix")
+	else
+		remove_pin(I, user)
+
+/obj/item/gun/welder_act(mob/living/user, obj/item/I)
+	. = ..()
+	if(.)
+		return
+	if(!user.canUseTopic(src, BE_CLOSE, FALSE, NO_TK))
+		return
+	remove_pin(I, user)
+
+/obj/item/gun/wirecutter_act(mob/living/user, obj/item/I)
+	. = ..()
+	if(.)
+		return
+	if(!user.canUseTopic(src, BE_CLOSE, FALSE, NO_TK))
+		return
+	remove_pin(I, user)
+
+/obj/item/gun/proc/remove_pin(obj/item/tool, mob/living/user)
+	if(pin)
+		if(user.is_holding(src))
+			var/confirm = alert(user,"Attempt to remove the firing pin from [src]?","[src] pin removal","Yes","No")
+			if(confirm != "Yes")
+				return
+			if(!pin.can_be_removed)
+				to_chat(user, "<span class='warning'>The pin cannot be removed.</span>")
+				return
+			var/destroy_word = "destroying"
+			switch(tool.tool_behaviour)
+				if(TOOL_WIRECUTTER)
+					destroy_word = "mangling"
+				if(TOOL_WELDER)
+					destroy_word = "melting"
+			user.visible_message("<span class='warning'>[user] attempts to remove [pin] from [src] with [tool].</span>",
+			"<span class='notice'>You attempt to remove [pin] from [src]. (It will take [DisplayTimeText(FIRING_PIN_REMOVAL_DELAY)].)</span>", null, 3)
+			if(tool.use_tool(src, user, FIRING_PIN_REMOVAL_DELAY, volume = 50))
+				if(!pin) //check to see if the pin is still there, or we can spam messages by clicking multiple times during the tool delay
+					return
+				user.visible_message("<span class='notice'>[pin] was pried out of [src] by [user], [destroy_word] the pin in the process.</span>",
+									"<span class='warning'>You pried [pin] out with [tool], [destroy_word] the pin in the process.</span>", null, 3)
+				QDEL_NULL(pin)
+				return TRUE
 
 /obj/item/gun/proc/remove_gun_attachment(mob/living/user, obj/item/tool_item, obj/item/item_to_remove, removal_verb)
 	if(tool_item)

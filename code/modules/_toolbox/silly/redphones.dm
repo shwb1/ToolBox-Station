@@ -41,13 +41,13 @@
 	..()
 
 /obj/item/phone/examine()
-	..()
+	. = ..()
 	if(broken)
-		to_chat(usr,"<span class='warning'>It appears to be broken!</span>")
+		. += "<span class='warning'>It appears to be broken!</span>"
 	else
-		to_chat(usr,"<span class='notice'>The phone number is '<b>[phonenumber]</b>'.</span>")
+		. += "<span class='notice'>The phone number is '<b>[phonenumber]</b>'.</span>"
 		if(linkedphone && !ringing)
-			to_chat(usr,"\red The line is open with number <B>[linkedphone.phonenumber]</B>.</span>")
+			. += "\red The line is open with number <B>[linkedphone.phonenumber]</B>.</span>"
 
 /obj/item/phone/attackby(var/obj/item/O as obj, var/mob/user as mob)
 	if(istype(O,/obj/item/stack/cable_coil) && broken)

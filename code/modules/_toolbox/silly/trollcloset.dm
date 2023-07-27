@@ -154,7 +154,7 @@
 		I.pixel_y = -8
 		playsound(loc,'sound/items/Welder2.ogg', 100, 1)
 		src.visible_message("<font color='red'>A floating welding tool seals the [name].</font>","<font color='red'>A floating welding tool seals the [name].</font>","<span class='italics'>You hear welding.</span>")
-		for(var/mob/M in world)
+		for(var/mob/M in GLOB.mob_list)
 			if(!M.client)
 				continue
 			var/turf/Mturf = get_turf(M)

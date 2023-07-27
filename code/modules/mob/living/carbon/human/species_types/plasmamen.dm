@@ -25,15 +25,11 @@
 
 /datum/species/plasmaman/spec_life(mob/living/carbon/human/H)
 	var/atmos_sealed = FALSE
-	if (H.wear_suit && H.head && isclothing(H.wear_suit) && isclothing(H.head))
-		var/obj/item/clothing/CS = H.wear_suit
-		var/obj/item/clothing/CH = H.head
-		if (CS.clothing_flags & CH.clothing_flags & STOPSPRESSUREDAMAGE)
-			atmos_sealed = TRUE
-	if(H.w_uniform && H.head)
-		var/obj/item/clothing/CU = H.w_uniform
-		var/obj/item/clothing/CH = H.head
-		if (CU.envirosealed && (CH.clothing_flags & STOPSPRESSUREDAMAGE))
+	var/obj/item/clothing/CS = H.wear_suit
+	var/obj/item/clothing/CH = H.head
+	var/obj/item/clothing/CU = H.w_uniform
+	if(isclothing(CH) && (CH.clothing_flags && CH.clothing_flags & STOPSPRESSUREDAMAGE))
+		if((isclothing(CS) && CS.clothing_flags && CS.clothing_flags & STOPSPRESSUREDAMAGE)||(isclothing(CU) && CU.clothing_flags && CU.clothing_flags & STOPSPRESSUREDAMAGE_UNIFORM)||(isclothing(CU) && CU.envirosealed))
 			atmos_sealed = TRUE
 	if(!atmos_sealed && (!istype(H.w_uniform, /obj/item/clothing/under/plasmaman) || !istype(H.head, /obj/item/clothing/head/helmet/space/plasmaman) || !istype(H.gloves, /obj/item/clothing/gloves)))
 		var/datum/gas_mixture/environment = H.loc.return_air()
@@ -80,7 +76,7 @@
 
 		if("Stage Magician")
 			O = new /datum/outfit/plasmaman/magic
-		
+
 		if("VIP")
 			O = new /datum/outfit/plasmaman/vip
 

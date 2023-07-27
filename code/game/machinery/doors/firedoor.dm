@@ -69,7 +69,8 @@
 
 /obj/machinery/door/firedoor/Destroy()
 	remove_from_areas()
-	affecting_areas.Cut()
+	if(affecting_areas && affecting_areas.len)
+		affecting_areas.Cut()
 	return ..()
 
 /obj/machinery/door/firedoor/Bumped(atom/movable/AM)

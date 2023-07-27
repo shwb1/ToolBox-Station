@@ -35,8 +35,8 @@
 	return ..()
 
 /obj/item/poker_chips/examine(mob/user)
-	..()
-	to_chat(user, "The value of these chips is [value].")
+	. = ..()
+	. += "The value of these chips is [value]."
 
 /obj/item/poker_chips/attack_self(mob/user)
 	interact(user)

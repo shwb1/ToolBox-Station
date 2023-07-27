@@ -120,10 +120,12 @@
 	account_holder = "Guild Credit Agency"
 	var/department_id = "REPLACE_ME"
 	add_to_accounts = FALSE
+	var/pay_out = 0
 
-/datum/bank_account/department/New(dep_id, budget)
+/datum/bank_account/department/New(dep_id, budget,payout)
 	department_id = dep_id
 	account_balance = budget
+	pay_out = payout
 	account_holder = SSeconomy.department_accounts[dep_id]
 	SSeconomy.generated_accounts += src
 

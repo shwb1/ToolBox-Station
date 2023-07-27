@@ -60,6 +60,7 @@ SUBSYSTEM_DEF(mapping)
 	loadWorld()
 	repopulate_sorted_areas()
 	process_teleport_locs()			//Sets up the wizard teleport locations
+	preloadModules()				//preloading toolbox modules
 	preloadTemplates()
 #ifndef LOWMEMORYMODE
 	// Create space ruin levels
@@ -97,6 +98,7 @@ SUBSYSTEM_DEF(mapping)
 
 	// Generate mining ruins
 	loading_ruins = TRUE
+	randomize_station()
 	var/list/lava_ruins = levels_by_trait(ZTRAIT_LAVA_RUINS)
 	if (lava_ruins.len)
 		seedRuins(lava_ruins, CONFIG_GET(number/lavaland_budget), /area/lavaland/surface/outdoors/unexplored, lava_ruins_templates)

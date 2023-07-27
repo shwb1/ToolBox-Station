@@ -458,6 +458,8 @@ SUBSYSTEM_DEF(explosions)
 /datum/controller/subsystem/explosions/fire(resumed = 0)
 	if (!is_exploding())
 		return
+	if(delay_explosions())
+		return
 	var/timer
 	Master.current_ticklimit = TICK_LIMIT_RUNNING //force using the entire tick if we need it.
 

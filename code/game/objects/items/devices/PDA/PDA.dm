@@ -25,6 +25,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 	actions_types = list(/datum/action/item_action/toggle_light)
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
+	var/overlay_icon_file //if you want your pda to use the overlays from a different icon file then the pda its self.
 
 
 	//Main variables
@@ -156,6 +157,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 /obj/item/pda/update_icon()
 	cut_overlays()
 	var/mutable_appearance/overlay = new()
+	overlay.icon = overlay_icon_file
 	overlay.pixel_x = overlays_x_offset
 	if(id)
 		overlay.icon_state = "id_overlay"
@@ -273,6 +275,10 @@ GLOBAL_LIST_EMPTY(PDAs)
 						dat += "<li><a href='byond://?src=[REF(src)];choice=48'>[PDAIMG(crate)]Ore Silo Logs</a></li>"
 						dat += "</ul>"
 				dat += "</ul>"
+
+				//cartridge custom menu. This is how all the pda should get all menus from the cartridge. fuck tg. -falaskian
+				if (cartridge && cartridge.access & CART_CUSTOMMENU)
+					dat += "[cartridge.get_custom_menu(user)]"
 
 				dat += "<h4>Utilities</h4>"
 				dat += "<ul>"
@@ -398,6 +404,9 @@ GLOBAL_LIST_EMPTY(PDAs)
 	if(usr.canUseTopic(src, BE_CLOSE, FALSE, NO_TK) && !href_list["close"])
 		add_fingerprint(U)
 		U.set_machine(src)
+
+		if(cartridge && href_list["custommenu"])
+			return cartridge.customreaction(href_list,usr)
 
 		switch(href_list["choice"])
 
@@ -772,7 +781,14 @@ GLOBAL_LIST_EMPTY(PDAs)
 		var/hrefstart
 		var/hrefend
 		if (isAI(L))
-			hrefstart = "<a href='?src=[REF(L)];track=[html_encode(signal.data["name"])]'>"
+			var/mob/living/the_sender
+			var/sender_name = signal.data["name"]
+			if(sender_name)
+				for(var/mob/living/Living in GLOB.player_list)
+					if(Living.name == sender_name)
+						the_sender = Living
+						break
+			hrefstart = "<a href='?src=[REF(L)];speakerreference=[REF(the_sender)];track=[html_encode(Clean_up_hashtags(signal.data["name"]))]'>"
 			hrefend = "</a>"
 
 		if(signal.data["automated"])
@@ -785,7 +801,11 @@ GLOBAL_LIST_EMPTY(PDAs)
 		to_chat(L, "[icon2html(src)] <b>PDA message from [hrefstart][signal.data["name"]] ([signal.data["job"]])[hrefend], </b>[inbound_message] [reply]")
 
 	update_icon()
-	add_overlay(icon_alert)
+	var/mutable_appearance/overlay = new()
+	overlay.icon = overlay_icon_file
+	overlay.icon_state = icon_alert
+	add_overlay(new /mutable_appearance(overlay))
+	//add_overlay(icon_alert)
 
 /obj/item/pda/proc/on_receive(inbound_message,mob/living/receiver,obj/item/pda/source)
 

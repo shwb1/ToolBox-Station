@@ -29,11 +29,11 @@
 	..()
 
 /obj/structure/epifiller/examine(mob/user)
-	..()
+	. = ..()
 	if(reagents.total_volume)
-		to_chat(user, "<span class='notice'>It has [reagents.total_volume] units left.</span>")
+		. += "<span class='notice'>It has [reagents.total_volume] units left.</span>"
 	else
-		to_chat(user, "<span class='danger'>It's empty.</span>")
+		. += "<span class='danger'>It's empty.</span>"
 
 /obj/structure/epifiller/attackby(obj/item/W, mob/user, params)
 	var/obj/item/reagent_containers/hypospray/medipen/pen = W

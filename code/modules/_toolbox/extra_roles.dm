@@ -8,7 +8,7 @@
 
 /datum/extra_role/proc/activate(mob/M)
 	if(M.mind)
-		if(istype(M.mind.extra_roles))
+		if(!islist(M.mind.extra_roles))
 			M.mind.extra_roles = list()
 		M.mind.extra_roles += src
 		affecting = M.mind
@@ -21,9 +21,9 @@
 		var/mob/living/L = affecting.current
 		if(istype(affecting.extra_roles))
 			affecting.extra_roles -= src
-		affecting = null
 		if(L)
 			on_remove(L)
+		affecting = null
 		return 1
 	return 0
 
@@ -45,13 +45,17 @@
 
 /datum/extra_role/proc/on_click(atom/A,params)
 
+/datum/extra_role/proc/get_sec_hud()
+
+/datum/extra_role/proc/on_death(gibbed)
+
 /mob/living/carbon/AltClickOn(atom/A)
 	. = ..()
 	if(stat != DEAD && !restrained() && mind && istype(mind.extra_roles,/list))
 		for(var/datum/extra_role/extra_role in mind.extra_roles)
 			extra_role.on_click(A)
 
-/mob/living/carbon/proc/handle_extra_roles()
+/mob/living/proc/handle_extra_roles()
 	if(mind && mind.extra_roles && mind.extra_roles.len)
 		for(var/datum/extra_role/E in mind.extra_roles)
 			if(E.affecting == mind)
@@ -71,4 +75,10 @@
 		if(istype(R,path))
 			return R
 	return 0
+
+/mob/living/death(gibbed)
+	. = ..()
+	if(mind && istype(mind.extra_roles,/list))
+		for(var/datum/extra_role/extra_role in mind.extra_roles)
+			extra_role.on_death(gibbed)
 

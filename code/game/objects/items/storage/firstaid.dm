@@ -285,6 +285,11 @@
 	new /obj/item/reagent_containers/pill/patch/silver_sulf(src)
 	new /obj/item/clothing/glasses/hud/health/night(src)
 
+/obj/item/storage/firstaid/tactical/syndicate
+	name = "combat medical kit"
+	desc = "I hope you've got insurance."
+	icon_state = "syndzerk"
+
 //medibot assembly
 /obj/item/storage/firstaid/attackby(obj/item/bodypart/S, mob/user, params)
 	if((!istype(S, /obj/item/bodypart/l_arm/robot)) && (!istype(S, /obj/item/bodypart/r_arm/robot)))

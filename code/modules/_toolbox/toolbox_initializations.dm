@@ -22,10 +22,11 @@ var/global/debug_check_count = 1
 
 proc/Initialize_Falaskians_Shit()
 	//initialize_discord_channel_list()
-	//save_perseus_manager_whitelist()
+	initialize_toolbox_features()
 	SaveStation()
 	load_chaos_assistant_chance()
 	GLOB.reinforced_glass_recipes += new/datum/stack_recipe("reinforced delivery window", /obj/structure/window/reinforced/fulltile/delivery/unanchored, 5, time = 0, on_floor = TRUE, window_checks = TRUE)
+	GLOB.metal_recipes += new/datum/stack_recipe("desk bell", /obj/structure/desk_bell, 2, time = 30, on_floor = TRUE)
 	new_player_cam = new()
 	world.update_status()
 
@@ -117,10 +118,12 @@ GLOBAL_LIST_EMPTY(hub_features)
 	world.status = dat
 
 //modifying a player after hes equipped when spawning in as crew member.
-/proc/update_toolbox_inventory(mob/living/carbon/human/H)
+/datum/outfit
+	var/ignore_special_events = 0
+/datum/outfit/proc/update_toolbox_inventory(mob/living/carbon/human/H)
 	var/themonth = text2num(time2text(world.timeofday,"MM"))
 	var/theday = text2num(time2text(world.timeofday,"DD"))
-	/var/theyear = text2num(time2text(world.timeofday,"YYYY"))
+	//var/theyear = text2num(time2text(world.timeofday,"YYYY"))
 	if(!istype(H))
 		return
 	if(!H.wear_mask && H.ckey == "landrydragon")
@@ -141,7 +144,7 @@ GLOBAL_LIST_EMPTY(hub_features)
 	if(H.ckey == "cran")
 		H.equip_to_slot_or_del(new /obj/item/toy/plush/slimeplushie, SLOT_IN_BACKPACK)
 	//st patricks day
-	if(themonth == 3 && theday == 17)
+	if(themonth == 3 && theday == 17 && !ignore_special_events)
 		if(H.w_uniform)
 			H.w_uniform.name = "Green [H.w_uniform.name]"
 			H.w_uniform.icon_state = "green"
@@ -362,7 +365,6 @@ GLOBAL_LIST_EMPTY(hub_features)
 		if(!skip)
 			var/list/skip_types = list(
 				/mob/dead/new_player,
-				/mob/living/carbon/human/jesus,
 				/mob/living/carbon/human/virtual_reality)
 			if(!(type in skip_types) && !(client.previous_mob_type in skip_types))
 				if(client.previous_mind != mind)
@@ -564,3 +566,43 @@ area/ai_monitored/nuke_storage
 		if(new_hair)
 			return new_hair
 	return oldhair
+
+//A system for toolbox developers to add new assets to the RSC file
+GLOBAL_LIST_EMPTY(toolbox_assets)
+client/proc/load_toolbox_assets()
+	if(!GLOB.toolbox_assets.len)
+		for(var/t in subtypesof(/datum/toolbox_asset))
+			var/datum/toolbox_asset/asset = new t()
+			GLOB.toolbox_assets += asset
+	for(var/datum/toolbox_asset/asset in GLOB.toolbox_assets)
+		if(islist(asset.assets) && asset.assets.len)
+			for(var/thing in asset.assets)
+				src << browse_rsc(file(asset.assets[thing]),thing)
+
+/datum/toolbox_asset
+	var/list/assets = list() //fill this list like this example list(mypng.png = icons/mypng.png)
+
+//modular code initializations
+/proc/initialize_toolbox_features()
+	for(var/t in subtypesof(/datum/toolbox_feature))
+		var/datum/toolbox_feature/T = new t()
+		T.run_feature()
+
+/datum/toolbox_feature
+
+/datum/toolbox_feature/proc/run_feature()
+
+//getting other accesses. This is called in access.dm, used by the airlock circuit board and rcds.
+GLOBAL_LIST_INIT(toolbox_accesses_region, list())
+GLOBAL_LIST_INIT(toolbox_accesses_region_name, list())
+GLOBAL_LIST_INIT(toolbox_accesses_desc, list())
+
+/proc/get_other_accesses(type,entry)
+	entry = "[entry]"
+	switch(type)
+		if("department")
+			return GLOB.toolbox_accesses_region[entry]
+		if("department_name")
+			return GLOB.toolbox_accesses_region_name[entry]
+		if("desc")
+			return GLOB.toolbox_accesses_desc[entry]

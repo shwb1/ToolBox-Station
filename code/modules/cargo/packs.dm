@@ -1684,6 +1684,35 @@ datum/supply_pack/medical/bruisekits
 					/obj/item/stack/packageWrap)
 	crate_name = "cargo supplies crate"
 
+/datum/supply_pack/service/kitchen_equipment
+	name = "Kitchen Equipment"
+	desc = "Did the scientists blow up your kitchen? Fix it with this, a whole new kitchen starter kit."
+	cost = 3500
+	crate_type = /obj/structure/closet/crate/large
+	contains = list(/obj/machinery/microwave/unanchored,
+					/obj/machinery/reagentgrinder/unanchored,
+					/obj/machinery/processor/unanchored)
+	crate_name = "kitchen equipment crate"
+
+/datum/supply_pack/service/kitchen_supplies
+	name = "Kitchen Supplies"
+	desc = "A full set of kitchen supplies like knifes forks and a rolling pin."
+	contains = list(/obj/item/kitchen/fork,
+					/obj/item/kitchen/fork,
+					/obj/item/kitchen/knife,
+					/obj/item/kitchen/knife,
+					/obj/item/storage/bag/tray,
+					/obj/item/storage/bag/tray,
+					/obj/item/reagent_containers/food/drinks/drinkingglass,
+					/obj/item/reagent_containers/food/drinks/drinkingglass,
+					/obj/item/reagent_containers/food/condiment/pack/ketchup,
+					/obj/item/reagent_containers/food/condiment/pack/ketchup,
+					/obj/item/reagent_containers/food/condiment/pack/hotsauce,
+					/obj/item/reagent_containers/food/condiment/pack/hotsauce,
+					/obj/item/kitchen/rollingpin)
+	cost = 1500
+	crate_name = "kitchen supplies crate"
+
 /datum/supply_pack/service/noslipfloor
 	name = "High-traction Floor Tiles"
 	desc = "Make slipping a thing of the past with thirty industrial-grade anti-slip floor tiles!"
@@ -1910,6 +1939,19 @@ datum/supply_pack/medical/bruisekits
 /datum/supply_pack/organic
 	group = "Food & Hydroponics"
 	crate_type = /obj/structure/closet/crate/freezer
+
+/datum/supply_pack/organic/hydroponics/machinery
+	name = "Hydroponics Equipment Crate"
+	desc = "Did the scientists blow up botany? Fix it with this, a whole new botany starter kit."
+	crate_type = /obj/structure/closet/crate/large
+	cost = 4000
+	contains = list(/obj/machinery/hydroponics/constructable/unanchored,
+					/obj/machinery/hydroponics/constructable/unanchored,
+					/obj/item/circuitboard/machine/biogenerator,
+					/obj/item/circuitboard/machine/seed_extractor,
+					/obj/item/circuitboard/machine/chem_dispenser/botany,
+					/obj/item/circuitboard/machine/plantgenes)
+	crate_name = "hydroponics equipment crate"
 
 /datum/supply_pack/organic/hydroponics/beekeeping_suits
 	name = "Beekeeper Suit Crate"

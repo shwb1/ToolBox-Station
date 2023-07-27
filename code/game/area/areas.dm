@@ -25,6 +25,7 @@
 	var/atmos = TRUE
 	var/atmosalm = FALSE
 	var/poweralm = TRUE
+	var/customalarms = list()
 	var/lightswitch = TRUE
 	var/vacuum = null
 

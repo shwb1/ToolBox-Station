@@ -315,6 +315,10 @@
 	icon_state = "medical"
 	build_path = /obj/machinery/computer/crew
 
+/obj/item/circuitboard/computer/crew/tcomsrelay
+	name = "crew monitoring console with tcomms link (Computer Board)"
+	build_path = /obj/machinery/computer/crew/tcomsrelay
+
 /obj/item/circuitboard/computer/med_data
 	name = "medical records console (Computer Board)"
 	icon_state = "medical"

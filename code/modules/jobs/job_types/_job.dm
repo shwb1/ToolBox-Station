@@ -67,6 +67,17 @@
 
 	var/gimmick = FALSE //least hacky way i could think of for this
 
+	//toolbox vars
+	var/whitelisted = 0
+	var/override_station_procedures = 0 //This will make it so when the job spawns it overrides things like announcements, security records.
+	var/antagonist_immune = 0//can this job be an antagonist?
+
+/datum/job/proc/is_whitelisted(client/C)
+	return 1
+
+/datum/job/proc/pre_setup(mob/user,joined_late)
+	return 1
+
 /datum/job/New()
 	. = ..()
 	say_span = replacetext(lowertext(title), " ", "")
@@ -282,8 +293,12 @@
 	var/datum/job/J = SSjob.GetJobType(jobtype)
 	if(!J)
 		J = SSjob.GetJob(H.job)
-
-	var/thetitle = J.title
+	var/thetitle
+	if(!J)
+		thetitle = name
+		J = SSjob.GetJob("Assistant")
+	else
+		thetitle = J.title
 	if(SStoolbox_events)
 		for(var/t in SStoolbox_events.cached_events)
 			var/datum/toolbox_event/E = SStoolbox_events.cached_events[t]

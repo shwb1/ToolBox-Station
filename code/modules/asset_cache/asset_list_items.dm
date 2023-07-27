@@ -381,11 +381,30 @@
 	name = "vending"
 
 /datum/asset/spritesheet/vending/register()
+	for(var/v in typesof(/obj/machinery/vending))
+		var/obj/machinery/vending/vending = new v()
+		var/list/vendproducts = vending.products
+		var/list/vendcontraband = vending.contraband
+		var/list/vendpremium = vending.premium
+		var/list/vendall = list()
+		if(islist(vendproducts))
+			vendall += vendproducts
+		if(islist(vendcontraband))
+			vendall += vendcontraband
+		if(islist(vendpremium))
+			vendall += vendpremium
+		for(var/t in vendall)
+			if(!GLOB.vending_products[t])
+				GLOB.vending_products[t] = 1
+		qdel(vending)
 	for (var/k in GLOB.vending_products)
 		var/atom/item = k
 		if (!ispath(item, /atom))
 			continue
 
+		var/imgid = replacetext(replacetext("[item]", "/obj/item/", ""), "/", "-")
+		if(!imgid || sprites[imgid])
+			return
 		var/icon_file = initial(item.icon)
 		var/icon_state = initial(item.icon_state)
 		var/icon/I
@@ -405,8 +424,6 @@
 					icon_states_string += ", [json_encode(an_icon_state)](\ref[an_icon_state])"
 			stack_trace("[item] does not have a valid icon state, icon=[icon_file], icon_state=[json_encode(icon_state)](\ref[icon_state]), icon_states=[icon_states_string]")
 			I = icon('icons/turf/floors.dmi', "", SOUTH)
-
-		var/imgid = replacetext(replacetext("[item]", "/obj/item/", ""), "/", "-")
 
 		Insert(imgid, I)
 	return ..()

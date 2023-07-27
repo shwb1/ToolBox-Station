@@ -57,7 +57,7 @@
 				++xcrd
 			--ycrd
 
-/datum/map_template/shuttle/load(turf/T, centered, register=TRUE)
+/datum/map_template/shuttle/load(turf/T, centered = FALSE, placeOnTop=TRUE, overWrite=FALSE, register=TRUE)
 	. = ..()
 	if(!.)
 		return

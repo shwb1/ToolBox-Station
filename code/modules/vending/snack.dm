@@ -96,10 +96,10 @@
 
 /obj/machinery/vending/snack/random/Initialize()
 	..()
-	var/list/vendings = pick(subtypesof(/obj/machinery/vending/snack) - /obj/machinery/vending/snack/random)
+	var/list/vendings = subtypesof(/obj/machinery/vending/snack) - /obj/machinery/vending/snack/random
 	for(var/t in vendings)
 		var/obj/machinery/vending/snack/S = t
-		if(initial(S.spawn_on_random) == 0)
+		if(!initial(S.spawn_on_random))
 			vendings.Remove(t)
 	var/T = pick(vendings)
 	new T(loc)

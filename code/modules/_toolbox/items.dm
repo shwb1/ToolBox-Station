@@ -91,7 +91,7 @@
 
 
 // N-word pass
-
+/datum/config_entry/flag/allow_nwordpass
 /obj/item/nwordpass
 	name = "N-word pass"
 	desc = "Official pass to say the N-word."
@@ -100,6 +100,11 @@
 	item_state = "gold_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
+
+/obj/item/nwordpass/Initialize(mapload)
+	. = ..()
+	if(!CONFIG_GET(flag/allow_nwordpass))
+		qdel(src)
 
 /obj/item/nwordpass/attack_self(mob/user)
 	if(istype(user,/mob/living/carbon/human))
@@ -472,7 +477,7 @@ Stun bullets for the revolver and mateba
 /obj/item/gun/ballistic/automatic/ak47/examine()
 	. = ..()
 	if(istype(magazine,/obj/item/ammo_box/magazine/ak47/disable))
-		to_chat(usr,"Loaded with rubber bullets.")
+		. += "Loaded with rubber bullets."
 
 //disabler preloaded ak47
 /obj/item/gun/ballistic/automatic/ak47/disable
@@ -612,7 +617,6 @@ Stun bullets for the revolver and mateba
 	righthand_file = 'icons/oldschool/inhand_right.dmi'
 	icon_state = "aviator_s"
 	item_state = "aviator_s"
-	var/list/L = list()
 
 //dried bread
 /obj/item/reagent_containers/food/snacks/breadslice/dried

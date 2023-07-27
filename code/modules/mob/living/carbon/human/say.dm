@@ -6,23 +6,19 @@
 		. = ..()
 
 /mob/living/carbon/human/GetVoice()
-	if(istype(wear_mask, /obj/item/clothing/mask/chameleon))
-		var/obj/item/clothing/mask/chameleon/V = wear_mask
-		if(V.vchange && wear_id)
-			var/obj/item/card/id/idcard = wear_id.GetID()
-			if(istype(idcard))
-				return idcard.registered_name
-			else
-				return real_name
-		else
-			return real_name
+	. = real_name
+	if(istype(wear_mask, /obj/item/clothing/mask))
+		var/obj/item/clothing/mask/V = wear_mask
+		var/alternate_voice = V.alternate_voice(src)
+		if(alternate_voice)
+			. = alternate_voice
 	if(mind)
 		var/datum/antagonist/changeling/changeling = mind.has_antag_datum(/datum/antagonist/changeling)
 		if(changeling && changeling.mimicing )
-			return changeling.mimicing
-	if(GetSpecialVoice())
-		return GetSpecialVoice()
-	return real_name
+			. = changeling.mimicing
+	var/SpecialVoice = GetSpecialVoice()
+	if(SpecialVoice)
+		. = SpecialVoice
 
 /mob/living/carbon/human/IsVocal()
 	// how do species that don't breathe talk? magic, that's what.

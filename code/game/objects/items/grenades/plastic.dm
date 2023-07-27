@@ -22,6 +22,9 @@
 
 /obj/item/grenade/plastic/Initialize()
 	. = ..()
+	create_attached_overlay()
+
+/obj/item/grenade/plastic/proc/create_attached_overlay()
 	plastic_overlay = mutable_appearance(icon, "[item_state]2", HIGH_OBJ_LAYER)
 
 /obj/item/grenade/plastic/ComponentInitialize()

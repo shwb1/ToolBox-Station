@@ -283,7 +283,7 @@
 		/obj/item/pen/sleepy,
 		/obj/item/storage/box/syndie_kit/emp,
 		/obj/item/clothing/shoes/chameleon/noslip,
-		/obj/item/storage/firstaid/tactical,
+		/obj/item/storage/firstaid/tactical/syndicate,
 		/obj/item/clothing/glasses/thermal/syndi,
 		/obj/item/storage/box/syndie_kit/imp_radio,
 		/obj/item/clothing/gloves/krav_maga/combatglovesplus,

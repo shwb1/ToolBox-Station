@@ -97,7 +97,7 @@
 					)
 					if(sanity < 0)
 						break
-			var/list/all_verbs = get_all_verbs()								// ~0.252 CPU Time [14000 CALLS]
+			/*var/list/all_verbs = get_all_verbs()								// ~0.252 CPU Time [14000 CALLS]
 			if(selected_tab in all_verbs)
 				client.stat_update_mode = STAT_SLOW_UPDATE
 				for(var/verb in all_verbs[selected_tab])
@@ -106,7 +106,7 @@
 						action = "verb",
 						params = list("verb" = V.name),
 						type=STAT_VERB,
-					)
+					)*/
 			if(mind)
 				tab_data += get_spell_stat_data(mind.spell_list, selected_tab)
 			tab_data += get_spell_stat_data(mob_spell_list, selected_tab)
@@ -117,7 +117,9 @@
 	return tab_data
 
 /mob/proc/get_all_verbs()
-	var/list/all_verbs = deepCopyList(sorted_verbs)
+	var/list/all_verbs = new
+	if(sorted_verbs)
+		all_verbs = deepCopyList(sorted_verbs)
 	//An annoying thing to mention:
 	// list A [A: ["b", "c"]] +  (list B) [A: ["c", "d"]] will only have A from list B
 	for(var/i in client.sorted_verbs)

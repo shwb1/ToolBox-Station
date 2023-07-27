@@ -81,7 +81,8 @@ GLOBAL_PROTECT(admin_verbs_admin)
 	/client/proc/openTicketManager,
 	/datum/admins/proc/space_jesus,
 	/client/proc/force_rules,
-	/datum/admins/proc/AdminFixStation
+	/datum/admins/proc/AdminFixStation,
+	/client/proc/delay_explosions
 	)
 GLOBAL_LIST_INIT(admin_verbs_ban, list(/client/proc/unban_panel, /client/proc/ban_panel, /client/proc/stickybanpanel))
 GLOBAL_PROTECT(admin_verbs_ban)
@@ -174,6 +175,7 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/client/proc/debug_huds,
 	/client/proc/map_template_load,
 	/client/proc/map_template_upload,
+	/client/proc/map_template_load_force,
 	/client/proc/jump_to_ruin,
 	/client/proc/clear_dynamic_transit,
 	/client/proc/fucky_wucky,
@@ -197,7 +199,8 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/datum/admins/proc/check_who_has_admin_midis_disabled,
 	/datum/admins/proc/check_hub,
 	/client/proc/EditedStepFinder,
-	/datum/admins/proc/toggle_tb_event
+	/datum/admins/proc/toggle_tb_event,
+	/datum/admins/proc/preload_station_module
 	)
 
 GLOBAL_LIST_INIT(admin_verbs_possess, list(/proc/possess, /proc/release))

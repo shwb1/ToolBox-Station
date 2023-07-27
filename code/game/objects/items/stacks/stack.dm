@@ -23,6 +23,7 @@
 	var/novariants = TRUE //Determines whether the item should update it's sprites based on amount.
 	//NOTE: When adding grind_results, the amounts should be for an INDIVIDUAL ITEM - these amounts will be multiplied by the stack size in on_grind()
 	var/obj/structure/table/tableVariant // we tables now (stores table variant to be built from this stack)
+	var/block_merging = 0
 
 /obj/item/stack/on_grind()
 	for(var/i in 1 to grind_results.len) //This should only call if it's ground, so no need to check if grind_results exists
@@ -403,7 +404,7 @@
 		. = ..()
 
 /obj/item/stack/proc/merge_check(obj/o)
-	if(istype(o,merge_type))
+	if(!block_merging && istype(o,merge_type))
 		if(!istype(o,/obj/item/stack)) //Not a stack, but can be stacked.
 			return TRUE
 		else

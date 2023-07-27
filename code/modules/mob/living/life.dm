@@ -57,6 +57,8 @@
 
 	handle_fire()
 
+	handle_extra_roles() //handling extra_roles created by falaskian.
+
 	if(machine)
 		machine.check_eye(src)
 

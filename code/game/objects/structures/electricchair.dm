@@ -33,7 +33,8 @@
 		return
 	A.use_power(AREA_USAGE_EQUIP, 5000)
 
-	flick("echair_shock", src)
+	//flick("echair_shock", src)
+	new /obj/effect/chair_shock(loc)
 	var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
 	s.set_up(12, 1, src)
 	s.start()
@@ -44,3 +45,19 @@
 			to_chat(buckled_mob, "<span class='userdanger'>You feel a deep shock course through your body!</span>")
 			addtimer(CALLBACK(buckled_mob, /mob/living.proc/electrocute_act, 85, src, 1), 1)
 	visible_message("<span class='danger'>The electric chair went off!</span>", "<span class='italics'>You hear a deep sharp shock!</span>")
+
+/obj/effect/chair_shock
+	name = "shock"
+	icon = 'icons/obj/chairs.dmi'
+	icon_state = "echair_shock"
+	layer = GASFIRE_LAYER
+	density = 0
+	mouse_opacity = 0
+
+/obj/effect/chair_shock/New()
+	. = ..()
+	flick("echair_shock", src)
+	spawn(0)
+		sleep(8)
+		qdel(src)
+

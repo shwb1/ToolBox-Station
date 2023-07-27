@@ -297,6 +297,8 @@
 	var/can_move_docking_ports = FALSE
 	var/list/hidden_turfs = list()
 
+	var/inertia_dampeners = 0
+
 /obj/docking_port/mobile/proc/register()
 	SSshuttle.mobile += src
 

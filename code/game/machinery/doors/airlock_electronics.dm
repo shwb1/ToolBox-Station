@@ -11,6 +11,8 @@
 	/// A holder of the electronics, in case of them working as an integrated part
 	var/holder
 
+	var/access_list_numbers = list(1,2,3,4,5,6,7)
+
 /obj/item/electronics/airlock/examine(mob/user)
 	. = ..()
 	. += "<span class='notice'>Has a neat <i>selection menu</i> for modifying airlock access levels.</span>"
@@ -28,7 +30,7 @@
 /obj/item/electronics/airlock/ui_static_data(mob/user)
 	var/list/data = list()
 	var/list/regions = list()
-	for(var/i in 1 to 7)
+	for(var/i in access_list_numbers)
 		var/list/accesses = list()
 		for(var/access in get_region_accesses(i))
 			if (get_access_desc(access))

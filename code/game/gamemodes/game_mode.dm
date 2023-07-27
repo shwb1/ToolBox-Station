@@ -251,6 +251,10 @@
 	var/list/antag_candidates = list()
 
 	for(var/mob/living/carbon/human/H in living_crew)
+		if(H.mind)
+			var/datum/job/J = SSjob.GetJob(H.mind.assigned_role)
+			if(J && J.antagonist_immune)
+				continue
 		if(H.client && H.client.prefs.allow_midround_antag && !is_centcom_level(H.z))
 			antag_candidates += H
 
@@ -473,6 +477,9 @@
 
 	if(restricted_jobs)
 		for(var/datum/mind/player in candidates)
+			var/datum/job/J = SSjob.GetJob(player.assigned_role)
+			if(J && J.antagonist_immune)
+				drafted -= player
 			for(var/job in restricted_jobs)					// Remove people who want to be antagonist but have a job already that precludes it
 				if(player.assigned_role == job)
 					candidates -= player
@@ -501,6 +508,11 @@
 
 		else												// Not enough scrubs, ABORT ABORT ABORT
 			break
+
+	for(var/datum/mind/P in candidates) //removing immune jobs, this uses the antagonist_immune var. This overrides job restrictions from configuration. -falaskian
+		var/datum/job/J = SSjob.GetJob(P.assigned_role)
+		if(J && J.antagonist_immune)
+			candidates -= P
 
 	if(restricted_jobs)
 		for(var/datum/mind/player in drafted)				// Remove people who can't be an antagonist

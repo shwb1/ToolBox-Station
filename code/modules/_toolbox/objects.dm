@@ -753,3 +753,32 @@
 
 /obj/item/vending_refill/snack/dried_bread
 	machine_name = "\improper sustenance vendor"
+
+//getting a list of an entire telecomms network of machines. I couldnt find anything like this already existing.
+/obj/machinery/telecomms/proc/get_entire_network()
+	. = list()
+	if(!network)
+		return
+	. += src
+	for(var/obj/machinery/telecomms/T in GLOB.telecomms_list)
+		if(T.network != network)
+			continue
+		for(var/obj/machinery/telecomms/T2 in T.links)
+			if(T.network != network)
+				continue
+			if((T2 in .) && !(T in .))
+				. += T
+				break
+
+//unanchored objects for mapping and supply packs
+/obj/machinery/processor/unanchored
+	anchored = 0
+
+/obj/machinery/microwave/unanchored
+	anchored = 0
+
+/obj/machinery/reagentgrinder/unanchored
+	anchored = 0
+
+/obj/machinery/hydroponics/constructable/unanchored
+	anchored = 0

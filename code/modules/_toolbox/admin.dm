@@ -118,8 +118,8 @@ GLOBAL_VAR_INIT(override_lobby_player_count,0)
 						else
 							entry += " - <font color='black'><b>DEAD</b></font>"
 				if(C.mob.mind)
-					/*if(GLOB.used_antag_tokens[C.mob.mind])
-						entry += " - <font color='#820000'><b>TOKEN</b></font>"*/
+					if(GLOB.used_antag_tokens[C.mob.mind])
+						entry += " - <font color='#820000'><b>TOKEN</b></font>"
 					if(C.mob.mind && istype(C.mob.mind.extra_roles,/list) && C.mob.mind.extra_roles.len)
 						for(var/datum/extra_role/role in C.mob.mind.extra_roles)
 							var/wholisttext = role.get_who_list_info()
@@ -704,3 +704,62 @@ var/global/list/backup_admin_verbs = list(
 		play_local_sound(selected)
 	else
 		play_sound(selected)
+
+//Delaying explosions
+/client/proc/delay_explosions()
+	set category = "Admin"
+	set name = "Delay Explosions"
+	if(!check_rights(R_ADMIN) || !SSexplosions)
+		return
+	var/timer
+	if(GLOB.explosions_paused != 0)
+		if(SSexplosions.is_exploding())
+			timer = alert(src,"Explosions currently paused. An explosion as occured, do you wish to cancel all explosions?","Delay Explosions","Cancel Explosions","No")
+			if(timer == "Cancel Explosions")
+				kill_all_explosions()
+				message_admins("[ckey] has canceled all explosions.")
+				log_game("Admin: [ckey] has canceled all explosions.")
+				return
+		timer = alert(src,"Explosions currently paused. Do you wish to resume all explosions?","Delay Explosions","Resume","No")
+		if(timer == "Resume")
+			GLOB.explosions_paused = 0
+			message_admins("[ckey] resumed all explosions.")
+			log_game("Admin: [ckey] resumed all explosions.")
+		return
+	GLOB.explosions_paused = -1
+	GLOB.paused_explosion_messages["An explosion has occured. It is being delayed"] = ckey
+	message_admins("[ckey] has paused all explosions.")
+	log_game("Admin: [ckey] has paused all explosions.")
+	timer = alert(src,"Explosions now paused. Do you wish to set a timer to resume explosions?","Delay Explosions","Set Timer","No")
+	if(timer == "Set Timer")
+		timer = input(src,"Set a time in SECONDS untill explosions will resume","Delay Explosions",10) as num
+		if(isnum(timer) && timer >= 0)
+			GLOB.explosions_paused = world.time + (timer*10)
+			message_admins("[ckey] has caused all explosions to resume in [timer] seconds.")
+			log_game("Admin: [ckey] has caused all explosions to resume in [timer] seconds.")
+
+GLOBAL_LIST_EMPTY(paused_explosion_messages)
+GLOBAL_VAR_INIT(explosions_paused,0)
+/proc/delay_explosions()
+	if(GLOB.explosions_paused)
+		for(var/t in GLOB.paused_explosion_messages)
+			message_admins("[t] by admin [GLOB.paused_explosion_messages[t]]")
+			GLOB.paused_explosion_messages.Remove(t)
+		if(GLOB.explosions_paused > 0)
+			if(GLOB.explosions_paused <= world.time)
+				GLOB.explosions_paused = 0
+				message_admins("Explosion timer expired. Explosions will now resume.")
+		return TRUE
+	return FALSE
+
+/proc/kill_all_explosions()
+	if(!SSexplosions)
+		return
+	SSexplosions.lowturf.Cut()
+	SSexplosions.medturf.Cut()
+	SSexplosions.highturf.Cut()
+	SSexplosions.flameturf.Cut()
+	SSexplosions.throwturf.Cut()
+	SSexplosions.low_mov_atom.Cut()
+	SSexplosions.med_mov_atom.Cut()
+	SSexplosions.high_mov_atom.Cut()

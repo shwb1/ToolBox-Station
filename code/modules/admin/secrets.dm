@@ -73,6 +73,7 @@ GLOBAL_DATUM_INIT(admin_secrets, /datum/admin_secrets, new)
 			list("Summon Events (Toggle)", "events"),
 			list("There can only be one!", "onlyone"),
 			list("There can only be one! (40-second delay)", "delayed_onlyone"),
+			list("End of round Death Squad Battle", "end_round_thunderdome_war"),
 			list("Make all players retarded", "retardify"),
 			list("Make all players Australian", "aussify"),
 			list("Egalitarian Station Mode", "eagles"),
@@ -621,6 +622,12 @@ GLOBAL_DATUM_INIT(admin_secrets, /datum/admin_secrets, new)
 			SSblackbox.record_feedback("nested tally", "admin_secrets_fun_used", 1, list("There Can Be Only One"))
 			usr.client.only_one_delayed()
 			sound_to_playing_players('sound/misc/highlander_delayed.ogg')
+
+		if("end_round_thunderdome_war")
+			if(!check_rights(R_FUN))
+				return
+			if(!Thunder_Dome_War())
+				to_chat(usr,"<B>The round must be over to activate this.</B>")
 
 		if("maint_access_brig")
 			if(!check_rights(R_DEBUG))

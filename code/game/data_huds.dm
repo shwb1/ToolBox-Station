@@ -227,7 +227,18 @@
 	var/icon/I = icon(icon, icon_state, dir)
 	holder.pixel_y = I.Height() - world.icon_size
 	holder.icon_state = "hudno_id"
-	if(wear_id?.GetID())
+	var/found_extra_role = 0
+	if(mind && mind.extra_roles)
+		for(var/datum/extra_role/R in mind.extra_roles)
+			var/list/role_sec_hud = R.get_sec_hud()
+			if(islist(role_sec_hud) && role_sec_hud["icon"] && role_sec_hud["icon_state"])
+				holder.icon = role_sec_hud["icon"]
+				holder.icon_state = role_sec_hud["icon_state"]
+				found_extra_role = 1
+				break
+	if(!found_extra_role && wear_id?.GetID())
+		if(holder.icon != 'icons/mob/hud.dmi')
+			holder.icon = 'icons/mob/hud.dmi'
 		holder.icon_state = "hud[ckey(wear_id.GetJobName())]"
 	sec_hud_set_security_status()
 

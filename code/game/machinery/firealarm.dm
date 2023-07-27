@@ -49,7 +49,8 @@
 	LAZYADD(myarea.firealarms, src)
 
 /obj/machinery/firealarm/Destroy()
-	LAZYREMOVE(myarea.firealarms, src)
+	if(myarea)
+		LAZYREMOVE(myarea.firealarms, src)
 	return ..()
 
 /obj/machinery/firealarm/power_change()
@@ -323,5 +324,11 @@
 		return
 	A.party = TRUE
 	if (!party_overlay)
-		party_overlay = iconstate2appearance('icons/turf/areas.dmi', "party")
+		var/icon/I = icon('icons/turf/areas.dmi',"party")
+		party_overlay = I
+		//party_overlay = iconstate2appearance('icons/turf/areas.dmi', "party")
 	A.add_overlay(party_overlay)
+
+/obj/machinery/firealarm/partyalarm/Destroy()
+	qdel(party_overlay)
+	. = ..()

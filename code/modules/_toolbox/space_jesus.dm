@@ -1,79 +1,247 @@
-//#define SPAN_JESUS "jesus"
-/mob/living/carbon/human/jesus
-	status_flags = GODMODE//|GOTTAGOREALLYFAST|IGNORESLOWDOWN these 2 removed. fix later
-	anchored = 1
-	incorporeal_move = 1
-	omnipotent_access = 1
+//**********************
+//space jesus extra role
+//**********************
+/mob
+	var/omnipotent_access = 0
+
+/datum/extra_role/space_jesus
+	var/mob/living/tracked_owner
+	var/incorporeal_move = 1
+	var/list/active_actions = list()
+	var/list/action_datums = list(
+				/datum/action/jesus_disappear,
+				/datum/action/togglecorporeal,
+				/datum/action/jesus_heal,
+				/datum/action/jesus_hallelujah,
+				/datum/action/jesus_destroyer)
 	var/datum/mind/saved_mind
 	var/list/owned_items = list()
 	var/obj/item/gun/energy/pulse/destroyer/jesus/destroyer
 
-/mob/living/carbon/human/jesus/Life()
-	. = ..()
-	anchored = 1
-	if(!HAS_TRAIT(src, TRAIT_IGNORESLOWDOWN))
-		ignore_slowdown(src)
+/datum/extra_role/space_jesus/on_gain(mob/user)
+	if(!affecting || !affecting.current)
+		return
+	if(!tracked_owner)
+		tracked_owner = affecting.current
+	jesus_skinify(tracked_owner)
+	give_special_stats(tracked_owner)
+	grant_actions()
 
-/mob/living/carbon/human/jesus/verb/disappear()
-	set category = "Space Jesus"
-	set name = "Disappear"
-	set desc = "You've finished your job. Time to disappear."
+/datum/extra_role/space_jesus/on_remove(mob/user)
+	if(affecting && affecting.current)
+		give_special_stats(affecting.current,1)
+	tracked_owner = null
 
-	new /obj/effect/particle_effect/smoke(get_turf(src))
-	playsound(get_turf(src), 'sound/effects/smoke.ogg', 50, 0, 0, 0, 0)
-	visible_message("<font size=3 color=red><b>Space Jesus has returned to heaven!</b></font>")
-	if(saved_mind)
-		stop_sound_channel(CHANNEL_HEARTBEAT)
-		var/mob/dead/observer/ghost
-		if(istype(saved_mind.current,/mob/living) && saved_mind.current != src)
-			ghost = new(saved_mind.current)
-			SStgui.on_transfer(src, ghost)
-			ghost.key = key
-			ghost.loc = loc
+/datum/extra_role/space_jesus/process()
+	if(!affecting || !affecting.current)
+		return
+	if(tracked_owner && affecting && isliving(affecting.current))
+		if(tracked_owner != affecting.current)
+			for(var/datum/action/A in active_actions)
+				A.Remove(tracked_owner)
+				A.Grant(affecting.current)
+			tracked_owner = affecting.current
+			give_special_stats(tracked_owner,1)
+		tracked_owner.anchored = 1
+		tracked_owner.hallucination = 0
+		if(tracked_owner.stat == DEAD || !istype(tracked_owner,/mob/living/carbon))
+			disappear()
+
+/datum/extra_role/space_jesus/get_who_list_info()
+	 return "<font color='black'><b>Space Jesus</b></font>"
+
+/datum/extra_role/space_jesus/proc/grant_actions()
+	for(var/path in action_datums)
+		if(!ispath(path))
+			continue
+		var/skip = 0
+		for(var/datum/action/A in active_actions)
+			if(istype(A,path))
+				skip = 1
+				break
+		if(skip)
+			continue
+		var/datum/action/A = new path()
+		if(!istype(A,/datum/action))
+			qdel(A)
+			continue
+		A.Grant(affecting.current)
+
+/datum/extra_role/space_jesus/proc/give_special_stats(mob/living/M, remove = 0) //use remove = 1 to instead remove the stats
+	if(!istype(M))
+		return
+	if(remove)
+		M.incorporeal_move = 0
+		M.omnipotent_access = 0
+		if(M.status_flags & GODMODE)
+			M.status_flags ^= GODMODE
+		if(M.anchored && !M.buckled)
+			M.anchored = 0
+		M.unignore_slowdown(src)
+	else
+		M.incorporeal_move = incorporeal_move
+		M.omnipotent_access = 1
+		if(!(M.status_flags & GODMODE))
+			M.status_flags ^= GODMODE
+		M.anchored = 1
+		M.ignore_slowdown(src)
+
+/datum/extra_role/space_jesus/proc/jesus_skinify(mob/living/carbon/human/H)
+	if(!istype(H))
+		return
+	H.name = "Space Jesus"
+	H.real_name = "Space Jesus"
+	var/datum/dna/D = H.dna
+	H.skin_tone = "caucasian3"
+	H.lip_color = "white"
+	H.eye_color = "000"
+	H.facial_hair_style = "Beard (Full)"
+	H.facial_hair_color = "000"
+	H.hair_style = "Long Fringe"
+	H.hair_color = "000"
+	H.gender = MALE
+	if (istype(D))
+		D.update_dna_identity()
+	H.sync_mind()
+	H.updateappearance()
+
+/datum/extra_role/space_jesus/proc/disappear(delete_mob = 1)
+	for(var/obj/item/I in owned_items)
+		qdel(I)
+	if(!affecting)
+		return
+	var/mob/living/H = affecting.current
+	if(!istype(H))
+		return
+	for(var/obj/item/I in H.get_contents())
+		if(!(I in owned_items))
+			I.forceMove(get_turf(H))
 		else
-			ghost = ghostize(0)
+			qdel(I)
+	new /obj/effect/particle_effect/smoke(get_turf(H))
+	playsound(get_turf(H), 'sound/effects/smoke.ogg', 50, 0, 0, 0, 0)
+	H.visible_message("<font size=3 color=red><b>Space Jesus has returned to heaven!</b></font>")
+	H.stop_sound_channel(CHANNEL_HEARTBEAT)
+	if(saved_mind)
+		var/mob/dead/observer/ghost
+		if(istype(saved_mind.current,/mob/living) && saved_mind.current != H)
+			ghost = new(saved_mind.current)
+			SStgui.on_transfer(H, ghost)
+			ghost.key = H.key
+			ghost.loc = H.loc
+		else
+			ghost = H.ghostize(0)
 			ghost.mind = saved_mind
 		ghost.can_reenter_corpse = TRUE
 		saved_mind = null
 	else
-		ghostize(0)
-	moveToNullspace()
-	for(var/obj/item/I in get_contents())
-		if(!(I in owned_items))
-			I.forceMove(loc)
-			I.dropped()
-		else
-			qdel(I)
-	qdel(src)
+		H.ghostize(0)
+	remove()
+	if(delete_mob)
+		var/atom/movable/to_delete
+		if(istype(H.loc,/obj/item/organ/brain))
+			to_delete = H.loc
+			if(istype(H.loc.loc,/obj/item/bodypart/head))
+				to_delete = H.loc.loc
+		if(!to_delete)
+			to_delete = H
+		if(to_delete && !QDELETED(to_delete))
+			to_delete.moveToNullspace()
+			qdel(to_delete)
 
-/mob/living/carbon/human/jesus/verb/destroyer()
-	set category = "Space Jesus"
-	set name = "Spawn Destroyer"
-	set desc = "Gives you a divine destroyer weapon."
-	if(destroyer)
-		qdel(destroyer)
+/datum/extra_role/space_jesus/on_death(gibbed)
+	disappear(!gibbed)
+
+/mob/proc/is_space_jesus()
+	if(istype(src,/mob/living/carbon))
+		var/mob/living/carbon/C = src
+		var/datum/extra_role/space_jesus/S = C.has_extra_role(/datum/extra_role/space_jesus)
+		if(S)
+			return S
+	return null
+
+//*******
+//Actions
+//*******
+
+//Disappear
+/datum/action/jesus_disappear
+	name = "Disappear"
+	icon_icon = 'icons/mob/actions/actions_spells.dmi'
+	button_icon_state = "jaunt"
+
+/datum/action/jesus_disappear/Trigger()
+	if(!owner)
 		return
-	destroyer = new()
-	owned_items += destroyer
-	put_in_hands(destroyer)
+	var/mob/living/H = owner
+	if(!istype(H))
+		return
+	var/datum/extra_role/space_jesus/R = H.is_space_jesus()
+	if(R)
+		R.disappear()
 
-/mob/living/carbon/human/jesus/verb/hallelujah()
-	set category = "Space Jesus"
-	set name = "Hallelujah"
-	set desc = "Best used when performing miracles."
+//spawn desroyer gun
+/datum/action/jesus_destroyer
+	name = "Destroyer"
+	check_flags = AB_CHECK_CONSCIOUS
+	icon_icon = 'icons/obj/guns/energy.dmi'
+	button_icon_state = "pulse"
 
-	playsound(get_turf(src), 'sound/effects/pray.ogg', 50, 0, 0, 0, 0)
-	var/turf/T = get_turf(src)
+/datum/action/jesus_destroyer/Trigger()
+	if(!owner)
+		return
+	var/mob/living/carbon/human/H = owner
+	if(!istype(H))
+		return
+	var/datum/extra_role/space_jesus/R = H.is_space_jesus()
+	if(!R)
+		return
+	if(R.destroyer)
+		R.owned_items -= R.destroyer
+		qdel(R.destroyer)
+		R.destroyer = null
+		return
+	R.destroyer = new()
+	R.owned_items += R.destroyer
+	H.put_in_hands(R.destroyer)
+
+//hallelujah emote
+/datum/action/jesus_hallelujah
+	name = "Hallelujah"
+	check_flags = AB_CHECK_CONSCIOUS
+	icon_icon = 'icons/obj/storage.dmi'
+	button_icon_state = "bible"
+
+/datum/action/jesus_hallelujah/Trigger()
+	if(!owner)
+		return
+	var/mob/living/H = owner
+	if(!istype(H))
+		return
+	var/datum/extra_role/space_jesus/R = H.is_space_jesus()
+	if(!R)
+		return
+	playsound(get_turf(H), 'sound/effects/pray.ogg', 50, 0, 0, 0, 0)
+	var/turf/T = get_turf(H)
 	T.visible_message("<font size=3 color=blue><b>Hallelujah!</b></font>")
 
-/mob/living/carbon/human/jesus/verb/heal()
-	set category = "Space Jesus"
-	set name = "Heal"
-	set desc = "Perform a miracle."
-	/*if (!check_rights(R_REJUVINATE))
-		return*/
+//Healing
+/datum/action/jesus_heal
+	name = "Heal Target"
+	icon_icon = 'icons/obj/storage.dmi'
+	button_icon_state = "firstaid"
+
+/datum/action/jesus_heal/Trigger()
+	if(!owner)
+		return
+	var/mob/living/H = owner
+	if(!istype(H))
+		return
+	var/datum/extra_role/space_jesus/R = H.is_space_jesus()
+	if(!R)
+		return
 	var/list/surrounding = list()
-	for(var/mob/living/M in view(8,src))
+	for(var/mob/living/M in view(8,H))
 		var/thename = "Noname"
 		if(M.name)
 			thename = "[M.name]"
@@ -84,160 +252,46 @@
 				thename += "(DEAD)"
 			if(UNCONSCIOUS)
 				thename += "(UNCONSCIOUS)"
-		if(M == src)
+		if(M == H)
 			thename += "(YOU)"
 		surrounding[avoid_assoc_duplicate_keys(thename, surrounding)] = M
-	var/mob/living/L = surrounding[input(usr,"Select who to heal.","Heal",src) as null|anything in surrounding]
+	var/mob/living/L = surrounding[input(H,"Select who to heal.","Heal",null) as null|anything in surrounding]
 	if(!istype(L))
-		to_chat(usr, "This can only be used on beings.")
+		to_chat(H, "This can only be used on beings.")
 		return
 
 	L.revive(full_heal = 1, admin_revive = 1)
-	message_admins("<span class='danger'>Admin [key_name_admin(usr)] healed / revived [key_name_admin(L)]!</span>")
-	log_admin("[key_name(usr)] healed / Revived [key_name(L)].")
-	playsound(get_turf(src), 'sound/effects/pray.ogg', 50, 0, 0, 0, 0)
-	var/turf/T = get_turf(src)
+	message_admins("<span class='danger'>Admin [key_name_admin(H)] healed / revived [key_name_admin(L)]!</span>")
+	log_admin("[key_name(H)] healed / Revived [key_name(L)].")
+	var/turf/T = get_turf(H)
+	playsound(T, 'sound/effects/pray.ogg', 50, 0, 0, 0, 0)
 	T.visible_message("<font size=3 color=blue><b>Space Jesus heals [L]! Hallelujah!</b></font>")
 	new /obj/effect/explosion(get_turf(L))
 
-/mob/living/carbon/human/jesus/verb/togglecorporeal()
-	set category = "Space Jesus"
-	set name = "Toggle Corporeal Form"
-	set desc = "Toggles your corporeal form."
-	incorporeal_move = !incorporeal_move
-	if(incorporeal_move)
-		to_chat(src,"You are now non corporeal.")
+//Toggle Corporeal Form. aka pass through walls
+/datum/action/togglecorporeal
+	name = "Toggle Corporeal Form"
+	check_flags = AB_CHECK_CONSCIOUS
+	icon_icon = 'icons/mob/actions/actions_spells.dmi'
+	button_icon_state = "blink"
+
+/datum/action/togglecorporeal/Trigger()
+	if(!owner)
+		return
+	var/mob/living/H = owner
+	var/datum/extra_role/space_jesus/R = H.is_space_jesus()
+	if(!R)
+		return
+	R.incorporeal_move = !R.incorporeal_move
+	H.incorporeal_move = R.incorporeal_move
+	if(H.incorporeal_move)
+		to_chat(H,"You are now non corporeal.")
 	else
-		to_chat(src,"You are now corporeal.")
+		to_chat(H,"You are now corporeal.")
 
-/mob
-	var/omnipotent_access = 0
-/mob/living/carbon/human/jesus/New()
-	..()
-	name = "Space Jesus"
-	real_name = "Space Jesus"
-	//vv_edit_var(cached_multiplicative_slowdown , 0.5)
-	var/datum/dna/D = dna
-	skin_tone = "caucasian3"
-	lip_color = "white"
-	eye_color = "000"
-	facial_hair_style = "Beard (Full)"
-	facial_hair_color = "000"
-	hair_style = "Long Fringe"
-	hair_color = "000"
-	gender = MALE
-	if (istype(D))
-		D.update_dna_identity()
-	sync_mind()
-	updateappearance()
-
-/*/mob/living/carbon/human/jesus/get_spans()
-	. = ..()
-	. |= SPAN_JESUS*/
-
-/mob/living/carbon/human/jesus/ex_act()
-	return
-
-/mob/living/carbon/human/jesus/electrocute_act(shock_damage, source, siemens_coeff = 1, safety = 0, tesla_shock = 0, illusion = 0, stun = TRUE)
-	return shock_damage*0
-
-/mob/living/carbon/human/jesus/examine(mob/user)
-		var/msg = "<span class='info'>*---------*\nThis is <EM><font size=3>Space Jesus</font></EM>, your Lord and Savior!</span>\n"
-		msg += "<font color=red>He is the real deal.</font><br>"
-		msg += "*---------*</span>"
-		to_chat(user, msg)
-
-/mob/living/carbon/human/jesus/gib()
-	return
-
-/mob/living/carbon/human/jesus/handle_hallucinations()
-	if(hallucination > 0)
-		hallucination = 0
-		return
-
-//the original outfit
-/datum/outfit/jesus/carpenter
-	name = "Space Jesus"
-	uniform = /obj/item/clothing/under/suit/waiter/jesus
-	suit = null //Since this is a child, no robe on this one.
-	gloves = /obj/item/clothing/gloves/color/white/jesus
-	shoes = /obj/item/clothing/shoes/jackboots/jesus
-	glasses = /obj/item/clothing/glasses/godeye/jesus
-	ears = /obj/item/radio/headset
-	belt = /obj/item/storage/belt/utility/full
-
-/mob/proc/jesusify(var/datum/outfit/outfit)
-	if(isnewplayer(src))
-		to_chat(usr, "<span class='danger'>Cannot convert players who have not entered yet.</span>")
-		return
-
-	spawn(0)
-		var/mob/living/carbon/human/jesus/M
-		var/location = src.loc
-		for(var/i=0, i<=7, i++)
-			spawn(i*2)
-				var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
-				s.set_up(5, 1, location)
-				s.start()
-		playsound(get_turf(location), 'sound/effects/pray_chaplain.ogg', 50, 0, 0, 0, 0)
-		var/obj/effect/forcefield/cult/C = new /obj/effect/forcefield/cult(get_turf(location))
-		var/obj/effect/jesusportal/P = new /obj/effect/jesusportal(get_turf(location))
-		var/savedkey = key
-		spawn(15)
-			qdel(P)
-			qdel(C)
-			new /obj/effect/explosion(get_turf(location))
-			playsound(get_turf(location), 'sound/effects/explosion2.ogg', 25, 0, 0, 0, 0)
-			var/turf/T = get_turf(location)
-			T.visible_message("<font size=3 color=red><b>Your Lord, Space Jesus, descends upon the Earth!</b></font>")
-			M = new /mob/living/carbon/human/jesus( location )
-			if (!istype(M))
-				to_chat(usr, "Oops! There was a problem. Contact a developer.")
-				return
-			if(M.mind)
-				M.mind.assigned_role = "Space Jesus"
-			if(mind && mind.assigned_role != M.mind.assigned_role)
-				M.saved_mind = mind
-			M.key = savedkey
-			if(!istype(outfit))
-				outfit = /datum/outfit/jesus
-			M.equipOutfit(outfit)
-			if(istype(outfit,/datum/outfit/job))
-				M.real_name = "[outfit.name] Jesus"
-			else
-				M.real_name = "[outfit.name]"
-			M.name = M.real_name
-			for(var/obj/item/I in M.get_contents())
-				M.owned_items += I
-			QDEL_IN(src, 1)
-		return M
-
-/obj/item/clothing/under/suit/waiter/jesus
-	name = "carpenter uniform"
-	resistance_flags = INDESTRUCTIBLE
-
-/obj/item/clothing/glasses/godeye/jesus
-	icon_state = ""
-	item_state = ""
-	resistance_flags = INDESTRUCTIBLE
-
-/obj/item/clothing/glasses/godeye/jesus/worn_overlays(isinhands)
-    . = list()
-    if(!isinhands)
-        . += image(layer = LYING_MOB_LAYER-0.01, icon = 'icons/effects/effects.dmi', icon_state = "m_shield")
-
-/obj/item/clothing/gloves/color/white/jesus
-	resistance_flags = INDESTRUCTIBLE
-
-/obj/item/clothing/shoes/jackboots/jesus
-	name = "Black Boots"
-	resistance_flags = INDESTRUCTIBLE
-
-/obj/effect/jesusportal
-	name = "wormhole"
-	desc = "It looks highly unstable; It could close at any moment."
-	icon = 'icons/obj/objects.dmi'
-	icon_state = "anom"
+//**************
+//Creating Jesus
+//**************
 
 /datum/admins/proc/space_jesus()
 	set name = "Space Jesus"
@@ -282,6 +336,112 @@
 	if(!istype(chosenoutfit,/datum/outfit))
 		chosenoutfit = /datum/outfit/jesus
 	usr.jesusify(chosenoutfit)
+
+/mob/proc/jesusify(datum/outfit/outfit)
+	if(isnewplayer(src))
+		to_chat(usr, "<span class='danger'>Cannot convert players who have not entered yet.</span>")
+		return
+	var/location = src.loc
+	var/mob/living/carbon/human/M
+	spawn(0)
+		for(var/i=0, i<=7, i++)
+			spawn(i*2)
+				var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
+				s.set_up(5, 1, location)
+				s.start()
+		playsound(get_turf(location), 'sound/effects/pray_chaplain.ogg', 50, 0, 0, 0, 0)
+		var/obj/effect/forcefield/cult/C = new /obj/effect/forcefield/cult(get_turf(location))
+		var/obj/effect/jesusportal/P = new /obj/effect/jesusportal(get_turf(location))
+		var/savedkey = key
+		spawn(15)
+			qdel(P)
+			qdel(C)
+			new /obj/effect/explosion(get_turf(location))
+			playsound(get_turf(location), 'sound/effects/explosion2.ogg', 25, 0, 0, 0, 0)
+			var/turf/T = get_turf(location)
+			T.visible_message("<font size=3 color=red><b>Your Lord, Space Jesus, descends upon the Earth!</b></font>")
+			M = new /mob/living/carbon/human( location )
+			if (!istype(M))
+				to_chat(usr, "Oops! There was a problem. Contact a developer.")
+				return
+			M.mind_initialize()
+			var/datum/extra_role/space_jesus/R = M.give_extra_role(/datum/extra_role/space_jesus)
+			if(!R)
+				qdel(M)
+				to_chat(usr, "Oops! There was a problem, could not create jesus' powers. Contact a developer.")
+				return
+			if(M.mind)
+				M.mind.assigned_role = "Space Jesus"
+			if(mind && mind.assigned_role != M.mind.assigned_role)
+				R.saved_mind = mind
+			M.key = savedkey
+			if(!istype(outfit))
+				outfit = /datum/outfit/jesus
+			M.equipOutfit(outfit)
+			var/obj/item/clothing/gloves/G = M.gloves
+			if(!G)
+				G = new /obj/item/clothing/gloves/color/white/jesus()
+				G.siemens_coefficient = 0
+				G.permeability_coefficient = 0.05
+				M.equip_to_slot_or_del(G,SLOT_GLOVES)
+			if(istype(outfit,/datum/outfit))
+				M.real_name = "[outfit.name] Jesus"
+			else
+				M.real_name = "Space Jesus"
+			M.name = M.real_name
+			for(var/obj/item/I in M.get_contents())
+				R.owned_items += I
+			QDEL_IN(src, 1)
+	. =  M
+
+//The portal animation for when jesus enters.
+/obj/effect/jesusportal
+	name = "wormhole"
+	desc = "It looks highly unstable; It could close at any moment."
+	icon = 'icons/obj/objects.dmi'
+	icon_state = "anom"
+
+/*/mob/living/carbon/human/jesus/examine(mob/user)
+		var/msg = "<span class='info'>*---------*\nThis is <EM><font size=3>Space Jesus</font></EM>, your Lord and Savior!</span>\n"
+		msg += "<font color=red>He is the real deal.</font><br>"
+		msg += "*---------*</span>"
+		to_chat(user, msg)*/
+
+//********************
+//Clothing and Outfits
+//********************
+
+//The old original carpenter outfit
+/datum/outfit/jesus/carpenter
+	name = "Space Jesus"
+	uniform = /obj/item/clothing/under/suit/waiter/jesus
+	suit = null //Since this is a child, no robe on this one.
+	gloves = /obj/item/clothing/gloves/color/white/jesus
+	shoes = /obj/item/clothing/shoes/jackboots/jesus
+	glasses = /obj/item/clothing/glasses/godeye/jesus
+	ears = /obj/item/radio/headset
+	belt = /obj/item/storage/belt/utility/full
+
+/obj/item/clothing/under/suit/waiter/jesus
+	name = "carpenter uniform"
+	resistance_flags = INDESTRUCTIBLE
+
+/obj/item/clothing/glasses/godeye/jesus
+	icon_state = ""
+	item_state = ""
+	resistance_flags = INDESTRUCTIBLE
+
+/obj/item/clothing/glasses/godeye/jesus/worn_overlays(isinhands)
+    . = list()
+    if(!isinhands)
+        . += image(layer = LYING_MOB_LAYER-0.01, icon = 'icons/effects/effects.dmi', icon_state = "m_shield")
+
+/obj/item/clothing/gloves/color/white/jesus
+	resistance_flags = INDESTRUCTIBLE
+
+/obj/item/clothing/shoes/jackboots/jesus
+	name = "Black Boots"
+	resistance_flags = INDESTRUCTIBLE
 
 //Updated space jesus clothes.
 /obj/item/clothing/suit/hooded/spacejesus
@@ -333,6 +493,9 @@
 	if(istype(hooded) && !hooded.suittoggled)
 		hooded.ToggleHood()
 
+//*************
+//Destroyer Gun
+//*************
 /obj/item/gun/energy/pulse/destroyer/jesus
 	name = "Jesus' Destroyer"
 	var/unlocked = 0

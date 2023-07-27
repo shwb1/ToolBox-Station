@@ -312,6 +312,8 @@
 			return TRUE
 
 /mob/living/ex_act(severity, target, origin)
+	if(status_flags & GODMODE)
+		return
 	if(origin && istype(origin, /datum/spacevine_mutation) && isvineimmune(src))
 		return
 	..()

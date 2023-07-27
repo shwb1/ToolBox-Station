@@ -10,8 +10,8 @@
 	var/fail_message = "<span class='warning'>INVALID USER.</span>"
 	var/selfdestruct = 0 // Explode when user check is failed.
 	var/force_replace = 0 // Can forcefully replace other pins.
-	var/pin_removeable = 0 // Can be replaced by any pin.
 	var/obj/item/gun/gun
+	var/can_be_removed = 1
 
 /obj/item/firing_pin/New(newloc)
 	..()
@@ -25,7 +25,10 @@
 			var/obj/item/gun/G = target
 			if(G.no_pin_required)
 				return
-			if(G.pin && (force_replace || G.pin.pin_removeable))
+			if(G.pin)
+				if(!G.pin.can_be_removed && !force_replace)
+					to_chat(user, "<span class='warning'>The pin cannot be removed.</span>")
+					return
 				G.pin.forceMove(get_turf(G))
 				G.pin.gun_remove(user)
 				to_chat(user, "<span class ='notice'>You remove [G]'s old pin.</span>")
@@ -81,7 +84,7 @@
 	name = "test-range firing pin"
 	desc = "This safety firing pin allows weapons to be fired within proximity to a firing range."
 	fail_message = "<span class='warning'>TEST RANGE CHECK FAILED.</span>"
-	pin_removeable = TRUE
+	can_be_removed = FALSE
 
 /obj/item/firing_pin/test_range/pin_auth(mob/living/user)
 	if(!istype(user))

@@ -14,8 +14,9 @@
 
 /obj/machinery/portable_atmospherics/scrubber/Destroy()
 	var/turf/T = get_turf(src)
-	T.assume_air(air_contents)
-	air_update_turf()
+	if(T)
+		T.assume_air(air_contents)
+		air_update_turf()
 	return ..()
 
 /obj/machinery/portable_atmospherics/scrubber/update_icon()
