@@ -250,6 +250,9 @@
 /datum/job/proc/radio_help_message(mob/M)
 	to_chat(M, "<b>Prefix your message with :h to speak on your department's radio. To see other prefixes, look closely at your headset.</b>")
 
+/datum/job/proc/get_shorter_name()
+	return title
+
 /datum/outfit/job
 	name = "Standard Gear"
 

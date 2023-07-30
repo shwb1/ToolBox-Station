@@ -254,7 +254,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 		else
 			C = loc
 		if(iscarbon(C))
-			if (src == C.wear_mask) // if it's in the human/monkey mouth, transfer reagents to the mob
+			if (src == C.wear_mask || C == remote) // if it's in the human/monkey mouth, transfer reagents to the mob
 				var/fraction = min(REAGENTS_METABOLISM/reagents.total_volume, 1)
 				/*
 				 * Given the amount of time the cig will last, and how often we take a hit, find the number

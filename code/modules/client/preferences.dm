@@ -835,21 +835,18 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		var/datum/job/overflow = SSjob.GetJob(SSjob.overflow_role)
 
 		var/list/alljobs = list()
+		var/list/save_to_end = list()
 		for(var/datum/job/job in sortList(SSjob.occupations, /proc/cmp_job_display_asc))
+			if(job.whitelisted && job.is_whitelisted(user.client))
+				save_to_end += job
+				continue
 			alljobs += job
-		var/onwhitelist = 0
+		alljobs += save_to_end
 		for(var/datum/job/job in alljobs)
 			if(job.gimmick) //Gimmick jobs run off of a single pref
 				continue
-			if(job.whitelisted)
-				if(!job.is_whitelisted(user.client))
-					continue
-				else if(onwhitelist < 1)
-					onwhitelist = 1
 			index += 1
-			if((index >= limit) || (job.title in splitJobs) || (onwhitelist == 1))
-				if(onwhitelist == 1)
-					onwhitelist = 2
+			if((index >= limit) || (job.title in splitJobs))
 				width += widthPerColumn
 				if((index < limit) && (lastJob != null))
 					//If the cells were broken up by a job in the splitJob list then it will fill in the rest of the cells with
@@ -861,25 +858,26 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 			HTML += "<tr bgcolor='[job.selection_color]'><td width='60%' align='right'>"
 			var/rank = job.title
+			var/shorter_rank = job.get_shorter_name()
 			lastJob = job
 			if(is_banned_from(user.ckey, rank))
-				HTML += "<font color=red>[rank]</font></td><td><a href='?_src_=prefs;bancheck=[rank]'> BANNED</a></td></tr>"
+				HTML += "<font color=red>[shorter_rank]</font></td><td><a href='?_src_=prefs;bancheck=[rank]'> BANNED</a></td></tr>"
 				continue
 			var/required_playtime_remaining = job.required_playtime_remaining(user.client)
 			if(required_playtime_remaining)
-				HTML += "<font color=red>[rank]</font></td><td><font color=red> \[ [get_exp_format(required_playtime_remaining)] as [job.get_exp_req_type()] \] </font></td></tr>"
+				HTML += "<font color=red>[shorter_rank]</font></td><td><font color=red> \[ [get_exp_format(required_playtime_remaining)] as [job.get_exp_req_type()] \] </font></td></tr>"
 				continue
 			if(!job.player_old_enough(user.client))
 				var/available_in_days = job.available_in_days(user.client)
-				HTML += "<font color=red>[rank]</font></td><td><font color=red> \[IN [(available_in_days)] DAYS\]</font></td></tr>"
+				HTML += "<font color=red>[shorter_rank]</font></td><td><font color=red> \[IN [(available_in_days)] DAYS\]</font></td></tr>"
 				continue
 			if((job_preferences[overflow] == JP_LOW) && (rank != SSjob.overflow_role) && !is_banned_from(user.ckey, SSjob.overflow_role))
-				HTML += "<font color=orange>[rank]</font></td><td></td></tr>"
+				HTML += "<font color=orange>[shorter_rank]</font></td><td></td></tr>"
 				continue
 			if((rank in GLOB.command_positions) || (rank == "AI"))//Bold head jobs
-				HTML += "<b><span class='dark'>[rank]</span></b>"
+				HTML += "<b><span class='dark'>[shorter_rank]</span></b>"
 			else
-				HTML += "<span class='dark'>[rank]</span>"
+				HTML += "<span class='dark'>[shorter_rank]</span>"
 
 			HTML += "</td><td width='40%'>"
 
