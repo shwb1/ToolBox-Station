@@ -1476,9 +1476,9 @@
 
 		if(pod)
 			new /obj/effect/DPtarget(target, pod)
-		
+
 		var/turf/T = get_turf(usr.loc) // get admin's LOC as a turf
-		
+
 		if (number == 1)
 			log_admin("[key_name(usr)] created a [english_list(paths)] at [AREACOORD(T)]")
 			for(var/path in paths)
@@ -1839,6 +1839,16 @@
 		dat += thing_to_check
 
 		usr << browse(dat.Join("<br>"), "window=related_[C];size=420x300")
+
+	//space pods
+	else if(href_list["view_pod_log"])
+		var/datum/pod_log/log = locate(href_list["view_pod_log"])
+		if(log)
+			return usr.client.debug_variables(log)
+	else if(href_list["view_pod_debug"])
+		var/obj/pod/pod = locate(href_list["view_pod_debug"])
+		if(pod && istype(pod))
+			pod.OpenDebugMenu(owner.mob)
 
 	else if(href_list["centcomlookup"])
 		if(!check_rights(R_ADMIN))

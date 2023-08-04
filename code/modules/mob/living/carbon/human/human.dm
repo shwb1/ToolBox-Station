@@ -118,6 +118,17 @@
 		if(hivemind)
 			tab_data["Hivemind Vessels"] = GENERATE_STAT_TEXT("[hivemind.hive_size] (+[hivemind.size_mod])")
 			tab_data["Psychic Link Duration"] = GENERATE_STAT_TEXT("[(hivemind.track_bonus + TRACKER_DEFAULT_TIME)/10] seconds")
+
+	if(istype(loc, /obj/pod))
+		var/obj/pod/pod = loc
+		if(pod.pilot == src)
+			tab_data["Integrity: "] = "[round((pod.health / pod.max_health) * 100)]%"
+			if(pod.power_source)
+				tab_data["Charge: "] = "[pod.power_source.charge]/[pod.power_source.maxcharge] ([pod.power_source.percent()]%)"
+			var/obj/item/pod_attachment/sensor/sensor = pod.GetAttachmentOnHardpoint(16)
+			if(sensor && istype(sensor, /obj/item/pod_attachment/sensor/gps))
+				tab_data["Position: "] = "([pod.x], [pod.y], [pod.z])"
+
 	return tab_data
 
 /mob/living/carbon/human/show_inv(mob/user)

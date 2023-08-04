@@ -38,8 +38,6 @@
 	var/list/teams = list()
 
 	var/playercount = GLOB.clients.len
-	if(GLOB.override_lobby_player_count > 0)
-		playercount = GLOB.override_lobby_player_count
 
 	var/_max_teams = max(min(round(playercount/10),max_teams),1)
 

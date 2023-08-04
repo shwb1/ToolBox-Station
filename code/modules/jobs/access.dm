@@ -1,5 +1,6 @@
 
 //returns TRUE if this mob has sufficient access to use this object
+
 /obj/proc/allowed(mob/M)
 	if(istype(M) && M.omnipotent_access)
 		return TRUE

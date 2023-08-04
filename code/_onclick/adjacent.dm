@@ -73,6 +73,26 @@
 		return FALSE
 	if(T.Adjacent(neighbor,target = neighbor, mover = src))
 		return TRUE
+	var/list/neighborlocs = list()
+	if(istype(neighbor,/atom/movable))
+		var/atom/movable/AM = neighbor
+		if(AM.locs && AM.locs.len && AM.locs.len > 1)
+			for(var/atom/A in AM.locs)
+				if(istype(A,/area))
+					continue
+				neighborlocs += A
+	var/list/ourlocs = list(loc)
+	if(locs && locs.len && locs.len > 1)
+		for(var/atom/A in locs)
+			if(istype(A,/area))
+				continue
+			ourlocs += A
+	for(var/atom/A in ourlocs)
+		if(istype(A,/area))
+			continue
+		for(var/atom/neighborloc in neighborlocs)
+			if(Adjacent(neighborloc))
+				return TRUE
 	return FALSE
 
 // This is necessary for storage items not on your person.

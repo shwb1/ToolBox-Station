@@ -51,11 +51,16 @@
 	var/mob/living/simple_animal/bot/active_bot
 	var/list/botlist = list()
 
+	var/list/return_modes = list(4,5)
+
 /obj/item/cartridge/proc/get_custom_menu(mob/user)
 	return ""
 
 /obj/item/cartridge/proc/customreaction(href_list,/mob/user)
 	return
+
+/obj/item/cartridge/proc/insert_item(mob/user,obj/item/I)
+	return null
 
 /obj/item/cartridge/Initialize()
 	. = ..()
@@ -756,3 +761,6 @@ Code:
 
 //This is called for special abilities of cartridges
 /obj/item/cartridge/proc/special(mob/living/user, list/params)
+
+/obj/item/cartridge/proc/get_background_color()
+	return null

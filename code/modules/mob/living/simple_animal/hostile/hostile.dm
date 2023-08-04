@@ -129,7 +129,7 @@
 
 /mob/living/simple_animal/hostile/proc/ListTargets()//Step 1, find out what we can see
 	if(!search_objects)
-		var/static/target_list = typecacheof(list(/obj/machinery/porta_turret, /obj/mecha)) //mobs are handled via ismob(A)
+		var/static/target_list = typecacheof(list(/obj/machinery/porta_turret, /obj/mecha, /obj/pod)) //mobs are handled via ismob(A)
 		. = list()
 		for(var/atom/A as() in dview(vision_range, get_turf(targets_from), SEE_INVISIBLE_MINIMUM))
 			if((ismob(A) && A != src) || target_list[A.type])

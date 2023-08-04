@@ -213,7 +213,7 @@
 // All this work to prevent a second bump
 /atom/movable/Move(atom/newloc, direct=0)
 	. = FALSE
-	if(!newloc || newloc == loc)
+	if((!newloc || newloc == loc) && !(bound_width > 32|| bound_height > 32))
 		return
 
 	if(!direct)
@@ -266,7 +266,7 @@
 		return FALSE
 	var/atom/oldloc = loc
 
-	if(loc != newloc)
+	if(loc != newloc || (bound_width > 32|| bound_height > 32))
 		if (!(direct & (direct - 1))) //Cardinal move
 			. = ..()
 		else //Diagonal move, split it into cardinal moves
@@ -322,7 +322,6 @@
 					newtonian_move(direct)
 			moving_diagonally = 0
 			return
-
 	if(!loc || (loc == oldloc && oldloc != newloc))
 		last_move = 0
 		return

@@ -782,3 +782,8 @@
 
 /obj/machinery/hydroponics/constructable/unanchored
 	anchored = 0
+
+//return of circuit lab
+/area/science/circuit
+	name = "Circuitry Lab"
+	icon_state = "cir_lab"

@@ -201,7 +201,14 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 	user.set_machine(src)
 
-	var/dat = "<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><title>Personal Data Assistant</title><link href=\"https://fonts.googleapis.com/css?family=Orbitron|Share+Tech+Mono|VT323\" rel=\"stylesheet\"></head><body bgcolor=\"" + background_color + "\"><style>body{" + font_mode + "}ul,ol{list-style-type: none;}a, a:link, a:visited, a:active, a:hover { color: #000000;text-decoration:none; }img {border-style:none;}a img{padding-right: 9px;}</style>"
+	var/thebackground_color = background_color
+	var/cart_background_color
+	if(cartridge)
+		cart_background_color = cartridge.get_background_color()
+	if(cart_background_color)
+		thebackground_color = cart_background_color
+
+	var/dat = "<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><title>Personal Data Assistant</title><link href=\"https://fonts.googleapis.com/css?family=Orbitron|Share+Tech+Mono|VT323\" rel=\"stylesheet\"></head><body bgcolor=\"" + thebackground_color + "\"><style>body{" + font_mode + "}ul,ol{list-style-type: none;}a, a:link, a:visited, a:active, a:hover { color: #000000;text-decoration:none; }img {border-style:none;}a img{padding-right: 9px;}</style>"
 	dat += assets.css_tag()
 	dat += emoji_s.css_tag()
 
@@ -247,6 +254,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 					if (cartridge.access & CART_CLOWN)
 						dat += "<li><a href='byond://?src=[REF(src)];choice=Honk'>[PDAIMG(honk)]Honk Synthesizer</a></li>"
 						dat += "<li><a href='byond://?src=[REF(src)];choice=Trombone'>[PDAIMG(honk)]Sad Trombone</a></li>"
+						dat += "<li><a href='byond://?src=[REF(src)];choice=clownstore;custommenu=1'>[PDAIMG(honk)]Honk Store</a></li>"
 					if (cartridge.access & CART_MANIFEST)
 						dat += "<li><a href='byond://?src=[REF(src)];choice=41'>[PDAIMG(notes)]View Crew Manifest</a></li>"
 					if(cartridge.access & CART_STATUS_DISPLAY)
@@ -443,7 +451,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 					mode = 0
 				else
 					mode = round(mode/10)
-					if(mode==4 || mode == 5)//Fix for cartridges. Redirects to hub.
+					if((cartridge && mode in cartridge.return_modes) || (mode==4 || mode == 5)) //Fix for cartridges. Redirects to hub.
 						mode = 0
 				if(!silent)
 					playsound(src, 'sound/machines/terminal_select.ogg', 15, TRUE)
@@ -992,6 +1000,8 @@ GLOBAL_LIST_EMPTY(PDAs)
 		var/obj/item/photo/P = C
 		picture = P.picture
 		to_chat(user, "<span class='notice'>You scan \the [C].</span>")
+	else if(cartridge && cartridge.insert_item(user,C))
+		return
 	else
 		return ..()
 

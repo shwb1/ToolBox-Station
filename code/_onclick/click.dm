@@ -114,9 +114,9 @@
 		return M.click_action(A,src,params)
 
 	//space pods
-	/*if(istype(loc, /obj/pod))
+	if(istype(loc, /obj/pod))
 		var/obj/pod/pod = loc
-		return pod.OnClick(A, src, modifiers)*/
+		return pod.OnClick(A, src, modifiers)
 
 	if(restrained())
 		changeNext_move(CLICK_CD_HANDCUFFED)   //Doing shit in cuffs shall be vey slow

@@ -1,6 +1,20 @@
 // simple is_type and similar inline helpers
 
-#define in_range(source, user) (get_dist(source, user) <= 1 && (get_step(source, 0)?:z) == (get_step(user, 0)?:z))
+//#define in_range(source, user) (get_dist(source, user) <= 1 && (get_step(source, 0)?:z) == (get_step(user, 0)?:z))
+#define in_range(source, user) (in_range_proc(source, user))
+
+/proc/in_range_proc(source, user)
+	if(get_dist(source, user) <= 1 && (get_step(source, 0)?:z) == (get_step(user, 0)?:z))
+		return TRUE
+	else if(istype(source,/atom/movable))
+		var/atom/movable/AM = source
+		if(AM.locs && AM.locs.len && AM.locs.len > 1)
+			for(var/atom/A in AM.locs)
+				if(istype(A,/area))
+					continue
+				if(in_range_proc(A, user))
+					return TRUE
+	return FALSE
 
 #define ismovableatom(A) ismovable(A)
 
