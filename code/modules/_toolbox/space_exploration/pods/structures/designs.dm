@@ -287,7 +287,7 @@
 		build_type = PODFAB
 		build_path = /obj/item/pod_attachment/engine/plasma/advanced
 		//req_tech = list("powerstorage" = 4, "materials" = 4)
-		materials = list(/datum/material/iron = 4000, /datum/material/silver = 2500, /datum/material/gold = 2500)
+		materials = list(/datum/material/iron = 4000, /datum/material/silver = 2500, /datum/material/gold = 2500, /datum/material/plasma = 4000)
 		construction_time = 80
 
 	p_engine_uranium/
@@ -297,7 +297,7 @@
 		build_type = PODFAB
 		build_path = /obj/item/pod_attachment/engine/uranium
 		//req_tech = list("powerstorage" = 1)
-		materials = list(/datum/material/iron = 4000)
+		materials = list(/datum/material/iron = 4000,/datum/material/uranium = 4000)
 		construction_time = 30
 
 	p_engine_uranium_advanced/
@@ -307,7 +307,7 @@
 		build_type = PODFAB
 		build_path = /obj/item/pod_attachment/engine/uranium/advanced
 		//req_tech = list("powerstorage" = 4, "materials" = 4)
-		materials = list(/datum/material/iron = 4000, /datum/material/silver = 2500, /datum/material/gold = 2500)
+		materials = list(/datum/material/iron = 4000, /datum/material/silver = 2500, /datum/material/gold = 2500, /datum/material/uranium = 4000)
 		construction_time = 80
 
 	p_engine_wood/
