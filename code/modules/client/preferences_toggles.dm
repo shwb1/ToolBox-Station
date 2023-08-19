@@ -117,7 +117,7 @@
 		C?.tgui_panel?.stop_music()
 	SSblackbox.record_feedback("nested tally", "preferences_verb", 1, list("Toggle Hearing Midis", "[prefs.toggles & SOUND_MIDI ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
-/client/verb/toggle_instruments()
+/*/client/verb/toggle_instruments()
 	set name = "Hear/Silence Instruments"
 	set category = "Preferences"
 	set desc = "Hear In-game Instruments"
@@ -128,7 +128,7 @@
 	else
 		to_chat(usr, "You will no longer hear musical instruments.")
 	SSblackbox.record_feedback("nested tally", "preferences_verb", 1, list("Toggle Instruments", "[prefs.toggles & SOUND_INSTRUMENTS ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
+*/
 /client/verb/Toggle_Soundscape()
 	set name = "Hear/Silence Ambience"
 	set category = "Preferences"

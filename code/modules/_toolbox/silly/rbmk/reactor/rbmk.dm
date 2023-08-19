@@ -151,6 +151,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	var/no_coolant_ticks = 0	//How many times in succession did we not have enough coolant? Decays twice as fast as it accumulates.
 	var/original_dir = 0
 	var/last_admin_alert = 0
+	var/last_alarm_sound = 0
 
 //Use this in your maps if you want everything to be preset.
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/preset
@@ -291,7 +292,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/lazy_startup()
 	slagged = FALSE
 	for(var/I=0;I<5;I++)
-		fuel_rods += new /obj/item/twohanded/required/fuel_rod(src)
+		insert_fuel_rod(new /obj/item/twohanded/required/fuel_rod())
 	start_up("admin")
 
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/deplete()
@@ -356,6 +357,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 			if(no_coolant_ticks > RBMK_NO_COOLANT_TOLERANCE)
 				temperature += temperature / 500 //This isn't really harmful early game, but when your reactor is up to full power, this can get out of hand quite quickly.
 				vessel_integrity -= temperature / 200 //Think fast loser.
+				play_damage_alarm()
 				take_damage(10) //Just for the sound effect, to let you know you've fucked up.
 				color = "[COLOR_RED]"
 				log_reactor("[src] is running with insufficient coolant and may melt down. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",50)
@@ -512,6 +514,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		if(temperature >= RBMK_TEMPERATURE_MELTDOWN)
 			var/temp_damage = min(temperature/100, initial(vessel_integrity)/40)	//40 seconds to meltdown from full integrity, worst-case. Bit less than blowout since it's harder to spike heat that much.
 			vessel_integrity -= temp_damage
+			play_damage_alarm()
 			log_reactor("[src] now at MELTDOWN temperature of [temperature]c. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",50)
 			if(vessel_integrity <= temp_damage) //It wouldn't be able to tank another hit.
 				meltdown() //Oops! All meltdown
@@ -534,6 +537,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		T.atmos_spawn_air("water_vapor=[pressure/100];TEMP=[CELSIUS_TO_KELVIN(temperature)]")
 		var/pressure_damage = min(pressure/100, initial(vessel_integrity)/45)	//You get 45 seconds (if you had full integrity), worst-case. But hey, at least it can't be instantly nuked with a pipe-fire.. though it's still very difficult to save.
 		vessel_integrity -= pressure_damage
+		play_damage_alarm()
 		log_reactor("[src] now at overpressure of [pressure]. Integrity at [(vessel_integrity/initial(vessel_integrity)*100)]% at [x] [y] [z] in [get_area(src)]",50)
 		if(vessel_integrity <= pressure_damage) //It wouldn't be able to tank another hit.
 			blowout()
@@ -755,6 +759,12 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	animate(src, transform=turn(transform, rotation*shake_dir), pixel_x=init_px + offset*shake_dir, time=1)
 	animate(transform=initial_transform, pixel_x=init_px, time=time, easing=ELASTIC_EASING)
 
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/proc/play_damage_alarm(timedelay = 150)
+	if(last_alarm_sound+timedelay > world.time)
+		return
+	last_alarm_sound = world.time
+	playsound(src, 'sound/machines/engine_alert2.ogg', 100)
+
 /proc/soft_cap(var/input, var/cap = 0, var/groupsize = 1, var/groupmult = 0.9)
 
 	//The cap is a ringfenced amount. If we're below that, just return the input
@@ -908,24 +918,6 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	desc = "A console which can remotely raise fuel rods out of nuclear reactors."
 	icon_screen = "rbmk_fuel"
 
-/*/obj/machinery/computer/reactor/fuel_rods/attack_hand(mob/living/user)
-	. = ..()
-	if(!reactor)
-		return FALSE
-	if(reactor.power > 20)
-		to_chat(user, "<span class='warning'>You cannot remove fuel from [reactor] when it is above 20% power.</span>")
-		return FALSE
-	if(!reactor.fuel_rods.len)
-		to_chat(user, "<span class='warning'>[reactor] does not have any fuel rods loaded.</span>")
-		return FALSE
-	var/atom/movable/fuel_rod = input(usr, "Select a fuel rod to remove", "[src]", null) as null|anything in reactor.fuel_rods
-	if(!fuel_rod)
-		return
-	playsound(src, pick('sound/toolbox/reactor/switch.ogg','sound/toolbox/reactor/switch2.ogg','sound/toolbox/reactor/switch3.ogg'), 100, FALSE)
-	playsound(reactor, 'sound/toolbox/reactor/crane_1.wav', 100, FALSE)
-	fuel_rod.forceMove(get_turf(reactor))
-	reactor.fuel_rods -= fuel_rod*/
-
 /obj/machinery/computer/reactor/fuel_rods/ui_interact(user)
 	if(!reactor)
 		to_chat(user, "<span class='warning'>No reactor found.</span>")
@@ -940,22 +932,26 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		var/number = 0
 		for(var/obj/item/twohanded/required/fuel_rod/F in reactor.fuel_rods)
 			number++
-			var/rodtime = round(((world.time-reactor.fuel_rods[F])/10)/60)
-			var/hours = 0
-			while(rodtime > 60)
-				hours++
-				rodtime -= 60
-			var/minutes = 0
-			if(rodtime > 0)
-				minutes = rodtime
-			rodtime = ""
-			if(hours > 0)
-				rodtime = "[hours]h"
-			rodtime += "[minutes]m"
+			var/rodtime
+			if(reactor.fuel_rods[F])
+				var/rodinserted = reactor.fuel_rods[F]
+				rodtime = world.time-rodinserted
+				var/hours = 0
+				while(rodtime > 36000)
+					hours++
+					rodtime -= 36000
+				var/minutes = 0
+				if(rodtime > 600)
+					minutes++
+					rodtime -= 600
+				rodtime = "<B>Duration Inserted:</B> "
+				if(hours > 0)
+					rodtime = "[hours]h"
+				rodtime += "[minutes]m"
 			var/removebuttontext = "<A href='?src=\ref[src];fuelrod=\ref[F]'>Remove</A>"
 			if(poweredup)
 				removebuttontext = "<B>Locked</B>"
-			dat += "<B>Fuel Rod #[number]: </B><br><B>Duration Inserted:</B> [rodtime]<br>[removebuttontext]<br><br>"
+			dat += "<B>Fuel Rod #[number]: </B><br>[rodtime]<br>[removebuttontext]<br><br>"
 	else
 		dat += "No fuel rods detected."
 	popup.set_content(dat)
@@ -1033,10 +1029,23 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 /obj/machinery/computer/reactor/pump
 	name = "reactor inlet valve computer"
 	desc = "A computer which controls valve settings on an advanced gas cooled reactor. Alt click it to remotely set pump pressure."
-	icon_screen = "rbmk_input"
+	icon_state = "reactorswitch_off"
+	//icon_screen = "reactorswitch_off"
 	id = "rbmk_input"
+	icon = 'icons/oldschool/reactor/switches.dmi'
 	var/datum/radio_frequency/radio_connection
 	var/on = FALSE
+
+/obj/machinery/computer/reactor/pump/Initialize()
+	. = ..()
+	update_icon()
+
+/obj/machinery/computer/reactor/pump/update_icon()
+	overlays.Cut()
+	icon_state = "reactorswitch_[on ? "on" : "off"]"
+	if(!(stat & (NOPOWER|BROKEN)))
+		var/icon/I = icon(icon,"[icon_state]light")
+		overlays += I
 
 /obj/machinery/computer/reactor/pump/AltClick(mob/user)
 	. = ..()
@@ -1045,6 +1054,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 		return
 	newPressure = clamp(newPressure, 0, MAX_OUTPUT_PRESSURE) //Number sanitization is not handled in the pumps themselves, only during their ui_act which this doesn't use.
 	signal(on, newPressure)
+	update_icon()
 
 /obj/machinery/computer/reactor/attack_robot(mob/user)
 	. = ..()
@@ -1062,6 +1072,7 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	visible_message("<span class='notice'>[src]'s switch flips [on ? "off" : "on"].</span>")
 	on = !on
 	signal(on)
+	update_icon()
 
 /obj/machinery/computer/reactor/pump/Initialize(mapload, obj/item/circuitboard/C)
 	. = ..()

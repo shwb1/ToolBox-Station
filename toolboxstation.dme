@@ -1274,6 +1274,7 @@
 #include "code\modules\_toolbox\silly\weeb.dm"
 #include "code\modules\_toolbox\silly\rbmk\reactor\fuel_rods.dm"
 #include "code\modules\_toolbox\silly\rbmk\reactor\rbmk.dm"
+#include "code\modules\_toolbox\silly\rbmk\reactor\reactor_alert_board.dm"
 #include "code\modules\_toolbox\space_exploration\config.dm"
 #include "code\modules\_toolbox\space_exploration\pods\_defines.dm"
 #include "code\modules\_toolbox\space_exploration\pods\admin.dm"

@@ -111,6 +111,7 @@
 	name = "banana grenade"
 	desc = "HONK!."
 	stage = GRENADE_READY
+	icon_state = "banana"
 
 /obj/item/grenade/chem_grenade/banana/Initialize()
 	. = ..()
@@ -154,6 +155,7 @@
 //glitter bombs
 /obj/item/grenade/chem_grenade/glitter/random
 	name = "glitter grenade"
+	icon_state = "disco"
 	var/list/glitter_bomb_types = list(
 		/obj/item/grenade/chem_grenade/glitter/pink,
 		/obj/item/grenade/chem_grenade/glitter/blue,

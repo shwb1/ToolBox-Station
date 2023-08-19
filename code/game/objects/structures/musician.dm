@@ -66,8 +66,12 @@
 	var/turf/source = get_turf(instrumentObj)
 	if((world.time - MUSICIAN_HEARCHECK_MINDELAY) > last_hearcheck)
 		LAZYCLEARLIST(hearing_mobs)
-		for(var/mob/M as() in hearers(15, source))
-			LAZYADD(hearing_mobs, M)
+		for(var/mob/M in GLOB.player_list)
+			var/turf/Mturf = get_turf(M)
+			if(get_dist(Mturf,M) <= 15 && source.z == Mturf.z)
+				LAZYADD(hearing_mobs, M)
+		/*for(var/mob/M as() in hearers(15, source))
+			LAZYADD(hearing_mobs, M)*/
 		last_hearcheck = world.time
 
 	var/sound/music_played = sound(soundfile)
@@ -76,7 +80,9 @@
 		if(HAS_TRAIT(user, TRAIT_MUSICIAN) && isliving(M))
 			var/mob/living/L = M
 			L.apply_status_effect(STATUS_EFFECT_GOOD_MUSIC)
-		if(!M.client || !(M.client.prefs.toggles & SOUND_INSTRUMENTS))
+		/*if(!M.client || !(M.client.prefs.toggles & SOUND_INSTRUMENTS))
+			continue*/
+		if(!M.client)
 			continue
 		M.playsound_local(source, null, 100, falloff = 5, S = music_played)
 
