@@ -837,8 +837,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		var/list/alljobs = list()
 		var/list/save_to_end = list()
 		for(var/datum/job/job in sortList(SSjob.occupations, /proc/cmp_job_display_asc))
-			if(job.whitelisted && job.is_whitelisted(user.client))
-				save_to_end += job
+			if(job.whitelisted)
+				if(job.is_whitelisted(user.client))
+					save_to_end += job
 				continue
 			alljobs += job
 		alljobs += save_to_end

@@ -103,9 +103,9 @@
 					cell.forceMove(src)
 					power_source = cell
 
-	Del()
+	Destroy()
 		DestroyPod()
-		..()
+		. = ..()
 
 	examine()
 		. = ..()

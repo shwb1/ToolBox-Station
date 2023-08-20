@@ -5,6 +5,8 @@
 /obj/structure/pod_wreckage
 	name = "pod wreckage"
 	icon_state = "pod_parts"
+	max_integrity = 100
+	obj_integrity = 100
 
 	New(loc, var/list/size = list())
 		..(loc)
@@ -35,6 +37,7 @@
 	var/pod_damage = 0 // Bitflag
 	var/emped_at = 0
 	var/emped_duration = 0
+	var/max_damage = 31
 
 	proc/GetDamageFlag()
 		return pod_damage
@@ -57,7 +60,18 @@
 	proc/HealthPercent()
 		return round((health / max_health) * 100)
 
+
+	take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, attack_dir, armour_penetration = 0)
+		if(QDELETED(src))
+			stack_trace("[src] taking damage after deletion")
+			return
+		if(sound_effect)
+			play_attack_sound(damage_amount, damage_type, damage_flag)
+		if(!(resistance_flags & INDESTRUCTIBLE) && health > 0)
+			TakeDamage(damage_amount)
+
 	proc/TakeDamage(var/damage = 0, var/ignore_defense = 0, var/obj/item/I, var/mob/living/attacker = 0)
+		damage = min(damage,max_damage)
 		if(ignore_defense)
 			health -= damage
 			return 1
@@ -81,7 +95,6 @@
 
 		if(!armor_applied)
 			PrintSystemAlert("Hull Damage taken.")
-
 		pod_log.LogDamage(damage, (armor_applied ? P_DAMAGE_REDUCED : 0), I, attacker)
 
 		health -= damage
@@ -90,44 +103,55 @@
 			pod_damage_iterator.process()
 
 		var/datum/effect_system/spark_spread/hit_sparks = new /datum/effect_system/spark_spread
-		var/turf/hit_turf = get_turf((attacker ? attacker : I ? I : src))
-		var/direction = get_dir(get_turf(src), hit_turf)
-		var/angle = dir2angle(direction)
-		if((angle % 90) != 0)
-			direction = angle2dir((angle == 45) ? (angle + 45) : (angle - 45))
+		var/direction = pick(GLOB.alldirs)
+		if(I && attacker)
+			var/turf/hit_turf = get_turf((attacker ? attacker : I ? I : src))
+			direction = get_dir(get_turf(src), hit_turf)
+			var/angle = dir2angle(direction)
+			if((angle % 90) != 0)
+				direction = angle2dir((angle == 45) ? (angle + 45) : (angle - 45))
 		hit_sparks.set_up(5, 0, pick(GetDirectionalTurfsUnderPod(direction)))
 		hit_sparks.start()
 
 	proc/DestroyPod()
+		if(QDELETED(src))
+			return
 		pod_log.Log("Pod Destroyed.")
 
 		for(var/datum/global_iterator/iterator in GetIterators())
 			iterator.stop()
 			qdel(iterator)
 
+		var/turf/saveturf = get_turf(src)
+		var/list/the_occupants = list()
 		for(var/mob/living/carbon/human/H in GetOccupants())
-			H.forceMove(get_turf(src))
+			the_occupants += H
+			H.moveToNullspace()
 
-			if(istype(get_turf(src), /turf/open/space) && inertial_direction)
+		explosion(saveturf, 0, 0, 1, 3)
+
+		if(HasDamageFlag(P_DAMAGE_FIRE))
+			explosion(saveturf, 0, 0, 0, 0, 1, 0, 2)
+
+		for(var/mob/living/carbon/human/H in the_occupants)
+			H.forceMove(saveturf)
+
+			if(istype(saveturf, /turf/open/space) && inertial_direction)
 				step(H, inertial_direction)
 
 			if(H == pilot)
 				RemoveActions(pilot)
 				pilot = 0
-
-		explosion(get_turf(src), 0, 0, 1, 3)
-
-		if(HasDamageFlag(P_DAMAGE_FIRE))
-			explosion(get_turf(src), 0, 0, 0, 0, 1, 0, 2)
+			H.ex_act(3)
 
 		var/obj/item/pod_attachment/cargo/cargo = GetAttachmentOnHardpoint(P_HARDPOINT_CARGO_HOLD)
 		if(cargo)
 			for(var/atom/movable/M in cargo)
-				M.forceMove(get_turf(src))
+				M.forceMove(saveturf)
 
-		new /obj/structure/pod_wreckage(get_turf(src), size)
+		new /obj/structure/pod_wreckage(saveturf, size)
 
-		for(var/turf/T in range(1, get_turf(src)))
+		for(var/turf/T in range(1, saveturf))
 			if(prob(40))
 				if(prob(60))
 					new /obj/effect/decal/cleanable/dirt(T)

@@ -174,3 +174,9 @@
 	desc = initial(G.desc)
 	glitter_type = initial(G.glitter_type)
 	. = ..()
+
+/obj/item/grenade/chem_grenade/glitter/random/stage_change(N)
+	icon_state = "chemg"
+	. = ..()
+	if(stage == GRENADE_READY)
+		icon_state = initial(icon_state)

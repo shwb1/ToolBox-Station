@@ -92,11 +92,11 @@
 "bN" = (/obj/machinery/power/grounding_rod{anchored = 1},/obj/effect/turf_decal/bot,/obj/machinery/camera/emp_proof{c_tag = "Engine North-West"; network = list("engine","ss13")},/turf/open/floor/plating/airless,/area/engine/engineering/reactor_core)
 "bO" = (/obj/effect/turf_decal/stripes/corner{contents_radiation_multiplier = 2; dir = 2},/turf/open/floor/plasteel,/area/engine/engineering)
 "bP" = (/obj/structure/sign/warning/vacuum/external{pixel_x = -32},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/machinery/atmospherics/components/binary/dp_vent_pump/high_volume{dir = 1},/turf/open/floor/plating,/area/engine/engineering)
-"bQ" = (/obj/structure/closet/emcloset/anchored,/obj/machinery/light/small{dir = 4},/obj/machinery/advanced_airlock_controller{pixel_y = 24; scan_on_late_init = 1},/obj/machinery/atmospherics/pipe/simple/supply/hidden/layer1,/turf/open/floor/plating,/area/engine/engineering)
+"bQ" = (/obj/effect/mapping_helpers/airlock/cyclelink_helper,/obj/machinery/door/airlock/external{name = "Engineering External Access"; req_access_txt = "11"},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/machinery/atmospherics/pipe/layer_manifold,/turf/open/floor/plating,/area/engine/engineering)
 "bR" = (/obj/effect/mapping_helpers/airlock/cyclelink_helper{dir = 1},/obj/machinery/door/airlock/external{name = "Engineering External Access"; req_access_txt = "11"},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/machinery/atmospherics/pipe/simple/supply/hidden{dir = 5},/turf/open/floor/plating,/area/engine/engineering)
 "bS" = (/obj/machinery/atmospherics/pipe/simple/supply/hidden{dir = 9},/turf/closed/wall/r_wall,/area/engine/engineering)
 "bT" = (/obj/effect/mapping_helpers/airlock/cyclelink_helper,/obj/machinery/door/airlock/external{name = "Engineering External Access"; req_access_txt = "11"},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden,/obj/structure/cable/yellow{icon_state = "1-2"},/turf/open/floor/plating,/area/engine/engineering)
-"bU" = (/obj/effect/mapping_helpers/airlock/cyclelink_helper,/obj/machinery/door/airlock/external{name = "Engineering External Access"; req_access_txt = "11"},/obj/structure/cable/yellow{icon_state = "1-2"},/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3,/turf/open/floor/plating,/area/engine/engineering)
+"bU" = (/obj/structure/closet/emcloset/anchored,/obj/machinery/light/small{dir = 4},/obj/machinery/advanced_airlock_controller{pixel_y = 24; scan_on_late_init = 1},/obj/machinery/atmospherics/pipe/layer_manifold,/turf/open/floor/plating,/area/engine/engineering)
 "bV" = (/obj/effect/mapping_helpers/airlock/cyclelink_helper{dir = 1},/obj/machinery/door/airlock/external{name = "Engineering External Access"; req_access_txt = "11"},/obj/machinery/atmospherics/pipe/simple/supply/hidden{dir = 9},/obj/structure/cable/yellow{icon_state = "1-2"},/turf/open/floor/plating,/area/engine/engineering)
 "bW" = (/turf/open/space/basic,/area/space/nearstation)
 "bX" = (/obj/structure/lattice,/turf/open/space/basic,/area/space/nearstation)
@@ -171,8 +171,8 @@ abababababababababafagaqaraiaFaFataFataFaFauavawaxaeaeababababab
 abababababababababadaoapasaBaFaGaHaIaHaJaFaKazaMaNaeaeababababab
 abababababababababayaCaLaPaRaTaUaVaWaXbaaTbbbcbdbebBbfababababab
 abababababababababaDaEbhbMbiaFbjbkblaYbmaFbnbMbhbobtbLaeaeaeabab
-abababababababaFaAbTaFbubvbuaFbrbwbxaYaYaFbububuaFbUaAbsbpbgabab
-abababababababaFaOaQaFbFbFbFbGbybzbCbDaYbGbFbFbFaFbPbQbsbqaeabab
+abababababababaFaAbTaFbubvbuaFbrbwbxaYaYaFbububuaFbQaAbsbpbgabab
+abababababababaFaOaQaFbFbFbFbGbybzbCbDaYbGbFbFbFaFbPbUbsbqaeabab
 abababababababaFaSbVaFbGbGbGbGaZaHbEaYaYbGbGbGbGaFbRbSaFbAaeabab
 aabWbXbWbXbWbXbIbJbKbNbYbYbZbGbGbGbHbGbGbGbZbYbYcacbccbIbIababab
 cjbXbXbXbXbXbXbIcdbYbYcecfcgcgcgcgchcgcgcgcgcickbYbYcdbIbIababab
