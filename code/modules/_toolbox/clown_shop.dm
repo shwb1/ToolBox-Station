@@ -125,6 +125,12 @@
 	beakers += B1
 	beakers += B2
 
+/obj/item/grenade/chem_grenade/banana/stage_change(N)
+	icon_state = "chemg"
+	. = ..()
+	if(stage == GRENADE_READY)
+		icon_state = initial(icon_state)
+
 //banana reagent turf react sometimes makes cake
 /datum/reagent/consumable/banana/reaction_turf(turf/T, reac_volume)
 	if(prob(1))
