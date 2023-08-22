@@ -604,15 +604,14 @@ proc/FixWiring(list/aoelist = list())
 	return
 
 /turf/open/floor/proc/save_overlays()
-	if(!islist(managed_overlays) || !managed_overlays.len)
-		return
 	var/thecoords = "x=[x];y=[y];z=[z]"
 	if(GLOB.savedstationfloordecals[thecoords])
 		return
 	var/list/mutable_list = list()
-	mutable_list += "icon_state=[icon_state];icon_regular_floor=[icon_regular_floor];floor_tile=[floor_tile]"
-	for(var/mutable_appearance/M in managed_overlays)
-		mutable_list += "icon=[M.icon];icon_state=[M.icon_state];thedir=[M.dir];color=[M.color];layer=[M.layer];alpha=[M.alpha]"
+	mutable_list += "icon_state=[icon_state];icon_regular_floor=[icon_regular_floor];floor_tile=[floor_tile];type=[type]"
+	if(islist(managed_overlays) && managed_overlays.len)
+		for(var/mutable_appearance/M in managed_overlays)
+			mutable_list += "icon=[M.icon];icon_state=[M.icon_state];thedir=[M.dir];color=[M.color];layer=[M.layer];alpha=[M.alpha]"
 	GLOB.savedstationfloordecals[thecoords] = mutable_list
 
 /turf/open/floor/proc/restore_overlays(force_appearance = 0)
@@ -633,6 +632,10 @@ proc/FixWiring(list/aoelist = list())
 	var/list/floorparams = params2list(mutable_list[1])
 	var/thetile = text2path(floorparams["floor_tile"])
 	if((thetile && ispath(thetile) && floor_tile && floor_tile == thetile)||force_appearance)
+		if(floorparams["type"])
+			var/thetype = text2path(floorparams["type"])
+			if(ispath(thetype) && thetype != type)
+				ChangeTurf(thetype)
 		if(floorparams && floorparams.len)
 			if(floorparams["icon_state"])
 				icon_state = floorparams["icon_state"]
