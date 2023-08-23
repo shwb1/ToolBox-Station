@@ -319,10 +319,8 @@ A hostile human animal mob that is customizable. -Falaskian
 				return L
 			else
 				enemies -= L
-		else if(ismecha(A))
-			var/obj/mecha/M = A
-			if(M.occupant)
-				return A
+		else if(A.will_mob_attack(src))
+			return A
 	return ..()
 
 /mob/living/simple_animal/hostile/customhumanoid/ListTargets()
@@ -346,11 +344,9 @@ A hostile human animal mob that is customizable. -Falaskian
 					var/mob/living/simple_animal/hostile/retaliate/H = M
 					if(attack_same && H.attack_same)
 						H.enemies |= enemies
-			else if(ismecha(A))
-				var/obj/mecha/M = A
-				if(M.occupant)
-					enemies |= M
-					enemies |= M.occupant
+			else if(A.will_mob_attack(src))
+				enemies |= A
+				enemies |= A.will_mob_attack(src)
 		return FALSE
 
 /mob/living/simple_animal/hostile/customhumanoid/adjustHealth(amount, updating_health = TRUE, forced = FALSE)

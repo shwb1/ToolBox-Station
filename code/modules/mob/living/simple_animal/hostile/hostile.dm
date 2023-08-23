@@ -216,11 +216,8 @@
 					return FALSE
 			return TRUE
 
-		if(ismecha(the_target))
-			var/obj/mecha/M = the_target
-			if(M.occupant)//Just so we don't attack empty mechs
-				if(CanAttack(M.occupant))
-					return TRUE
+		if(the_target.will_mob_attack(src))
+			return TRUE
 
 		if(istype(the_target, /obj/machinery/porta_turret))
 			var/obj/machinery/porta_turret/P = the_target

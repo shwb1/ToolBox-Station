@@ -563,3 +563,8 @@
 			return
 		OpenHUD.Remove(user)
 		LeavePod.Remove(user)
+
+	will_mob_attack(mob/living/simple_animal/attacker)
+		if(pilot && attacker.CanAttack(pilot))
+			return pilot
+		return ..()

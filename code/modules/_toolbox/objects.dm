@@ -787,3 +787,14 @@
 /area/science/circuit
 	name = "Circuitry Lab"
 	icon_state = "cir_lab"
+
+//a better way to handle how animals attack mechs and stuff
+/atom/proc/will_mob_attack(mob/attacker)
+	return FALSE
+
+/obj/mecha/will_mob_attack(mob/living/simple_animal/attacker)
+	if(occupant && attacker.CanAttack(occupant))//Just so we don't attack empty mechs
+		return occupant
+	return ..()
+
+

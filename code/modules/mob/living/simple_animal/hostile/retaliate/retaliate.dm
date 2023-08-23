@@ -8,10 +8,8 @@
 			return L
 		else
 			enemies -= L
-	else if(ismecha(A))
-		var/obj/mecha/M = A
-		if(M.occupant)
-			return A
+	else if(A.will_mob_attack(src))
+		return A
 
 /mob/living/simple_animal/hostile/retaliate/ListTargets()
 	if(!enemies.len)
@@ -30,11 +28,9 @@
 				var/mob/living/simple_animal/hostile/retaliate/H = M
 				if(attack_same && H.attack_same)
 					H.enemies |= enemies
-		else if(ismecha(A))
-			var/obj/mecha/M = A
-			if(M.occupant)
-				enemies |= M
-				enemies |= M.occupant
+		else if(A.will_mob_attack(src))
+			enemies |= A
+			enemies |= A.will_mob_attack(src)
 	return FALSE
 
 /mob/living/simple_animal/hostile/retaliate/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
