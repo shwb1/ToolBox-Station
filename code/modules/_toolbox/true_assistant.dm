@@ -239,7 +239,10 @@ GLOBAL_LIST_EMPTY(toolbox_statues)
 		if(O.ckey == theckey)
 			C.ckey = theckey
 			break
-	C.Unconscious(80, updating = TRUE, ignore_canunconscious = TRUE)
+	if(ishuman(C))
+		C:Unconscious(80, updating = TRUE, ignore_canunconscious = TRUE)
+	else
+		C.Unconscious(80, updating = TRUE, ignore_canstun = TRUE)
 	return
 
 /obj/structure/statue/toolbox/attack_hand(mob/living/user)
