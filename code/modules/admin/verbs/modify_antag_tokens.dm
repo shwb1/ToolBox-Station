@@ -7,7 +7,7 @@
 	set name = "Modify Antagonist Tokens"
 	to_chat(usr,"This has been disabled. Access antag tokens from special verbs and ooc tab")
 	return
-/* DEPRECIATED
+/* DEPRECIATED - No code registered in comment, thus no more inaccessible code and no more errors :D
 	if(!check_rights(R_ADMIN))
 		return
 
