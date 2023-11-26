@@ -247,7 +247,7 @@ GLOBAL_LIST_EMPTY(toolbox_statues)
 		return
 	if (!ishuman(user))
 		return
-	if (user == Holder && user in view(1, src))
+	if (user == Holder && (user in view(1, src)))
 		show_shop(user)
 		return
 	if (toolbox_pulled)
