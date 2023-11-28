@@ -32,6 +32,11 @@
 #define AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS 1
 #define AIRLOCK_ASSEMBLY_NEEDS_SCREWDRIVER 2
 
+//blast door (de)construction states
+#define BLASTDOOR_NEEDS_WIRES 0
+#define BLASTDOOR_NEEDS_ELECTRONICS 1
+#define BLASTDOOR_FINISHED 2
+
 // default_unfasten_wrench() return defines
 #define CANT_UNFASTEN 0
 #define FAILED_UNFASTEN 1
@@ -60,10 +65,6 @@
 /// windows affected by Nar'Sie turn this color.
 #define NARSIE_WINDOW_COLOUR "#7D1919"
 
-// let's just pretend fulltile windows being children of border windows is fine
-#define FULLTILE_WINDOW_DIR NORTHEAST
-
-
 /// The amount of materials you get from a sheet of mineral like iron/diamond/glass etc
 #define MINERAL_MATERIAL_AMOUNT 2000
 /// The maximum size of a stack object.
@@ -72,31 +73,33 @@
 #define MAXCOIL 30
 
 // tablecrafting defines
-#define CAT_NONE	""
-#define CAT_WEAPONRY	"Weaponry"
-#define CAT_WEAPON	"Weapons"
-#define CAT_AMMO	"Ammunition"
-#define CAT_ROBOT	"Robots"
-#define CAT_MISC	"Misc"
-#define CAT_PRIMAL  "Tribal"
-#define CAT_CLOTHING	"Clothing"
-#define CAT_FOOD	"Foods"
-#define CAT_BREAD	"Breads"
-#define CAT_BURGER	"Burgers"
-#define CAT_CAKE	"Cakes"
-#define CAT_EGG	"Egg-Based Food"
-#define CAT_MEAT	"Meats"
-#define CAT_MISCFOOD	"Misc. Food"
-#define CAT_PASTRY	"Pastries"
-#define CAT_PIE	"Pies"
-#define CAT_PIZZA	"Pizzas"
-#define CAT_SALAD	"Salads"
-#define CAT_SANDWICH	"Sandwiches"
-#define CAT_SOUP	"Soups"
-#define CAT_SPAGHETTI	"Spaghettis"
-#define CAT_ICE	"Frozen"
+#define CAT_NONE ""
+#define CAT_WEAPONRY "Weaponry"
+#define CAT_WEAPON "Weapons"
+#define CAT_AMMO "Ammunition"
+#define CAT_ROBOT "Robots"
+#define CAT_MISC "Misc"
+#define CAT_PRIMAL "Tribal"
+#define CAT_CLOTHING "Clothing"
+#define CAT_EYEWEAR "Eyewear"
+#define CAT_FOOD "Foods"
+#define CAT_BREAD "Breads"
+#define CAT_BURGER "Burgers"
+#define CAT_CAKE "Cakes"
+#define CAT_EGG "Egg-Based Food"
+#define CAT_MEAT "Meats"
+#define CAT_MISCFOOD "Misc. Food"
+#define CAT_MEXICAN "Mexican Food"
+#define CAT_PASTRY "Pastries"
+#define CAT_PIE "Pies"
+#define CAT_PIZZA "Pizzas"
+#define CAT_SALAD "Salads"
+#define CAT_SANDWICH "Sandwiches"
+#define CAT_SOUP "Soups"
+#define CAT_SPAGHETTI "Spaghettis"
+#define CAT_ICE "Frozen"
 #define CAT_DRINK "Drinks"
-
+#define CAT_STRUCTURE "Structures"
 
 // rcd buildtype defines
 #define RCD_FLOORWALL 1
@@ -107,6 +110,8 @@
 #define RCD_MACHINE 8
 #define RCD_COMPUTER 16
 
-#define RCD_UPGRADE_FRAMES	1
-#define RCD_UPGRADE_SIMPLE_CIRCUITS	2
-#define RCD_UPGRADE_SILO_LINK	4
+#define RCD_UPGRADE_FRAMES	(1<<0)
+#define RCD_UPGRADE_SIMPLE_CIRCUITS	(1<<1)
+#define RCD_UPGRADE_SILO_LINK	(1<<2)
+
+#define RPD_UPGRADE_UNWRENCH (1<<0)

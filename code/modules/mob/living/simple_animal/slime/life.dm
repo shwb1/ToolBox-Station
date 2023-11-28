@@ -41,7 +41,7 @@
 	if(Target.buckled_mobs?.len && (locate(/mob/living/simple_animal/slime) in Target.buckled_mobs))
 		slime_on_target = 1
 
-	if(Target.z == src.z && attack_cooldown < world.time && get_dist(Target, src) <= 1)
+	if(Target.get_virtual_z_level() == src.get_virtual_z_level() && attack_cooldown < world.time && get_dist(Target, src) <= 1)
 		if(!slime_on_target && CanFeedon(Target))
 			if(!Target.client || prob(20))
 				Feedon(Target)
@@ -59,12 +59,12 @@
 			step_to(src, Target)
 	else
 		special_process = FALSE
-		Target = null
+		set_target(null)
 
 	reset_processing()
 
 /mob/living/simple_animal/slime/proc/reset_processing()
-	var/sleeptime = movement_delay()
+	var/sleeptime = cached_multiplicative_slowdown
 	if(sleeptime <= 0)
 		sleeptime = 1
 	addtimer(VARSET_CALLBACK(src, special_process, TRUE), (sleeptime + 2), TIMER_UNIQUE)
@@ -88,25 +88,25 @@
 				adjustBruteLoss(round(sqrt(bodytemperature)) * 2)
 
 	if(stat != DEAD)
-		var/bz_percentage = environment.total_moles() ? (environment.get_moles(/datum/gas/bz) / environment.total_moles()) : 0
+		var/bz_percentage = environment.total_moles() ? (environment.get_moles(GAS_BZ) / environment.total_moles()) : 0
 		var/stasis = (bz_percentage >= 0.05 && bodytemperature < (T0C + 100)) || force_stasis
 		if(transformeffects & SLIME_EFFECT_DARK_PURPLE)
 			var/amt = is_adult ? 30 : 15
-			var/plas_amt = min(amt,environment.get_moles(/datum/gas/plasma))
-			environment.adjust_moles(/datum/gas/plasma, -plas_amt)
-			environment.adjust_moles(/datum/gas/oxygen, plas_amt)
+			var/plas_amt = min(amt,environment.get_moles(GAS_PLASMA))
+			environment.adjust_moles(GAS_PLASMA, -plas_amt)
+			environment.adjust_moles(GAS_O2, plas_amt)
 			adjustBruteLoss(plas_amt ? -2 : 0)
 
 		if(stat == CONSCIOUS && stasis)
 			to_chat(src, "<span class='danger'>Nerve gas in the air has put you in stasis!</span>")
-			stat = UNCONSCIOUS
+			set_stat(UNCONSCIOUS)
 			powerlevel = 0
 			rabid = 0
 			update_mobility()
 			regenerate_icons()
 		else if(stat == UNCONSCIOUS && !stasis)
 			to_chat(src, "<span class='notice'>You wake up from the stasis.</span>")
-			stat = CONSCIOUS
+			set_stat(CONSCIOUS)
 			update_mobility()
 			regenerate_icons()
 
@@ -132,14 +132,14 @@
 	temp_change = (temperature - current)
 	return temp_change
 
-/mob/living/simple_animal/slime/handle_status_effects()
+/mob/living/simple_animal/slime/handle_status_effects(delta_time)
 	..()
-	if(prob(30) && !stat)
+	if(DT_PROB(30, delta_time) && !stat)
 		var/heal = 1
 		if(transformeffects & SLIME_EFFECT_PURPLE)
 			heal += 0.5
 		adjustBruteLoss(-heal)
-	if((transformeffects & SLIME_EFFECT_RAINBOW) && prob(5))
+	if((transformeffects & SLIME_EFFECT_RAINBOW) && DT_PROB(5, delta_time))
 		random_colour()
 
 /mob/living/simple_animal/slime/proc/handle_feeding()
@@ -154,11 +154,10 @@
 	if(M.stat == DEAD)
 		if(client)
 			to_chat(src, "<i>This subject does not have a strong enough life energy anymore...</i>")
-		else if(!rabid && !attacked && M.LAssailant && prob(50))
-			if(M.LAssailant in Friends)
-				++Friends[M.LAssailant]
-			else
-				Friends[M.LAssailant] = 1
+		else if(!rabid && !attacked)
+			var/mob/last_to_hurt = M.LAssailant?.resolve()
+			if(last_to_hurt && last_to_hurt != M && prob(50))
+				add_friendship(last_to_hurt, 1)
 		//we go rabid after finishing to feed on a human with a client.
 		if(M.client && ishuman(M))
 			rabid = 1
@@ -169,7 +168,7 @@
 			layer = initial(layer)
 			qdel(M)
 
-		Target = null
+		set_target(null)
 		special_process = FALSE
 		Feedstop()
 		return
@@ -250,7 +249,7 @@
 		--target_patience
 		if (target_patience <= 0 || SStun > world.time || Discipline || attacked || docile)
 			target_patience = 0
-			Target = null
+			set_target(null)
 			special_process = FALSE
 
 	var/hungry = 0
@@ -263,7 +262,7 @@
 	if(hungry == 2)
 		if(Friends.len > 0 && prob(1))
 			var/mob/nofriend = pick(Friends)
-			--Friends[nofriend]
+			add_friendship(nofriend, -1)
 
 	if(!Target)
 		if(will_hunt() && hungry || attacked || rabid)
@@ -279,9 +278,9 @@
 
 				if(ishuman(L))
 					if(!Discipline && prob(5) || attacked || rabid)
-						Target = L
+						set_target(L)
 				else
-					Target = L
+					set_target(L)
 
 				if(Target)
 					target_patience = rand(5,7)
@@ -353,13 +352,13 @@
 					if (Leader == who) // Already following him
 						to_say = pick("Yes...", "Lead...", "Follow...")
 					else if (Friends[who] > Friends[Leader]) // VIVA
-						Leader = who
+						set_leader(who)
 						to_say = "Yes... I follow [who]..."
 					else
 						to_say = "No... I follow [Leader]..."
 				else
 					if (Friends[who] >= SLIME_FRIENDSHIP_FOLLOW)
-						Leader = who
+						set_leader(who)
 						to_say = "I follow..."
 					else // Not friendly enough
 						to_say = pick("No...", "I no follow...")
@@ -367,27 +366,27 @@
 				if (buckled) // We are asked to stop feeding
 					if (Friends[who] >= SLIME_FRIENDSHIP_STOPEAT)
 						Feedstop()
-						Target = null
+						set_target(null)
 						if (Friends[who] < SLIME_FRIENDSHIP_STOPEAT_NOANGRY)
-							--Friends[who]
+							add_friendship(who, -1)
 							to_say = "Grrr..." // I'm angry but I do it
 						else
 							to_say = "Fine..."
 				else if (Target) // We are asked to stop chasing
 					if (Friends[who] >= SLIME_FRIENDSHIP_STOPCHASE)
-						Target = null
+						set_target(null)
 						if (Friends[who] < SLIME_FRIENDSHIP_STOPCHASE_NOANGRY)
-							--Friends[who]
+							add_friendship(who, -1)
 							to_say = "Grrr..." // I'm angry but I do it
 						else
 							to_say = "Fine..."
 				else if (Leader) // We are asked to stop following
 					if (Leader == who)
 						to_say = "Yes... I stay..."
-						Leader = null
+						set_leader(null)
 					else
 						if (Friends[who] > Friends[Leader])
-							Leader = null
+							set_leader(null)
 							to_say = "Yes... I stop..."
 						else
 							to_say = "No... keep follow..."
@@ -409,7 +408,7 @@
 						to_say = "No... won't stay..."
 			else if (findtext(phrase, "attack"))
 				if (rabid && prob(20))
-					Target = who
+					set_target(who)
 					special_process = TRUE
 					to_say = "ATTACK!?!?"
 				else if (Friends[who] >= SLIME_FRIENDSHIP_ATTACK)
@@ -417,14 +416,14 @@
 						if (findtext(phrase, lowertext(L.name)))
 							if (isslime(L))
 								to_say = "NO... [L] slime friend"
-								--Friends[who] //Don't ask a slime to attack its friend
+								add_friendship(who, -1) //Don't ask a slime to attack its friend
 							else if(!Friends[L] || Friends[L] < 1)
-								Target = L
+								set_target(L)
 								special_process = TRUE
 								to_say = "Ok... I attack [Target]"
 							else
 								to_say = "No... like [L] ..."
-								--Friends[who] //Don't ask a slime to attack its friend
+								add_friendship(who, -1) //Don't ask a slime to attack its friend
 							break
 				else
 					to_say = "No... no listen"
@@ -435,7 +434,7 @@
 	if (to_say)
 		INVOKE_ASYNC(src, /atom/movable/proc/say, to_say)
 	else if(prob(1))
-		INVOKE_ASYNC(src, /mob.proc/emote, pick("bounce","sway","light","vibrate","jiggle"))
+		INVOKE_ASYNC(src, TYPE_PROC_REF(/mob, emote), pick("bounce","sway","light","vibrate","jiggle"))
 	else
 		var/t = 10
 		var/slimes_near = 0
@@ -546,8 +545,3 @@
 		return 0
 	return 1
 
-
-/mob/living/simple_animal/slime/movement_delay()
-	. = ..()
-	if(transformeffects & SLIME_EFFECT_SEPIA)
-		. *= 0.7

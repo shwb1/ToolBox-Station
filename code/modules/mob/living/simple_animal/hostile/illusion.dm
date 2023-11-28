@@ -17,7 +17,7 @@
 	var/life_span = INFINITY //how long until they despawn
 	var/mob/living/parent_mob
 	var/multiply_chance = 0 //if we multiply on hit
-	del_on_death = 1
+	del_on_death = TRUE
 	deathmessage = "vanishes into thin air! It was a fake!"
 
 
@@ -37,8 +37,8 @@
 	multiply_chance = replicate
 	faction -= "neutral"
 	transform = initial(transform)
-	pixel_y = initial(pixel_y)
-	pixel_x = initial(pixel_x)
+	pixel_y = base_pixel_y
+	pixel_x = base_pixel_x
 
 /mob/living/simple_animal/hostile/illusion/examine(mob/user)
 	if(parent_mob)

@@ -12,13 +12,13 @@
 	pass_flags = PASSTABLE
 
 
-/obj/item/papercutter/Initialize()
+/obj/item/papercutter/Initialize(mapload)
 	. = ..()
 	storedcutter = new /obj/item/hatchet/cutterblade(src)
 	update_icon()
 
 
-/obj/item/papercutter/suicide_act(mob/user)
+/obj/item/papercutter/suicide_act(mob/living/user)
 	if(storedcutter)
 		user.visible_message("<span class='suicide'>[user] is beheading [user.p_them()]self with [src.name]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 		if(iscarbon(user))
@@ -27,11 +27,11 @@
 			if(BP)
 				BP.drop_limb()
 				playsound(loc,pick('sound/misc/desecration-01.ogg','sound/misc/desecration-02.ogg','sound/misc/desecration-01.ogg') ,50, 1, -1)
-		return (BRUTELOSS)
+		return BRUTELOSS
 	else
 		user.visible_message("<span class='suicide'>[user] repeatedly bashes [src.name] against [user.p_their()] head! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 		playsound(loc, 'sound/items/gavel.ogg', 50, 1, -1)
-		return (BRUTELOSS)
+		return BRUTELOSS
 
 
 /obj/item/papercutter/update_icon()
@@ -118,10 +118,10 @@
 	return ..()
 
 
-/obj/item/paperslip/Initialize()
+/obj/item/paperslip/Initialize(mapload)
 	. = ..()
-	pixel_x = rand(-5, 5)
-	pixel_y = rand(-5, 5)
+	pixel_x = base_pixel_x + rand(-5, 5)
+	pixel_y = base_pixel_y + rand(-5, 5)
 
 
 /obj/item/hatchet/cutterblade

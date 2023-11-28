@@ -19,11 +19,11 @@
 /datum/status_effect/proc/on_creation(mob/living/new_owner, ...)
 	if(new_owner)
 		owner = new_owner
-	if(owner)
-		LAZYADD(owner.status_effects, src)
-	if(!owner || !on_apply())
+	if(QDELETED(owner) || !on_apply())
 		qdel(src)
 		return
+	if(owner)
+		LAZYADD(owner.status_effects, src)
 	if(duration != -1)
 		duration = world.time + duration
 	tick_interval = world.time + tick_interval
@@ -38,6 +38,7 @@
 /datum/status_effect/Destroy()
 	STOP_PROCESSING(SSfastprocess, src)
 	if(owner)
+		linked_alert = null
 		owner.clear_alert(id)
 		LAZYREMOVE(owner.status_effects, src)
 		on_remove()
@@ -64,11 +65,17 @@
 	owner = null
 	qdel(src)
 
+/datum/status_effect/proc/before_remove() //! Called before being removed; returning FALSE will cancel removal
+	return TRUE
+
 /datum/status_effect/proc/refresh()
 	var/original_duration = initial(duration)
 	if(original_duration == -1)
 		return
 	duration = world.time + original_duration
+
+/datum/status_effect/proc/get_examine_text() //Called when the owner is examined
+	return examine_text
 
 //clickdelay/nextmove modifiers!
 /datum/status_effect/proc/nextmove_modifier()
@@ -85,6 +92,10 @@
 	name = "Curse of Mundanity"
 	desc = "You don't feel any different..."
 	var/datum/status_effect/attached_effect
+
+/atom/movable/screen/alert/status_effect/Destroy()
+	attached_effect = null //Don't keep a ref now
+	return ..()
 
 //////////////////
 // HELPER PROCS //
@@ -111,12 +122,13 @@
 	S1 = new effect(arguments)
 	. = S1
 
-/mob/living/proc/remove_status_effect(effect) //removes all of a given status effect from this mob, returning TRUE if at least one was removed
+/mob/living/proc/remove_status_effect(effect, ...) //removes all of a given status effect from this mob, returning TRUE if at least one was removed
 	. = FALSE
+	var/list/arguments = args.Copy(2)
 	if(status_effects)
 		var/datum/status_effect/S1 = effect
 		for(var/datum/status_effect/S in status_effects)
-			if(initial(S1.id) == S.id)
+			if(initial(S1.id) == S.id && S.before_remove(arguments))
 				qdel(S)
 				. = TRUE
 
@@ -135,3 +147,22 @@
 		for(var/datum/status_effect/S in status_effects)
 			if(initial(S1.id) == S.id)
 				. += S
+
+/// Status effect from multiple sources, when all sources are removed, so is the effect
+/datum/status_effect/grouped
+	status_type = STATUS_EFFECT_MULTIPLE //! Adds itself to sources and destroys itself if one exists already, there are never multiple
+	var/list/sources = list()
+
+/datum/status_effect/grouped/on_creation(mob/living/new_owner, source)
+	var/datum/status_effect/grouped/existing = new_owner.has_status_effect(type)
+	if(existing)
+		existing.sources |= source
+		qdel(src)
+		return FALSE
+	else
+		sources |= source
+		return ..()
+
+/datum/status_effect/grouped/before_remove(source)
+	sources -= source
+	return !length(sources)

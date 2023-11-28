@@ -72,14 +72,14 @@ SUBSYSTEM_DEF(blackbox)
 //no touchie
 /datum/controller/subsystem/blackbox/vv_get_var(var_name)
 	if(var_name == "feedback")
-		return debug_variable(var_name, deepCopyList(feedback), 0, src)
+		return debug_variable(var_name, deep_copy_list(feedback), 0, src)
 	return ..()
 
 /datum/controller/subsystem/blackbox/vv_edit_var(var_name, var_value)
 	switch(var_name)
-		if("feedback")
+		if(NAMEOF(src, feedback))
 			return FALSE
-		if("sealed")
+		if(NAMEOF(src, sealed))
 			if(var_value)
 				return Seal()
 			return FALSE
@@ -89,8 +89,8 @@ SUBSYSTEM_DEF(blackbox)
 /datum/controller/subsystem/blackbox/proc/FinalFeedback()
 	record_feedback("tally", "ahelp_stats", GLOB.ahelp_tickets.active_tickets.len, "unresolved")
 	for (var/obj/machinery/telecomms/message_server/MS in GLOB.telecomms_list)
-		if (MS.pda_msgs.len)
-			record_feedback("tally", "radio_usage", MS.pda_msgs.len, "PDA")
+		if (MS.modular_msgs.len)
+			record_feedback("tally", "radio_usage", MS.modular_msgs.len, "PDA")
 		if (MS.rc_msgs.len)
 			record_feedback("tally", "radio_usage", MS.rc_msgs.len, "request console")
 
@@ -114,6 +114,7 @@ SUBSYSTEM_DEF(blackbox)
 	for (var/datum/feedback_variable/FV in feedback)
 		sqlrowlist += list(list(
 			"round_id" = GLOB.round_id,
+			"server_name" = CONFIG_GET(string/serversqlname),
 			"key_name" = FV.key,
 			"key_type" = FV.key_type,
 			"version" = versions[FV.key] || 1,
@@ -155,6 +156,8 @@ SUBSYSTEM_DEF(blackbox)
 			record_feedback("tally", "radio_usage", 1, "service")
 		if(FREQ_SUPPLY)
 			record_feedback("tally", "radio_usage", 1, "supply")
+		if(FREQ_EXPLORATION)
+			record_feedback("tally", "radio_usage", 1, "exploration")
 		if(FREQ_CENTCOM)
 			record_feedback("tally", "radio_usage", 1, "centcom")
 		if(FREQ_AI_PRIVATE)

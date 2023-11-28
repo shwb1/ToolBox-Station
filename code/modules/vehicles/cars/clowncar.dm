@@ -3,7 +3,7 @@
 	desc = "How someone could even fit in there is beyond me."
 	icon_state = "clowncar"
 	max_integrity = 150
-	armor = list("melee" = 70, "bullet" = 40, "laser" = 40, "energy" = 0, "bomb" = 30, "bio" = 0, "rad" = 0, "fire" = 80, "acid" = 80)
+	armor = list(MELEE = 70,  BULLET = 40, LASER = 40, ENERGY = 0, BOMB = 30, BIO = 0, RAD = 0, FIRE = 80, ACID = 80, STAMINA = 0)
 	enter_delay = 20
 	max_occupants = 50
 	movedelay = 0.6
@@ -25,9 +25,9 @@
 /obj/vehicle/sealed/car/clowncar/auto_assign_occupant_flags(mob/M)
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		if(H.mind?.assigned_role == "Clown") //Ensures only clowns can drive the car. (Including more at once)
+		if(H.mind?.assigned_role == JOB_NAME_CLOWN) //Ensures only clowns can drive the car. (Including more at once)
 			add_control_flags(H, VEHICLE_CONTROL_DRIVE|VEHICLE_CONTROL_PERMISSION)
-			RegisterSignal(H, COMSIG_MOB_CLICKON, .proc/FireCannon)
+			RegisterSignal(H, COMSIG_MOB_CLICKON, PROC_REF(FireCannon))
 			return
 	add_control_flags(M, VEHICLE_CONTROL_KIDNAPPED)
 
@@ -40,7 +40,7 @@
 	if(return_controllers_with_flag(VEHICLE_CONTROL_KIDNAPPED).len >= 30)
 		for(var/i in return_drivers())
 			var/mob/voreman = i
-			SSmedals.UnlockMedal(MEDAL_CLOWNCARKING,voreman.client)
+			voreman.client.give_award(/datum/award/achievement/misc/round_and_full, voreman)
 
 /obj/vehicle/sealed/car/clowncar/attack_animal(mob/living/simple_animal/M)
 	if((M.loc != src) || M.environment_smash & (ENVIRONMENT_SMASH_WALLS|ENVIRONMENT_SMASH_RWALLS))
@@ -67,7 +67,7 @@
 /obj/vehicle/sealed/car/clowncar/remove_occupant(mob/M)
 	. = ..()
 	if(iscarbon(M))
-		var/mob/living/carbon/C = M 
+		var/mob/living/carbon/C = M
 		C.uncuff()
 
 /obj/vehicle/sealed/car/clowncar/Bump(atom/movable/M)
@@ -106,15 +106,13 @@
 	name = "tangle of limbs"
 	desc = "You are restrained in a tangle of bodies!"
 
-/obj/vehicle/sealed/car/clowncar/emag_act(mob/user)
-	if(obj_flags & EMAGGED)
-		return
-	obj_flags |= EMAGGED
+/obj/vehicle/sealed/car/clowncar/on_emag(mob/user)
+	..()
 	to_chat(user, "<span class='danger'>You scramble the clowncar child safety lock and a panel with 6 colorful buttons appears!</span>")
 	initialize_controller_action_type(/datum/action/vehicle/sealed/RollTheDice, VEHICLE_CONTROL_DRIVE)
 	initialize_controller_action_type(/datum/action/vehicle/sealed/Cannon, VEHICLE_CONTROL_DRIVE)
 	AddComponent(/datum/component/waddling)
-	
+
 /obj/vehicle/sealed/car/clowncar/Destroy()
   playsound(src, 'sound/vehicles/clowncar_fart.ogg', 100)
   return ..()
@@ -138,7 +136,7 @@
 			visible_message("<span class='danger'>[user] has pressed one of the colorful buttons on [src] and unknown chemicals flood out of it.</span>")
 			var/datum/reagents/R = new/datum/reagents(300)
 			R.my_atom = src
-			R.add_reagent(get_random_reagent_id(), 100)
+			R.add_reagent(get_random_reagent_id(CHEMICAL_RNG_GENERAL), 100)
 			var/datum/effect_system/foam_spread/foam = new
 			foam.set_up(200, loc, R)
 			foam.start()
@@ -146,7 +144,7 @@
 			visible_message("<span class='danger'>[user] has pressed one of the colorful buttons on [src] and the clown car turns on its singularity disguise system.</span>")
 			icon = 'icons/obj/singularity.dmi'
 			icon_state = "singularity_s1"
-			addtimer(CALLBACK(src, .proc/ResetIcon), 100)
+			addtimer(CALLBACK(src, PROC_REF(ResetIcon)), 100)
 		if(4)
 			visible_message("<span class='danger'>[user] has pressed one of the colorful buttons on [src] and the clown car spews out a cloud of laughing gas.</span>")
 			var/datum/reagents/R = new/datum/reagents(300)
@@ -159,7 +157,7 @@
 		if(5)
 			visible_message("<span class='danger'>[user] has pressed one of the colorful buttons on [src] and the clown car starts dropping an oil trail.</span>")
 			droppingoil = TRUE
-			addtimer(CALLBACK(src, .proc/StopDroppingOil), 30)
+			addtimer(CALLBACK(src, PROC_REF(StopDroppingOil)), 30)
 		if(6)
 			visible_message("<span class='danger'>[user] has pressed one of the colorful buttons on [src] and the clown car lets out a comedic toot.</span>")
 			playsound(src, 'sound/vehicles/clowncar_fart.ogg', 100)
@@ -181,7 +179,7 @@
 		cannonmode = FALSE
 		flick("clowncar_fromfire", src)
 		icon_state = "clowncar"
-		addtimer(CALLBACK(src, .proc/LeaveCannonMode), 20)
+		addtimer(CALLBACK(src, PROC_REF(LeaveCannonMode)), 20)
 		playsound(src, 'sound/vehicles/clowncar_cannonmode2.ogg', 75)
 		visible_message("<span class='danger'>The [src] starts going back into mobile mode.</span>")
 	else
@@ -189,7 +187,7 @@
 		flick("clowncar_tofire", src)
 		icon_state = "clowncar_fire"
 		visible_message("<span class='danger'>The [src] opens up and reveals a large cannon.</span>")
-		addtimer(CALLBACK(src, .proc/EnterCannonMode), 20)
+		addtimer(CALLBACK(src, PROC_REF(EnterCannonMode)), 20)
 		playsound(src, 'sound/vehicles/clowncar_cannonmode1.ogg', 75)
 
 
@@ -208,6 +206,8 @@
 		L.update_mouse_pointer()
 
 /obj/vehicle/sealed/car/clowncar/proc/FireCannon(mob/user, atom/A, params)
+	SIGNAL_HANDLER
+
 	if(cannonmode && return_controllers_with_flag(VEHICLE_CONTROL_KIDNAPPED).len)
 		var/mob/living/L = pick(return_controllers_with_flag(VEHICLE_CONTROL_KIDNAPPED))
 		mob_exit(L, TRUE)
@@ -221,4 +221,4 @@
 	if(thankscount >= 100)
 		for(var/i in return_drivers())
 			var/mob/busdriver = i
-			SSmedals.UnlockMedal(MEDAL_THANKSALOT,busdriver.client)
+			busdriver.client.give_award(/datum/award/achievement/misc/the_best_driver, busdriver)

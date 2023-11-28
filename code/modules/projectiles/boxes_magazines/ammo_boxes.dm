@@ -6,6 +6,11 @@
 	max_ammo = 7
 	multiple_sprites = 1
 
+/obj/item/ammo_box/a357/match
+	name = "speed loader (.357 Match)"
+	desc = "Designed to quickly reload revolvers. These rounds are manufactured within extremely tight tolerances, making them easy to show off trickshots with."
+	ammo_type = /obj/item/ammo_casing/a357/match
+
 /obj/item/ammo_box/c38
 	name = "speed loader (.38)"
 	desc = "Designed to quickly reload revolvers."
@@ -20,22 +25,47 @@
 	desc = "Designed to quickly reload revolvers. TRAC bullets embed a tracking implant within the target's body."
 	ammo_type = /obj/item/ammo_casing/c38/trac
 
+/obj/item/ammo_box/c38/match
+	name = "speed loader (.38 Match)"
+	desc = "Designed to quickly reload revolvers. These rounds are manufactured within extremely tight tolerances, making them easy to show off trickshots with."
+	ammo_type = /obj/item/ammo_casing/c38/match
+
+/obj/item/ammo_box/c38/match/bouncy
+	name = "speed loader (.38 Bouncy Rubber)"
+	desc = "Designed to quickly reload revolvers. These rounds are incredibly bouncy and MOSTLY nonlethal, making them great to show off trickshots with."
+	ammo_type = /obj/item/ammo_casing/c38/match/bouncy
+
+/obj/item/ammo_box/c38/dumdum
+	name = "speed loader (.38 DumDum)"
+	desc = "Designed to quickly reload revolvers. DumDum rounds shatter on impact and shred the target's innards, likely getting caught inside."
+	ammo_type = /obj/item/ammo_casing/c38/dumdum
+
 /obj/item/ammo_box/c38/hotshot
 	name = "speed loader (.38 Hot Shot)"
-	desc = "Designed to quickly reload revolvers. Hot Shot bullets contain an incendiary payload."
+	desc = "Designed to quickly reload revolvers. Hot Shot rounds contain an incendiary payload."
 	ammo_type = /obj/item/ammo_casing/c38/hotshot
 
 /obj/item/ammo_box/c38/iceblox
 	name = "speed loader (.38 Iceblox)"
-	desc = "Designed to quickly reload revolvers. Iceblox bullets contain a cryogenic payload."
+	desc = "Designed to quickly reload revolvers. Iceblox rounds contain a cryogenic payload."
 	ammo_type = /obj/item/ammo_casing/c38/iceblox
+
+/obj/item/ammo_box/c38/dart
+	name = "speed loader (.38 Blister)"
+	desc = "Designed to quickly reload revolvers. Blister rounds can be injected with up to 10 units of chemicals."
+	ammo_type = /obj/item/ammo_casing/c38/dart
+
+/obj/item/ammo_box/c38/emp
+	name = "speed loader (.38 BLK_OUT)"
+	desc = "Designed to quickly reload revolvers. 'BLK_OUT' rounds unleash a small EMP on impact."
+	ammo_type = /obj/item/ammo_casing/c38/emp
 
 /obj/item/ammo_box/c38/mime
 	name = "speed loader (.38 finger)"
 	max_ammo = 6
 	desc = "Designed to quickly reload your fingers with lethal rounds."
 	item_flags = DROPDEL
-	ammo_type = /obj/item/ammo_casing/caseless/mime/lethals
+	ammo_type = /obj/item/ammo_casing/caseless/mime/lethal
 
 /obj/item/ammo_box/c9mm
 	name = "ammo box (9mm)"

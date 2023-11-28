@@ -14,6 +14,7 @@
 	var/processing = FALSE
 	var/rating_speed = 1
 	var/rating_amount = 1
+	processing_flags = NONE
 
 /obj/machinery/processor/RefreshParts()
 	for(var/obj/item/stock_parts/matter_bin/B in component_parts)
@@ -123,7 +124,7 @@
 			log_admin("DEBUG: [O] in processor doesn't have a suitable recipe. How do you put it in?")
 			continue
 		process_food(P, O)
-	pixel_x = initial(pixel_x) //return to its spot after shaking
+	pixel_x = base_pixel_x //return to its spot after shaking
 	processing = FALSE
 	visible_message("\The [src] finishes processing.")
 
@@ -137,27 +138,22 @@
 		var/mob/living/L = usr
 		if(!(L.mobility_flags & MOBILITY_UI))
 			return
-	empty()
+	dump_inventory_contents()
 	add_fingerprint(usr)
 
 /obj/machinery/processor/container_resist(mob/living/user)
 	user.forceMove(drop_location())
 	user.visible_message("<span class='notice'>[user] crawls free of the processor!</span>")
 
-/obj/machinery/processor/proc/empty()
-	for (var/obj/O in src)
-		O.forceMove(drop_location())
-	for (var/mob/M in src)
-		M.forceMove(drop_location())
-
 /obj/machinery/processor/slime
 	name = "slime processor"
 	desc = "An industrial grinder with a sticker saying appropriated for science department. Keep hands clear of intake area while operating."
+	circuit = /obj/item/circuitboard/machine/processor/slime
+	var/sbacklogged = FALSE
 
-/obj/machinery/processor/slime/Initialize()
+/obj/machinery/processor/slime/Initialize(mapload)
 	. = ..()
-	var/obj/item/circuitboard/machine/B = new /obj/item/circuitboard/machine/processor/slime(null)
-	B.apply_default_parts(src)
+	proximity_monitor = new(src, 1)
 
 /obj/machinery/processor/slime/adjust_item_drop_location(atom/movable/AM)
 	var/static/list/slimecores = subtypesof(/obj/item/slime_extract)
@@ -165,39 +161,35 @@
 	if(!(i = slimecores.Find(AM.type))) // If the item is not found
 		return
 	if (i <= 16) // If in the first 12 slots
-		AM.pixel_x = -12 + ((i%4)*8)
-		AM.pixel_y = -12 + (round(i/4)*8)
+		AM.pixel_x = AM.base_pixel_x - 12 + ((i%4)*8)
+		AM.pixel_y = AM.base_pixel_y - 12 + (round(i/4)*8)
 		return i
 	var/ii = i - 16
-	AM.pixel_x = -8 + ((ii%3)*8)
-	AM.pixel_y = -8 + (round(ii/3)*8)
+	AM.pixel_x = AM.base_pixel_x - 8 + ((ii%3)*8)
+	AM.pixel_y = AM.base_pixel_y - 8 + (round(ii/3)*8)
 	return i
 
-/obj/machinery/processor/slime/process()
-	if(processing)
-		return
-	var/mob/living/simple_animal/slime/picked_slime
-	for(var/mob/living/simple_animal/slime/slime in ohearers(1,src))
-		if(slime.stat)
-			picked_slime = slime
-			break
-	if(!picked_slime)
-		return
-	var/datum/food_processor_process/P = select_recipe(picked_slime)
-	if (!P)
-		return
+/obj/machinery/processor/slime/interact(mob/user)
+	. = ..()
+	if(sbacklogged)
+		for(var/mob/living/simple_animal/slime/AM in ohearers(1,src)) //fallback in case slimes got placed while processor was active triggers only after processing!!!!
+			if(AM.stat == DEAD)
+				visible_message("[AM] is sucked into [src].")
+				AM.forceMove(src)
+		sbacklogged = FALSE
 
-	visible_message("[picked_slime] is sucked into [src].")
-	picked_slime.forceMove(src)
+/obj/machinery/processor/slime/HasProximity(mob/AM)
+	if(!sbacklogged && istype(AM, /mob/living/simple_animal/slime) && AM.stat == DEAD)
+		if(processing)
+			sbacklogged = TRUE
+		else
+			visible_message("[AM] is sucked into [src].")
+			AM.forceMove(src)
 
 /obj/machinery/processor/slime/process_food(datum/food_processor_process/recipe, atom/movable/what)
 	var/mob/living/simple_animal/slime/S = what
 	if (istype(S))
 		var/C = S.cores
-		if(S.stat != DEAD)
-			S.forceMove(drop_location())
-			S.visible_message("<span class='notice'>[C] crawls free of the processor!</span>")
-			return
 		for(var/i in 1 to (C+rating_amount-1))
 			var/obj/item/slime_extract/item = new S.coretype(drop_location())
 			if(S.transformeffects & SLIME_EFFECT_GOLD)

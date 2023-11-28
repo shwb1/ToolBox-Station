@@ -12,6 +12,9 @@
 	var/datum/admins/holder = null
 	var/datum/click_intercept = null // Needs to implement InterceptClickOn(user,params,atom) proc
 
+	/// Acts the same way holder does towards admin: it holds the mentor datum. if set, the client is a mentor.
+	var/datum/mentors/mentor_datum = null
+
 	/// Whether the client has ai interacting as a ghost enabled or not
 	var/AI_Interact		= 0
 
@@ -19,14 +22,13 @@
 	var/ban_cache = null
 	/// Contains the last message sent by this client - used to protect against copy-paste spamming.
 	var/last_message	= ""
-	/// Contains a number of how many times a message identical to last_message was sent.
-	var/last_message_count = 0
 	/// How many messages sent in the last 10 seconds
 	var/total_message_count = 0
 	/// Next tick to reset the total message counter
-	var/total_count_reset = 0
-	var/ircreplyamount = 0
+	COOLDOWN_DECLARE(total_count_reset)
+	var/externalreplyamount = 0
 	var/cryo_warned = -3000//when was the last time we warned them about not cryoing without an ahelp, set to -5 minutes so that rounstart cryo still warns
+	var/staff_check_rate = 0 //when was the last time they checked online staff
 
 		/////////
 		//OTHER//
@@ -34,20 +36,17 @@
 	/// The client's preferences
 	var/datum/preferences/prefs = null
 	var/list/keybindings[0]
+	var/movement_locked = FALSE
 
 	/// The last world.time that the client's mob turned
 	var/last_turn = 0
 
 	/// The next world.time this client is allowed to move
 	var/move_delay = 0
+
 	var/area			= null
 
-		///////////////
-		//SOUND STUFF//
-		///////////////
-	var/ambient_buzz_playing = null // What buzz ambience is currently playing
-	var/ambient_buzz = null
-	var/ambient_effect_last_played = 0 // What was the last time we played an ambient effect noise?
+	var/buzz_playing = null
 		////////////
 		//SECURITY//
 		////////////
@@ -100,8 +99,6 @@
 	/// These persist between logins/logouts during the same round.
 	var/datum/player_details/player_details
 
-	var/list/char_render_holders			//Should only be a key-value list of north/south/east/west = atom/movable/screen.
-
 	var/client_keysend_amount = 0
 	var/next_keysend_reset = 0
 	var/next_keysend_trip_reset = 0
@@ -118,7 +115,13 @@
 	var/last_completed_asset_job = 0
 
 	/// rate limiting for the crew manifest
-	var/crew_manifest_delay
+	COOLDOWN_DECLARE(crew_manifest_delay)
 
 	//Tick when ghost roles are useable again
 	var/next_ghost_role_tick = 0
+
+	/// If the client is currently under the restrictions of the interview system
+	var/interviewee = FALSE
+
+	/// Whether or not this client has standard hotkeys enabled
+	var/hotkeys = TRUE

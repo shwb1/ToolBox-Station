@@ -4,7 +4,7 @@
 	stealth = -1
 	resistance = 3
 	stage_speed = 1
-	transmittable = 2
+	transmission = 2
 	level = 0
 	severity = 0
 	symptom_delay_min = 2
@@ -18,20 +18,22 @@
 
 /datum/symptom/pierrot/severityset(datum/disease/advance/A)
 	. = ..()
-	if(A.properties["resistance"] >= 10)
+	bodies = list("Clown", "Red-Nose", "[pick(GLOB.clown_names)]") //added here because it doesnt wanna pick in base vars
+	prefixes = list("Fool's ", "[pick(GLOB.clown_names)]'s ")
+	if(A.resistance >= 10)
 		severity +=1
-	if(A.properties["resistance"] >= 15)
-		severity += 2
+		if(A.resistance >= 15)
+			severity += 2
 
 /datum/symptom/pierrot/Start(datum/disease/advance/A)
 	if(!..())
 		return
-	if(A.properties["transmission"] >= 10)
+	if(A.transmission >= 10)
 		honkspread = TRUE
-	if(A.properties["resistance"] >= 10)
+	if(A.resistance >= 10)
 		clownmask = TRUE
-	if(A.properties["resistance"] >= 15)
-		clumsy = TRUE
+		if(A.resistance >= 15)
+			clumsy = TRUE
 
 /datum/symptom/pierrot/Activate(datum/disease/advance/A)
 	if(!..())
@@ -53,34 +55,35 @@
 				if(!HAS_TRAIT(M, TRAIT_CLUMSY))
 					to_chat(M, "<span class='notice'>You feel dumber.</span>")
 					ADD_TRAIT(M, TRAIT_CLUMSY, DISEASE_TRAIT)
-			if(prob(30))
-				M.say( pick( list("HONK!", "Honk!", "Honk.", "Honk?", "Honk!!", "Honk?!", "Honk...") ))
+			if(prob(30) && M.stat != DEAD)
+				M.say( pick( list("HONK!", "Honk!", "Honk.", "Honk?", "Honk!!", "Honk?!", "Honk...") ), forced = "Pierrot's Throat")
 			if(A.stage == 5)
 				if(clownmask)
 					give_clown_mask(A)
 				if(prob(5))
 					playsound(M.loc, 'sound/items/bikehorn.ogg', 100, 1)
-					if(honkspread)
-						A.spread(5)
+					if(honkspread && !(A.spread_flags & DISEASE_SPREAD_FALTERED))
+						addtimer(CALLBACK(A, TYPE_PROC_REF(/datum/disease, spread), 4), 20)
+						M.visible_message("<span class='danger'>[M] lets out a terrifying HONK!</span>")
 
 /datum/symptom/pierrot/End(datum/disease/advance/A)
 	..()
-	if(!A.affected_mob.job == "Clown")
+	if(!A.affected_mob.job == JOB_NAME_CLOWN)
 		to_chat(A.affected_mob, "<span class='notice'>You feel less dumb.</span>")
 		REMOVE_TRAIT(A.affected_mob, TRAIT_CLUMSY, DISEASE_TRAIT)
 	if(ishuman(A.affected_mob))
 		var/mob/living/carbon/human/M = A.affected_mob
 		if(istype(M.wear_mask, /obj/item/clothing/mask/gas/clown_hat))
 			REMOVE_TRAIT(M.wear_mask, TRAIT_NODROP, DISEASE_TRAIT)
-		
+
 
 /datum/symptom/pierrot/proc/give_clown_mask(datum/disease/advance/A)
 	if(ishuman(A.affected_mob))
-		var/mob/living/carbon/human/M = A.affected_mob 
+		var/mob/living/carbon/human/M = A.affected_mob
 		if(!istype(M.wear_mask, /obj/item/clothing/mask/gas/clown_hat))
 			if(!M.dropItemToGround(M.wear_mask))
 				qdel(M.wear_mask)
 		var/obj/item/clothing/C = new /obj/item/clothing/mask/gas/clown_hat(M)
 		ADD_TRAIT(C, TRAIT_NODROP, DISEASE_TRAIT)
-		M.equip_to_slot_or_del(C, SLOT_WEAR_MASK)
+		M.equip_to_slot_or_del(C, ITEM_SLOT_MASK)
 		return

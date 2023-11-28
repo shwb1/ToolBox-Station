@@ -91,6 +91,9 @@
 		return
 	if(!ishuman(M))//If target is not a human.
 		return ..()
+	if(M.mind && !M.mind.hasSoul)
+		to_chat(user, "<span class='warning'>That person has no soul!</span>")
+		return
 	if(iscultist(M))
 		if(iscultist(user))
 			to_chat(user, "<span class='cultlarge'>\"Come now, do not capture your bretheren's soul.\"</span>")
@@ -197,6 +200,9 @@
 						to_chat(user, "<span class='userdanger'>Capture failed!</span>: The soul has already fled its mortal frame. You attempt to bring it back...")
 						getCultGhost(T,user)
 					else
+						if(old_shard) //no insta cremating on the spot
+							to_chat(user, "<span class='userdanger'>Capture failed!</span>: The old shard is not powerful enough to absorb the soul of this being.")
+							return FALSE
 						for(var/obj/item/W in T)
 							T.dropItemToGround(W)
 						init_shade(T, user, vic = 1)
@@ -327,12 +333,12 @@
 	var/mob/dead/observer/chosen_ghost
 
 	for(var/mob/dead/observer/ghost in GLOB.player_list) //We put them back in their body
-		if(ghost.mind && ghost.mind.current == T && ghost.client)
+		if(ghost.mind && ghost.mind.current == T && ghost.client && ghost.can_reenter_corpse)
 			chosen_ghost = ghost
 			break
 
 	if(!chosen_ghost)	//Failing that, we grab a ghost
-		var/list/consenting_candidates = pollGhostCandidates("Would you like to play as a Shade?", "Cultist", null, ROLE_CULTIST, 50, POLL_IGNORE_SHADE)
+		var/list/consenting_candidates = poll_ghost_candidates("Would you like to play as a Shade?", ROLE_CULTIST, null, 5 SECONDS, ignore_category = POLL_IGNORE_CULT_SHADE)
 		if(consenting_candidates.len)
 			chosen_ghost = pick(consenting_candidates)
 	if(!T)

@@ -62,7 +62,7 @@
 	STOP_PROCESSING(SSradiation, src)
 	..()
 
-/datum/radiation_wave/process()
+/datum/radiation_wave/process(delta_time)
 	// If master_turf is no more, then we can't know where to irradiate. This is a very bad situation.
 	if(!master_turf)
 		qdel(src)
@@ -209,7 +209,7 @@
 
 	// Now is time to move forward
 	intensity = intensity_new
-	steps++
+	steps += delta_time
 
 /datum/radiation_wave/proc/check_obstructions(list/atoms, index)
 	for(var/k in 1 to atoms.len)
@@ -245,7 +245,8 @@
 			/obj/machinery/atmospherics,
 			/obj/item/ammo_casing,
 			/obj/item/implant,
-			/obj/singularity
+			/obj/anomaly,
+			/obj/eldritch/narsie
 			))
 		// Insulating objects won't get contaminated
 		if(!is_contaminating || blacklisted[thing.type] || SEND_SIGNAL(thing, COMSIG_ATOM_RAD_CONTAMINATING, strength) & COMPONENT_BLOCK_CONTAMINATION)

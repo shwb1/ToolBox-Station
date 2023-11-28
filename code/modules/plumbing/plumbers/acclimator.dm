@@ -11,12 +11,12 @@
 	icon_state = "acclimator"
 	buffer = 200
 
-	///towards wich temperature do we build?
+	///towards which temperature do we build?
 	var/target_temperature = 300
 	///I cant find a good name for this. Basically if target is 300, and this is 10, it will still target 300 but will start emptying itself at 290 and 310.
 	var/allowed_temperature_difference = 1
 	///cool/heat power
-	var/heater_coefficient = 0.1
+	var/heater_coefficient = 0.05
 	///Are we turned on or off? this is from the on and off button
 	var/enabled = TRUE
 	///COOLING, HEATING or NEUTRAL. We track this for change, so we dont needlessly update our icon
@@ -32,9 +32,10 @@
 /obj/machinery/plumbing/acclimator/Initialize(mapload, bolt)
 	. = ..()
 	AddComponent(/datum/component/plumbing/acclimator, bolt)
+	update_appearance() //so the input/output pipes will overlay properly during init
 
-/obj/machinery/plumbing/acclimator/process()
-	if(stat & NOPOWER || !enabled || !reagents.total_volume || reagents.chem_temp == target_temperature)
+/obj/machinery/plumbing/acclimator/process(delta_time)
+	if(machine_stat & NOPOWER || !enabled || !reagents.total_volume || reagents.chem_temp == target_temperature)
 		if(acclimate_state != NEUTRAL)
 			acclimate_state = NEUTRAL
 			update_icon()
@@ -54,7 +55,7 @@
 		if(reagents.chem_temp <= target_temperature && target_temperature - allowed_temperature_difference <= reagents.chem_temp) //heating here
 			emptying = TRUE
 
-	reagents.adjust_thermal_energy((target_temperature - reagents.chem_temp) * heater_coefficient * SPECIFIC_HEAT_DEFAULT * reagents.total_volume) //keep constant with chem heater
+	reagents.adjust_thermal_energy((target_temperature - reagents.chem_temp) * heater_coefficient * delta_time * SPECIFIC_HEAT_DEFAULT * reagents.total_volume) //keep constant with chem heater
 	reagents.handle_reactions()
 
 /obj/machinery/plumbing/acclimator/update_icon()
@@ -64,6 +65,7 @@
 			icon_state += "_cold"
 		if(HEATING)
 			icon_state += "_hot"
+	..()
 
 
 /obj/machinery/plumbing/acclimator/ui_state(mob/user)
@@ -74,6 +76,7 @@
 	if(!ui)
 		ui = new(user, src, "ChemAcclimator")
 		ui.open()
+		ui.set_autoupdate(TRUE)
 
 /obj/machinery/plumbing/acclimator/ui_data(mob/user)
 	var/list/data = list()
@@ -91,19 +94,22 @@
 /obj/machinery/plumbing/acclimator/ui_act(action, params)
 	if(..())
 		return
-	. = TRUE
 	switch(action)
 		if("set_target_temperature")
 			var/target = text2num(params["temperature"])
 			target_temperature = clamp(target, 0, 1000)
+			. = TRUE
 		if("set_allowed_temperature_difference")
 			var/target = text2num(params["temperature"])
 			allowed_temperature_difference = clamp(target, 0, 1000)
+			. = TRUE
 		if("toggle_power")
 			enabled = !enabled
+			. = TRUE
 		if("change_volume")
 			var/target = text2num(params["volume"])
 			reagents.maximum_volume = clamp(round(target), 1, buffer)
+			. = TRUE
 
 #undef COOLING
 #undef HEATING

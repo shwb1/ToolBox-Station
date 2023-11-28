@@ -7,23 +7,19 @@
 	density = TRUE
 	layer = LOW_ITEM_LAYER
 	anchored = TRUE
-	climbable = 1
+	pass_flags_self = PASSTRANSPARENT
 	var/tube_construction = /obj/structure/c_transit_tube
 	var/list/tube_dirs //list of directions this tube section can connect to.
 	var/exit_delay = 1
 	var/enter_delay = 0
 
-/obj/structure/transit_tube/CanPass(atom/movable/mover, turf/target)
-	if(istype(mover) && (mover.pass_flags & PASSGLASS))
-		return 1
-	return !density
-
-/obj/structure/transit_tube/New(loc, newdirection)
-	..(loc)
+/obj/structure/transit_tube/Initialize(mapload, newdirection)
+	. = ..()
 	if(newdirection)
 		setDir(newdirection)
 	init_tube_dirs()
 	generate_tube_overlays()
+	AddElement(/datum/element/climbable)
 
 /obj/structure/transit_tube/Destroy()
 	for(var/obj/structure/transit_tube_pod/P in loc)
@@ -235,7 +231,7 @@
 /obj/structure/transit_tube/junction/init_tube_dirs()
 	switch(dir)
 		if(NORTH)
-			tube_dirs = list(NORTH, SOUTHEAST, SOUTHWEST)//ending with the prefered direction
+			tube_dirs = list(NORTH, SOUTHEAST, SOUTHWEST)//ending with the preferred direction
 		if(SOUTH)
 			tube_dirs = list(SOUTH, NORTHWEST, NORTHEAST)
 		if(EAST)
@@ -250,7 +246,7 @@
 /obj/structure/transit_tube/junction/flipped/init_tube_dirs()
 	switch(dir)
 		if(NORTH)
-			tube_dirs = list(NORTH, SOUTHWEST, SOUTHEAST)//ending with the prefered direction
+			tube_dirs = list(NORTH, SOUTHWEST, SOUTHEAST)//ending with the preferred direction
 		if(SOUTH)
 			tube_dirs = list(SOUTH, NORTHEAST, NORTHWEST)
 		if(EAST)

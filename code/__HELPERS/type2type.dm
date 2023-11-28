@@ -87,7 +87,7 @@
 
 /// Converts an angle to a cardinal ss13 direction bitmask
 /proc/angle2dir_cardinal(angle)
-	switch(round(angle, 0.1))
+	switch(SIMPLIFY_DEGREES(round(angle, 0.1)))
 		if(315.5 to 360, 0 to 45.5)
 			return NORTH
 		if(45.6 to 135.5)
@@ -168,6 +168,8 @@
 		. += "[seperator]AUTOLOGIN"
 	if(rights & R_DBRANKS)
 		. += "[seperator]DBRANKS"
+	if(rights & R_SUPPRESS)
+		. += "[seperator]SUPPRESS"
 	if(!.)
 		. = "NONE"
 	return .
@@ -341,25 +343,25 @@
 /// Returns the body_zone a given slot appears on
 /proc/slot2body_zone(slot)
 	switch(slot)
-		if(SLOT_BACK, SLOT_WEAR_SUIT, SLOT_W_UNIFORM, SLOT_BELT, SLOT_WEAR_ID)
+		if(ITEM_SLOT_BACK, ITEM_SLOT_OCLOTHING, ITEM_SLOT_ICLOTHING, ITEM_SLOT_BELT, ITEM_SLOT_ID)
 			return BODY_ZONE_CHEST
 
-		if(SLOT_GLOVES, SLOT_HANDS, SLOT_HANDCUFFED)
+		if(ITEM_SLOT_GLOVES, ITEM_SLOT_HANDS, ITEM_SLOT_HANDCUFFED)
 			return pick(BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND)
 
-		if(SLOT_HEAD, SLOT_NECK, SLOT_NECK, SLOT_EARS)
+		if(ITEM_SLOT_HEAD, ITEM_SLOT_NECK, ITEM_SLOT_NECK, ITEM_SLOT_EARS)
 			return BODY_ZONE_HEAD
 
-		if(SLOT_WEAR_MASK)
+		if(ITEM_SLOT_MASK)
 			return BODY_ZONE_PRECISE_MOUTH
 
-		if(SLOT_GLASSES)
+		if(ITEM_SLOT_EYES)
 			return BODY_ZONE_PRECISE_EYES
 
-		if(SLOT_SHOES)
+		if(ITEM_SLOT_FEET)
 			return pick(BODY_ZONE_PRECISE_R_FOOT, BODY_ZONE_PRECISE_L_FOOT)
 
-		if(SLOT_LEGCUFFED)
+		if(ITEM_SLOT_LEGCUFFED)
 			return pick(BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
 
 /// adapted from http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
@@ -392,7 +394,6 @@
 			. = 0
 		else
 			. = max(0, min(255, 138.5177312231 * log(temp - 10) - 305.0447927307))
-
 
 /// Converts a text color like "red" to a hex color ("#FF0000")
 /proc/color2hex(color)	//web colors
@@ -439,10 +440,8 @@
 		else
 			return "#FFFFFF"
 
-
 /**
 This is a weird one: It returns a list of all var names found in the string. These vars must be in the [var_name] format
-
 It's only a proc because it's used in more than one place
 
 Takes a string and a datum. The string is well, obviously the string being checked. The datum is used as a source for var names, to check validity. Otherwise every single word could technically be a variable!
@@ -474,15 +473,6 @@ Takes a string and a datum. The string is well, obviously the string being check
 					if(var_source.vars.Find(A))
 						. += A
 
-/// Converts a hex code to a number
-/proc/color_hex2num(A)
-	if(!A || length(A) != length_char(A))
-		return 0
-	var/R = hex2num(copytext(A, 2, 4))
-	var/G = hex2num(copytext(A, 4, 6))
-	var/B = hex2num(copytext(A, 6, 8))
-	return R+G+B
-
 //word of warning: using a matrix like this as a color value will simplify it back to a string after being set
 /proc/color_hex2color_matrix(string)
 	var/length = length(string)
@@ -511,9 +501,9 @@ Takes a string and a datum. The string is well, obviously the string being check
 		switch(child)
 			if(/datum)
 				return null
-			if(/obj || /mob)
+			if(/obj, /mob)
 				return /atom/movable
-			if(/area || /turf)
+			if(/area, /turf)
 				return /atom
 			else
 				return /datum

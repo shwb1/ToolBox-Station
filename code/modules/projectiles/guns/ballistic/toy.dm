@@ -13,11 +13,15 @@
 	casing_ejector = FALSE
 	fire_rate = 3
 	weapon_weight = WEAPON_LIGHT
-	block_upgrade_walk = 1
+	burst_size = 3
+	fire_delay = 3 // Slightly worse than the actual sabre
 
 /obj/item/gun/ballistic/automatic/toy/update_icon()
 	. = ..()
 	add_overlay("[icon_state]_toy")
+
+/obj/item/gun/ballistic/automatic/toy/before_firing()
+	return
 
 /obj/item/gun/ballistic/automatic/toy/unrestricted
 	pin = /obj/item/firing_pin
@@ -38,7 +42,7 @@
 /obj/item/gun/ballistic/automatic/toy/pistol/riot
 	mag_type = /obj/item/ammo_box/magazine/toy/pistol/riot
 
-/obj/item/gun/ballistic/automatic/toy/pistol/riot/Initialize()
+/obj/item/gun/ballistic/automatic/toy/pistol/riot/Initialize(mapload)
 	magazine = new /obj/item/ammo_box/magazine/toy/pistol/riot(src)
 	return ..()
 

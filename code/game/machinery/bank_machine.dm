@@ -3,6 +3,10 @@
 	desc = "A machine used to deposit and withdraw station funds."
 	icon = 'goon/icons/obj/goon_terminals.dmi'
 	idle_power_usage = 100
+	base_icon_state = null // remove these 4 when we start using our own icon.
+	smoothing_flags = NONE
+	smoothing_groups = null
+	canSmoothWith = null
 	var/siphoning = FALSE
 	var/next_warning = 0
 	var/obj/item/radio/radio
@@ -10,7 +14,7 @@
 	var/minimum_time_between_warnings = 400
 	var/syphoning_credits = 0
 
-/obj/machinery/computer/bank_machine/Initialize()
+/obj/machinery/computer/bank_machine/Initialize(mapload)
 	. = ..()
 	radio = new(src)
 	radio.subspace_transmission = TRUE
@@ -30,7 +34,7 @@
 		var/obj/item/holochip/H = I
 		value = H.credits
 	if(value)
-		var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_CAR)
+		var/datum/bank_account/D = SSeconomy.get_budget_account(ACCOUNT_CAR_ID)
 		if(D)
 			D.adjust_money(value)
 			to_chat(user, "<span class='notice'>You deposit [I]. The Cargo Budget is now $[D.account_balance].</span>")
@@ -38,25 +42,28 @@
 		return
 	return ..()
 
-
-/obj/machinery/computer/bank_machine/process()
+/obj/machinery/computer/bank_machine/process(delta_time)
+	..()
 	if(siphoning)
-		if (stat & (BROKEN|NOPOWER))
+		if (machine_stat & (BROKEN|NOPOWER))
 			say("Insufficient power. Halting siphon.")
 			end_syphon()
+			ui_update()
 			return
-		var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_CAR)
-		if(!D.has_money(200))
+		var/siphon_am = 100 * delta_time
+		var/datum/bank_account/D = SSeconomy.get_budget_account(ACCOUNT_CAR_ID)
+		if(!D.has_money(siphon_am))
 			say("Cargo budget depleted. Halting siphon.")
 			end_syphon()
+			ui_update()
 			return
 
-		playsound(src, 'sound/items/poster_being_created.ogg', 100, 1)
-		syphoning_credits += 200
-		D.adjust_money(-200)
+		playsound(src, 'sound/items/poster_being_created.ogg', 100, TRUE)
+		syphoning_credits += siphon_am
+		D.adjust_money(-siphon_am)
 		if(next_warning < world.time && prob(15))
 			var/area/A = get_area(loc)
-			var/message = "Unauthorized credit withdrawal underway in [A.map_name]!!"
+			var/message = "Unauthorized credit withdrawal underway in [initial(A.name)]!!"
 			radio.talk_into(src, message, radio_channel)
 			next_warning = world.time + minimum_time_between_warnings
 
@@ -72,7 +79,7 @@
 
 /obj/machinery/computer/bank_machine/ui_data(mob/user)
 	var/list/data = list()
-	var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_CAR)
+	var/datum/bank_account/D = SSeconomy.get_budget_account(ACCOUNT_CAR_ID)
 
 	if(D)
 		data["current_balance"] = D.account_balance

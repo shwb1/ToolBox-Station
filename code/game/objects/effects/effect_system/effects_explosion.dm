@@ -1,19 +1,23 @@
 /obj/effect/particle_effect/expl_particles
 	name = "fire"
 	icon_state = "explosion_particle"
-	opacity = 1
+	opacity = TRUE
 	anchored = TRUE
 
-/obj/effect/particle_effect/expl_particles/Initialize()
+/obj/effect/particle_effect/expl_particles/Initialize(mapload)
 	..()
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/effect/particle_effect/expl_particles/LateInitialize()
-	var/direct = pick(GLOB.alldirs)
-	var/steps_amt = pick(1;25,2;50,3,4;200)
-	for(var/j in 1 to steps_amt)
-		step(src, direct)
-		sleep(1)
+	var/step_amt = pick(25;1,50;2,100;3,200;4)
+
+	var/datum/move_loop/loop = SSmove_manager.move(src, pick(GLOB.alldirs), 1, timeout = step_amt, priority = MOVEMENT_ABOVE_SPACE_PRIORITY)
+	RegisterSignal(loop, COMSIG_PARENT_QDELETING, PROC_REF(end_particle))
+
+/obj/effect/particle_effect/expl_particles/proc/end_particle(datum/source)
+	SIGNAL_HANDLER
+	if(QDELETED(src))
+		return
 	qdel(src)
 
 /datum/effect_system/expl_particles
@@ -27,26 +31,23 @@
 	name = "fire"
 	icon = 'icons/effects/96x96.dmi'
 	icon_state = "explosion"
-	opacity = 1
+	opacity = TRUE
 	anchored = TRUE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	pixel_x = -32
 	pixel_y = -32
 
-/obj/effect/explosion/Initialize()
+/obj/effect/explosion/Initialize(mapload)
 	. = ..()
 	QDEL_IN(src, 10)
 
 /datum/effect_system/explosion
 
-/datum/effect_system/explosion/set_up(loca)
-	if(isturf(loca))
-		location = loca
-	else
-		location = get_turf(loca)
+/datum/effect_system/explosion/set_up(location)
+	src.location = get_turf(location)
 
 /datum/effect_system/explosion/start()
-	new/obj/effect/explosion( location )
+	new/obj/effect/explosion(location)
 	var/datum/effect_system/expl_particles/P = new/datum/effect_system/expl_particles()
 	P.set_up(10, 0, location)
 	P.start()
@@ -59,4 +60,30 @@
 	S.start()
 /datum/effect_system/explosion/smoke/start()
 	..()
-	addtimer(CALLBACK(src, .proc/create_smoke), 5)
+	addtimer(CALLBACK(src, PROC_REF(create_smoke)), 5)
+
+/obj/effect/explosion/delamination
+	name = "delamination"
+	icon_state = "sm_shatter"
+	plane = ABOVE_LIGHTING_PLANE
+	appearance_flags = PIXEL_SCALE
+
+/obj/effect/explosion/delamination/Initialize(mapload)
+	. = ..()
+	QDEL_IN(src, 18)
+
+/obj/effect/explosion/delamination/inner
+	icon = 'icons/effects/512x512.dmi'
+	pixel_x = -240
+	pixel_y = -240
+
+/obj/effect/explosion/delamination/outer
+	icon = 'icons/effects/1024x1024.dmi'
+	pixel_x = -496
+	pixel_y = -496
+
+/datum/effect_system/explosion/delamination
+
+/datum/effect_system/explosion/delamination/start()
+	new /obj/effect/explosion/delamination/inner(location)
+	new /obj/effect/explosion/delamination/outer(location)

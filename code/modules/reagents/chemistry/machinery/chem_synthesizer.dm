@@ -24,6 +24,7 @@
 	if(!ui)
 		ui = new(user, src, "ChemDebugSynthesizer")
 		ui.open()
+		ui.set_autoupdate(TRUE) // Cell charge
 
 /obj/machinery/chem_dispenser/chem_synthesizer/ui_act(action, params)
 	if(..())
@@ -31,9 +32,7 @@
 	switch(action)
 		if("ejectBeaker")
 			if(beaker)
-				beaker.forceMove(drop_location())
-				if(Adjacent(usr) && !issilicon(usr))
-					usr.put_in_hands(beaker)
+				try_put_in_hand(beaker, usr)
 				beaker = null
 				. = TRUE
 		if("input")
@@ -55,16 +54,25 @@
 				else if(!beaker.reagents && !QDELETED(beaker))
 					beaker.create_reagents(beaker.volume)
 				beaker.reagents.add_reagent(input_reagent, amount)
+				. = TRUE
 		if("makecup")
 			if(beaker)
 				return
 			beaker = new /obj/item/reagent_containers/glass/beaker/bluespace(src)
 			visible_message("<span class='notice'>[src] dispenses a bluespace beaker.</span>")
+			. = TRUE
 		if("amount")
 			var/input = text2num(params["amount"])
 			if(input)
 				amount = input
-	update_icon()
+				. = TRUE
+	if(.)
+		update_icon()
+
+/obj/machinery/chem_dispenser/chem_synthesizer/Destroy()
+	if(beaker)
+		QDEL_NULL(beaker)
+	return ..()
 
 /obj/machinery/chem_dispenser/chem_synthesizer/proc/find_reagent(input)
 	. = FALSE

@@ -8,24 +8,58 @@
 	dynamic_lighting = DYNAMIC_LIGHTING_FORCED
 	has_gravity = STANDARD_GRAVITY
 	always_unpowered = FALSE
-	valid_territory = FALSE
-	icon_state = "shuttle"
 	// Loading the same shuttle map at a different time will produce distinct area instances.
-	unique = FALSE
+	area_flags = NONE
 	lighting_colour_tube = "#fff0dd"
 	lighting_colour_bulb = "#ffe1c1"
+	sound_environment = SOUND_ENVIRONMENT_ROOM
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_ADVANCED
+	//The mobile port attached to this area
+	var/obj/docking_port/mobile/mobile_port
+	area_limited_icon_smoothing = /area/shuttle
 
-/area/shuttle/Initialize()
+/area/shuttle/Initialize(mapload)
 	if(!canSmoothWithAreas)
 		canSmoothWithAreas = type
 	. = ..()
 
-/area/shuttle/PlaceOnTopReact(list/new_baseturfs, turf/fake_turf_type, flags)
+/area/shuttle/Destroy()
+	mobile_port = null
 	. = ..()
-	if(length(new_baseturfs) > 1 || fake_turf_type)
-		return // More complicated larger changes indicate this isn't a player
-	if(ispath(new_baseturfs[1], /turf/open/floor/plating))
-		new_baseturfs.Insert(1, /turf/baseturf_skipover/shuttle)
+
+//Returns how many shuttles are missing a skipovers on a given turf, this usually represents how many shuttles have hull breaches on this turf. This only works if this is the actual area of T when called.
+//TODO: optimize this somehow
+/area/shuttle/proc/get_missing_shuttles(turf/T)
+	var/i = 0
+	var/BT_index = length(T.baseturfs)
+	var/area/shuttle/A
+	var/obj/docking_port/mobile/S
+	var/list/shuttle_stack = list(mobile_port) //Indexing through a list helps prevent looped directed graph errors.
+	. = 0
+	while(i++ < shuttle_stack.len)
+		S = shuttle_stack[i]
+		A = S.underlying_turf_area[T]
+		if(istype(A) && A.mobile_port)
+			shuttle_stack |= A.mobile_port
+		.++
+	for(BT_index in 1 to length(T.baseturfs))
+		if(ispath(T.baseturfs[BT_index], /turf/baseturf_skipover/shuttle))
+			.--
+
+/area/shuttle/PlaceOnTopReact(turf/T, list/new_baseturfs, turf/fake_turf_type, flags)
+	. = ..()
+	if(!length(new_baseturfs) || !ispath(new_baseturfs[1], /turf/baseturf_skipover/shuttle) && (!ispath(new_baseturfs[1], /turf/open/floor/plating) || length(new_baseturfs) > 1 || fake_turf_type))
+		return //Only add missing baseturfs if a shuttle is landing or player made plating is being added (player made is infered to be a new_baseturf list of 1 and no fake_turf_type)
+	for(var/i in 1 to get_missing_shuttles(T))
+		new_baseturfs.Insert(1,/turf/baseturf_skipover/shuttle)
+
+/area/shuttle/proc/link_to_shuttle(obj/docking_port/mobile/M)
+	mobile_port = M
+
+/area/shuttle/get_virtual_z(turf/T)
+	if(mobile_port && is_reserved_level(mobile_port.z))
+		return mobile_port.current_z
+	return ..(T)
 
 ////////////////////////////Multi-area shuttles////////////////////////////
 
@@ -33,9 +67,9 @@
 
 /area/shuttle/syndicate
 	name = "Syndicate Infiltrator"
-	blob_allowed = FALSE
-	ambient_effects = HIGHSEC
+	ambience_index = AMBIENCE_DANGER
 	canSmoothWithAreas = /area/shuttle/syndicate
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_MAXIMUM
 
 /area/shuttle/syndicate/bridge
 	name = "Syndicate Infiltrator Control"
@@ -58,7 +92,6 @@
 
 /area/shuttle/pirate
 	name = "Pirate Shuttle"
-	blob_allowed = FALSE
 	requires_power = TRUE
 	canSmoothWithAreas = /area/shuttle/pirate
 
@@ -66,15 +99,13 @@
 
 /area/shuttle/hunter
 	name = "Hunter Shuttle"
-	dynamic_lighting = DYNAMIC_LIGHTING_DISABLED
-	blob_allowed = FALSE
+	requires_power = TRUE
 	canSmoothWithAreas = /area/shuttle/hunter
 
 ////////////////////////////White Ship////////////////////////////
 
 /area/shuttle/abandoned
 	name = "Abandoned Ship"
-	blob_allowed = FALSE
 	requires_power = TRUE
 	canSmoothWithAreas = /area/shuttle/abandoned
 
@@ -105,6 +136,7 @@
 	name = "Hyperspace"
 	desc = "Weeeeee"
 	dynamic_lighting = DYNAMIC_LIGHTING_DISABLED
+	fullbright_type = FULLBRIGHT_STARLIGHT
 
 /area/shuttle/custom
 	name = "Custom player shuttle"
@@ -115,41 +147,44 @@
 
 /area/shuttle/arrival
 	name = "Arrival Shuttle"
-	unique = TRUE  // SSjob refers to this area for latejoiners
+	area_flags = UNIQUE_AREA// SSjob refers to this area for latejoiners
 
 /area/shuttle/pod_1
 	name = "Escape Pod One"
+	area_flags = BLOBS_ALLOWED
 
 /area/shuttle/pod_2
 	name = "Escape Pod Two"
+	area_flags = BLOBS_ALLOWED
 
 /area/shuttle/pod_3
 	name = "Escape Pod Three"
+	area_flags = BLOBS_ALLOWED
 
 /area/shuttle/pod_4
 	name = "Escape Pod Four"
+	area_flags = BLOBS_ALLOWED
 
 /area/shuttle/mining
 	name = "Mining Shuttle"
-	blob_allowed = FALSE
 
 /area/shuttle/mining/large
 	name = "Mining Shuttle"
-	blob_allowed = FALSE
 	requires_power = TRUE
 
 /area/shuttle/science
 	name = "Science Shuttle"
-	blob_allowed = FALSE
+	requires_power = TRUE
+
+/area/shuttle/exploration
+	name = "Exploration Shuttle"
 	requires_power = TRUE
 
 /area/shuttle/labor
 	name = "Labor Camp Shuttle"
-	blob_allowed = FALSE
 
 /area/shuttle/supply
 	name = "Supply Shuttle"
-	blob_allowed = FALSE
 
 /area/shuttle/escape
 	name = "Emergency Shuttle"
@@ -171,34 +206,27 @@
 
 /area/shuttle/transport
 	name = "Transport Shuttle"
-	blob_allowed = FALSE
 
 /area/shuttle/assault_pod
 	name = "Steel Rain"
-	blob_allowed = FALSE
 
 /area/shuttle/sbc_starfury
 	name = "SBC Starfury"
-	blob_allowed = FALSE
 
 /area/shuttle/sbc_fighter1
 	name = "SBC Fighter 1"
-	blob_allowed = FALSE
 
 /area/shuttle/sbc_fighter2
 	name = "SBC Fighter 2"
-	blob_allowed = FALSE
 
 /area/shuttle/sbc_corvette
 	name = "SBC corvette"
-	blob_allowed = FALSE
 
 /area/shuttle/syndicate_scout
 	name = "Syndicate Scout"
-	blob_allowed = FALSE
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_MAXIMUM
 
 /area/shuttle/caravan
-	blob_allowed = FALSE
 	requires_power = TRUE
 
 /area/shuttle/caravan/syndicate1

@@ -1,4 +1,4 @@
-#define IRCREPLYCOUNT 2
+#define EXTERNALREPLYCOUNT 2
 
 
 //allows right clicking mobs to send an admin PM to their client, forwards the selected mob's client to cmd_admin_pm
@@ -31,7 +31,7 @@
 				targets["[T.mob.real_name](as [T.mob.name]) - [T]"] = T
 		else
 			targets["(No Mob) - [T]"] = T
-	var/target = input(src,"To whom shall we send a message?","Admin PM",null) as null|anything in sortList(targets)
+	var/target = tgui_input_list(src, "To whom shall we send a message?", "Admin PM", items = sort_list(targets))
 	cmd_admin_pm(targets[target],null)
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Admin PM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
@@ -51,11 +51,11 @@
 			to_chat(src, "<span class='danger'>Error: Admin-PM: Client not found.</span>", type = MESSAGE_TYPE_ADMINPM)
 		return
 
-	var/datum/admin_help/AH = C.current_ticket
+	var/datum/help_ticket/AH = C.current_adminhelp_ticket
 
 	if(AH)
 		message_admins("[key_name_admin(src)] has started replying to [key_name_admin(C, 0, 0)]'s admin help.")
-	var/msg = stripped_multiline_input(src,"Message:", "Private message to [C.holder?.fakekey ? "an Administrator" : key_name(C, 0, 0)].")
+	var/msg = tgui_input_text(src, "Message:", "Private message to [C.holder?.fakekey ? "an Administrator" : key_name(C, 0, 0)].", multiline = TRUE)
 	if (!msg)
 		message_admins("[key_name_admin(src)] has cancelled their reply to [key_name_admin(C, 0, 0)]'s admin help.")
 		return
@@ -89,34 +89,34 @@
 		to_chat(src, "<span class='danger'>Error: Admin-PM: You are unable to use admin PM-s (muted).</span>", type = MESSAGE_TYPE_ADMINPM)
 		return
 
-	if(!holder && !current_ticket)	//no ticket? https://www.youtube.com/watch?v=iHSPf6x1Fdo
+	if(!holder && !current_adminhelp_ticket)	//no ticket? https://www.youtube.com/watch?v=iHSPf6x1Fdo
 		to_chat(src, "<span class='danger'>You can no longer reply to this ticket, please open another one by using the Adminhelp verb if need be.</span>", type = MESSAGE_TYPE_ADMINPM)
 		to_chat(src, "<span class='notice'>Message: [msg]</span>", type = MESSAGE_TYPE_ADMINPM)
 		return
 
 	var/client/recipient
-	var/irc = 0
+	var/external = 0
 	if(istext(whom))
 		if(whom[1] == "@")
 			whom = findStealthKey(whom)
 		if(whom == "IRCKEY")
-			irc = 1
+			external = 1
 		else
 			recipient = GLOB.directory[whom]
 	else if(istype(whom, /client))
 		recipient = whom
 
-
-	if(irc)
-		if(!ircreplyamount)	//to prevent people from spamming irc
+	var/html_encoded = FALSE
+	if(external)
+		if(!externalreplyamount)	//to prevent people from spamming irc/discord
 			return
 		if(!msg)
-			msg = stripped_multiline_input(src,"Message:", "Private message to Administrator")
-
+			msg = tgui_input_text(src, "Message:", "Private message to Administrator", multiline = TRUE)
+			html_encoded = TRUE
 		if(!msg)
 			return
 		if(holder)
-			to_chat(src, "<span class='danger'>Error: Use the admin IRC channel, nerd.</span>", type = MESSAGE_TYPE_ADMINPM)
+			to_chat(src, "<span class='danger'>Error: Use the admin IRC/Discord channel, nerd.</span>", type = MESSAGE_TYPE_ADMINPM)
 			return
 
 
@@ -128,15 +128,17 @@
 					to_chat(src, msg)
 				return
 			else if(msg) // you want to continue if there's no message instead of returning now
-				current_ticket.MessageNoRecipient(msg)
+				current_adminhelp_ticket.MessageNoRecipient(msg, sanitized = html_encoded)
 				return
 
 		//get message text, limit it's length.and clean/escape html
 		if(!msg)
-			msg = stripped_multiline_input(src,"Message:", "Private message to [recipient.holder?.fakekey ? "an Administrator" : key_name(recipient, 0, 0)].")
+			msg = tgui_input_text(src,"Message:", "Private message to [recipient.holder?.fakekey ? "an Administrator" : key_name(recipient, 0, 0)].", multiline = TRUE)
 			msg = trim(msg)
 			if(!msg)
 				return
+			// we need to not HTML encode again or you get &#39;s instead of 's
+			html_encoded = TRUE
 
 			if(prefs.muted & MUTE_ADMINHELP)
 				to_chat(src, "<span class='danger'>Error: Admin-PM: You are unable to use admin PM-s (muted).</span>", type = MESSAGE_TYPE_ADMINPM)
@@ -146,15 +148,18 @@
 				if(holder)
 					to_chat(src, "<span class='danger'>Error: Admin-PM: Client not found.</span>", type = MESSAGE_TYPE_ADMINPM)
 				else
-					current_ticket.MessageNoRecipient(msg)
+					current_adminhelp_ticket.MessageNoRecipient(msg, sanitized = html_encoded)
 				return
 
 	if (src.handle_spam_prevention(msg,MUTE_ADMINHELP))
 		return
 
 	//clean the message if it's not sent by a high-rank admin
-	if(!check_rights(R_SERVER|R_DEBUG,0)||irc)//no sending html to the poor bots
-		msg = trim(sanitize(msg), MAX_MESSAGE_LEN)
+	if(!check_rights(R_SERVER|R_DEBUG,0)||external)//no sending html to the poor bots
+		msg = sanitize_simple(msg)
+		if(!html_encoded)
+			msg = html_encode(msg)
+		msg = trim(msg, MAX_MESSAGE_LEN)
 		if(!msg)
 			return
 
@@ -165,11 +170,11 @@
 
 	var/keywordparsedmsg = keywords_lookup(msg)
 
-	if(irc)
+	if(external)
 		to_chat(src, "<span class='notice'>PM to-<b>Admins</b>: <span class='linkify'>[rawmsg]</span></span>", type = MESSAGE_TYPE_ADMINPM)
-		var/datum/admin_help/AH = admin_ticket_log(src, "<font color='red'>Reply PM from-<b>[key_name(src, TRUE, TRUE)] to <i>IRC</i>: [keywordparsedmsg]</font>")
-		ircreplyamount--
-		send2irc("[AH ? "#[AH.id] " : ""]Reply: [ckey]", rawmsg)
+		var/datum/help_ticket/AH = admin_ticket_log(src, "<font color='red'>Reply PM from-<b>[key_name(src, TRUE, TRUE)] to <i>External</i>: [keywordparsedmsg]</font>")
+		externalreplyamount--
+		send2tgs("[AH ? "#[AH.id] " : ""]Reply: [ckey]", rawmsg)
 	else
 		if(recipient.holder)
 			if(holder)	//both are admins
@@ -188,13 +193,14 @@
 				to_chat(src, "<span class='notice'>PM to-<b>Admins</b>: <span class='linkify'>[msg]</span></span>", type = MESSAGE_TYPE_ADMINPM)
 
 			//play the receiving admin the adminhelp sound (if they have them enabled)
-			if(recipient.prefs.toggles & SOUND_ADMINHELP)
+			if(recipient.prefs.read_player_preference(/datum/preference/toggle/sound_adminhelp))
 				SEND_SOUND(recipient, sound('sound/effects/adminhelp.ogg'))
 
 		else
 			if(holder)	//sender is an admin but recipient is not. Do BIG RED TEXT
-				if(!recipient.current_ticket)
-					new /datum/admin_help(msg, recipient, TRUE)
+				if(!recipient.current_adminhelp_ticket)
+					var/datum/help_ticket/admin/ticket = new(recipient)
+					ticket.Create(msg, TRUE)
 
 				to_chat(recipient, "<font color='red' size='4'><b>-- Administrator private message --</b></font>", type = MESSAGE_TYPE_ADMINPM)
 				to_chat(recipient, "<span class='adminsay'>Admin PM from-<b>[key_name(src, recipient, 0)]</b>: <span class='linkify'>[msg]</span></span>", type = MESSAGE_TYPE_ADMINPM)
@@ -215,7 +221,7 @@
 							sendername = holder.fakekey
 						else
 							sendername = key
-						var/reply = stripped_multiline_input(recipient, msg,"Admin PM from-[sendername]", "")		//show message and await a reply
+						var/reply = tgui_input_text(recipient, msg, "Admin PM from-[sendername]", "", multiline = TRUE)		//show message and await a reply
 						if(recipient && reply)
 							if(sender)
 								recipient.cmd_admin_pm(sender,reply)										//sender is still about, let's reply to them
@@ -227,10 +233,10 @@
 				to_chat(src, "<span class='danger'>Error: Admin-PM: Non-admin to non-admin PM communication is forbidden.</span>", type = MESSAGE_TYPE_ADMINPM)
 				return
 
-	if(irc)
-		log_admin_private("PM: [key_name(src)]->IRC: [rawmsg]")
+	if(external)
+		log_admin_private("PM: [key_name(src)]->External: [rawmsg]")
 		for(var/client/X in GLOB.admins)
-			to_chat(X, "<span class='notice'><B>PM: [key_name(src, X, 0)]-&gt;IRC:</B> [keywordparsedmsg]</span>")
+			to_chat(X, "<span class='notice'><B>PM: [key_name(src, X, 0)]-&gt;External:</B> [keywordparsedmsg]</span>")
 	else
 		window_flash(recipient, ignorepref = TRUE)
 		log_admin_private("PM: [key_name(src)]->[key_name(recipient)]: [rawmsg]")
@@ -241,34 +247,35 @@
 
 
 
-#define IRC_AHELP_USAGE "Usage: ticket <close|resolve|icissue|reject|reopen \[ticket #\]|list>"
-/proc/IrcPm(target,msg,sender)
+#define TGS_AHELP_USAGE "Usage: ticket <close|resolve|icissue|reject|reopen \[ticket #\]|list>"
+/proc/TgsPm(target,msg,sender)
 	target = ckey(target)
 	var/client/C = GLOB.directory[target]
 
-	var/datum/admin_help/ticket = C ? C.current_ticket : GLOB.ahelp_tickets.CKey2ActiveTicket(target)
+	var/datum/help_ticket/ticket = C ? C.current_adminhelp_ticket : GLOB.ahelp_tickets.CKey2ActiveTicket(target)
 	var/compliant_msg = trim(lowertext(msg))
-	var/irc_tagged = "[sender](IRC)"
+	var/tgs_tagged = "[sender](TGS/External)"
 	var/list/splits = splittext(compliant_msg, " ")
 	if(splits.len && splits[1] == "ticket")
 		if(splits.len < 2)
-			return IRC_AHELP_USAGE
+			return TGS_AHELP_USAGE
 		switch(splits[2])
 			if("close")
 				if(ticket)
-					ticket.Close(irc_tagged)
+					ticket.Close(tgs_tagged)
 					return "Ticket #[ticket.id] successfully closed"
 			if("resolve")
 				if(ticket)
-					ticket.Resolve(irc_tagged)
+					ticket.Resolve(tgs_tagged)
 					return "Ticket #[ticket.id] successfully resolved"
 			if("icissue")
-				if(ticket)
-					ticket.ICIssue(irc_tagged)
+				if(ticket && istype(ticket, /datum/help_ticket/admin))
+					var/datum/help_ticket/admin/a_ticket = ticket
+					a_ticket.ICIssue(tgs_tagged)
 					return "Ticket #[ticket.id] successfully marked as IC issue"
 			if("reject")
 				if(ticket)
-					ticket.Reject(irc_tagged)
+					ticket.Reject(tgs_tagged)
 					return "Ticket #[ticket.id] successfully rejected"
 			if("reopen")
 				if(ticket)
@@ -277,8 +284,8 @@
 				if(!isnull(fail))
 					fail = text2num(splits[3])
 				if(isnull(fail))
-					return "Error: No/Invalid ticket id specified. [IRC_AHELP_USAGE]"
-				var/datum/admin_help/AH = GLOB.ahelp_tickets.TicketByID(fail)
+					return "Error: No/Invalid ticket id specified. [TGS_AHELP_USAGE]"
+				var/datum/help_ticket/AH = GLOB.ahelp_tickets.TicketByID(fail)
 				if(!AH)
 					return "Error: Ticket #[fail] not found"
 				if(AH.initiator_ckey != target)
@@ -291,7 +298,7 @@
 					return "None"
 				. = ""
 				for(var/I in tickets)
-					var/datum/admin_help/AH = I
+					var/datum/help_ticket/AH = I
 					if(.)
 						. += ", "
 					if(AH == ticket)
@@ -299,24 +306,24 @@
 					. += "#[AH.id]"
 				return
 			else
-				return IRC_AHELP_USAGE
+				return TGS_AHELP_USAGE
 		return "Error: Ticket could not be found"
 
 	var/static/stealthkey
-	var/adminname = CONFIG_GET(flag/show_irc_name) ? irc_tagged : "Administrator"
+	var/adminname = CONFIG_GET(flag/show_irc_name) ? tgs_tagged : "Administrator"
 
 	if(!C)
 		return "Error: No client"
 
 	if(!stealthkey)
-		stealthkey = GenIrcStealthKey()
+		stealthkey = GenTgsStealthKey()
 
 	msg = sanitize(copytext_char(msg, 1, MAX_MESSAGE_LEN))
 	if(!msg)
 		return "Error: No message"
 
-	message_admins("IRC message from [sender] to [key_name_admin(C)] : [msg]")
-	log_admin_private("IRC PM: [sender] -> [key_name(C)] : [msg]")
+	message_admins("External message from [sender] to [key_name_admin(C)] : [msg]")
+	log_admin_private("External PM: [sender] -> [key_name(C)] : [msg]")
 	msg = emoji_parse(msg)
 
 	to_chat(C, "<font color='red' size='4'><b>-- Administrator private message --</b></font>", type = MESSAGE_TYPE_ADMINPM)
@@ -329,11 +336,11 @@
 	//always play non-admin recipients the adminhelp sound
 	SEND_SOUND(C, 'sound/effects/adminhelp.ogg')
 
-	C.ircreplyamount = IRCREPLYCOUNT
+	C.externalreplyamount = EXTERNALREPLYCOUNT
 
 	return "Message Successful"
 
-/proc/GenIrcStealthKey()
+/proc/GenTgsStealthKey()
 	var/num = (rand(0,1000))
 	var/i = 0
 	while(i == 0)
@@ -346,4 +353,4 @@
 	GLOB.stealthminID["IRCKEY"] = stealth
 	return	stealth
 
-#undef IRCREPLYCOUNT
+#undef EXTERNALREPLYCOUNT

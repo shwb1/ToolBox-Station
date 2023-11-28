@@ -29,11 +29,12 @@
 	for(var/i = 1 to STR.max_items)
 		new spawn_type(src)
 
-/obj/item/storage/fancy/update_icon()
+/obj/item/storage/fancy/update_icon_state()
 	if(fancy_open)
 		icon_state = "[icon_type]box[contents.len]"
 	else
 		icon_state = "[icon_type]box"
+	return ..()
 
 /obj/item/storage/fancy/examine(mob/user)
 	. = ..()
@@ -48,12 +49,12 @@
 	update_icon()
 	. = ..()
 
-/obj/item/storage/fancy/Exited()
+/obj/item/storage/fancy/Exited(atom/movable/gone, direction)
 	. = ..()
 	fancy_open = TRUE
 	update_icon()
 
-/obj/item/storage/fancy/Entered()
+/obj/item/storage/fancy/Entered(atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	. = ..()
 	fancy_open = TRUE
 	update_icon()
@@ -68,14 +69,14 @@
 	icon_type = "donut"
 	name = "donut box"
 	desc = "Mmm. Donuts."
-	spawn_type = /obj/item/reagent_containers/food/snacks/donut
+	spawn_type = /obj/item/food/donut/premade
 	fancy_open = TRUE
 
 /obj/item/storage/fancy/donut_box/ComponentInitialize()
 	. = ..()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
 	STR.max_items = 6
-	STR.can_hold = typecacheof(list(/obj/item/reagent_containers/food/snacks/donut))
+	STR.can_hold = typecacheof(list(/obj/item/food/donut))
 
 /*
  * Egg Box
@@ -109,8 +110,8 @@
 	icon_state = "candlebox5"
 	icon_type = "candle"
 	item_state = "candlebox5"
+	w_class = WEIGHT_CLASS_NORMAL
 	throwforce = 2
-	slot_flags = ITEM_SLOT_BELT
 	spawn_type = /obj/item/candle
 	fancy_open = TRUE
 
@@ -118,6 +119,7 @@
 	. = ..()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
 	STR.max_items = 5
+	STR.can_hold = typecacheof(list(/obj/item/candle, /obj/item/lighter, /obj/item/storage/box/matches))
 
 /obj/item/storage/fancy/candle_box/attack_self(mob_user)
 	return
@@ -147,6 +149,9 @@
 /obj/item/storage/fancy/cigarettes/examine(mob/user)
 	. = ..()
 	. += "<span class='notice'>Alt-click to extract contents.</span>"
+	var/obj/item/lighter/L = locate(/obj/item/lighter) in contents
+	if(L)
+		. += "<span class='notice'>There seems to be a lighter inside. Ctrl-click to pull it out.</span>"
 
 /obj/item/storage/fancy/cigarettes/AltClick(mob/living/carbon/user)
 	if(!istype(user) || !user.canUseTopic(src, BE_CLOSE, ismonkey(user)))
@@ -160,13 +165,26 @@
 	else
 		to_chat(user, "<span class='notice'>There is nothing left in the pack.</span>")
 
-/obj/item/storage/fancy/cigarettes/update_icon()
+/obj/item/storage/fancy/cigarettes/CtrlClick(mob/living/carbon/user)
+	if(!istype(user) || !user.canUseTopic(src, BE_CLOSE, ismonkey(user)))
+		return
+	var/obj/item/I = locate(/obj/item/lighter) in contents
+	if(I)
+		SEND_SIGNAL(src, COMSIG_TRY_STORAGE_TAKE, I, user)
+		user.put_in_hands(I)
+		contents -= I
+		to_chat(user, "<span class='notice'>You take \a [I] out of the pack.</span>")
+	else
+		to_chat(user, "<span class='warning'>There is no lighter in the pack.</span>")
+
+/obj/item/storage/fancy/cigarettes/update_icon_state()
+	. = ..()
 	if(fancy_open || !contents.len)
-		cut_overlays()
 		if(!contents.len)
 			icon_state = "[initial(icon_state)]_empty"
 		else
 			icon_state = initial(icon_state)
+			//MERGE Doesnt want this.
 			var/mutable_appearance/open_overlay = mutable_appearance(overlay_icon_file)
 			open_overlay.icon_state = "[icon_state]_open"
 			add_overlay(open_overlay)
@@ -174,28 +192,37 @@
 			for(var/C in contents)
 				var/mutable_appearance/inserted_overlay = mutable_appearance(overlay_icon_file)
 
-				if(istype(C, /obj/item/lighter/greyscale))
-					inserted_overlay.icon_state = "lighter_in"
-				else if(istype(C, /obj/item/lighter))
-					inserted_overlay.icon_state = "zippo_in"
-				else
-					inserted_overlay.icon_state = "cigarette"
+/obj/item/storage/fancy/cigarettes/update_overlays()
+	. = ..()
+	if(fancy_open && contents.len)
+		. += "[icon_state]_open"
+		var/cig_position = 1
+		for(var/C in contents)
+			var/mutable_appearance/inserted_overlay = mutable_appearance(icon)
 
-				inserted_overlay.icon_state = "[inserted_overlay.icon_state]_[cig_position]"
-				add_overlay(inserted_overlay)
-				cig_position++
-	else
-		cut_overlays()
+			if(istype(C, /obj/item/lighter/greyscale))
+				inserted_overlay.icon_state = "lighter_in"
+			else if(istype(C, /obj/item/lighter))
+				inserted_overlay.icon_state = "zippo_in"
+			//else if(candy)
+			//	inserted_overlay.icon_state = "candy"
+			else
+				inserted_overlay.icon_state = "cigarette"
+
+			inserted_overlay.icon_state = "[inserted_overlay.icon_state]_[cig_position]"
+			. += inserted_overlay
+			cig_position++
 
 /obj/item/storage/fancy/cigarettes/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
 	if(!ismob(M))
 		return
+
 	var/obj/item/clothing/mask/cigarette/W = locate(/obj/item/clothing/mask/cigarette) in contents
 	if(!W)
 		return ..()
 	if(M == user && contents.len > 0 && !user.wear_mask)
 		SEND_SIGNAL(src, COMSIG_TRY_STORAGE_TAKE, W, M)
-		M.equip_to_slot_if_possible(W, SLOT_WEAR_MASK)
+		M.equip_to_slot_if_possible(W, ITEM_SLOT_MASK)
 		contents -= W
 		to_chat(user, "<span class='notice'>You take \a [W] out of the pack.</span>")
 
@@ -280,10 +307,10 @@
 	STR.max_items = 10
 	STR.can_hold = typecacheof(list(/obj/item/rollingpaper))
 
-/obj/item/storage/fancy/rollingpapers/update_icon()
-	cut_overlays()
+/obj/item/storage/fancy/rollingpapers/update_overlays()
+	. = ..()
 	if(!contents.len)
-		add_overlay("[icon_state]_empty")
+		. += "[icon_state]_empty"
 
 /////////////
 //CIGAR BOX//
@@ -305,18 +332,19 @@
 	STR.can_hold = typecacheof(list(/obj/item/clothing/mask/cigarette/cigar))
 
 /obj/item/storage/fancy/cigarettes/cigars/update_icon()
-	cut_overlays()
 	if(fancy_open)
 		icon_state = "[initial(icon_state)]_open"
+	else
+		icon_state = "[initial(icon_state)]"
 
+/obj/item/storage/fancy/cigarettes/cigars/update_overlays()
+	. = ..()
+	if(fancy_open)
 		var/cigar_position = 1 //generate sprites for cigars in the box
 		for(var/obj/item/clothing/mask/cigarette/cigar/smokes in contents)
 			var/mutable_appearance/cigar_overlay = mutable_appearance(icon, "[smokes.icon_off]_[cigar_position]")
-			add_overlay(cigar_overlay)
+			. += cigar_overlay
 			cigar_position++
-
-	else
-		icon_state = "[initial(icon_state)]"
 
 /obj/item/storage/fancy/cigarettes/cigars/cohiba
 	name = "\improper Cohiba Robusto cigar case"

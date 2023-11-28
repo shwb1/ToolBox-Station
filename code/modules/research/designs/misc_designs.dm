@@ -67,36 +67,6 @@
 //////////////////Misc///////////////////
 /////////////////////////////////////////
 
-/datum/design/shuttle_speed_upgrade
-	name = "Shuttle Route Optimisation Upgrade"
-	desc = "A disk that allows for calculating shorter routes when inserted into a flight control console."
-	id = "disk_shuttle_route"
-	build_type = PROTOLATHE
-	materials = list(/datum/material/iron = 1000, /datum/material/glass = 1000)
-	build_path = /obj/item/shuttle_route_optimisation
-	category = list("Equipment")
-	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE | DEPARTMENTAL_FLAG_ENGINEERING
-
-/datum/design/shuttle_speed_upgrade_hyper
-	name = "Shuttle Bluespace Hyperlane Optimisation Upgrade"
-	desc = "A disk that allows for calculating shorter routes when inserted into a flight control console. This one abuses bluespace hyperlanes for increased efficiency."
-	id = "disk_shuttle_route_hyper"
-	build_type = PROTOLATHE
-	materials = list(/datum/material/iron = 1000, /datum/material/glass = 1000)
-	build_path = /obj/item/shuttle_route_optimisation/hyperlane
-	category = list("Equipment")
-	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE | DEPARTMENTAL_FLAG_ENGINEERING
-
-/datum/design/shuttle_speed_upgrade_void
-	name = "Shuttle Voidspace Optimisation Upgrade"
-	desc = "A disk that allows for calculating shorter routes when inserted into a flight control console. This one access voidspace for increased efficiency."
-	id = "disk_shuttle_route_void"
-	build_type = PROTOLATHE
-	materials = list(/datum/material/iron = 1000, /datum/material/glass = 1000)
-	build_path = /obj/item/shuttle_route_optimisation/void
-	category = list("Equipment")
-	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE | DEPARTMENTAL_FLAG_ENGINEERING
-
 /datum/design/welding_mask
 	name = "Welding Gas Mask"
 	desc = "A gas mask with built in welding goggles and face shield. Looks like a skull, clearly designed by a nerd."
@@ -286,9 +256,48 @@
 	category = list("Equipment")
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SCIENCE
 
+/datum/design/xenoartifact_labeler
+	name = "Artifact Labeler"
+	desc = "A scientific labeler used to warn others of the dangers of an alien artifact."
+	id = "xenoa_labeler"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 2000, /datum/material/glass = 1000, /datum/material/silver = 1000, /datum/material/gold = 3000)
+	build_path = /obj/item/xenoartifact_labeler
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
+
+/datum/design/artifact_pinchers
+	name = "Anti-Tactile Pinchers"
+	desc = "A pair of precise operable pinchers, used to examine artifacts."
+	id = "xenoa_gloves"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 2000, /datum/material/silver = 1000)
+	build_path = /obj/item/clothing/gloves/artifact_pinchers
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
+
+/datum/design/bluespace_capsule
+	name = "Bluespace Capsule"
+	id = "bluespace_capsule"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 3000, /datum/material/titanium = 1000, /datum/material/diamond = 500, /datum/material/bluespace = 500)
+	build_path = /obj/item/bluespace_capsule
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_ALL
+
 /////////////////////////////////////////
 ////////////Janitor Designs//////////////
 /////////////////////////////////////////
+
+/datum/design/larryframe
+	name = "Larry Frame"
+	desc = "A housing that serves as the base for constructing Larries."
+	id = "larry"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 200)
+	build_path = /obj/item/larryframe
+	category = list("Electronics")
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
 
 /datum/design/advmop
 	name = "Advanced Mop"
@@ -363,7 +372,6 @@
 	build_path = /obj/structure/holosign/barrier/wetsign
 	category = list("Equipment")
 	departmental_flags = DEPARTMENTAL_FLAG_SERVICE
-
 
 /datum/design/holosignsec
 	name = "Security Holobarrier Projector"
@@ -444,12 +452,12 @@
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
 /datum/design/pepperspray
-	name = "Pepper Spray"
-	desc = "Manufactured by UhangInc, used to blind and down an opponent quickly. Printed pepper sprays do not contain reagents."
+	name = "Peppercloud Deployer"
+	desc = "Manufactured by UhangInc, used to rapidly deploy a peppercloud providing an area denial effect. Printed peppercloud canisters do not contain reagents and need to be filled."
 	id = "pepperspray"
 	build_type = PROTOLATHE
 	materials = list(/datum/material/iron = 5000, /datum/material/glass = 1000)
-	build_path = /obj/item/reagent_containers/spray/pepper/empty
+	build_path = /obj/item/reagent_containers/peppercloud_deployer/empty
 	category = list("Equipment")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
@@ -491,3 +499,44 @@
 	build_path = /obj/item/construction/plumbing
 	category = list("Equipment")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+
+/datum/design/glasses_prescription
+	name = "Prescription Glasses"
+	desc = "Made by Nerd. Co."
+	id = "glasses_prescription"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 500, /datum/material/glass = 2000)
+	build_path = /obj/item/clothing/glasses/regular
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+
+/////////////////////////////////////////
+/////////////////Tape////////////////////
+/////////////////////////////////////////
+
+/datum/design/sticky_tape
+	name = "Sticky Tape"
+	id = "sticky_tape"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/plastic = 500)
+	build_path = /obj/item/stack/sticky_tape
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE
+
+/datum/design/super_sticky_tape
+	name = "Super Sticky Tape"
+	id = "super_sticky_tape"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/plastic = 3000)
+	build_path = /obj/item/stack/sticky_tape/super
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE
+
+/datum/design/pointy_tape
+	name = "Pointy Tape"
+	id = "pointy_tape"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 1500, /datum/material/plastic = 1000)
+	build_path = /obj/item/stack/sticky_tape/pointy
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE

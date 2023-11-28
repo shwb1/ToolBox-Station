@@ -41,11 +41,19 @@
 	var/can_repair_constructs = FALSE
 	var/can_repair_self = FALSE
 	var/runetype
+	var/datum/action/innate/cult/create_rune/our_rune
 	var/holy = FALSE
-	mobsay_color = "#FF6262"
+	chat_color = "#FF6262"
 	mobchatspan = "cultmobsay"
+	discovery_points = 1000
 
-/mob/living/simple_animal/hostile/construct/Initialize()
+/mob/living/simple_animal/hostile/construct/get_num_legs()
+	return 0
+
+/mob/living/simple_animal/hostile/construct/get_num_arms()
+	return 0
+
+/mob/living/simple_animal/hostile/construct/Initialize(mapload)
 	. = ..()
 	update_health_hud()
 	var/spellnum = 1
@@ -60,11 +68,15 @@
 		S.action.button.moved = "6:[pos],4:-2"
 		spellnum++
 	if(runetype)
-		var/datum/action/innate/cult/create_rune/CR = new runetype(src)
-		CR.Grant(src)
+		our_rune = new runetype(src)
+		our_rune.Grant(src)
 		var/pos = 2+spellnum*31
-		CR.button.screen_loc = "6:[pos],4:-2"
-		CR.button.moved = "6:[pos],4:-2"
+		our_rune.button.screen_loc = "6:[pos],4:-2"
+		our_rune.button.moved = "6:[pos],4:-2"
+
+/mob/living/simple_animal/hostile/construct/Destroy()
+	QDEL_NULL(our_rune)
+	return ..()
 
 /mob/living/simple_animal/hostile/construct/Login()
 	..()
@@ -73,13 +85,13 @@
 /mob/living/simple_animal/hostile/construct/examine(mob/user)
 	var/t_He = p_they(TRUE)
 	var/t_s = p_s()
-	. = list("<span class='cult'>*---------*\nThis is [icon2html(src, user)] \a <b>[src]</b>!\n[desc]")
+	. = list("<span class='cult'>This is [icon2html(src, user)] \a <b>[src]</b>!\n[desc]")
 	if(health < maxHealth)
 		if(health >= maxHealth/2)
 			. += "<span class='warning'>[t_He] look[t_s] slightly dented.</span>"
 		else
 			. += "<span class='warning'><b>[t_He] look[t_s] severely dented!</b></span>"
-	. += "*---------*</span>"
+	. += "</span>"
 
 /mob/living/simple_animal/hostile/construct/attack_animal(mob/living/simple_animal/M)
 	if(isconstruct(M)) //is it a construct?
@@ -91,7 +103,7 @@
 		if(health < maxHealth)
 			adjustHealth(-5)
 			if(src != M)
-				Beam(M,icon_state="sendbeam",time=4)
+				Beam(M, icon_state="sendbeam", time = 4)
 				M.visible_message("<span class='danger'>[M] repairs some of \the <b>[src]'s</b> dents.</span>", \
 						   "<span class='cult'>You repair some of <b>[src]'s</b> dents, leaving <b>[src]</b> at <b>[health]/[maxHealth]</b> health.</span>")
 			else
@@ -125,8 +137,8 @@
 	icon_living = "behemoth"
 	maxHealth = 150
 	health = 150
-	response_harm = "harmlessly punches"
-	harm_intent_damage = 0
+	response_harm = "punches"
+
 	obj_damage = 90
 	melee_damage = 25
 	attacktext = "smashes their armored gauntlet into"
@@ -134,6 +146,7 @@
 	environment_smash = ENVIRONMENT_SMASH_WALLS
 	attack_sound = 'sound/weapons/punch3.ogg'
 	status_flags = 0
+	move_resist = MOVE_FORCE_STRONG
 	mob_size = MOB_SIZE_LARGE
 	force_threshold = 10
 	construct_spells = list(/obj/effect/proc_holder/spell/targeted/forcewall/cult,
@@ -146,8 +159,8 @@
 	AIStatus = AI_ON
 	environment_smash = ENVIRONMENT_SMASH_STRUCTURES //only token destruction, don't smash the cult wall NO STOP
 
-/mob/living/simple_animal/hostile/construct/armored/bullet_act(obj/item/projectile/P)
-	if(istype(P, /obj/item/projectile/energy) || istype(P, /obj/item/projectile/beam))
+/mob/living/simple_animal/hostile/construct/armored/bullet_act(obj/projectile/P)
+	if(istype(P, /obj/projectile/energy) || istype(P, /obj/projectile/beam))
 		var/reflectchance = 40 - round(P.damage/3)
 		if(prob(reflectchance))
 			apply_damage(P.damage * 0.5, P.damage_type)
@@ -181,7 +194,7 @@
 	icon_living = "behemoth_angelic"
 	holy = TRUE
 	loot = list(/obj/item/ectoplasm/angelic)
-	mobsay_color = "#AED2FF"
+	chat_color = "#AED2FF"
 
 /mob/living/simple_animal/hostile/construct/armored/noncult
 
@@ -235,7 +248,7 @@
 	icon_living = "floating_angelic"
 	holy = TRUE
 	loot = list(/obj/item/ectoplasm/angelic)
-	mobsay_color = "#AED2FF"
+	chat_color = "#AED2FF"
 
 /mob/living/simple_animal/hostile/construct/wraith/noncult
 
@@ -318,7 +331,7 @@
 	icon_state = "artificer_angelic"
 	icon_living = "artificer_angelic"
 	holy = TRUE
-	mobsay_color = "#AED2FF"
+	chat_color = "#AED2FF"
 	loot = list(/obj/item/ectoplasm/angelic)
 	construct_spells = list(/obj/effect/proc_holder/spell/aoe_turf/conjure/soulstone/noncult/purified,
 							/obj/effect/proc_holder/spell/aoe_turf/conjure/construct/lesser,
@@ -389,7 +402,7 @@
 		return FALSE
 	. = ..()
 
-/mob/living/simple_animal/hostile/construct/harvester/Initialize()
+/mob/living/simple_animal/hostile/construct/harvester/Initialize(mapload)
 	. = ..()
 	var/datum/action/innate/seek_prey/seek = new()
 	seek.Grant(src)
@@ -442,15 +455,11 @@
 	background_icon_state = "bg_demon"
 	buttontooltipstyle = "cult"
 	button_icon_state = "cult_mark"
-	var/mob/living/simple_animal/hostile/construct/harvester/the_construct
-
-/datum/action/innate/seek_prey/Grant(var/mob/living/C)
-	the_construct = C
-	..()
 
 /datum/action/innate/seek_prey/Activate()
 	if(GLOB.cult_narsie == null)
 		return
+	var/mob/living/simple_animal/hostile/construct/harvester/the_construct = owner
 	if(the_construct.seeking)
 		desc = "None can hide from Nar'Sie, activate to track a survivor attempting to flee the red harvest!"
 		button_icon_state = "cult_mark"

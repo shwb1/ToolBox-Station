@@ -158,6 +158,7 @@
 	SELECT = FORCE_NULLS, (D)SKIP_NULLS
 	PRIORITY = HIGH, (D) NORMAL
 	AUTOGC = (D) AUTOGC, KEEP_ALIVE
+	SEQUENTIAL = TRUE - The queries in this batch will be executed sequentially one by one not in parallel
 
 	Example: USING PROCCALL = BLOCKING, SELECT = FORCE_NULLS, PRIORITY = HIGH SELECT /mob FROM world WHERE z == 1
 
@@ -172,8 +173,8 @@
 #define SDQL2_STATE_SWITCHING 5
 #define SDQL2_STATE_HALTING 6
 
-#define SDQL2_VALID_OPTION_TYPES list("proccall", "select", "priority", "autogc")
-#define SDQL2_VALID_OPTION_VALUES list("async", "blocking", "force_nulls", "skip_nulls", "high", "normal", "keep_alive")
+#define SDQL2_VALID_OPTION_TYPES list("proccall", "select", "priority", "autogc" , "sequential")
+#define SDQL2_VALID_OPTION_VALUES list("async", "blocking", "force_nulls", "skip_nulls", "high", "normal", "keep_alive" , "true")
 
 #define SDQL2_OPTION_SELECT_OUTPUT_SKIP_NULLS			(1<<0)
 #define SDQL2_OPTION_BLOCKING_CALLS						(1<<1)
@@ -194,12 +195,20 @@
 		state = SDQL2_STATE_ERROR;\
 		CRASH("SDQL2 fatal error");};
 
-/client/proc/SDQL2_query(query_text as message)
+/client/proc/SDQL2_query(requested_query as message)
 	set category = "Debug"
 	if(!check_rights(R_DEBUG))  //Shouldn't happen... but just to be safe.
 		message_admins("<span class='danger'>ERROR: Non-admin [key_name(usr)] attempted to execute a SDQL query!</span>")
 		log_admin("Non-admin [key_name(usr)] attempted to execute a SDQL query!")
 		return FALSE
+	var/query_text = requested_query
+	if (query_text)
+		if (alert(src, "Are you sure you want to execute the following query?\n[query_text]", "SDQL Query", "Yes", "No") != "Yes")
+			return
+	else
+		query_text = input("Run SDQL2 query:", "SDQL2", null) as message|null
+		if (!length(query_text))
+			return
 	var/list/results = world.SDQL2_query(query_text, key_name_admin(usr), "[key_name(usr)]")
 	if(length(results) == 3)
 		for(var/I in 1 to 3)
@@ -214,6 +223,7 @@
 	NOTICE(query_log)
 
 	var/start_time_total = REALTIMEOFDAY
+	var/sequential = FALSE
 
 	if(!length(query_text))
 		return
@@ -224,18 +234,36 @@
 	if(!length(querys))
 		return
 	var/list/datum/SDQL2_query/running = list()
+	var/list/datum/SDQL2_query/waiting_queue = list() //Sequential queries queue.
+
 	for(var/list/query_tree in querys)
 		var/datum/SDQL2_query/query = new /datum/SDQL2_query(query_tree)
 		if(QDELETED(query))
 			continue
 		if(usr)
 			query.show_next_to_key = usr.ckey
+		waiting_queue += query
+		//This needs to be done before Run() is used, unlike every other query option, so we're checking it here and we're doing it differently
+		if(query.options && findtext(query_text, "sequential = true"))
+			sequential = TRUE
+
+	if(sequential) //Start first one
+		var/datum/SDQL2_query/query = popleft(waiting_queue)
 		running += query
 		var/msg = "Starting query #[query.id] - [query.get_query_text()]."
 		if(usr)
 			to_chat(usr, "<span class='admin'>[msg]</span>")
 		log_admin(msg)
 		query.ARun()
+	else //Start all
+		for(var/datum/SDQL2_query/query in waiting_queue)
+			running += query
+			var/msg = "Starting query #[query.id] - [query.get_query_text()]."
+			if(usr)
+				to_chat(usr, "<span class='admin'>[msg]</span>")
+			log_admin(msg)
+			query.ARun()
+
 	var/finished = FALSE
 	var/objs_all = 0
 	var/objs_eligible = 0
@@ -251,10 +279,10 @@
 				continue
 			else if(query.state != SDQL2_STATE_IDLE)
 				finished = FALSE
-			else if(query.state == SDQL2_STATE_ERROR)
-				if(usr)
-					to_chat(usr, "<span class='admin'>SDQL query [query.get_query_text()] errored. It will NOT be automatically garbage collected. Please remove manually.</span>")
-				running -= query
+				if(query.state == SDQL2_STATE_ERROR)
+					if(usr)
+						to_chat(usr, "<span class='admin'>SDQL query [query.get_query_text()] errored. It will NOT be automatically garbage collected. Please remove manually.</span>")
+					running -= query
 			else
 				if(query.finished)
 					objs_all += islist(query.obj_count_all)? length(query.obj_count_all) : query.obj_count_all
@@ -264,6 +292,15 @@
 					running -= query
 					if(!CHECK_BITFIELD(query.options, SDQL2_OPTION_DO_NOT_AUTOGC))
 						QDEL_IN(query, 50)
+					if(sequential && waiting_queue.len)
+						finished = FALSE
+						var/datum/SDQL2_query/next_query = popleft(waiting_queue)
+						running += next_query
+						var/msg = "Starting query #[next_query.id] - [next_query.get_query_text()]."
+						if(usr)
+							to_chat(usr, "<span class='admin'>[msg]</span>")
+						log_admin(msg)
+						next_query.ARun()
 				else
 					if(usr)
 						to_chat(usr, "<span class='admin'>SDQL query [query.get_query_text()] was halted. It will NOT be automatically garbage collected. Please remove manually.</span>")
@@ -461,8 +498,9 @@ GLOBAL_LIST_INIT(sdql2_queries, GLOB.sdql2_queries || list())
 				if("keep_alive")
 					ENABLE_BITFIELD(options, SDQL2_OPTION_DO_NOT_AUTOGC)
 
+
 /datum/SDQL2_query/proc/ARun()
-	INVOKE_ASYNC(src, .proc/Run)
+	INVOKE_ASYNC(src, PROC_REF(Run))
 
 /datum/SDQL2_query/proc/Run()
 	if(SDQL2_IS_RUNNING)
@@ -768,7 +806,6 @@ GLOBAL_LIST_INIT(sdql2_queries, GLOB.sdql2_queries || list())
 	for(var/arg in arguments)
 		new_args[++new_args.len] = SDQL_expression(source, arg)
 	if(object == GLOB) // Global proc.
-		procname = "/proc/[procname]"
 		return superuser? (call("/proc/[procname]")(new_args)) : (WrapAdminProcCall(GLOBAL_PROC, procname, new_args))
 	return superuser? (call(object, procname)(new_args)) : (WrapAdminProcCall(object, procname, new_args))
 
@@ -950,8 +987,9 @@ GLOBAL_LIST_INIT(sdql2_queries, GLOB.sdql2_queries || list())
 /proc/SDQL_testout(list/query_tree, indent = 0)
 	var/static/whitespace = "&nbsp;&nbsp;&nbsp; "
 	var/spaces = ""
-	for(var/s = 0, s < indent, s++)
-		spaces += whitespace
+	if(indent > 0)
+		for(var/i in 1 to indent)
+			spaces += whitespace
 
 	for(var/item in query_tree)
 		if(istype(item, /list))
@@ -975,13 +1013,13 @@ GLOBAL_LIST_INIT(sdql2_queries, GLOB.sdql2_queries || list())
 //Staying as a world proc as this is called too often for changes to offset the potential IsAdminAdvancedProcCall checking overhead.
 /world/proc/SDQL_var(object, list/expression, start = 1, source, superuser, datum/SDQL2_query/query)
 	var/v
-	var/static/list/exclude = list("usr", "src", "marked", "global")
+	var/static/list/exclude = list("usr", "src", "marked", "global", "MC", "FS", "CFG")
 	var/long = start < expression.len
 	var/datum/D
 	if(is_proper_datum(object))
 		D = object
 
-	if (object == world && (!long || expression[start + 1] == ".") && !(expression[start] in exclude))
+	if (object == world && (!long || expression[start + 1] == ".") && !(expression[start] in exclude) && copytext(expression[start], 1, 3) != "SS")
 		to_chat(usr, "<span class='danger'>World variables are not allowed to be accessed. Use global.</span>")
 		return null
 
@@ -1027,46 +1065,22 @@ GLOBAL_LIST_INIT(sdql2_queries, GLOB.sdql2_queries || list())
 				v = Failsafe
 			if("CFG")
 				v = config
-			//Subsystem switches
-			if("SSgarbage")
-				v = SSgarbage
-			if("SSmachines")
-				v = SSmachines
-			if("SSobj")
-				v = SSobj
-			if("SSresearch")
-				v = SSresearch
-			if("SSprojectiles")
-				v = SSprojectiles
-			if("SSfastprocess")
-				v = SSfastprocess
-			if("SSticker")
-				v = SSticker
-			if("SStimer")
-				v = SStimer
-			if("SSradiation")
-				v = SSradiation
-			if("SSnpcpool")
-				v = SSnpcpool
-			if("SSmobs")
-				v = SSmobs
-			if("SSmood")
-				v = SSmood
-			if("SSquirks")
-				v = SSquirks
-			if("SSwet_floors")
-				v = SSwet_floors
-			if("SSshuttle")
-				v = SSshuttle
-			if("SSmapping")
-				v = SSmapping
-			if("SSevents")
-				v = SSevents
-			if("SSeconomy")
-				v = SSeconomy
-			//End
 			else
-				return null
+				if(copytext(expression[start], 1, 3) == "SS") //Subsystem
+					var/SSname = copytext(expression[start], 3)
+					var/SSlength = length(SSname)
+					var/datum/controller/subsystem/SS
+					var/SSmatch
+					for(var/_SS in Master.subsystems)
+						SS = _SS
+						if(copytext("[SS.type]", -SSlength) == SSname)
+							SSmatch = SS
+							break
+					if(!SSmatch)
+						return null
+					v = SSmatch
+				else
+					return null
 	else if(object == GLOB) // Shitty ass hack kill me.
 		v = expression[start]
 	if(long)

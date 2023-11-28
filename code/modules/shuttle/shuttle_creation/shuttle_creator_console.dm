@@ -3,24 +3,23 @@
 	name = "internal shuttle creator console"
 	desc = "You should not have access to this, please report this as a bug"
 	networks = list()
+	use_power = NO_POWER_USE
 	var/obj/item/shuttle_creator/owner_rsd
 	var/datum/action/innate/shuttle_creator/designate_area/area_action = new
 	var/datum/action/innate/shuttle_creator/designate_turf/turf_action = new
 	var/datum/action/innate/shuttle_creator/clear_turf/clear_turf_action = new
 	var/datum/action/innate/shuttle_creator/reset/reset_action = new
 	var/datum/action/innate/shuttle_creator/airlock/airlock_action = new
+	var/datum/action/innate/shuttle_creator/modify/modify_action = new
 
 /obj/machinery/computer/camera_advanced/shuttle_creator/check_eye(mob/user)
-	if(user.eye_blind || user.incapacitated())
+	if(user.is_blind() || user.incapacitated())
 		user.unset_machine()
 
 /obj/machinery/computer/camera_advanced/shuttle_creator/CreateEye()
-	eyeobj = new /mob/camera/aiEye/remote/shuttle_creation(get_turf(owner_rsd))
+	eyeobj = new /mob/camera/ai_eye/remote/shuttle_creation(get_turf(owner_rsd))
 	eyeobj.origin = src
-	eyeobj.use_static = USE_STATIC_NONE
-
-/obj/machinery/computer/camera_advanced/shuttle_creator/is_operational()
-	return TRUE
+	eyeobj.use_static = FALSE
 
 /obj/machinery/computer/camera_advanced/shuttle_creator/can_interact(mob/user)
 	if(!isliving(user))
@@ -49,10 +48,14 @@
 		reset_action.target = src
 		reset_action.Grant(user)
 		actions += reset_action
-	if(airlock_action)
+	if(!owner_rsd.linkedShuttleId && airlock_action)
 		airlock_action.target = src
 		airlock_action.Grant(user)
 		actions += airlock_action
+	if(owner_rsd.linkedShuttleId && modify_action)
+		modify_action.target = src
+		modify_action.Grant(user)
+		actions += modify_action
 
 /obj/machinery/computer/camera_advanced/shuttle_creator/remove_eye_control(mob/living/user)
 	. = ..()
@@ -62,7 +65,7 @@
 		user.client.images -= eyeobj.user_image
 
 /obj/machinery/computer/camera_advanced/shuttle_creator/attack_hand(mob/user)
-	if(!is_operational()) //you cant use broken machine you chumbis
+	if(!is_operational) //you cant use broken machine you chumbis
 		return
 	if(current_user)
 		to_chat(user, "The console is already in use!")
@@ -78,13 +81,13 @@
 			eyeobj.eye_initialized = TRUE
 			give_eye_control(L)
 			eyeobj.setLoc(camera_location)
-			var/mob/camera/aiEye/remote/shuttle_creation/shuttle_eye = eyeobj
+			var/mob/camera/ai_eye/remote/shuttle_creation/shuttle_eye = eyeobj
 			shuttle_eye.source_turf = get_turf(user)
 		else
 			user.unset_machine()
 	else
 		var/camera_location = get_turf(owner_rsd)
-		var/mob/camera/aiEye/remote/shuttle_creation/eye = eyeobj
+		var/mob/camera/ai_eye/remote/shuttle_creation/eye = eyeobj
 		give_eye_control(L)
 		if(camera_location)
 			eye.source_turf = camera_location

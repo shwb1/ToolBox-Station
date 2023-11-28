@@ -9,12 +9,30 @@
 	circuit = /obj/item/circuitboard/machine/stacking_unit_console
 	var/obj/machinery/mineral/stacking_machine/machine
 	var/machinedir = SOUTHEAST
+	var/link_id
 
-/obj/machinery/mineral/stacking_unit_console/Initialize()
+/obj/machinery/mineral/stacking_unit_console/Initialize(mapload)
 	. = ..()
-	machine = locate(/obj/machinery/mineral/stacking_machine, get_step(src, machinedir))
-	if (machine)
-		machine.CONSOLE = src
+	if(link_id)
+		return INITIALIZE_HINT_LATELOAD
+	else
+		machine = locate(/obj/machinery/mineral/stacking_machine, get_step(src, machinedir))
+		if (machine)
+			machine.console = src
+
+// Only called if mappers set an ID
+/obj/machinery/mineral/stacking_unit_console/LateInitialize()
+	for(var/obj/machinery/mineral/stacking_machine/SM in GLOB.machines)
+		if(SM.link_id == link_id)
+			machine = SM
+			machine.console = src
+			return
+
+/obj/machinery/mineral/stacking_unit_console/Destroy()
+	if(machine)
+		machine.console = null
+		machine = null
+	return ..()
 
 /obj/machinery/mineral/stacking_unit_console/ui_interact(mob/user)
 	. = ..()
@@ -26,24 +44,28 @@
 	var/obj/item/stack/sheet/s
 	var/dat
 
-	dat += text("<b>Stacking unit console</b><br><br>")
+	dat += "<b>Stacking unit console</b><br><br>"
 
 	for(var/O in machine.stack_list)
 		s = machine.stack_list[O]
 		if(s.amount > 0)
-			dat += text("[capitalize(s.name)]: [s.amount] <A href='?src=[REF(src)];release=[s.type]'>Release</A><br>")
+			dat += "[capitalize(s.name)]: [s.amount] <A href='?src=[REF(src)];release=[s.type]'>Release</A><br>"
 
-	dat += text("<br>Stacking: [machine.stack_amt]<br><br>")
+	dat += "<br>Stacking: [machine.stack_amt]<br><br>"
 
 	user << browse(dat, "window=console_stacking_machine")
 
-/obj/machinery/mineral/stacking_unit_console/multitool_act(mob/living/user, obj/item/I)
-	if(!multitool_check_buffer(user, I))
-		return
-	var/obj/item/multitool/M = I
-	M.buffer = src
-	to_chat(user, "<span class='notice'>You store linkage information in [I]'s buffer.</span>")
-	return TRUE
+REGISTER_BUFFER_HANDLER(/obj/machinery/mineral/stacking_unit_console)
+
+DEFINE_BUFFER_HANDLER(/obj/machinery/mineral/stacking_unit_console)
+	if(istype(buffer, /obj/machinery/mineral/stacking_machine))
+		var/obj/machinery/mineral/stacking_machine/stacking_machine = buffer
+		stacking_machine.console = src
+		machine = stacking_machine
+		to_chat(user, "<span class='notice'>You link [src] to the console in [buffer_parent]'s buffer.</span>")
+	else if (TRY_STORE_IN_BUFFER(buffer_parent, src))
+		to_chat(user, "<span class='notice'>You store linkage information in [buffer_parent]'s buffer.</span>")
+	return COMPONENT_BUFFER_RECIEVED
 
 /obj/machinery/mineral/stacking_unit_console/Topic(href, href_list)
 	if(..())
@@ -74,13 +96,14 @@
 	circuit = /obj/item/circuitboard/machine/stacking_machine
 	input_dir = EAST
 	output_dir = WEST
-	var/obj/machinery/mineral/stacking_unit_console/CONSOLE
+	var/obj/machinery/mineral/stacking_unit_console/console
 	var/stk_types = list()
 	var/stk_amt   = list()
 	var/stack_list[0] //Key: Type.  Value: Instance of type.
 	var/stack_amt = 50 //amount to stack before releassing
 	var/datum/component/remote_materials/materials
 	var/force_connect = FALSE
+	var/link_id = null
 
 /obj/machinery/mineral/stacking_machine/Initialize(mapload)
 	. = ..()
@@ -88,23 +111,41 @@
 	materials = AddComponent(/datum/component/remote_materials, "stacking", mapload, FALSE, mapload && force_connect)
 
 /obj/machinery/mineral/stacking_machine/Destroy()
-	CONSOLE = null
+	if(console)
+		console.machine = null
+		console = null
 	materials = null
 	return ..()
 
 /obj/machinery/mineral/stacking_machine/HasProximity(atom/movable/AM)
+	if(QDELETED(AM))
+		return
 	if(istype(AM, /obj/item/stack/sheet) && AM.loc == get_step(src, input_dir))
-		process_sheet(AM)
+		var/obj/effect/portal/P = locate() in AM.loc
+		if(P)
+			visible_message("<span class='warning'>[src] attempts to stack the portal!</span>")
+			message_admins("Stacking machine exploded via [P.creator ? key_name(P.creator) : "UNKNOWN"]'s portal at [AREACOORD(src)]")
+			log_game("Stacking machine exploded via [P.creator ? key_name(P.creator) : "UNKNOWN"]'s portal at [AREACOORD(src)]")
+			explosion(src.loc, 0, 1, 2, 3)
+			if(!QDELETED(src))
+				qdel(src)
+		else
+			process_sheet(AM)
 
-/obj/machinery/mineral/stacking_machine/multitool_act(mob/living/user, obj/item/multitool/M)
-	if(istype(M))
-		if(istype(M.buffer, /obj/machinery/mineral/stacking_unit_console))
-			CONSOLE = M.buffer
-			CONSOLE.machine = src
-			to_chat(user, "<span class='notice'>You link [src] to the console in [M]'s buffer.</span>")
-			return TRUE
+REGISTER_BUFFER_HANDLER(/obj/machinery/mineral/stacking_machine)
+
+DEFINE_BUFFER_HANDLER(/obj/machinery/mineral/stacking_machine)
+	if(istype(buffer, /obj/machinery/mineral/stacking_unit_console))
+		console = buffer
+		console.machine = src
+		to_chat(user, "<span class='notice'>You link [src] to the console in [buffer_parent]'s buffer.</span>")
+	else if (TRY_STORE_IN_BUFFER(buffer_parent, src))
+		to_chat(user, "<span class='notice'>You store linkage information in [buffer_parent]'s buffer.</span>")
+	return COMPONENT_BUFFER_RECIEVED
 
 /obj/machinery/mineral/stacking_machine/proc/process_sheet(obj/item/stack/sheet/inp)
+	if(QDELETED(inp))
+		return
 	var/key = inp.merge_type
 	var/obj/item/stack/sheet/storage = stack_list[key]
 	if(!storage) //It's the first of this sheet added

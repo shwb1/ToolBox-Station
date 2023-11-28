@@ -32,7 +32,7 @@
 	if(log.len && !scanning)
 		scanning = 1
 		to_chat(user, "<span class='notice'>Printing report, please wait...</span>")
-		addtimer(CALLBACK(src, .proc/PrintReport), 100)
+		addtimer(CALLBACK(src, PROC_REF(PrintReport)), 100)
 	else
 		to_chat(user, "<span class='notice'>The scanner has no logs or is in use.</span>")
 
@@ -41,16 +41,18 @@
 
 /obj/item/detective_scanner/proc/PrintReport()
 	// Create our paper
-	var/obj/item/paper/P = new(get_turf(src))
-	P.name = "paper- 'Scanner Report'"
-	P.info = "<center><font size='6'><B>Scanner Report</B></font></center><HR><BR>"
-	P.info += jointext(log, "<BR>")
-	P.info += "<HR><B>Notes:</B><BR>"
-	P.update_icon()
+	var/obj/item/paper/report_paper = new(get_turf(src))
+	report_paper.name = "paper- 'Scanner Report'"
+	var/report_text = "<center><font size='6'><B>Scanner Report</B></font></center><HR><BR>"
+	report_text += jointext(log, "<BR>")
+	report_text += "<HR><B>Notes:</B><BR>"
+
+	report_paper.add_raw_text(report_text)
+	report_paper.update_appearance()
 
 	if(ismob(loc))
 		var/mob/M = loc
-		M.put_in_hands(P)
+		M.put_in_hands(report_paper)
 		to_chat(M, "<span class='notice'>Report printed. Log cleared.</span>")
 
 	// Clear the logs
@@ -97,22 +99,31 @@
 
 		else if(!ismob(A))
 
-			fingerprints = A.return_fingerprints()
+			var/obj/effect/targeteffect = A
+			if (targeteffect && istype(targeteffect) && targeteffect.forensic_protected)
+				fingerprints = list()
+				for(var/i in 1 to 2)
+					LAZYADD(fingerprints,pick("#$^@&#*$H3LP&$(@US^$&#^@#","&$(T@&#C@ME5@##$^@&","^@(#&$ET@US&FR^E#^$&#","#$^@&M*N$US^$(@&#^$&#^@#","&$(@&#^$&#^@##$^@&","^@R(#E$(D@(R&$U&#M^&#","$TH@Y#*$KN@W(@&#^$&#^@#","#$M^DN*S$^@(#&$(@&#^$&#^@##","#","#$^@&#*$^@(#&$(@","#","#$^@&#&#^@","#","@(#&$(@&#^$&#^@"))
+				blood = list("#$^@&LO0K&#@#" = "&$(@AW@Y#$^&")
+				to_chat(user, "<span class='warning'>Your [src] glitched out!</span>")
 
-			// Only get reagents from non-mobs.
-			if(A.reagents && A.reagents.reagent_list.len)
+			else
+				fingerprints = A.return_fingerprints()
 
-				for(var/datum/reagent/R in A.reagents.reagent_list)
-					reagents[R.name] = R.volume
+				// Only get reagents from non-mobs.
+				if(A.reagents && A.reagents.reagent_list.len)
 
-					// Get blood data from the blood reagent.
-					if(istype(R, /datum/reagent/blood))
+					for(var/datum/reagent/R in A.reagents.reagent_list)
+						reagents[R.name] = R.volume
 
-						if(R.data["blood_DNA"] && R.data["blood_type"])
-							var/blood_DNA = R.data["blood_DNA"]
-							var/blood_type = R.data["blood_type"]
-							LAZYINITLIST(blood)
-							blood[blood_DNA] = blood_type
+						// Get blood data from the blood reagent.
+						if(istype(R, /datum/reagent/blood))
+
+							if(R.data["blood_DNA"] && R.data["blood_type"])
+								var/blood_DNA = R.data["blood_DNA"]
+								var/blood_type = R.data["blood_type"]
+								LAZYINITLIST(blood)
+								blood[blood_DNA] = blood_type
 
 		// We gathered everything. Create a fork and slowly display the results to the holder of the scanner.
 

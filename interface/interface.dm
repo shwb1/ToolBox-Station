@@ -6,7 +6,7 @@
 	var/wikiurl = CONFIG_GET(string/wikiurl)
 	if(wikiurl)
 		if(query)
-			var/output = wikiurl + "/index.php?title=Special%3ASearch&profile=default&search=" + query
+			var/output = wikiurl + "/Special:Search/" + query
 			src << link(output)
 		else if (query != null)
 			src << link(wikiurl)
@@ -75,6 +75,8 @@
 		if(GLOB.revdata.testmerge.len)
 			message += "<br>The following experimental changes are active and are probably the cause of any new or sudden issues you may experience. If possible, please try to find a specific thread for your issue instead of posting to the general issue tracker:<br>"
 			message += GLOB.revdata.GetTestMergeInfo(FALSE)
+		// We still use tgalert here because some people were concerned that if someone wanted to report that tgui wasn't working
+		// then the report issue button being tgui-based would be problematic.
 		if(tgalert(src, message, "Report Issue","Yes","No")!="Yes")
 			return
 		var/static/issue_template = rustg_file_read(".github/ISSUE_TEMPLATE.md")
@@ -95,6 +97,7 @@
 	var/adminhotkeys = {"<font color='purple'>
 Admin:
 \tF3 = asay
+\tF4 = msay
 \tF5 = Aghost (admin-ghost)
 \tF6 = player-panel
 \tF7 = Buildmode
@@ -116,7 +119,7 @@ Admin:
 	src << browse(changelog.get_htmlloader("changelog.html"), "window=changes;size=675x650")
 	if(prefs.lastchangelog != GLOB.changelog_hash)
 		prefs.lastchangelog = GLOB.changelog_hash
-		prefs.save_preferences()
+		prefs.mark_undatumized_dirty_player()
 		winset(src, "infowindow.changelog", "font-style=;")
 
 
@@ -266,22 +269,17 @@ Any-Mode: (hotkey doesn't need to be on)
 		to_chat(src, "<span class='danger'>The Discord invite is not set in the server configuration.</span>")
 	return
 
-/client/verb/map() // i couldn't be fucked to config-ize this
-	set name = "map"
+/client/verb/map()
+	set name = "View Webmap"
 	set desc = "View the current map in the webviewer"
+	set category = "OOC"
 	set hidden = 1
 	return
-	var/map_in_url
-	switch(SSmapping.config?.map_name)
-		if("Box Station")			map_in_url = "box"
-		if("Delta Station")			map_in_url = "delta"
-		if("Donutstation")			map_in_url = "donut"
-		if("MetaStation")			map_in_url = "meta"
-		if("Kilo Station")          map_in_url = "kilo"
-		if("PubbyStation")          map_in_url = "pubby"
-	if(map_in_url)
+	if(SSmapping.config.map_link == "None")
+		to_chat(src,"<span class='danger'>The current map does not have a webmap. </span>")
+	else if(SSmapping.config.map_link)
 		if(alert("This will open the current map in your browser. Are you sure?",,"Yes","No")!="Yes")
 			return
 		src << link("*****")
 	else
-		to_chat(src, "<span class='danger'>The current map is either invalid or unavailable.</span>")
+		to_chat(src, "<span class='danger'>The current map is either invalid or unavailable. Open an issue on the github. </span>")

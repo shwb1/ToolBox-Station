@@ -1,6 +1,7 @@
 /datum/computer_file/program/contract_uplink
 	filename = "contractor uplink"
 	filedesc = "Syndicate Contractor Uplink"
+	category = PROGRAM_CATEGORY_MISC
 	program_icon_state = "assign"
 	extended_desc = "A standard, Syndicate issued system for handling important contracts while on the field."
 	size = 10
@@ -9,15 +10,11 @@
 	unsendable = 1
 	undeletable = 1
 	tgui_id = "SyndContractor"
-
-
+	program_icon = "tasks"
 	var/error = ""
 	var/info_screen = TRUE
 	var/assigned = FALSE
 	var/first_load = TRUE
-
-/datum/computer_file/program/contract_uplink/run_program(var/mob/living/user)
-	. = ..(user)
 
 /datum/computer_file/program/contract_uplink/ui_act(action, params)
 	if(..())
@@ -86,7 +83,7 @@
 			return TRUE
 		if("PRG_redeem_TC")
 			if (hard_drive.traitor_data.contractor_hub.contract_TC_to_redeem)
-				var/obj/item/stack/telecrystal/crystals = new /obj/item/stack/telecrystal(get_turf(user),
+				var/obj/item/stack/sheet/telecrystal/crystals = new /obj/item/stack/sheet/telecrystal(get_turf(user),
 															hard_drive.traitor_data.contractor_hub.contract_TC_to_redeem)
 				if(ishuman(user))
 					var/mob/living/carbon/human/H = user
@@ -129,7 +126,6 @@
 
 	if (hard_drive && hard_drive.traitor_data != null)
 		var/datum/antagonist/traitor/traitor_data = hard_drive.traitor_data
-		data += get_header_data()
 
 		if (traitor_data.contractor_hub.current_contract)
 			data["ongoing_contract"] = TRUE
@@ -164,6 +160,10 @@
 			))
 
 		for (var/datum/syndicate_contract/contract in traitor_data.contractor_hub.assigned_contracts)
+			if(!contract.contract)
+				stack_trace("Syndiate contract with null contract objective found in [traitor_data.owner]'s contractor hub!")
+				contract.status = CONTRACT_STATUS_ABORTED
+				continue
 			data["contracts"] += list(list(
 				"target" = contract.contract.target,
 				"target_rank" = contract.target_rank,
@@ -186,7 +186,7 @@
 					dropoff_turf = content
 					break
 
-			if(curr.z == dropoff_turf.z) //Direction calculations for same z-level only
+			if(curr.get_virtual_z_level() == dropoff_turf.get_virtual_z_level()) //Direction calculations for same z-level only
 				direction = uppertext(dir2text(get_dir(curr, dropoff_turf))) //Direction text (East, etc). Not as precise, but still helpful.
 				if(get_area(user) == traitor_data.contractor_hub.current_contract.contract.dropoff)
 					direction = "LOCATION CONFIRMED"

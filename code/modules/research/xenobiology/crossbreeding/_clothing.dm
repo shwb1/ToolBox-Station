@@ -19,7 +19,7 @@ Slimecrossing Armor
 
 /obj/item/clothing/mask/nobreath/equipped(mob/living/carbon/human/user, slot)
 	. = ..()
-	if(slot == SLOT_WEAR_MASK)
+	if(slot == ITEM_SLOT_MASK)
 		ADD_TRAIT(user, TRAIT_NOBREATH, "breathmask_[REF(src)]")
 		user.failed_last_breath = FALSE
 		user.clear_alert("not_enough_oxy")
@@ -27,8 +27,11 @@ Slimecrossing Armor
 
 /obj/item/clothing/mask/nobreath/dropped(mob/living/carbon/human/user)
 	..()
-	REMOVE_TRAIT(user, TRAIT_NOBREATH, "breathmask_[REF(src)]")
-	user.remove_status_effect(/datum/status_effect/rebreathing)
+	if(user.wear_mask != src)
+		return
+	else
+		REMOVE_TRAIT(user, TRAIT_NOBREATH, "breathmask_[REF(src)]")
+		user.remove_status_effect(/datum/status_effect/rebreathing)
 
 /obj/item/clothing/glasses/prism_glasses
 	name = "prism glasses"
@@ -39,7 +42,7 @@ Slimecrossing Armor
 	var/glasses_color = "#FFFFFF"
 
 /obj/item/clothing/glasses/prism_glasses/item_action_slot_check(slot)
-	if(slot == SLOT_GLASSES)
+	if(slot == ITEM_SLOT_EYES)
 		return TRUE
 
 /obj/structure/light_prism
@@ -70,7 +73,7 @@ Slimecrossing Armor
 	if(!IsAvailable())
 		return
 	var/obj/item/clothing/glasses/prism_glasses/glasses = target
-	var/new_color = input(owner, "Choose the lens color:", "Color change",glasses.glasses_color) as color|null
+	var/new_color = tgui_color_picker(owner, "Choose the lens color:", "Color change",glasses.glasses_color)
 	if(!new_color)
 		return
 	glasses.glasses_color = new_color
@@ -112,12 +115,15 @@ Slimecrossing Armor
 
 /obj/item/clothing/head/peaceflower/equipped(mob/living/carbon/human/user, slot)
 	. = ..()
-	if(slot == SLOT_HEAD)
+	if(slot == ITEM_SLOT_HEAD)
 		ADD_TRAIT(user, TRAIT_PACIFISM, "peaceflower_[REF(src)]")
 
 /obj/item/clothing/head/peaceflower/dropped(mob/living/carbon/human/user)
 	..()
-	REMOVE_TRAIT(user, TRAIT_PACIFISM, "peaceflower_[REF(src)]")
+	if(user.head != src)
+		return
+	else
+		REMOVE_TRAIT(user, TRAIT_PACIFISM, "peaceflower_[REF(src)]")
 
 /obj/item/clothing/head/peaceflower/attack_hand(mob/user)
 	if(iscarbon(user))
@@ -141,7 +147,7 @@ Slimecrossing Armor
 	user.add_movespeed_modifier(MOVESPEED_ID_SLOW_ARMOR, update=TRUE, priority=100, multiplicative_slowdown= 4)
 
 /obj/item/clothing/suit/armor/heavy/adamantine/dropped(mob/user)
-	. = ..()
+	..()
 	user.remove_movespeed_modifier(MOVESPEED_ID_SLOW_ARMOR, TRUE)
 
 /obj/item/clothing/suit/armor/heavy/adamantine/IsReflect(def_zone)

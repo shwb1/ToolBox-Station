@@ -18,16 +18,25 @@
 	var/meat_counter = 6
 	var/datum/team/ashwalkers/ashies
 	var/list/drops_on_deconstruct = list(/obj/effect/collapse = 0, /obj/item/assembly/signaler/anomaly, 1) //adding this list so we can adjust a child. The number will indicate if we drop the item on the src loc (0) or near by (1).
+	var/datum/linked_objective
 
-/obj/structure/lavaland/ash_walker/Initialize()
+/obj/structure/lavaland/ash_walker/Initialize(mapload)
 	.=..()
 	ashies = new /datum/team/ashwalkers()
 	var/datum/objective/protect_object/objective = new
-	objective.set_target(src)
+	objective.set_protect_target(src)
+	linked_objective = objective
 	ashies.objectives += objective
 	for(var/datum/mind/M in ashies.members)
 		log_objective(M, objective.explanation_text)
 	START_PROCESSING(SSprocessing, src)
+
+/obj/structure/lavaland/ash_walker/Destroy()
+	ashies.objectives -= linked_objective
+	ashies = null
+	QDEL_NULL(linked_objective)
+	STOP_PROCESSING(SSprocessing, src)
+	return ..()
 
 /obj/structure/lavaland/ash_walker/deconstruct(disassembled)
 	for(var/t in drops_on_deconstruct)
@@ -55,6 +64,7 @@
 				meat_counter += 20
 			else
 				meat_counter++
+			H.investigate_log("has been gibbed by the necropolis tendril.", INVESTIGATE_DEATHS)
 			H.gib()
 			obj_integrity = min(obj_integrity + max_integrity*0.05,max_integrity)//restores 5% hp of tendril
 			for(var/mob/living/L in viewers(5, src))

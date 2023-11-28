@@ -45,12 +45,21 @@
 	static_inventory += using
 
 	inv_box = new /atom/movable/screen/inventory()
+	inv_box.name = "uniform"
+	inv_box.icon = ui_style
+	inv_box.icon_state = "uniform"
+	inv_box.screen_loc = ui_monkey_body
+	inv_box.slot_id = ITEM_SLOT_ICLOTHING
+	inv_box.hud = src
+	static_inventory += inv_box
+
+	inv_box = new /atom/movable/screen/inventory()
 	inv_box.name = "mask"
 	inv_box.icon = ui_style
 	inv_box.icon_state = "mask"
 //	inv_box.icon_full = "template"
 	inv_box.screen_loc = ui_monkey_mask
-	inv_box.slot_id = SLOT_WEAR_MASK
+	inv_box.slot_id = ITEM_SLOT_MASK
 	inv_box.hud = src
 	static_inventory += inv_box
 
@@ -60,7 +69,7 @@
 	inv_box.icon_state = "neck"
 //	inv_box.icon_full = "template"
 	inv_box.screen_loc = ui_monkey_neck
-	inv_box.slot_id = SLOT_NECK
+	inv_box.slot_id = ITEM_SLOT_NECK
 	inv_box.hud = src
 	static_inventory += inv_box
 
@@ -70,7 +79,7 @@
 	inv_box.icon_state = "head"
 //	inv_box.icon_full = "template"
 	inv_box.screen_loc = ui_monkey_head
-	inv_box.slot_id = SLOT_HEAD
+	inv_box.slot_id = ITEM_SLOT_HEAD
 	inv_box.hud = src
 	static_inventory += inv_box
 
@@ -79,7 +88,7 @@
 	inv_box.icon = ui_style
 	inv_box.icon_state = "back"
 	inv_box.screen_loc = ui_monkey_back
-	inv_box.slot_id = SLOT_BACK
+	inv_box.slot_id = ITEM_SLOT_BACK
 	inv_box.hud = src
 	static_inventory += inv_box
 
@@ -130,7 +139,7 @@
 	for(var/atom/movable/screen/inventory/inv in (static_inventory + toggleable_inventory))
 		if(inv.slot_id)
 			inv.hud = src
-			inv_slots[inv.slot_id] = inv
+			inv_slots[TOBITSHIFT(inv.slot_id) + 1] = inv
 			inv.update_icon()
 
 /datum/hud/monkey/persistent_inventory_update()
@@ -151,6 +160,9 @@
 		if(M.head)
 			M.head.screen_loc = ui_monkey_head
 			M.client.screen += M.head
+		if(M.w_uniform)
+			M.w_uniform.screen_loc = ui_monkey_body
+			M.client.screen += M.w_uniform
 	else
 		if(M.back)
 			M.back.screen_loc = null
@@ -158,6 +170,8 @@
 			M.wear_mask.screen_loc = null
 		if(M.head)
 			M.head.screen_loc = null
+		if(M.w_uniform)
+			M.w_uniform.screen_loc = null
 
 	if(hud_version != HUD_STYLE_NOHUD)
 		for(var/obj/item/I in M.held_items)

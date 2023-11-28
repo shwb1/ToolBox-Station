@@ -17,6 +17,8 @@
 	icon = 'icons/obj/stationobjs.dmi'
 	icon_state = "portal"
 	anchored = TRUE
+	density = TRUE // dense for receiving bumbs
+	layer = HIGH_OBJ_LAYER
 	var/mech_sized = FALSE
 	var/obj/effect/portal/linked
 	var/hardlinked = TRUE			//Requires a linked portal at all times. Destroy if there's no linked portal, if there is destroy it when this one is deleted.
@@ -29,6 +31,19 @@
 	var/allow_anchored = FALSE
 	var/innate_accuracy_penalty = 0
 	var/last_effect = 0
+	// Are we currently being dispelled from a hand teleporter?
+	var/is_dispeling = FALSE
+
+/obj/effect/portal/proc/dispel()
+	if (is_dispeling)
+		return
+	is_dispeling = TRUE
+	animate(src, 1 SECONDS, transform = matrix() * 1.2, easing = SINE_EASING)
+	animate(transform = matrix() * 0.6, 1.7 SECONDS, easing = QUAD_EASING)
+	animate(transform = matrix() * 0, alpha = 0, 0.3 SECONDS, easing = QUAD_EASING)
+	QDEL_IN(src, 3 SECONDS)
+	if (linked)
+		linked.dispel()
 
 /obj/effect/portal/anom
 	name = "wormhole"
@@ -46,30 +61,30 @@
 
 /obj/effect/portal/attackby(obj/item/W, mob/user, params)
 	if(user && Adjacent(user))
-		user.forceMove(get_turf(src))
+		teleport(user)
 		return TRUE
 
-/obj/effect/portal/Crossed(atom/movable/AM, oldloc, force_stop = 0)
-	if(force_stop)
-		return ..()
-	if(isobserver(AM))
-		return ..()
-	if(linked && (get_turf(oldloc) == get_turf(linked)))
-		return ..()
-	if(!teleport(AM))
-		return ..()
+/obj/effect/portal/Bumped(atom/movable/bumper)
+	teleport(bumper)
 
-/obj/effect/portal/attack_tk(mob/user)
-	return
+/obj/effect/portal/newtonian_move(direction, instant = FALSE) // Prevents portals spawned by jaunter/handtele from floating into space when relocated to an adjacent tile.
+	return TRUE
+
+/obj/effect/portal/CanAllowThrough(atom/movable/mover, border_dir)
+	. = ..()
+	if(HAS_TRAIT(mover, TRAIT_NO_TELEPORT))
+		return TRUE
 
 /obj/effect/portal/attack_hand(mob/user)
 	. = ..()
 	if(.)
 		return
-	if(get_turf(user) == get_turf(src))
-		teleport(user)
 	if(Adjacent(user))
-		user.forceMove(get_turf(src))
+		teleport(user)
+
+/obj/effect/portal/attack_robot(mob/living/user)
+	if(Adjacent(user))
+		teleport(user)
 
 /obj/effect/portal/Initialize(mapload, _creator, _lifespan = 0, obj/effect/portal/_linked, automatic_link = FALSE, turf/hard_target_override, atmos_link_override)
 	. = ..()
@@ -78,7 +93,7 @@
 		. = INITIALIZE_HINT_QDEL
 		CRASH("Somebody fucked up.")
 	if(_lifespan > 0)
-		QDEL_IN(src, _lifespan)
+		addtimer(CALLBACK(src, PROC_REF(dispel)), _lifespan)
 	if(!isnull(atmos_link_override))
 		atmos_link = atmos_link_override
 	link_portal(_linked)
@@ -134,7 +149,7 @@
 			LAZYREMOVE(atmos_destination.atmos_adjacent_turfs, atmos_source)
 		atmos_destination = null
 
-/obj/effect/portal/Destroy()				//Calls on_portal_destroy(destroyed portal, location of destroyed portal) on creator if creator has such call.
+/obj/effect/portal/Destroy(force)				//Calls on_portal_destroy(destroyed portal, location of destroyed portal) on creator if creator has such call.
 	if(creator && hascall(creator, "on_portal_destroy"))
 		call(creator, "on_portal_destroy")(src, src.loc)
 	creator = null
@@ -156,7 +171,7 @@
 	var/turf/real_target = get_link_target_turf()
 	if(!istype(real_target))
 		return FALSE
-	if(!force && (!ismecha(M) && !istype(M, /obj/item/projectile) && M.anchored && !allow_anchored))
+	if(!force && (!ismecha(M) && !istype(M, /obj/projectile) && M.anchored && !allow_anchored))
 		return
 	if(ismegafauna(M))
 		message_admins("[M] has used a portal at [ADMIN_VERBOSEJMP(src)] made by [usr].")
@@ -165,9 +180,9 @@
 		no_effect = TRUE
 	else
 		last_effect = world.time
-	if(do_teleport(M, real_target, innate_accuracy_penalty, no_effects = no_effect, channel = teleport_channel))
-		if(istype(M, /obj/item/projectile))
-			var/obj/item/projectile/P = M
+	if(do_teleport(M, real_target, innate_accuracy_penalty, no_effects = no_effect, channel = teleport_channel, no_wake = TRUE))
+		if(istype(M, /obj/projectile))
+			var/obj/projectile/P = M
 			P.ignore_source_check = TRUE
 		return TRUE
 	return FALSE

@@ -13,13 +13,16 @@
 	var/datum/team/ert/ert_team
 	var/leader = FALSE
 	var/datum/outfit/outfit = /datum/outfit/ert/security
-	var/role = "Security Officer"
+	var/datum/outfit/plasmaman_outfit = /datum/outfit/plasmaman/ert
+	var/role = JOB_NAME_SECURITYOFFICER
 	var/list/name_source
 	var/random_names = TRUE
+	can_elimination_hijack = ELIMINATION_PREVENT
 	show_in_antagpanel = FALSE
 	show_to_ghosts = TRUE
 	antag_moodlet = /datum/mood_event/focused
-	can_hijack = HIJACK_PREVENT
+	count_against_dynamic_roll_chance = FALSE
+	banning_key = ROLE_ERT
 
 /datum/antagonist/ert/on_gain()
 	if(random_names)
@@ -32,12 +35,11 @@
 /datum/antagonist/ert/get_team()
 	return ert_team
 
-/datum/antagonist/ert/New()
-	. = ..()
-	name_source = GLOB.last_names
-
 /datum/antagonist/ert/proc/update_name()
-	owner.current.fully_replace_character_name(owner.current.real_name,"[role] [pick(name_source)]")
+	var/name = pick(name_source)
+	if (!name)
+		name = owner.current.client?.prefs.read_character_preference(/datum/preference/name/backup_human) || pick(GLOB.last_names)
+	owner.current.fully_replace_character_name(owner.current.real_name, "[role] [name]")
 
 /datum/antagonist/ert/deathsquad/New()
 	. = ..()
@@ -66,7 +68,7 @@
 	outfit = /datum/outfit/ert/engineer/alert
 
 /datum/antagonist/ert/medic
-	role = "Medical Officer"
+	role = JOB_CENTCOM_MEDICAL_DOCTOR
 	outfit = /datum/outfit/ert/medic
 
 /datum/antagonist/ert/medic/red
@@ -83,15 +85,24 @@
 	name = "Deathsquad Trooper"
 	outfit = /datum/outfit/death_commando
 	role = "Trooper"
+	plasmaman_outfit = /datum/outfit/plasmaman/death_commando
 
 /datum/antagonist/ert/medic/inquisitor
 	outfit = /datum/outfit/ert/medic/inquisitor
 
+/datum/antagonist/ert/medic/inquisitor/on_gain()
+	. = ..()
+	owner.holy_role = HOLY_ROLE_PRIEST
+
 /datum/antagonist/ert/security/inquisitor
 	outfit = /datum/outfit/ert/security/inquisitor
 
+/datum/antagonist/ert/security/inquisitor/on_gain()
+	. = ..()
+	owner.holy_role = HOLY_ROLE_PRIEST
+
 /datum/antagonist/ert/chaplain
-	role = "Chaplain"
+	role = JOB_NAME_CHAPLAIN
 	outfit = /datum/outfit/ert/chaplain
 
 /datum/antagonist/ert/chaplain/inquisitor
@@ -99,22 +110,26 @@
 
 /datum/antagonist/ert/chaplain/on_gain()
 	. = ..()
-	owner.isholy = TRUE
+	owner.holy_role = HOLY_ROLE_PRIEST
 
 /datum/antagonist/ert/commander/inquisitor
 	outfit = /datum/outfit/ert/commander/inquisitor
 
 /datum/antagonist/ert/commander/inquisitor/on_gain()
 	. = ..()
-	owner.isholy = TRUE
+	owner.holy_role = HOLY_ROLE_PRIEST
 
 /datum/antagonist/ert/janitor
-	role = "Janitor"
+	role = JOB_NAME_JANITOR
 	outfit = /datum/outfit/ert/janitor
 
 /datum/antagonist/ert/janitor/heavy
 	role = "Heavy Duty Janitor"
 	outfit = /datum/outfit/ert/janitor/heavy
+
+/datum/antagonist/ert/kudzu
+	role = "Weed Whacker"
+	outfit = /datum/outfit/ert/kudzu
 
 /datum/antagonist/ert/deathsquad/leader
 	name = "Deathsquad Officer"
@@ -126,11 +141,18 @@
 	outfit = /datum/outfit/centcom_intern
 	random_names = FALSE
 	role = "Intern"
+	plasmaman_outfit = /datum/outfit/plasmaman/intern
 
 /datum/antagonist/ert/intern/leader
 	name = "CentCom Head Intern"
 	outfit = /datum/outfit/centcom_intern/leader
 	role = "Head Intern"
+
+/datum/antagonist/ert/lawyer
+	name = "CentCom Attorney"
+	outfit = /datum/outfit/centcom_attorney
+	role = "Attorney"
+	plasmaman_outfit = /datum/outfit/plasmaman/centcom_attorney
 
 /datum/antagonist/ert/doomguy
 	name = "The Juggernaut"
@@ -142,11 +164,13 @@
 	name = "Comedy Response Officer"
 	outfit = /datum/outfit/centcom_clown
 	role = "Prankster"
+	plasmaman_outfit = /datum/outfit/plasmaman/honk
 
 /datum/antagonist/ert/clown/honk
 	name = "HONK Squad Trooper"
 	outfit = /datum/outfit/centcom_clown/honk_squad
 	role = "HONKER"
+	plasmaman_outfit = /datum/outfit/plasmaman/honk_squad
 
 /datum/antagonist/ert/create_team(datum/team/ert/new_team)
 	if(istype(new_team))
@@ -160,9 +184,12 @@
 	var/mob/living/carbon/human/H = owner.current
 	if(!istype(H))
 		return
+	if(isplasmaman(H))
+		H.equipOutfit(plasmaman_outfit)
+		H.open_internals(H.get_item_for_held_index(2))
 	H.equipOutfit(outfit)
 	//Set the suits frequency
-	var/obj/item/I = H.get_item_by_slot(SLOT_WEAR_SUIT)
+	var/obj/item/I = H.get_item_by_slot(ITEM_SLOT_OCLOTHING)
 	if(I)
 		var/datum/component/tracking_beacon/beacon = I.GetComponent(/datum/component/tracking_beacon)
 		if(beacon)
@@ -181,10 +208,10 @@
 	else
 		missiondesc += " Follow orders given to you by your squad leader."
 
-		missiondesc += "Avoid civilian casualites when possible."
+		missiondesc += " Avoid civilian casualties when possible."
 
-	missiondesc += "<BR><B>Your Mission</B> : [ert_team.mission.explanation_text]"
-	missiondesc += "<BR><b>Your Shared Tracking Frequency</b> : <i>[ert_team.ert_frequency]</i>"
+	missiondesc += "<BR><B>Your Mission</B>: [ert_team.mission.explanation_text]"
+	missiondesc += "<BR><b>Your Shared Tracking Frequency</b>: <i>[ert_team.ert_frequency]</i>"
 
 	to_chat(owner,missiondesc)
 

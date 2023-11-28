@@ -4,39 +4,39 @@
 // Return the item currently in the slot ID
 /mob/living/carbon/human/get_item_by_slot(slot_id)
 	switch(slot_id)
-		if(SLOT_BACK)
+		if(ITEM_SLOT_BACK)
 			return back
-		if(SLOT_WEAR_MASK)
+		if(ITEM_SLOT_MASK)
 			return wear_mask
-		if(SLOT_NECK)
+		if(ITEM_SLOT_NECK)
 			return wear_neck
-		if(SLOT_HANDCUFFED)
+		if(ITEM_SLOT_HANDCUFFED)
 			return handcuffed
-		if(SLOT_LEGCUFFED)
+		if(ITEM_SLOT_LEGCUFFED)
 			return legcuffed
-		if(SLOT_BELT)
+		if(ITEM_SLOT_BELT)
 			return belt
-		if(SLOT_WEAR_ID)
+		if(ITEM_SLOT_ID)
 			return wear_id
-		if(SLOT_EARS)
+		if(ITEM_SLOT_EARS)
 			return ears
-		if(SLOT_GLASSES)
+		if(ITEM_SLOT_EYES)
 			return glasses
-		if(SLOT_GLOVES)
+		if(ITEM_SLOT_GLOVES)
 			return gloves
-		if(SLOT_HEAD)
+		if(ITEM_SLOT_HEAD)
 			return head
-		if(SLOT_SHOES)
+		if(ITEM_SLOT_FEET)
 			return shoes
-		if(SLOT_WEAR_SUIT)
+		if(ITEM_SLOT_OCLOTHING)
 			return wear_suit
-		if(SLOT_W_UNIFORM)
+		if(ITEM_SLOT_ICLOTHING)
 			return w_uniform
-		if(SLOT_L_STORE)
+		if(ITEM_SLOT_LPOCKET)
 			return l_store
-		if(SLOT_R_STORE)
+		if(ITEM_SLOT_RPOCKET)
 			return r_store
-		if(SLOT_S_STORE)
+		if(ITEM_SLOT_SUITSTORE)
 			return s_store
 	return null
 
@@ -84,17 +84,17 @@
 
 	var/not_handled = FALSE //Added in case we make this type path deeper one day
 	switch(slot)
-		if(SLOT_BELT)
+		if(ITEM_SLOT_BELT)
 			belt = I
 			update_inv_belt()
-		if(SLOT_WEAR_ID)
+		if(ITEM_SLOT_ID)
 			wear_id = I
 			sec_hud_set_ID()
 			update_inv_wear_id()
-		if(SLOT_EARS)
+		if(ITEM_SLOT_EARS)
 			ears = I
 			update_inv_ears()
-		if(SLOT_GLASSES)
+		if(ITEM_SLOT_EYES)
 			glasses = I
 			var/obj/item/clothing/glasses/G = I
 			if(G.glass_colour_type)
@@ -107,13 +107,13 @@
 			if(G.vision_flags || G.darkness_view || G.invis_override || G.invis_view || !isnull(G.lighting_alpha))
 				update_sight()
 			update_inv_glasses()
-		if(SLOT_GLOVES)
+		if(ITEM_SLOT_GLOVES)
 			gloves = I
 			update_inv_gloves()
-		if(SLOT_SHOES)
+		if(ITEM_SLOT_FEET)
 			shoes = I
 			update_inv_shoes()
-		if(SLOT_WEAR_SUIT)
+		if(ITEM_SLOT_OCLOTHING)
 			wear_suit = I
 			if(I.flags_inv & HIDEJUMPSUIT)
 				update_inv_w_uniform()
@@ -121,17 +121,17 @@
 				stop_pulling() //can't pull if restrained
 				update_action_buttons_icon() //certain action buttons will no longer be usable.
 			update_inv_wear_suit()
-		if(SLOT_W_UNIFORM)
+		if(ITEM_SLOT_ICLOTHING)
 			w_uniform = I
 			update_suit_sensors()
 			update_inv_w_uniform()
-		if(SLOT_L_STORE)
+		if(ITEM_SLOT_LPOCKET)
 			l_store = I
 			update_inv_pockets()
-		if(SLOT_R_STORE)
+		if(ITEM_SLOT_RPOCKET)
 			r_store = I
 			update_inv_pockets()
-		if(SLOT_S_STORE)
+		if(ITEM_SLOT_SUITSTORE)
 			s_store = I
 			update_inv_s_store()
 		else
@@ -143,9 +143,15 @@
 
 	return not_handled //For future deeper overrides
 
-/mob/living/carbon/human/doUnEquip(obj/item/I, force, newloc, no_move, invdrop = TRUE, silent = FALSE)
+/mob/living/carbon/human/equipped_speed_mods()
+	. = ..()
+	for(var/sloties in get_all_slots() - list(l_store, r_store, s_store))
+		var/obj/item/thing = sloties
+		. += thing?.slowdown
+
+/mob/living/carbon/human/doUnEquip(obj/item/I, force, newloc, no_move, invdrop = TRUE, was_thrown = FALSE, silent = FALSE)
 	var/index = get_held_index_of_item(I)
-	. = ..() //See mob.dm for an explanation on this and some rage about people copypasting instead of calling ..() like they should.
+	. = ..(I, force, newloc, no_move, invdrop, was_thrown) //See mob.dm for an explanation on this and some rage about people copypasting instead of calling ..() like they should.
 	if(!. || !I)
 		return
 	if(index && !QDELETED(src) && dna.species.mutanthands) //hand freed, fill with claws, skip if we're getting deleted.
@@ -223,12 +229,45 @@
 		if(!QDELETED(src))
 			update_inv_s_store()
 
+/mob/living/carbon/human/toggle_internals(obj/item/tank, is_external = FALSE)
+	// Just close the tank if it's the one the mob already has open.
+	var/obj/item/existing_tank = is_external ? external : internal
+	if(tank == existing_tank)
+		return toggle_close_internals(is_external)
+	// Use breathing tube regardless of mask.
+	if(can_breathe_tube())
+		return toggle_open_internals(tank, is_external)
+	// Use mask in absence of tube.
+	if(isclothing(wear_mask) && ((wear_mask.visor_flags & MASKINTERNALS) || (wear_mask.clothing_flags & MASKINTERNALS)))
+		// Adjust dishevelled breathing mask back onto face.
+		if (wear_mask.mask_adjusted)
+			wear_mask.adjustmask(src)
+		return toggle_open_internals(tank, is_external)
+	// Use helmet in absence of tube or valid mask.
+	if(can_breathe_helmet())
+		return toggle_open_internals(tank, is_external)
+	// Notify user of missing valid breathing apparatus.
+	if(wear_mask)
+		// Invalid mask
+		to_chat(src, "<span class='warning'>[wear_mask] can't use [tank]!</span>")
+	else if(head)
+		// Invalid headgear
+		to_chat(src, "<span class='warning'>[head] isn't airtight! You need a mask!</span>")
+	else
+		// Not wearing any breathing apparatus.
+		to_chat(src, "<span class='warning'>You need a mask!</span>")
+
+/// Returns TRUE if the tank successfully toggles open/closed. Opens the tank only if a breathing apparatus is found.
+/mob/living/carbon/human/toggle_externals(obj/item/tank)
+	return toggle_internals(tank, TRUE)
+
 /mob/living/carbon/human/wear_mask_update(obj/item/I, toggle_off = 1)
 	if((I.flags_inv & (HIDEHAIR|HIDEFACIALHAIR)) || (initial(I.flags_inv) & (HIDEHAIR|HIDEFACIALHAIR)))
 		update_hair()
-	if(toggle_off && internal && !getorganslot(ORGAN_SLOT_BREATHING_TUBE))
+	// Close internal air tank if mask was the only breathing apparatus.
+	if(invalid_internals())
 		update_internals_hud_icon(0)
-		internal = null
+		cutoff_internals()
 	if(I.flags_inv & HIDEEYES)
 		update_inv_glasses()
 	sec_hud_set_security_status()
@@ -241,6 +280,9 @@
 		var/obj/item/clothing/C = I
 		if(istype(C) && C.dynamic_hair_suffix)
 			update_hair()
+	// Close internal air tank if helmet was the only breathing apparatus.
+	if(invalid_internals())
+		cutoff_internals()
 	if(I.flags_inv & HIDEEYES || forced)
 		update_inv_glasses()
 	if(I.flags_inv & HIDEEARS || forced)
@@ -261,7 +303,6 @@
 		return 0
 
 	return O.equip(src, visualsOnly)
-
 
 //delete all equipment without dropping anything
 /mob/living/carbon/human/proc/delete_equipment()

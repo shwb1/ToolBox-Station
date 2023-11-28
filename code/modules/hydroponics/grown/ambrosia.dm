@@ -10,6 +10,18 @@
 	foodtype = VEGETABLES
 	tastes = list("ambrosia" = 1)
 
+/obj/item/reagent_containers/food/snacks/grown/ambrosia/equipped(mob/user, slot)
+	. = ..()
+	if(slot == ITEM_SLOT_HEAD)
+		SEND_SIGNAL(user, COMSIG_ADD_MOOD_EVENT, "flower_worn", /datum/mood_event/flower_worn, src)
+
+/obj/item/reagent_containers/food/snacks/grown/ambrosia/dropped(mob/living/carbon/user)
+	..()
+	if(user.head != src)
+		return
+	else
+		SEND_SIGNAL(user, COMSIG_CLEAR_MOOD_EVENT, "flower_worn")
+
 // Ambrosia Vulgaris
 /obj/item/seeds/ambrosia
 	name = "pack of ambrosia vulgaris seeds"
@@ -52,6 +64,7 @@
 	icon_state = "ambrosiadeus"
 	filling_color = "#008B8B"
 	wine_power = 50
+	discovery_points = 300
 
 //Ambrosia Gaia
 /obj/item/seeds/ambrosia/gaia
@@ -73,7 +86,9 @@
 	desc = "Eating this <i>makes</i> you immortal."
 	icon_state = "ambrosia_gaia"
 	filling_color = rgb(255, 175, 0)
+	light_system = MOVABLE_LIGHT
 	light_range = 3
 	seed = /obj/item/seeds/ambrosia/gaia
 	wine_power = 70
 	wine_flavor = "the earthmother's blessing"
+	discovery_points = 300

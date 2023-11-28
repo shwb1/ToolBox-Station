@@ -21,9 +21,10 @@
 /obj/machinery/plumbing/bottle_dispenser/Initialize(mapload, bolt)
 	. = ..()
 	AddComponent(/datum/component/plumbing/simple_demand, bolt)
+	update_appearance() //so the input/output pipes will overlay properly during init
 
 /obj/machinery/plumbing/bottle_dispenser/process()
-	if(stat & NOPOWER)
+	if(machine_stat & NOPOWER)
 		return
 	if((reagents.total_volume >= bottle_size) && (stored_bottles.len < max_stored_bottles))
 		var/obj/item/reagent_containers/glass/bottle/P = new(src)
@@ -60,10 +61,11 @@
 /obj/machinery/plumbing/bottle_dispenser/ui_act(action, params)
 	if(..())
 		return
-	. = TRUE
 	switch(action)
 		if("change_bottle_size")
-			bottle_size = CLAMP(text2num(params["volume"]), 0, 30)
+			bottle_size = clamp(text2num(params["volume"]), 0, 30)
+			. = TRUE
 		if("change_bottle_name")
 			var/new_name = stripped_input(usr, "Enter a bottle name.", name, bottle_name)
 			bottle_name = new_name + " bottle"
+			. = TRUE

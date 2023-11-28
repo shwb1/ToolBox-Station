@@ -23,7 +23,7 @@
 	var/list/bullet_cost
 	var/list/base_cost// override this one as well if you override bullet_cost
 
-/obj/item/ammo_box/Initialize()
+/obj/item/ammo_box/Initialize(mapload)
 	. = ..()
 	if (!bullet_cost)
 		for (var/material in materials)
@@ -34,7 +34,7 @@
 			material_amount /= max_ammo
 			LAZYSET(bullet_cost, material, material_amount)
 	if(!start_empty)
-		for(var/i = 1, i <= max_ammo, i++)
+		for(var/i in 1 to max_ammo)
 			stored_ammo += new ammo_type(src)
 	update_icon()
 

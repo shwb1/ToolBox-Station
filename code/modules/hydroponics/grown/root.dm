@@ -28,7 +28,7 @@
 /obj/item/reagent_containers/food/snacks/grown/carrot/attackby(obj/item/I, mob/user, params)
 	if(I.is_sharp())
 		to_chat(user, "<span class='notice'>You sharpen the carrot into a shiv with [I].</span>")
-		var/obj/item/kitchen/knife/carrotshiv/Shiv = new /obj/item/kitchen/knife/carrotshiv
+		var/obj/item/knife/carrotshiv/Shiv = new /obj/item/knife/carrotshiv
 		remove_item_from_storage(user)
 		qdel(src)
 		user.put_in_hands(Shiv)
@@ -56,6 +56,7 @@
 	foodtype = VEGETABLES
 	juice_results = list(/datum/reagent/consumable/parsnipjuice = 0)
 	wine_power = 35
+	discovery_points = 300
 
 
 // White-Beet
@@ -98,7 +99,7 @@
 	growing_icon = 'icons/obj/hydroponics/growing_vegetables.dmi'
 	icon_dead = "whitebeet-dead"
 	genes = list(/datum/plant_gene/trait/maxchem)
-	reagents_add = list(/datum/reagent/consumable/nutriment/vitamin = 0.05, /datum/reagent/consumable/nutriment = 0.05)
+	reagents_add = list(/datum/reagent/sodium = 0.02, /datum/reagent/consumable/nutriment/vitamin = 0.05, /datum/reagent/consumable/nutriment = 0.05)
 
 /obj/item/reagent_containers/food/snacks/grown/redbeet
 	seed = /obj/item/seeds/redbeet
@@ -108,3 +109,4 @@
 	bitesize_mod = 2
 	foodtype = VEGETABLES
 	wine_power = 60
+	discovery_points = 300

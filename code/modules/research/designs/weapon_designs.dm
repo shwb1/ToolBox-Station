@@ -8,6 +8,12 @@
 	category = list("Ammo")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
+/datum/design/c38b/sec
+	id = "sec_38b"
+	build_type = PROTOLATHE
+	category = list("Ammo")
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
+
 /datum/design/c38_trac
 	name = "Speed Loader (.38 TRAC)"
 	desc = "Designed to quickly reload revolvers. TRAC bullets embed a tracking implant within the target's body."
@@ -36,15 +42,6 @@
 	materials = list(/datum/material/iron = 20000, /datum/material/plasma = 5000)
 	build_path = /obj/item/ammo_box/c38/iceblox
 	category = list("Ammo")
-	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
-
-/datum/design/sleepy/sec
-	name = "Soporific Shell"
-	id = "sleepy"
-	build_type = PROTOLATHE
-	category = list("Ammo")
-	materials = list(/datum/material/iron = 4000, /datum/material/silver = 400, /datum/material/copper = 400)
-	build_path = /obj/item/ammo_casing/shotgun/sleepytime
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
 /datum/design/rubbershot/sec
@@ -113,7 +110,7 @@
 	category = list("Firing Pins")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
-/datum/design/stunmine/sec/
+/datum/design/stunmine
 	name = "Stun Mine"
 	desc = "A basic nonlethal stunning mine. Does very heavy stamina damage to anyone who walks over it."
 	id = "stunmine"
@@ -123,7 +120,7 @@
 	category = list("Ammo")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
-/datum/design/adv_stunmine/sec
+/datum/design/adv_stunmine
 	name = "Smart Stun Mine"
 	desc = "A advanced nonlethal stunning mine. Uses advanced detection software to only trigger when activated by someone without a mindshield implant."
 	id = "stunmine_adv"
@@ -133,7 +130,7 @@
 	category = list("Ammo")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
-/datum/design/lm6_stunmine/sec
+/datum/design/lm6_stunmine
 	name = "Rapid Deployment Smartmine"
 	desc = "A advanced nonlethal stunning mine. Uses advanced detection software to only trigger when activated by someone without a mindshield implant. Can be rapidly placed and disarmed."
 	id = "stunmine_rapid"
@@ -143,7 +140,7 @@
 	category = list("Ammo")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
-/datum/design/lm12_stunmine/sec
+/datum/design/lm12_stunmine
 	name = "Sledgehammer Smartmine"
 	desc = "A advanced nonlethal stunning mine. Uses advanced detection software to only trigger when activated by someone without a mindshield implant. Very powerful and hard to disarm."
 	id = "stunmine_heavy"
@@ -327,6 +324,16 @@
 	category = list("Ammo")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
+/datum/design/mag_oldsmg/rubber
+	name = "WT-550 Rubber Auto Gun Magazine (4.6x30mm Rubber)"
+	desc = "A 20 round magazine for the out of date security WT-550 Auto Rifle"
+	id = "mag_oldsmg_rubber"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 3000)
+	build_path = /obj/item/ammo_box/magazine/wt550m9/rubber
+	category = list("Ammo")
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
+
 /datum/design/mag_oldsmg/ap_mag
 	name = "WT-550 Auto Gun Armour Piercing Magazine (4.6x30mm AP)"
 	desc = "A 20 round armour piercing magazine for the out of date security WT-550 Auto Rifle"
@@ -401,7 +408,7 @@
 	materials = list(/datum/material/iron = 3500)
 	build_path = /obj/item/ammo_casing/shotgun/dart/noreact
 	category = list("Ammo")
-	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
 
 /datum/design/flashbulb
 	name = "Security Flashbulb"

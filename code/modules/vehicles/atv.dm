@@ -4,7 +4,7 @@
 	desc = "An all-terrain vehicle built for traversing rough terrain with ease. One of the few old-Earth technologies that are still relevant on most planet-bound outposts."
 	icon_state = "atv"
 	max_integrity = 150
-	armor = list("melee" = 50, "bullet" = 25, "laser" = 20, "energy" = 0, "bomb" = 50, "bio" = 0, "rad" = 0, "fire" = 60, "acid" = 60)
+	armor = list(MELEE = 50,  BULLET = 25, LASER = 20, ENERGY = 0, BOMB = 50, BIO = 0, RAD = 0, FIRE = 60, ACID = 60, STAMINA = 0)
 	key_type = /obj/item/key
 	integrity_failure = 70
 	var/static/mutable_appearance/atvcover
@@ -13,7 +13,7 @@
 	var/list/drive_sounds = list('sound/toolbox/mowermove1.ogg', 'sound/toolbox/mowermove2.ogg')
 	var/engine_sound = 'sound/toolbox/car/carrev.ogg'
 
-/obj/vehicle/ridden/atv/Initialize()
+/obj/vehicle/ridden/atv/Initialize(mapload)
 	. = ..()
 	var/datum/component/riding/D = LoadComponent(/datum/component/riding)
 	D.vehicle_move_delay = 1.5
@@ -48,7 +48,7 @@
 	scan_range = 7
 	density = FALSE
 
-/obj/vehicle/ridden/atv/turret/Initialize()
+/obj/vehicle/ridden/atv/turret/Initialize(mapload)
 	. = ..()
 	turret = new(loc)
 	turret.base = src
@@ -59,20 +59,20 @@
 		turret.forceMove(get_turf(src))
 		switch(dir)
 			if(NORTH)
-				turret.pixel_x = 0
-				turret.pixel_y = 4
+				turret.pixel_x = base_pixel_x
+				turret.pixel_y = base_pixel_y + 4
 				turret.layer = ABOVE_MOB_LAYER
 			if(EAST)
-				turret.pixel_x = -12
-				turret.pixel_y = 4
+				turret.pixel_x = base_pixel_x - 12
+				turret.pixel_y = base_pixel_y + 4
 				turret.layer = OBJ_LAYER
 			if(SOUTH)
-				turret.pixel_x = 0
-				turret.pixel_y = 4
+				turret.pixel_x = base_pixel_x
+				turret.pixel_y = base_pixel_y + 4
 				turret.layer = OBJ_LAYER
 			if(WEST)
-				turret.pixel_x = 12
-				turret.pixel_y = 4
+				turret.pixel_x = base_pixel_x + 12
+				turret.pixel_y = base_pixel_y + 4
 				turret.layer = OBJ_LAYER
 
 /obj/vehicle/ridden/atv/attackby(obj/item/W as obj, mob/user as mob, params)
@@ -90,16 +90,16 @@
 	START_PROCESSING(SSobj, src)
 	return ..()
 
-/obj/vehicle/ridden/atv/process()
+/obj/vehicle/ridden/atv/process(delta_time)
 	if(obj_integrity >= integrity_failure)
 		return PROCESS_KILL
-	if(prob(20))
+	if(DT_PROB(10, delta_time))
 		return
 	var/datum/effect_system/smoke_spread/smoke = new
 	smoke.set_up(0, src)
 	smoke.start()
 
-/obj/vehicle/ridden/atv/bullet_act(obj/item/projectile/P)
+/obj/vehicle/ridden/atv/bullet_act(obj/projectile/P)
 	if(prob(50) && buckled_mobs)
 		for(var/mob/M in buckled_mobs)
 			M.bullet_act(P)

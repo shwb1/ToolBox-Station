@@ -1,7 +1,7 @@
 /**
  * private
  *
- * Handles incomming stat messages
+ * Handles incoming stat messages
  */
 /datum/tgui_panel/proc/handle_stat_message(type, payload)
 	switch(type)

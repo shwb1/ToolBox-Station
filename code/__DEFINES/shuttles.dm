@@ -1,8 +1,8 @@
 //shuttle mode defines
 #define SHUTTLE_IDLE		"idle"
 #define SHUTTLE_IGNITING	"igniting"
-#define SHUTTLE_RECALL		"recall"
-#define SHUTTLE_CALL		"call"
+#define SHUTTLE_RECALL		"recalled"
+#define SHUTTLE_CALL		"called"
 #define SHUTTLE_DOCKED		"docked"
 #define SHUTTLE_STRANDED	"stranded"
 #define SHUTTLE_ESCAPE		"escape"
@@ -37,7 +37,7 @@
 #define TRANSIT_REQUEST 1
 #define TRANSIT_READY 2
 
-#define SHUTTLE_TRANSIT_BORDER 8
+#define SHUTTLE_TRANSIT_BORDER 16
 
 #define PARALLAX_LOOP_TIME 25
 #define HYPERSPACE_END_TIME 5
@@ -82,3 +82,14 @@
 //Shuttle unlocks
 #define SHUTTLE_UNLOCK_BUBBLEGUM "bubblegum"
 #define SHUTTLE_UNLOCK_ALIENTECH "abductor"
+#define SHUTTLE_UNLOCK_MEDISIM "holodeck"
+#define SHUTTLE_UNLOCK_NARNAR "bcult"
+
+//Shuttle preset danger levels
+
+/// Generally safe for station consumption, has everything a typical shuttle needs
+#define SHUTTLE_DANGER_SAFE 0
+/// Missing key components or has mild elements of danger, but generally won't kill you
+#define SHUTTLE_DANGER_SUBPAR 1
+/// Possibility for most people on this shuttle to die with little effort
+#define SHUTTLE_DANGER_HIGH 2

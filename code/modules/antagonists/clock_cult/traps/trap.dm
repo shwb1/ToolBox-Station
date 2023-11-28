@@ -44,7 +44,7 @@
 	var/unwrench_path = /obj/item/wallframe/clocktrap
 	var/component_datum = /datum/component/clockwork_trap
 
-/obj/structure/destructible/clockwork/trap/Initialize()
+/obj/structure/destructible/clockwork/trap/Initialize(mapload)
 	. = ..()
 	AddComponent(component_datum)
 
@@ -66,10 +66,10 @@
 	. = ..()
 	outputs = list()
 
-	RegisterSignal(parent, COMSIG_CLOCKWORK_SIGNAL_RECEIVED, .proc/trigger)
-	RegisterSignal(parent, COMSIG_ATOM_EMINENCE_ACT, .proc/trigger)	//The eminence can trigger traps too
-	RegisterSignal(parent, COMSIG_ATOM_ATTACK_HAND, .proc/clicked)
-	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, .proc/OnAttackBy)
+	RegisterSignal(parent, COMSIG_CLOCKWORK_SIGNAL_RECEIVED, PROC_REF(trigger))
+	RegisterSignal(parent, COMSIG_ATOM_EMINENCE_ACT, PROC_REF(trigger))	//The eminence can trigger traps too
+	RegisterSignal(parent, COMSIG_ATOM_ATTACK_HAND, PROC_REF(clicked))
+	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, PROC_REF(OnAttackBy))
 
 /datum/component/clockwork_trap/proc/add_input(datum/component/clockwork_trap/input)
 	outputs |= input.parent
@@ -78,12 +78,18 @@
 	output.outputs |= parent
 
 /datum/component/clockwork_trap/proc/trigger()
+	SIGNAL_HANDLER
+
 	return TRUE
 
 /datum/component/clockwork_trap/proc/clicked(mob/user)
+	SIGNAL_HANDLER
+
 	return
 
 /datum/component/clockwork_trap/proc/OnAttackBy(datum/source, obj/item/I, mob/user)
+	SIGNAL_HANDLER
+
 	if(is_servant_of_ratvar(user))
 		if(istype(I, /obj/item/clockwork/clockwork_slab))
 			var/obj/item/clockwork/clockwork_slab/slab = I

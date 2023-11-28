@@ -5,7 +5,6 @@
 	item_state = null
 	w_class = WEIGHT_CLASS_BULKY
 	force = 10
-	block_upgrade_walk = 1
 	modifystate = TRUE
 	flags_1 =  CONDUCT_1
 	slot_flags = ITEM_SLOT_BACK
@@ -14,15 +13,12 @@
 	fire_rate = 3
 	automatic = 1
 
-/obj/item/gun/energy/pulse/emp_act(severity)
-	return
-
 /obj/item/gun/energy/pulse/prize
 	pin = /obj/item/firing_pin
 
-/obj/item/gun/energy/pulse/prize/Initialize()
+/obj/item/gun/energy/pulse/prize/Initialize(mapload)
 	. = ..()
-	GLOB.poi_list += src
+	AddElement(/datum/element/point_of_interest)
 	var/turf/T = get_turf(src)
 
 	message_admins("A pulse rifle prize has been created at [ADMIN_VERBOSEJMP(T)]")
@@ -30,17 +26,13 @@
 
 	notify_ghosts("Someone won a pulse rifle as a prize!", source = src, action = NOTIFY_ORBIT, header = "Pulse rifle prize")
 
-/obj/item/gun/energy/pulse/prize/Destroy()
-	GLOB.poi_list -= src
-	. = ..()
-
 /obj/item/gun/energy/pulse/loyalpin
 	pin = /obj/item/firing_pin/implant/mindshield
 
 /obj/item/gun/energy/pulse/carbine
 	name = "pulse carbine"
 	desc = "A compact variant of the pulse rifle with less firepower but easier storage."
-	w_class = WEIGHT_CLASS_NORMAL
+	w_class = WEIGHT_CLASS_LARGE
 	slot_flags = ITEM_SLOT_BELT
 	icon_state = "pulse_carbine"
 	item_state = null
@@ -55,7 +47,7 @@
 /obj/item/gun/energy/pulse/carbine/cyborg
 	name = "pulse carbine"
 	desc = "A compact, cyborg variant of the commonly used pulse carbine."
-	w_class = WEIGHT_CLASS_NORMAL
+	w_class = WEIGHT_CLASS_LARGE
 	slot_flags = ITEM_SLOT_BELT
 	icon_state = "pulse_carbine"
 	item_state = null

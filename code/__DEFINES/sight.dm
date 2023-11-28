@@ -10,10 +10,14 @@
 //#define SEE_INVISIBLE_LEVEL_TWO 45 //currently unused
 //#define INVISIBILITY_LEVEL_TWO 45 //currently unused
 
-#define INVISIBILITY_OBSERVER 60
-#define SEE_INVISIBLE_OBSERVER 60
+#define INVISIBILITY_SPIRIT 60   // invisibility level for ghostly & spiritual mobs(Revenant, floor cluwne, etc) + ghost observers
+#define SEE_INVISIBLE_SPIRIT 60  // You can see ghostly & spiritual presences
+
+#define INVISIBILITY_OBSERVER 95  // Things that are only visible by ghosts (i.e. SM countdown)
+#define SEE_INVISIBLE_OBSERVER 95 // only ghosts have this. Do not give this to anyone
 
 #define INVISIBILITY_MAXIMUM 100 //! the maximum allowed for "real" objects
+#define SEE_INVISIBLE_MAXIMUM 100
 
 #define INVISIBILITY_ABSTRACT 101 //! only used for abstract objects (e.g. spacevine_controller), things that are not really there.
 
@@ -29,7 +33,3 @@
 #define VISOR_DARKNESSVIEW	(1<<3)
 #define VISOR_INVISVIEW		(1<<4)
 
-//for whether AI eyes see static, and whether it is mouse-opaque or not
-#define USE_STATIC_NONE			0
-#define USE_STATIC_TRANSPARENT	1
-#define USE_STATIC_OPAQUE		2

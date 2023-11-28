@@ -6,7 +6,6 @@
 	icon = 'icons/obj/doors/airlocks/station/command.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_com
 	normal_integrity = 450
-	security_level = 6
 
 /obj/machinery/door/airlock/security
 	icon = 'icons/obj/doors/airlocks/station/security.dmi'
@@ -65,7 +64,7 @@
 */
 
 /obj/machinery/door/airlock/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/glass/incinerator
@@ -83,29 +82,28 @@
 	id_tag = INCINERATOR_SYNDICATELAVA_AIRLOCK_EXTERIOR
 
 /obj/machinery/door/airlock/command/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 	normal_integrity = 400
-	security_level =  6
 
 /obj/machinery/door/airlock/engineering/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/engineering/glass/critical
 	critical_machine = TRUE //stops greytide virus from opening & bolting doors in critical positions, such as the SM chamber.
 
 /obj/machinery/door/airlock/security/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 	normal_integrity = 400
 
 /obj/machinery/door/airlock/medical/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/research/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/research/glass/incinerator
@@ -123,30 +121,30 @@
 	id_tag = INCINERATOR_TOXMIX_AIRLOCK_EXTERIOR
 
 /obj/machinery/door/airlock/mining/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/atmos/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/atmos/glass/critical
 	critical_machine = TRUE //stops greytide virus from opening & bolting doors in critical positions, such as the SM chamber.
 
 /obj/machinery/door/airlock/science/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/virology/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/maintenance/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/maintenance/external/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 	normal_integrity = 200
 
@@ -161,7 +159,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_copper
 
 /obj/machinery/door/airlock/copper/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/gold
@@ -170,7 +168,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_gold
 
 /obj/machinery/door/airlock/gold/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/silver
@@ -179,7 +177,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_silver
 
 /obj/machinery/door/airlock/silver/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/diamond
@@ -191,7 +189,7 @@
 
 /obj/machinery/door/airlock/diamond/glass
 	normal_integrity = 950
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/uranium
@@ -200,9 +198,9 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_uranium
 	var/last_event = 0
 
-/obj/machinery/door/airlock/uranium/process()
+/obj/machinery/door/airlock/uranium/process(delta_time)
 	if(world.time > last_event+20)
-		if(prob(50))
+		if(DT_PROB(50, delta_time))
 			radiate()
 		last_event = world.time
 	..()
@@ -212,7 +210,7 @@
 	return
 
 /obj/machinery/door/airlock/uranium/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/plasma
@@ -223,14 +221,16 @@
 
 /obj/machinery/door/airlock/plasma/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature > 300)
-		PlasmaBurn(exposed_temperature)
+		if(plasma_ignition(6))
+			PlasmaBurn()
 
-/obj/machinery/door/airlock/plasma/proc/ignite(exposed_temperature)
-	if(exposed_temperature > 300)
-		PlasmaBurn(exposed_temperature)
+/obj/machinery/door/airlock/plasma/bullet_act(obj/projectile/Proj)
+	if(!(Proj.nodamage) && Proj.damage_type == BURN)
+		if(plasma_ignition(6, Proj?.firer))
+			PlasmaBurn()
+	. = ..()
 
-/obj/machinery/door/airlock/plasma/proc/PlasmaBurn(temperature)
-	atmos_spawn_air("plasma=500;TEMP=1000")
+/obj/machinery/door/airlock/plasma/proc/PlasmaBurn()
 	var/obj/structure/door_assembly/DA
 	DA = new /obj/structure/door_assembly(loc)
 	if(glass)
@@ -239,21 +239,19 @@
 		DA.heat_proof_finished = TRUE
 	DA.update_icon()
 	DA.update_name()
-	qdel(src)
 
-/obj/machinery/door/airlock/plasma/BlockSuperconductivity() //we don't stop the heat~
+/obj/machinery/door/airlock/plasma/BlockThermalConductivity() //we don't stop the heat~
 	return 0
 
 /obj/machinery/door/airlock/plasma/attackby(obj/item/C, mob/user, params)
 	if(C.is_hot() > 300)//If the temperature of the object is over 300, then ignite
-		message_admins("Plasma airlock ignited by [ADMIN_LOOKUPFLW(user)] in [ADMIN_VERBOSEJMP(src)]")
-		log_game("Plasma airlock ignited by [key_name(user)] in [AREACOORD(src)]")
-		ignite(C.is_hot())
+		if(plasma_ignition(6, user))
+			PlasmaBurn()
 	else
 		return ..()
 
 /obj/machinery/door/airlock/plasma/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/bananium
@@ -264,7 +262,7 @@
 	doorOpen = 'sound/items/bikehorn.ogg'
 
 /obj/machinery/door/airlock/bananium/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/sandstone
@@ -273,7 +271,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_sandstone
 
 /obj/machinery/door/airlock/sandstone/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/wood
@@ -282,7 +280,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_wood
 
 /obj/machinery/door/airlock/wood/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/titanium
@@ -295,9 +293,23 @@
 
 /obj/machinery/door/airlock/titanium/glass
 	normal_integrity = 350
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
+/obj/machinery/door/airlock/bronze
+	name = "bronze airlock"
+	icon = 'icons/obj/doors/airlocks/clockwork/pinion_airlock.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/clockwork/overlays.dmi'
+	assemblytype = /obj/structure/door_assembly/door_assembly_bronze
+	anim_parts = "left=-13,0;right=13,0"
+	normal_integrity = 150
+	damage_deflection = 5
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0, STAMINA = 0)
+
+/obj/machinery/door/airlock/bronze/seethru
+	assemblytype = /obj/structure/door_assembly/door_assembly_bronze/seethru
+	opacity = FALSE
+	glass = TRUE
 //////////////////////////////////
 /*
 	Station2 Airlocks
@@ -309,7 +321,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_public
 
 /obj/machinery/door/airlock/public/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/public/glass/incinerator
@@ -352,7 +364,7 @@
 	panel_attachment = "bottom"
 
 /obj/machinery/door/airlock/external/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 //////////////////////////////////
@@ -365,7 +377,7 @@
 	overlays_file = 'icons/obj/doors/airlocks/centcom/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_centcom
 	normal_integrity = 1000
-	security_level = 6
+	security_level = AIRLOCK_SECURITY_PLASTEEL
 	explosion_block = 2
 
 /obj/machinery/door/airlock/grunge
@@ -386,7 +398,7 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_vault
 	explosion_block = 2
 	normal_integrity = 400 // reverse engieneerd: 400 * 1.5 (sec lvl 6) = 600 = original
-	security_level = 6
+	security_level = AIRLOCK_SECURITY_PLASTEEL
 
 //////////////////////////////////
 /*
@@ -400,7 +412,7 @@
 	note_overlay_file = 'icons/obj/doors/airlocks/hatch/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_hatch
 	//anim_parts = "ul=-9,9;ur=9,9;dl=-9,-9;dr=9,-9"
-	anim_parts = "ul=-15,0,0,5,-90;ur=0,15,0,5,-90;dl=0,-15,0,5,-90;dr=15,0,0,5,-90"
+	anim_parts = "ul=-15,0,0,4,-90;ur=0,15,0,4,-90;dl=0,-15,0,4,-90;dr=15,0,0,4,-90"
 	note_attachment = "ul"
 	panel_attachment = "dr"
 	allow_repaint = FALSE
@@ -412,7 +424,7 @@
 	note_overlay_file = 'icons/obj/doors/airlocks/hatch/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_mhatch
 	//anim_parts = "ul=-9,9;ur=9,9;dl=-9,-9;dr=9,-9"
-	anim_parts = "ul=-15,0,0,5,-90;ur=0,15,0,5,-90;dl=0,-15,0,5,-90;dr=15,0,0,5,-90"
+	anim_parts = "ul=-15,0,0,4,-90;ur=0,15,0,4,-90;dl=0,-15,0,4,-90;dr=15,0,0,4,-90"
 	note_attachment = "ul"
 	panel_attachment = "dr"
 	allow_repaint = FALSE
@@ -430,7 +442,6 @@
 	assemblytype = /obj/structure/door_assembly/door_assembly_highsecurity
 	explosion_block = 2
 	normal_integrity = 500
-	security_level = 1
 	damage_deflection = 30
 
 //////////////////////////////////
@@ -446,7 +457,7 @@
 	anim_parts = "rightu=11,0;left=-12,0;right=11,0"
 
 /obj/machinery/door/airlock/shuttle/glass
-	opacity = 0
+	opacity = FALSE
 	glass = TRUE
 
 /obj/machinery/door/airlock/abductor
@@ -456,13 +467,12 @@
 	overlays_file = 'icons/obj/doors/airlocks/abductor/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_abductor
 	note_overlay_file = 'icons/obj/doors/airlocks/external/overlays.dmi'
-	anim_parts="p1=0,40,0;p2=0,24,2;p3=0,-36,0.5;p4=0,16,3;p5=0,-40,0;p6=0,32,1;p7=0,-24,2" // the door has 7 fucking parts. SEVEN.
+	anim_parts="p1=0,40,0,5;p2=0,24,2,5;p3=0,-36,0.5,5;p4=0,16,3,5;p5=0,-40,0,5;p6=0,32,1,5;p7=0,-24,2,5" // the door has 7 fucking parts. SEVEN.
 	damage_deflection = 30
 	explosion_block = 3
 	hackProof = TRUE
 	aiControlDisabled = 1
 	normal_integrity = 700
-	security_level = 1
 	allow_repaint = FALSE
 
 //////////////////////////////////
@@ -484,19 +494,16 @@
 	var/stealthy = FALSE
 	allow_repaint = FALSE
 
-/obj/machinery/door/airlock/cult/Initialize()
+/obj/machinery/door/airlock/cult/Initialize(mapload)
 	. = ..()
 	new openingoverlaytype(loc)
 
 /obj/machinery/door/airlock/cult/canAIControl(mob/user)
 	return (iscultist(user) && !isAllPowerCut())
 
-/obj/machinery/door/airlock/cult/obj_break(damage_flag)
-	if(!(flags_1 & BROKEN) && !(flags_1 & NODECONSTRUCT_1))
-		stat |= BROKEN
-		if(!panel_open)
-			panel_open = TRUE
-		update_icon()
+/obj/machinery/door/airlock/cult/on_break()
+	if(!panel_open)
+		panel_open = TRUE
 
 /obj/machinery/door/airlock/cult/isElectrified()
 	return FALSE
@@ -549,7 +556,7 @@
 
 /obj/machinery/door/airlock/cult/glass
 	glass = TRUE
-	opacity = 0
+	opacity = FALSE
 
 /obj/machinery/door/airlock/cult/glass/friendly
 	friendly = TRUE
@@ -565,7 +572,7 @@
 
 /obj/machinery/door/airlock/cult/unruned/glass
 	glass = TRUE
-	opacity = 0
+	opacity = FALSE
 
 /obj/machinery/door/airlock/cult/unruned/glass/friendly
 	friendly = TRUE
@@ -575,7 +582,7 @@
 	desc = "An airlock hastily corrupted by blood magic, it is unusually brittle in this state."
 	normal_integrity = 150
 	damage_deflection = 5
-	armor = list("melee" = 0, "bullet" = 0, "laser" = 0,"energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 0, "acid" = 0)
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 0, STAMINA = 0)
 
 //////////////////////////////////
 /*
@@ -589,7 +596,7 @@
 	mask_file = 'icons/obj/doors/airlocks/mask_64x32_airlocks.dmi'
 	mask_x = 16 // byond is consistent and sane
 	anim_parts = "left=-21,0;right=21,0;top=0,29"
-	opacity = 0
+	opacity = FALSE
 	assemblytype = null
 	glass = TRUE
 	bound_width = 64 // 2x1

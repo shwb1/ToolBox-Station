@@ -1,12 +1,13 @@
 /datum/job/deputy
-	title = "Deputy"
+	title = JOB_NAME_DEPUTY
 	flag = DEPUTY
-	department_head = list("Head of Security")
-	department_flag = ENGSEC
+	description = "Follow orders and do your best to maintain order on the station while following Space Law."
+	department_for_prefs = DEPT_BITFLAG_SEC
+	department_head = list(JOB_NAME_HEADOFSECURITY)
+	supervisors = "the head of security"
 	faction = "Station"
 	total_positions = 0
 	spawn_positions = 0
-	supervisors = "the head of security"
 	selection_color = "#ffeeee"
 	minimal_player_age = 7
 	exp_requirements = 180
@@ -16,16 +17,17 @@
 
 	access = list(ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_WEAPONS)
 	minimal_access = list(ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_WEAPONS)
-	paycheck = PAYCHECK_EASY
-	paycheck_department = ACCOUNT_SEC
+
+	department_flag = ENGSEC
+	departments = DEPT_BITFLAG_SEC
+	bank_account_department = ACCOUNT_SEC_BITFLAG
+	payment_per_department = list(ACCOUNT_SEC_ID = PAYCHECK_EASY)
 	mind_traits = list(TRAIT_LAW_ENFORCEMENT_METABOLISM)
 
-	display_order = JOB_DISPLAY_ORDER_DEPUTY  //see code/__DEFINES/jobs.dm
-
-	chat_color = "#ffeeee"
+	show_in_prefs = FALSE
 
 /datum/outfit/job/deputy
-	name = "Deputy"
+	name = JOB_NAME_DEPUTY
 	jobtype = /datum/job/deputy
 
 	id = /obj/item/card/id/job/deputy
@@ -36,28 +38,15 @@
 	shoes = /obj/item/clothing/shoes/sneakers/black
 	glasses = /obj/item/clothing/glasses/hud/security/deputy
 	head = /obj/item/clothing/head/soft/sec
-	l_pocket = /obj/item/pda/security
+	l_pocket = /obj/item/modular_computer/tablet/pda/deputy
 
 	backpack = /obj/item/storage/backpack/security
 	satchel = /obj/item/storage/backpack/satchel/sec
 	duffelbag = /obj/item/storage/backpack/duffelbag/sec
-	box = /obj/item/storage/box/survival
+	box = /obj/item/storage/box/survival/normal
 
-/obj/item/card/deputy_access_card
-	name = "deputy assignment card"
-	desc = "A small card, that when used on any ID, will grant basic security access and the role of Deputy."
-	icon_state = "data_1"
-
-/obj/item/card/deputy_access_card/afterattack(atom/movable/AM, mob/user, proximity)
-	. = ..()
-	if(istype(AM, /obj/item/card/id) && proximity)
-		var/obj/item/card/id/I = AM
-		I.assignment = "Deputy"
-		I.access |=	ACCESS_SEC_DOORS
-		I.access |= ACCESS_MAINT_TUNNELS
-		I.access |= ACCESS_COURT
-		I.access |= ACCESS_BRIG
-		I.access |= ACCESS_WEAPONS
-		to_chat(user, "You have been assigned as deputy.")
-		log_id("[key_name(user)] added basic security access to '[I]' using [src] at [AREACOORD(user)].")
-		qdel(src)
+/obj/item/card/id/pass/deputy
+	name = "deputy promotion card"
+	desc = "A small card, that when used on an ID, will grant basic security access, and the job title of 'Deputy.'"
+	assignment = JOB_NAME_DEPUTY
+	access = list(ACCESS_SEC_DOORS, ACCESS_MAINT_TUNNELS, ACCESS_COURT, ACCESS_BRIG, ACCESS_WEAPONS)

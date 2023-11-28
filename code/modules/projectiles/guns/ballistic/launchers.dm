@@ -8,12 +8,12 @@
 	item_state = "gun"
 	mag_type = /obj/item/ammo_box/magazine/internal/grenadelauncher
 	fire_sound = 'sound/weapons/grenadelaunch.ogg'
-	w_class = WEIGHT_CLASS_NORMAL
+	w_class = WEIGHT_CLASS_LARGE
 	pin = /obj/item/firing_pin/implant/pindicate
+	spread_unwielded = 8
 	bolt_type = BOLT_TYPE_NO_BOLT
 	weapon_weight = WEAPON_MEDIUM
 	fire_rate = 2
-	block_upgrade_walk = 1
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/unrestricted
 	pin = /obj/item/firing_pin

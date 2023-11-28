@@ -61,16 +61,18 @@
 /datum/syndicate_contract/proc/launch_extraction_pod(turf/empty_pod_turf)
 	var/obj/structure/closet/supplypod/extractionpod/empty_pod = new()
 
-	RegisterSignal(empty_pod, COMSIG_ATOM_ENTERED, .proc/enter_check)
+	RegisterSignal(empty_pod, COMSIG_ATOM_ENTERED, PROC_REF(enter_check))
 
 	empty_pod.stay_after_drop = TRUE
 	empty_pod.reversing = TRUE
 	empty_pod.explosionSize = list(0,0,0,1)
 	empty_pod.leavingSound = 'sound/effects/podwoosh.ogg'
 
-	new /obj/effect/DPtarget(empty_pod_turf, empty_pod)
+	new /obj/effect/pod_landingzone(empty_pod_turf, empty_pod)
 
 /datum/syndicate_contract/proc/enter_check(datum/source, sent_mob)
+	SIGNAL_HANDLER
+
 	if (istype(source, /obj/structure/closet/supplypod/extractionpod))
 		if (isliving(sent_mob))
 			var/mob/living/M = sent_mob
@@ -111,7 +113,7 @@
 			var/obj/structure/closet/supplypod/extractionpod/pod = source
 
 			// Handle the pod returning
-			pod.send_up(pod)
+			pod.startExitSequence(pod)
 
 			if (ishuman(M))
 				var/mob/living/carbon/human/target = M
@@ -120,12 +122,12 @@
 				target.dna.species.give_important_for_life(target)
 
 			// After pod is sent we start the victim narrative/heal.
-			handleVictimExperience(M)
+			INVOKE_ASYNC(src, PROC_REF(handleVictimExperience), M)
 
 			// This is slightly delayed because of the sleep calls above to handle the narrative.
 			// We don't want to tell the station instantly.
 			var/points_to_check
-			var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_CAR)
+			var/datum/bank_account/D = SSeconomy.get_budget_account(ACCOUNT_CAR_ID)
 			if(D)
 				points_to_check = D.account_balance
 			if(points_to_check >= ransom)
@@ -134,35 +136,36 @@
 				D.adjust_money(-points_to_check)
 
 			priority_announce("One of your crew was captured by a rival organisation - we've needed to pay their ransom to bring them back. \
-							As is policy we've taken a portion of the station's funds to offset the overall cost.", null, 'sound/ai/attention.ogg', null, "Nanotrasen Asset Protection")
+							As is policy we've taken a portion of the station's funds to offset the overall cost.", null, null, null, "Nanotrasen Asset Protection")
 
-			sleep(30)
+			INVOKE_ASYNC(src, PROC_REF(finish_enter))
 
-			// Pay contractor their portion of ransom
-			if (status == CONTRACT_STATUS_COMPLETE)
-				var/mob/living/carbon/human/H
-				var/obj/item/card/id/C
-				if(ishuman(contract.owner.current))
-					H = contract.owner.current
-					C = H.get_idcard(TRUE)
+/datum/syndicate_contract/proc/finish_enter()
+	sleep(30)
 
-				if(C && C.registered_account)
-					C.registered_account.adjust_money(ransom * 0.35)
+	// Pay contractor their portion of ransom
+	if (status == CONTRACT_STATUS_COMPLETE)
+		var/mob/living/carbon/human/H
+		var/obj/item/card/id/C
+		if(ishuman(contract.owner.current))
+			H = contract.owner.current
+			C = H.get_idcard(TRUE)
 
-					C.registered_account.bank_card_talk("We've processed the ransom, agent. Here's your cut - your balance is now \
-					[C.registered_account.account_balance] cr.", TRUE)
+		if(C && C.registered_account)
+			C.registered_account.adjust_money(ransom * 0.35)
+
+			C.registered_account.bank_card_talk("We've processed the ransom, agent. Here's your cut - your balance is now \
+			[C.registered_account.account_balance] cr.", TRUE)
 
 // They're off to holding - handle the return timer and give some text about what's going on.
 /datum/syndicate_contract/proc/handleVictimExperience(var/mob/living/M)
 	// Ship 'em back - dead or alive, 4 minutes wait.
 	// Even if they weren't the target, we're still treating them the same.
-	addtimer(CALLBACK(src, .proc/returnVictim, M), (60 * 10) * 4)
+	addtimer(CALLBACK(src, PROC_REF(returnVictim), M), (60 * 10) * 4)
 
 	if (M.stat != DEAD)
-		// Heal them up - gets them out of crit/soft crit. If omnizine is removed in the future, this needs to be replaced with a
-		// method of healing them, consequence free, to a reasonable amount of health.
-		M.reagents.add_reagent(/datum/reagent/medicine/omnizine, 20)
-
+		// Heal them up - gets them out of crit/soft crit.
+		M.reagents.add_reagent(/datum/reagent/medicine/stabilizing_nanites, 10)
 		M.flash_act()
 		M.confused += 10
 		M.blur_eyes(5)
@@ -193,7 +196,7 @@
 
 	for (var/turf/possible_drop in contract.dropoff.contents)
 		if (!isspaceturf(possible_drop) && !isclosedturf(possible_drop))
-			if (!is_blocked_turf(possible_drop))
+			if (!possible_drop.is_blocked_turf())
 				possible_drop_loc.Add(possible_drop)
 
 	if (possible_drop_loc.len > 0)
@@ -226,7 +229,7 @@
 		M.Dizzy(35)
 		M.confused += 20
 
-		new /obj/effect/DPtarget(possible_drop_loc[pod_rand_loc], return_pod)
+		new /obj/effect/pod_landingzone(possible_drop_loc[pod_rand_loc], return_pod)
 	else
 		to_chat(M, "<span class='reallybig hypnophrase'>A million voices echo in your head... <i>\"Seems where you got sent here from won't \
 					be able to handle our pod... You will die here instead.\"</i></span>")

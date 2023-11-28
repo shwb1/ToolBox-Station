@@ -6,14 +6,16 @@
 	icon = null
 	icon_state = ""
 	slot_flags = NONE
+	clothing_flags = NOTCONSUMABLE
 	var/mob/living/held_mob
 	var/can_head = TRUE
-	var/destroying = FALSE
+	///We are currently releasing the mob held in holder
+	var/releasing = FALSE
 
 /obj/item/clothing/head/mob_holder/Initialize(mapload, mob/living/M, worn_state, head_icon, lh_icon, rh_icon, worn_slot_flags = NONE)
 	. = ..()
 	if(head_icon)
-		alternate_worn_icon = head_icon
+		worn_icon = head_icon
 	if(worn_state)
 		item_state = worn_state
 	if(lh_icon)
@@ -25,7 +27,6 @@
 	deposit(M)
 
 /obj/item/clothing/head/mob_holder/Destroy()
-	destroying = TRUE
 	if(held_mob)
 		release(FALSE)
 	return ..()
@@ -44,27 +45,41 @@
 /obj/item/clothing/head/mob_holder/proc/update_visuals(mob/living/L)
 	appearance = L.appearance
 
-/obj/item/clothing/head/mob_holder/dropped()
+/obj/item/clothing/head/mob_holder/dropped(mob/user, thrown = FALSE)
 	..()
-	if(held_mob && isturf(loc))
+	if(held_mob && isturf(loc) && !thrown)
 		release()
 
+/obj/item/clothing/head/mob_holder/throw_impact(atom/hit_atom, datum/thrownthing/thrownthing)
+	. = ..()
+	release()
+
 /obj/item/clothing/head/mob_holder/proc/release(del_on_release = TRUE)
-	if(!held_mob)
-		if(del_on_release && !destroying)
-			qdel(src)
+	if(releasing)
 		return FALSE
+	releasing = TRUE
+
+	if(!held_mob)
+		if(del_on_release)
+			qdel(src)
+		releasing = FALSE
+		return FALSE
+
 	if(isliving(loc))
 		var/mob/living/L = loc
 		to_chat(L, "<span class='warning'>[held_mob] wriggles free!</span>")
 		L.dropItemToGround(src)
+
 	held_mob.forceMove(get_turf(held_mob))
 	held_mob.reset_perspective()
 	held_mob.setDir(SOUTH)
 	held_mob.visible_message("<span class='warning'>[held_mob] uncurls!</span>")
 	held_mob = null
-	if(del_on_release && !destroying)
+
+	if(del_on_release)
 		qdel(src)
+
+	releasing = FALSE
 	return TRUE
 
 /obj/item/clothing/head/mob_holder/relaymove(mob/user)
@@ -72,6 +87,12 @@
 
 /obj/item/clothing/head/mob_holder/container_resist()
 	release()
+
+/obj/item/clothing/head/mob_holder/rabbit
+
+/obj/item/clothing/head/mob_holder/rabbit/Initialize(mapload, mob/living/M, worn_state, head_icon, lh_icon, rh_icon, worn_slot_flags = NONE)
+	var/mob/living/simple_animal/chicken/rabbit/normal/rabbit = new(src)
+	return ..(mapload, rabbit, rabbit.held_state, rabbit.head_icon, rabbit.held_lh, rabbit.held_rh, rabbit.worn_slot_flags)
 
 /obj/item/clothing/head/mob_holder/drone/deposit(mob/living/L)
 	. = ..()
@@ -85,4 +106,4 @@
 	if(!D)
 		return ..()
 	icon = 'icons/mob/drone.dmi'
-	icon_state = "[D.visualAppearence]_hat"
+	icon_state = "[D.visualAppearance]_hat"

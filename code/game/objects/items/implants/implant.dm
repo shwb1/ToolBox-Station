@@ -5,7 +5,7 @@
 	actions_types = list(/datum/action/item_action/hands_free/activate)
 	var/activated = TRUE //1 for implant types that can be activated, 0 for ones that are "always on" like mindshield implants
 	var/mob/living/imp_in = null
-	item_color = "b"
+	var/implant_color = "b"
 	var/allow_multiple = FALSE
 	var/uses = -1
 	item_flags = DROPDEL
@@ -88,6 +88,28 @@
 	if(user)
 		log_combat(user, target, "implanted", "\a [name]")
 
+	SEND_SIGNAL(src, COMSIG_IMPLANT_IMPLANTED, target, user, silent, force)
+	return TRUE
+
+/obj/item/implant/proc/transfer_implant(mob/living/user, mob/living/target)
+	if(SEND_SIGNAL(src, COMSIG_IMPLANT_IMPLANTING, args) & COMPONENT_STOP_IMPLANTING)
+		return
+	LAZYINITLIST(target.implants)
+	if(!force && (!target.can_be_implanted() || !can_be_implanted_in(target)))
+		return FALSE
+	forceMove(target)
+	user.implants -= src
+	imp_in = target
+	target.implants += src
+	if(activated)
+		for(var/X in actions)
+			var/datum/action/A = X
+			A.Grant(target)
+	if(ishuman(target))
+		var/mob/living/carbon/human/H = target
+		H.sec_hud_set_implants()
+	on_implanted(target)
+	SEND_SIGNAL(src, COMSIG_IMPLANT_IMPLANTED, target, user, TRUE, FALSE)
 	return TRUE
 
 /obj/item/implant/proc/removed(mob/living/source, silent = FALSE, special = 0)
@@ -101,7 +123,8 @@
 		var/mob/living/carbon/human/H = source
 		H.sec_hud_set_implants()
 
-	return 1
+	SEND_SIGNAL(src, COMSIG_IMPLANT_REMOVED, source, silent, special)
+	return TRUE
 
 /obj/item/implant/Destroy()
 	if(imp_in)
@@ -112,5 +135,5 @@
 	return "No information available"
 
 /obj/item/implant/dropped(mob/user)
-	. = 1
+	. = TRUE
 	..()

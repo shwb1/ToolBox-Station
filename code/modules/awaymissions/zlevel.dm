@@ -1,5 +1,5 @@
 // How much "space" we give the edge of the map
-GLOBAL_LIST_INIT(potentialRandomZlevels, generateMapList(filename = "[global.config.directory]/awaymissionconfig.txt"))
+GLOBAL_LIST_INIT(potentialRandomZlevels, generateMapList(filename = "awaymissionconfig.txt"))
 
 /proc/createRandomZlevel()
 	if(GLOB.awaydestinations.len)	//crude, but it saves another var!
@@ -12,7 +12,7 @@ GLOBAL_LIST_INIT(potentialRandomZlevels, generateMapList(filename = "[global.con
 		to_chat(world, "<span class='boldannounce'>Away mission loaded.</span>")
 
 /proc/reset_gateway_spawns(reset = FALSE)
-	for(var/obj/machinery/gateway/G in world)
+	for(var/obj/machinery/gateway/G in GLOB.machines)
 		if(reset)
 			G.randomspawns = GLOB.awaydestinations
 		else
@@ -31,10 +31,11 @@ GLOBAL_LIST_INIT(potentialRandomZlevels, generateMapList(filename = "[global.con
 	return ..()
 
 /proc/generateMapList(filename)
+	filename = "[global.config.directory]/[SANITIZE_FILENAME(filename)]"
 	. = list()
 	var/list/Lines = world.file2list(filename)
 
-	if(!Lines.len)
+	if(!length(Lines))
 		return
 	for (var/t in Lines)
 		if (!t)

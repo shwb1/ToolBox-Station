@@ -1,3 +1,6 @@
+#define BLOB_REROLL_CHOICES 6
+#define BLOB_REROLL_RADIUS 60
+
 /mob/camera/blob/proc/can_buy(cost = 15)
 	if(blob_points < cost)
 		to_chat(src, "<span class='warning'>You cannot afford this, you need at least [cost] resources!</span>")
@@ -9,52 +12,55 @@
 
 /mob/camera/blob/proc/place_blob_core(placement_override, pop_override = FALSE)
 	if(placed && placement_override != -1)
-		return 1
+		return TRUE
 	if(!placement_override)
 		if(!pop_override)
 			for(var/mob/living/M in range(7, src))
-				if(ROLE_BLOB in M.faction)
+				if(FACTION_BLOB in M.faction)
 					continue
 				if(M.client)
 					to_chat(src, "<span class='warning'>There is someone too close to place your blob core!</span>")
-					return 0
+					return FALSE
 			for(var/mob/living/M in hearers(13, src))
-				if(ROLE_BLOB in M.faction)
+				if(FACTION_BLOB in M.faction)
 					continue
 				if(M.client)
 					to_chat(src, "<span class='warning'>Someone could see your blob core from here!</span>")
-					return 0
+					return FALSE
 		var/turf/T = get_turf(src)
+		if(!is_valid_turf(T))
+			to_chat(src, "<span class='warning'>You cannot place your core in this area!</span>")
+			return FALSE
 		if(T.density)
 			to_chat(src, "<span class='warning'>This spot is too dense to place a blob core on!</span>")
-			return 0
+			return FALSE
 		for(var/obj/O in T)
 			if(istype(O, /obj/structure/blob))
 				if(istype(O, /obj/structure/blob/normal))
 					qdel(O)
 				else
 					to_chat(src, "<span class='warning'>There is already a blob here!</span>")
-					return 0
+					return FALSE
 			else if(O.density)
 				to_chat(src, "<span class='warning'>This spot is too dense to place a blob core on!</span>")
-				return 0
+				return FALSE
 		if(!pop_override && world.time <= manualplace_min_time && world.time <= autoplace_max_time)
 			to_chat(src, "<span class='warning'>It is too early to place your blob core!</span>")
-			return 0
+			return FALSE
 	else if(placement_override == 1)
 		var/turf/T = pick(GLOB.blobstart)
 		forceMove(T) //got overrided? you're somewhere random, motherfucker
 	if(placed && blob_core)
 		blob_core.forceMove(loc)
 	else
-		var/obj/structure/blob/core/core = new(get_turf(src), src, 1)
+		var/obj/structure/blob/core/core = new(get_turf(src), src, TRUE)
 		core.overmind = src
 		blobs_legit += src
 		blob_core = core
 		core.update_icon()
 	update_health_hud()
-	placed = 1
-	return 1
+	placed = TRUE
+	return TRUE
 
 /mob/camera/blob/verb/transport_core()
 	set category = "Blob"
@@ -169,7 +175,7 @@
 
 	B.naut = TRUE	//temporary placeholder to prevent creation of more than one per factory.
 	to_chat(src, "<span class='notice'>You attempt to produce a blobbernaut.</span>")
-	var/list/mob/dead/observer/candidates = pollGhostCandidates("Do you want to play as a [blobstrain.name] blobbernaut?", ROLE_BLOB, null, ROLE_BLOB, 50) //players must answer rapidly
+	var/list/mob/dead/observer/candidates = poll_ghost_candidates("Do you want to play as a [blobstrain.name] blobbernaut?", ROLE_BLOB, /datum/role_preference/midround_ghost/blob, 7.5 SECONDS, ignore_category = POLL_IGNORE_BLOB_HELPER) //players must answer rapidly
 	if(LAZYLEN(candidates)) //if we got at least one candidate, they're a blobbernaut now.
 		B.max_integrity = initial(B.max_integrity) * 0.25 //factories that produced a blobbernaut have much lower health
 		B.obj_integrity = min(B.obj_integrity, B.max_integrity)
@@ -210,8 +216,7 @@
 	if(!blob_core)
 		to_chat(src, "<span class='userdanger'>You have no core and are about to die! May you rest in peace.</span>")
 		return
-	var/area/A = get_area(T)
-	if(isspaceturf(T) || A && !A.blob_allowed)
+	if(!is_valid_turf(T))
 		to_chat(src, "<span class='warning'>You cannot relocate your core here!</span>")
 		return
 	if(!can_buy(80))
@@ -265,7 +270,7 @@
 	if(can_buy(BLOB_SPREAD_COST))
 		var/attacksuccess = FALSE
 		for(var/mob/living/L in T)
-			if(ROLE_BLOB in L.faction) //no friendly/dead fire
+			if(FACTION_BLOB in L.faction) //no friendly/dead fire
 				continue
 			if(L.stat != DEAD)
 				attacksuccess = TRUE
@@ -320,7 +325,7 @@
 	for(var/mob/living/simple_animal/hostile/blob/blobspore/BS in blob_mobs)
 		if(!BS.key && isturf(BS.loc) && get_dist(BS, T) <= 35)
 			BS.LoseTarget()
-			BS.Goto(pick(surrounding_turfs), BS.move_to_delay)
+			BS.Goto(pick(surrounding_turfs), BS.move_to_delay, 0)
 
 /mob/camera/blob/verb/blob_broadcast()
 	set category = "Blob"
@@ -340,25 +345,56 @@
 	set category = "Blob"
 	set name = "Reactive Strain Adaptation (40)"
 	set desc = "Replaces your strain with a random, different one."
-	if(!rerolling && (free_strain_rerolls || can_buy(40)))
-		rerolling = TRUE
-		reroll_strain()
-		rerolling = FALSE
-		if(free_strain_rerolls)
-			free_strain_rerolls--
-		last_reroll_time = world.time
 
-/mob/camera/blob/proc/reroll_strain()
-	var/list/choices = list()
-	while (length(choices) < 4)
-		var/datum/blobstrain/bs = pick((GLOB.valid_blobstrains))
-		choices[initial(bs.name)] = bs
+	if (!free_strain_rerolls && blob_points < BLOB_REROLL_COST)
+		to_chat(src, "<span class='warning'>You need at least [BLOB_REROLL_COST] resources to reroll your strain again!</span>")
+		return
 
-	var/choice = input(usr, "Please choose a new strain","Strain") as anything in sortList(choices, /proc/cmp_typepaths_asc)
-	if (choice && choices[choice] && !QDELETED(src))
-		var/datum/blobstrain/bs = choices[choice]
-		set_strain(bs)
+	open_reroll_menu()
 
+/// Open the menu to reroll strains
+/mob/camera/blob/proc/open_reroll_menu()
+	if (!strain_choices || need_reroll_strain)
+		strain_choices = list()
+
+		var/list/new_strains = GLOB.valid_blobstrains.Copy()
+		for (var/_ in 1 to BLOB_REROLL_CHOICES)
+			var/datum/blobstrain/strain = pick_n_take(new_strains)
+
+			var/image/strain_icon = image('icons/mob/blob.dmi', "blob_core")
+			strain_icon.color = initial(strain.color)
+
+			var/info_text = "<span class='boldnotice'>[initial(strain.name)]</span>"
+			info_text += "<br><span class='notice'>[initial(strain.analyzerdescdamage)]</span>"
+			if (!isnull(initial(strain.analyzerdesceffect)))
+				info_text += "<br><span class='notice'>[initial(strain.analyzerdesceffect)]</span>"
+
+			var/datum/radial_menu_choice/choice = new
+			choice.image = strain_icon
+			choice.info = info_text
+
+			strain_choices[initial(strain.name)] = choice
+			need_reroll_strain = FALSE
+
+	var/strain_result = show_radial_menu(src, src, strain_choices, radius = BLOB_REROLL_RADIUS, tooltips = TRUE)
+	if (isnull(strain_result))
+		return
+
+	if (!free_strain_rerolls && !can_buy(BLOB_REROLL_COST))
+		return
+
+	need_reroll_strain = TRUE
+	for (var/_other_strain in GLOB.valid_blobstrains)
+		var/datum/blobstrain/other_strain = _other_strain
+		if (initial(other_strain.name) == strain_result)
+			set_strain(other_strain)
+
+			if (free_strain_rerolls)
+				free_strain_rerolls -= 1
+
+			last_reroll_time = world.time
+
+			return
 
 /mob/camera/blob/verb/blob_help()
 	set category = "Blob"
@@ -383,3 +419,6 @@
 	if(!placed && autoplace_max_time <= world.time)
 		to_chat(src, "<span class='big'><font color=\"#EE4000\">You will automatically place your blob core in [DisplayTimeText(autoplace_max_time - world.time)].</font></span>")
 		to_chat(src, "<span class='big'><font color=\"#EE4000\">You [manualplace_min_time ? "will be able to":"can"] manually place your blob core by pressing the Place Blob Core button in the bottom right corner of the screen.</font></span>")
+
+#undef BLOB_REROLL_CHOICES
+#undef BLOB_REROLL_RADIUS

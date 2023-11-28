@@ -3,7 +3,7 @@
 	k_elasticity = 0
 	unit_name = "crate"
 	export_types = list(/obj/structure/closet/crate)
-	exclude_types = list(/obj/structure/closet/crate/large, /obj/structure/closet/crate/wooden)
+	exclude_types = list(/obj/structure/closet/crate/large, /obj/structure/closet/crate/wooden, /obj/structure/closet/crate/mail)
 
 /datum/export/large/crate/total_printout(datum/export_report/ex, notes = TRUE) // That's why a goddamn metal crate costs that much.
 	. = ..()
@@ -27,7 +27,7 @@
 	exclude_types = list()
 
 /datum/export/large/crate/coffin
-	cost = 250//50 wooden crates cost 2000 points, and you can make 10 coffins in seconds with those planks. Each coffin selling for 250 means you can make a net gain of 500 points for wasting your time making coffins.
+	cost = 140 //50 wood costs 1700, makes 10 coffins, makes 1400 back. No free money allowed, considering they can be easlily stacked with disposal loops. Additionally you still get 600 credits from the box + manifest either way, for a total of 2000 back. Total of 300 profit for wasting your time building coffins.
 	unit_name = "coffin"
 	export_types = list(/obj/structure/closet/crate/coffin)
 
@@ -112,17 +112,6 @@
 	export_types = list(/obj/machinery/the_singularitygen)
 	include_subtypes = FALSE
 
-/datum/export/large/am_control_unit
-	cost = 4000
-	unit_name = "antimatter control unit"
-	export_types = list(/obj/machinery/power/am_control_unit)
-
-/datum/export/large/am_shielding_container
-	cost = 150
-	unit_name = "packaged antimatter reactor section"
-	export_types = list(/obj/item/am_shielding_container)
-
-
 /datum/export/large/iv
 	cost = 50
 	unit_name = "iv drip"
@@ -131,7 +120,7 @@
 /datum/export/large/barrier
 	cost = 25
 	unit_name = "security barrier"
-	export_types = list(/obj/item/grenade/barrier, /obj/structure/barricade/security)
+	export_types = list(/obj/item/security_barricade, /obj/structure/barricade/security)
 
 /datum/export/large/gas_canister
 	cost = 10 //Base cost of canister. You get more for nice gases inside.
@@ -141,10 +130,9 @@
 	var/obj/machinery/portable_atmospherics/canister/C = O
 	var/worth = 10
 
-	worth += C.air_contents.get_moles(/datum/gas/bz)*4
-	worth += C.air_contents.get_moles(/datum/gas/stimulum)*100
-	worth += C.air_contents.get_moles(/datum/gas/hypernoblium)*1000
-	worth += C.air_contents.get_moles(/datum/gas/miasma)*10
-	worth += C.air_contents.get_moles(/datum/gas/tritium)*5
-	worth += C.air_contents.get_moles(/datum/gas/pluoxium)*5
+	worth += C.air_contents.get_moles(GAS_BZ)*4
+	worth += C.air_contents.get_moles(GAS_STIMULUM)*100
+	worth += C.air_contents.get_moles(GAS_HYPERNOB)*1000
+	worth += C.air_contents.get_moles(GAS_TRITIUM)*5
+	worth += C.air_contents.get_moles(GAS_PLUOXIUM)*5
 	return worth

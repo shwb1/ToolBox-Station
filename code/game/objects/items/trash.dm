@@ -86,27 +86,20 @@
 	name = "Maintenance Peaches"
 	icon_state = "peachcanmaint_empty"
 
+/obj/item/trash/can/food/beefbroth
+	name = "canned beef broth"
+	icon = 'icons/obj/food/food.dmi'
+	icon_state = "beefcan_empty"
+
 /obj/item/trash/can/food/beans
 	name = "tin of beans"
 	icon = 'icons/obj/food/food.dmi'
 	icon_state = "beans_empty"
 
-/obj/item/trash/can/Initialize()
+/obj/item/trash/can/Initialize(mapload)
 	. = ..()
 	pixel_x = rand(-4,4)
 	pixel_y = rand(-4,4)
 
 /obj/item/trash/attack(mob/M, mob/living/user)
 	return
-
-/obj/item/trash/coal
-	name = "lump of coal"
-	icon = 'icons/obj/mining.dmi'
-	icon_state = "slag"
-	desc = "Someone's gotten on the naughty list."
-	grind_results = list(/datum/reagent/carbon = 20)
-
-/obj/item/trash/coal/burn()
-	visible_message("[src] fuses into a diamond! Someone wasn't so naughty after all...")
-	new /obj/item/stack/ore/diamond(loc)
-	qdel(src)

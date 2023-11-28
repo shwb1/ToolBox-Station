@@ -8,9 +8,9 @@
 	debris = list(/obj/item/stack/sheet/runed_metal = 1)
 
 /obj/structure/destructible/cult/proc/conceal() //for spells that hide cult presence
-	density = FALSE
+	set_density(FALSE)
 	visible_message("<span class='danger'>[src] fades away.</span>")
-	invisibility = INVISIBILITY_OBSERVER
+	invisibility = INVISIBILITY_SPIRIT
 	alpha = 100 //To help ghosts distinguish hidden runes
 	light_range = 0
 	light_power = 0
@@ -18,7 +18,7 @@
 	STOP_PROCESSING(SSfastprocess, src)
 
 /obj/structure/destructible/cult/proc/reveal() //for spells that reveal cult presence
-	density = initial(density)
+	set_density(initial(density))
 	invisibility = 0
 	visible_message("<span class='danger'>[src] suddenly appears!</span>")
 	alpha = initial(alpha)
@@ -53,17 +53,6 @@
 			to_chat(M, "<span class='cult'>You cannot repair [src], as [p_theyre()] undamaged!</span>")
 	else
 		..()
-
-/obj/structure/destructible/cult/attackby(obj/I, mob/user, params)
-	if(istype(I, /obj/item/melee/cultblade/dagger) && iscultist(user))
-		anchored = !anchored
-		to_chat(user, "<span class='notice'>You [anchored ? "":"un"]secure \the [src] [anchored ? "to":"from"] the floor.</span>")
-		if(!anchored)
-			icon_state = "[initial(icon_state)]_off"
-		else
-			icon_state = initial(icon_state)
-	else
-		return ..()
 
 /obj/structure/destructible/cult/talisman
 	name = "altar"
@@ -154,7 +143,7 @@
 	var/corrupt_delay = 50
 	var/last_corrupt = 0
 
-/obj/structure/destructible/cult/pylon/Initialize()
+/obj/structure/destructible/cult/pylon/Initialize(mapload)
 	..()
 	return INITIALIZE_HINT_LATELOAD
 
@@ -166,25 +155,26 @@
 	STOP_PROCESSING(SSfastprocess, src)
 	return ..()
 
-/obj/structure/destructible/cult/pylon/process()
+/obj/structure/destructible/cult/pylon/process(delta_time)
 	if(!anchored)
 		return
 	if(last_heal <= world.time)
 		last_heal = world.time + heal_delay
 		for(var/mob/living/L in range(5, src))
-			if(iscultist(L) || isshade(L) || isconstruct(L))
-				if(L.health != L.maxHealth)
-					new /obj/effect/temp_visual/heal(get_turf(src), "#960000")
-					if(ishuman(L))
-						L.adjustBruteLoss(-1, 0)
-						L.adjustFireLoss(-1, 0)
-						L.updatehealth()
-					if(isshade(L) || isconstruct(L))
-						var/mob/living/simple_animal/M = L
-						if(M.health < M.maxHealth)
-							M.adjustHealth(-3)
-				if(ishuman(L) && L.blood_volume < BLOOD_VOLUME_NORMAL)
+			if(L.health == L.maxHealth)
+				continue
+			if(!iscultist(L) && !isshade(L) && !isconstruct(L))
+				continue
+			new /obj/effect/temp_visual/heal(get_turf(src), "#960000")
+			if(ishuman(L))
+				L.adjustBruteLoss(-5*delta_time, 0)
+				L.adjustFireLoss(-5*delta_time, 0)
+				L.updatehealth()
+				if(L.blood_volume < BLOOD_VOLUME_NORMAL)
 					L.blood_volume += 1.0
+			else if(isshade(L) || isconstruct(L))
+				var/mob/living/simple_animal/M = L
+				M.adjustHealth(-15*delta_time)
 			CHECK_TICK
 	if(last_corrupt <= world.time)
 		var/list/validturfs = list()
@@ -257,6 +247,9 @@
 		for(var/N in pickedtype)
 			new N(get_turf(src))
 			to_chat(user, "<span class='cultitalic'>You summon the [choice] from the archives!</span>")
+
+/obj/structure/destructible/cult/tome/library //library archive
+	debris = null
 
 /obj/effect/gateway
 	name = "gateway"

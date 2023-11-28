@@ -1,35 +1,50 @@
 /datum/job/clown
-	title = "Clown"
+	title = JOB_NAME_CLOWN
 	flag = CLOWN
-	department_head = list("Head of Personnel")
-	department_flag = CIVILIAN
+	description = "Be the life and soul of the station. Entertain the crew with your hilarious jokes and silly antics, including slipping, pie-ing and honking around. Remember your job is to keep things funny for others, not just yourself."
+	department_for_prefs = DEPT_BITFLAG_CIV
+	department_head = list(JOB_NAME_HEADOFPERSONNEL)
+	supervisors = "the head of personnel"
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-	supervisors = "the head of personnel"
 	selection_color = "#dddddd"
-	chat_color = "#FF83D7"
 
 	outfit = /datum/outfit/job/clown
 
 	access = list(ACCESS_THEATRE,ACCESS_HONK)
 	minimal_access = list(ACCESS_THEATRE,ACCESS_HONK)
-	paycheck = PAYCHECK_MINIMAL
-	paycheck_department = ACCOUNT_SRV
+
+	department_flag = CIVILIAN
+	departments = DEPT_BITFLAG_SRV
+	bank_account_department = ACCOUNT_SRV_BITFLAG
+	payment_per_department = list(ACCOUNT_SRV_ID = PAYCHECK_MINIMAL)
+
 
 	display_order = JOB_DISPLAY_ORDER_CLOWN
+	rpg_title = "Jester"
 
+	species_outfits = list(
+		SPECIES_PLASMAMAN = /datum/outfit/plasmaman/honk
+	)
 
-/datum/job/clown/after_spawn(mob/living/carbon/human/H, mob/M)
+	minimal_lightup_areas = list(/area/crew_quarters/theatre)
+
+/datum/job/clown/after_spawn(mob/living/carbon/human/H, mob/M, latejoin = FALSE, client/preference_source, on_dummy = FALSE)
 	. = ..()
-	H.apply_pref_name("clown", M.client)
+	if(!ishuman(H))
+		return
+	if(!M.client || on_dummy)
+		return
+	H.apply_pref_name(/datum/preference/name/clown, preference_source)
+
 
 /datum/outfit/job/clown
-	name = "Clown"
+	name = JOB_NAME_CLOWN
 	jobtype = /datum/job/clown
 
 	id = /obj/item/card/id/job/clown
-	belt = /obj/item/pda/clown
+	belt = /obj/item/modular_computer/tablet/pda/clown
 	ears = /obj/item/radio/headset/headset_srv
 	uniform = /obj/item/clothing/under/rank/civilian/clown
 	shoes = /obj/item/clothing/shoes/clown_shoes
@@ -48,9 +63,14 @@
 	satchel = /obj/item/storage/backpack/clown
 	duffelbag = /obj/item/storage/backpack/duffelbag/clown //strangely has a duffel
 
-	box = /obj/item/storage/box/hug/survival
+	box = /obj/item/storage/box/survival/hug
 
 	chameleon_extras = /obj/item/stamp/clown
+
+/datum/outfit/job/clown/pre_equip(mob/living/carbon/human/H, visualsOnly)
+	. = ..()
+	if(HAS_TRAIT(SSstation, STATION_TRAIT_BANANIUM_SHIPMENTS))
+		backpack_contents[/obj/item/stack/sheet/mineral/bananium/five] = 1
 
 /datum/outfit/job/clown/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	..()
@@ -59,3 +79,4 @@
 
 	H.fully_replace_character_name(H.real_name, pick(GLOB.clown_names)) //rename the mob AFTER they're equipped so their ID gets updated properly.
 	H.dna.add_mutation(CLOWNMUT)
+	ADD_TRAIT(H, TRAIT_NAIVE, JOB_TRAIT)

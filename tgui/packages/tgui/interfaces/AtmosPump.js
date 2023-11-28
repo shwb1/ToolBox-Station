@@ -5,9 +5,7 @@ import { Window } from '../layouts';
 export const AtmosPump = (props, context) => {
   const { act, data } = useBackend(context);
   return (
-    <Window
-      width={335}
-      height={115}>
+    <Window width={335} height={115}>
       <Window.Content>
         <Section>
           <LabeledList>
@@ -16,7 +14,8 @@ export const AtmosPump = (props, context) => {
                 icon={data.on ? 'power-off' : 'times'}
                 content={data.on ? 'On' : 'Off'}
                 selected={data.on}
-                onClick={() => act('power')} />
+                onClick={() => act('power')}
+              />
             </LabeledList.Item>
             {data.max_rate ? (
               <LabeledList.Item label="Transfer Rate">
@@ -26,18 +25,24 @@ export const AtmosPump = (props, context) => {
                   width="63px"
                   unit="L/s"
                   minValue={0}
-                  maxValue={200}
-                  onChange={(e, value) => act('rate', {
-                    rate: value,
-                  })} />
+                  maxValue={data.max_rate}
+                  onChange={(e, value) =>
+                    act('rate', {
+                      rate: value,
+                    })
+                  }
+                />
                 <Button
                   ml={1}
                   icon="plus"
                   content="Max"
                   disabled={data.rate === data.max_rate}
-                  onClick={() => act('rate', {
-                    rate: 'max',
-                  })} />
+                  onClick={() =>
+                    act('rate', {
+                      rate: 'max',
+                    })
+                  }
+                />
               </LabeledList.Item>
             ) : (
               <LabeledList.Item label="Output Pressure">
@@ -47,19 +52,25 @@ export const AtmosPump = (props, context) => {
                   unit="kPa"
                   width="75px"
                   minValue={0}
-                  maxValue={4500}
+                  maxValue={data.max_pressure}
                   step={10}
-                  onChange={(e, value) => act('pressure', {
-                    pressure: value,
-                  })} />
+                  onChange={(e, value) =>
+                    act('pressure', {
+                      pressure: value,
+                    })
+                  }
+                />
                 <Button
                   ml={1}
                   icon="plus"
                   content="Max"
                   disabled={data.pressure === data.max_pressure}
-                  onClick={() => act('pressure', {
-                    pressure: 'max',
-                  })} />
+                  onClick={() =>
+                    act('pressure', {
+                      pressure: 'max',
+                    })
+                  }
+                />
               </LabeledList.Item>
             )}
           </LabeledList>

@@ -21,6 +21,7 @@
 	var/l_setshort = 0
 	var/l_hacking = 0
 	var/open = FALSE
+	var/can_hack_open = TRUE
 	w_class = WEIGHT_CLASS_NORMAL
 	desc = "This shouldn't exist. If it does, create an issue report."
 
@@ -32,33 +33,34 @@
 
 /obj/item/storage/secure/examine(mob/user)
 	. = ..()
-	. += "The service panel is currently <b>[open ? "unscrewed" : "screwed shut"]</b>."
+	if(can_hack_open)
+		. += "The service panel is currently <b>[open ? "unscrewed" : "screwed shut"]</b>."
 
 /obj/item/storage/secure/attackby(obj/item/W, mob/user, params)
-	if(SEND_SIGNAL(src, COMSIG_IS_STORAGE_LOCKED))
+	if(can_hack_open && SEND_SIGNAL(src, COMSIG_IS_STORAGE_LOCKED))
 		if (W.tool_behaviour == TOOL_SCREWDRIVER)
 			if (W.use_tool(src, user, 20))
-				open =! open
+				open = !open
 				to_chat(user, "<span class='notice'>You [open ? "open" : "close"] the service panel.</span>")
 			return
 		if (W.tool_behaviour == TOOL_WIRECUTTER)
 			to_chat(user, "<span class='danger'>[src] is protected from this sort of tampering, yet it appears the internal memory wires can still be <b>pulsed</b>.</span>")
-		if ((W.tool_behaviour == TOOL_MULTITOOL) && (!l_hacking))
-			if(open == 1)
+			return
+		if ((W.tool_behaviour == TOOL_MULTITOOL))
+			if(l_hacking)
+				to_chat(user, "<span class='danger'>This safe is already being hacked.</span>")
+				return
+			if(open)
 				to_chat(user, "<span class='danger'>Now attempting to reset internal memory, please hold.</span>")
-				l_hacking = 1
+				l_hacking = TRUE
 				if (W.use_tool(src, user, 400))
 					to_chat(user, "<span class='danger'>Internal memory reset - lock has been disengaged.</span>")
-					l_set = 0
-					l_hacking = 0
-				else
-					l_hacking = 0
-			else
-				to_chat(user, "<span class='notice'>You must <b>unscrew</b> the service panel before you can pulse the wiring.</span>")
+					l_set = FALSE
+
+				l_hacking = FALSE
+				return
+			to_chat(user, "<span class='notice'>You must <b>unscrew</b> the service panel before you can pulse the wiring.</span>")
 			return
-		//At this point you have exhausted all the special things to do when locked
-		// ... but it's still locked.
-		return
 
 	// -> storage/attackby() what with handle insertion, etc
 	return ..()
@@ -66,16 +68,19 @@
 /obj/item/storage/secure/attack_self(mob/user)
 	var/locked = SEND_SIGNAL(src, COMSIG_IS_STORAGE_LOCKED)
 	user.set_machine(src)
-	var/dat = text("<TT><B>[]</B><BR>\n\nLock Status: []",src, (locked ? "LOCKED" : "UNLOCKED"))
+	var/dat = "<TT><B>[src]</B><BR>\n\nLock Status: [(locked ? "LOCKED" : "UNLOCKED")]"
 	var/message = "Code"
 	if ((l_set == 0) && (!l_setshort))
-		dat += text("<p>\n<b>5-DIGIT PASSCODE NOT SET.<br>ENTER NEW PASSCODE.</b>")
+		dat += "<p>\n<b>5-DIGIT PASSCODE NOT SET.<br>ENTER NEW PASSCODE.</b>"
 	if (l_setshort)
-		dat += text("<p>\n<font color=red><b>ALERT: MEMORY SYSTEM ERROR - 6040 201</b></font>")
-	message = text("[]", code)
+		dat += "<p>\n<font color=red><b>ALERT: MEMORY SYSTEM ERROR - 6040 201</b></font>"
+	message = "[code]"
 	if (!locked)
 		message = "*****"
-	dat += text("<HR>\n>[]<BR>\n<A href='?src=[REF(src)];type=1'>1</A>-<A href='?src=[REF(src)];type=2'>2</A>-<A href='?src=[REF(src)];type=3'>3</A><BR>\n<A href='?src=[REF(src)];type=4'>4</A>-<A href='?src=[REF(src)];type=5'>5</A>-<A href='?src=[REF(src)];type=6'>6</A><BR>\n<A href='?src=[REF(src)];type=7'>7</A>-<A href='?src=[REF(src)];type=8'>8</A>-<A href='?src=[REF(src)];type=9'>9</A><BR>\n<A href='?src=[REF(src)];type=R'>R</A>-<A href='?src=[REF(src)];type=0'>0</A>-<A href='?src=[REF(src)];type=E'>E</A><BR>\n</TT>", message)
+	dat += "<HR>\n>[message]<BR>\n<A href='?src=[REF(src)];type=1'>1</A>-<A href='?src=[REF(src)];type=2'>2</A>-<A href='?src=[REF(src)];type=3'>3</A><BR>\n \
+			<A href='?src=[REF(src)];type=4'>4</A>-<A href='?src=[REF(src)];type=5'>5</A>-<A href='?src=[REF(src)];type=6'>6</A><BR>\n \
+			<A href='?src=[REF(src)];type=7'>7</A>-<A href='?src=[REF(src)];type=8'>8</A>-<A href='?src=[REF(src)];type=9'>9</A><BR>\n \
+			<A href='?src=[REF(src)];type=R'>R</A>-<A href='?src=[REF(src)];type=0'>0</A>-<A href='?src=[REF(src)];type=E'>E</A><BR>\n</TT>"
 	user << browse(dat, "window=caselock;size=300x280")
 
 /obj/item/storage/secure/Topic(href, href_list)
@@ -101,7 +106,7 @@
 				code = null
 				SEND_SIGNAL(src, COMSIG_TRY_STORAGE_HIDE_FROM, usr)
 			else
-				code += text("[]", sanitize_text(href_list["type"]))
+				code += "[sanitize_text(href_list["type"])]"
 				if (length(code) > 5)
 					code = "ERROR"
 		add_fingerprint(usr)
@@ -118,10 +123,10 @@
 /obj/item/storage/secure/briefcase
 	name = "secure briefcase"
 	icon = 'icons/obj/storage.dmi'
-	icon_state = "secure"
+	icon_state = "sec-case"
 	item_state = "sec-case"
-	lefthand_file = 'icons/mob/inhands/equipment/briefcase_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/equipment/briefcase_righthand.dmi'
+	lefthand_file = 'icons/mob/inhands/equipment/case_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/equipment/case_righthand.dmi'
 	desc = "A large briefcase with a digital locking system."
 	force = 8
 	hitsound = "swing_hit"
@@ -129,7 +134,6 @@
 	throw_range = 4
 	w_class = WEIGHT_CLASS_BULKY
 	attack_verb = list("bashed", "battered", "bludgeoned", "thrashed", "whacked")
-	block_upgrade_walk = 1
 
 /obj/item/storage/secure/briefcase/PopulateContents()
 	new /obj/item/paper(src)
@@ -144,11 +148,12 @@
 //Syndie variant of Secure Briefcase. Contains space cash, slightly more robust.
 /obj/item/storage/secure/briefcase/syndie
 	force = 15
+	item_flags = ISWEAPON
 
 /obj/item/storage/secure/briefcase/syndie/PopulateContents()
 	..()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	for(var/i = 0, i < STR.max_items - 2, i++)
+	for(var/i in 1 to STR.max_items - 2)
 		new /obj/item/stack/spacecash/c1000(src)
 
 
@@ -165,6 +170,7 @@
 	icon_sparking = "safespark"
 	desc = "Excellent for securing things away from grubby hands."
 	force = 8
+	layer = ABOVE_WINDOW_LAYER
 	w_class = WEIGHT_CLASS_GIGANTIC
 	anchored = TRUE
 	density = FALSE
@@ -187,3 +193,40 @@
 
 /obj/item/storage/secure/safe/HoS
 	name = "head of security's safe"
+
+/**
+ * This safe is meant to be damn robust. To break in, you're supposed to get creative, or use acid or an explosion.
+ *
+ * This makes the safe still possible to break in for someone who is prepared and capable enough, either through
+ * chemistry, botany or whatever else.
+ *
+ * The safe is also weak to explosions, so spending some early TC could allow an antag to blow it upen if they can
+ * get access to it.
+ */
+/obj/item/storage/secure/safe/caps_spare
+	name = "captain's spare ID safe"
+	desc = "In case of emergency, do not break glass. All Captains and Acting Captains are provided with codes to access this safe. \
+It is made out of the same material as the station's Black Box and is designed to resist all conventional weaponry. \
+There appears to be a small amount of surface corrosion. It doesn't look like it could withstand much of an explosion. \
+It remains quite flush against the wall, and there only seems to be enough room to fit something as slim as an ID card."
+	can_hack_open = FALSE
+	armor = list(MELEE = 100, BULLET = 100, LASER = 100, ENERGY = 100, BOMB = 70, BIO = 100, RAD = 100, FIRE = 80, ACID = 70);
+	max_integrity = 300
+	color = "#ffdd33"
+
+/obj/item/storage/secure/safe/caps_spare/Initialize(mapload)
+	. = ..()
+	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
+	STR.max_items = 1
+	STR.can_hold = typecacheof(list(
+		/obj/item/card/id/))
+	l_code = SSjob.spare_id_safe_code
+	l_set = TRUE
+	SEND_SIGNAL(src, COMSIG_TRY_STORAGE_SET_LOCKSTATE, TRUE)
+
+/obj/item/storage/secure/safe/caps_spare/PopulateContents()
+	new /obj/item/card/id/captains_spare(src)
+
+/obj/item/storage/secure/safe/caps_spare/rust_heretic_act()
+	take_damage(damage_amount = 100, damage_type = BRUTE, damage_flag = MELEE, armour_penetration = 100)
+	return TRUE

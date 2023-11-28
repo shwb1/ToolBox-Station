@@ -1,8 +1,9 @@
-/turf/open/floor/mech_bay_recharge_floor               //        Whos idea it was
-	name = "mech bay recharge station"                      //        Recharging turfs
+/turf/open/floor/mech_bay_recharge_floor
+	name = "mech bay recharge station" //Recharging turfs
 	desc = "Parking a mech on this station will recharge its internal power cell."
-	icon = 'icons/turf/floors.dmi'                          //		  That are set in stone to check the west turf for recharge port
-	icon_state = "recharge_floor"                           //        Some people just want to watch the world burn i guess
+	icon = 'icons/turf/floors.dmi'
+	icon_state = "recharge_floor"
+	//set in stone to check the west turf for recharge port
 
 /turf/open/floor/mech_bay_recharge_floor/break_tile()
 	ScrapeAway(flags = CHANGETURF_INHERIT_AIR)
@@ -21,11 +22,14 @@
 	circuit = /obj/item/circuitboard/machine/mech_recharger
 	var/obj/mecha/recharging_mech
 	var/obj/machinery/computer/mech_bay_power_console/recharge_console
-	var/max_charge = 50
+	///Power unit per second to charge by, modified by /RefreshParts()
+	var/recharge_power = 25
+	///turf that will be checked when a mech wants to charge. directly one turf in the direction it is facing
+	var/turf/recharging_turf
 	var/on = FALSE
-	var/turf/recharging_turf = null
 
-/obj/machinery/mech_bay_recharge_port/Initialize()
+
+/obj/machinery/mech_bay_recharge_port/Initialize(mapload)
 	. = ..()
 	recharging_turf = get_step(loc, dir)
 
@@ -42,23 +46,24 @@
 	var/MC
 	for(var/obj/item/stock_parts/capacitor/C in component_parts)
 		MC += C.rating
-	max_charge = MC * 25
+	recharge_power = MC * 25
 
 /obj/machinery/mech_bay_recharge_port/examine(mob/user)
 	. = ..()
 	if(in_range(user, src) || isobserver(user))
-		. += "<span class='notice'>The status display reads: Base recharge rate at <b>[max_charge]J</b> per cycle.</span>"
+		. += "<span class='notice'>The status display reads: Base recharge rate at <b>[siunit(recharge_power, "W", 1)]</b>.</span>"
 
 /obj/machinery/mech_bay_recharge_port/process()
-	if(stat & NOPOWER || !recharge_console)
+	if(machine_stat & NOPOWER || !recharge_console)
 		return
 	if(!recharging_mech)
 		recharging_mech = locate(/obj/mecha) in recharging_turf
 		if(recharging_mech)
 			recharge_console.update_icon()
+			recharge_console.ui_update()
 	if(recharging_mech && recharging_mech.cell)
 		if(recharging_mech.cell.charge < recharging_mech.cell.maxcharge)
-			var/delta = min(max_charge, recharging_mech.cell.maxcharge - recharging_mech.cell.charge)
+			var/delta = min(recharge_power, recharging_mech.cell.maxcharge - recharging_mech.cell.charge)
 			recharging_mech.give_power(delta)
 			use_power(delta*150)
 		else
@@ -66,6 +71,7 @@
 		if(recharging_mech.loc != recharging_turf)
 			recharging_mech = null
 			recharge_console.update_icon()
+			recharge_console.ui_update()
 
 
 /obj/machinery/mech_bay_recharge_port/attackby(obj/item/I, mob/user, params)
@@ -91,6 +97,12 @@
 	var/obj/machinery/mech_bay_recharge_port/recharge_port
 	light_color = LIGHT_COLOR_PINK
 
+	var/had_mech = FALSE //Keep track of whether we had a mech last update
+
+/obj/machinery/computer/mech_bay_power_console/ui_requires_update(mob/user, datum/tgui/ui)
+	. = ..()
+	if(recharge_port?.recharging_mech) //Update while there's a mech connected
+		. = TRUE
 
 /obj/machinery/computer/mech_bay_power_console/ui_state(mob/user)
 	return GLOB.default_state
@@ -141,13 +153,13 @@
 		else
 			recharge_port = null
 
-/obj/machinery/computer/mech_bay_power_console/update_icon()
-	..()
-	if(!recharge_port || !recharge_port.recharging_mech || !recharge_port.recharging_mech.cell || !(recharge_port.recharging_mech.cell.charge < recharge_port.recharging_mech.cell.maxcharge) || stat & (NOPOWER|BROKEN))
+/obj/machinery/computer/mech_bay_power_console/update_overlays()
+	. = ..()
+	if(!recharge_port || !recharge_port.recharging_mech || !recharge_port.recharging_mech.cell || !(recharge_port.recharging_mech.cell.charge < recharge_port.recharging_mech.cell.maxcharge) || machine_stat & (NOPOWER|BROKEN))
 		return
-	add_overlay("recharge_comp_on")
+	. += "recharge_comp_on"
 
-/obj/machinery/computer/mech_bay_power_console/Initialize()
+/obj/machinery/computer/mech_bay_power_console/Initialize(mapload)
 	. = ..()
 	reconnect()
 

@@ -53,8 +53,9 @@
 	req_access = list(ACCESS_ATMOSPHERICS)
 	max_integrity = 250
 	integrity_failure = 80
-	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 100, "bomb" = 0, "bio" = 100, "rad" = 100, "fire" = 90, "acid" = 30)
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 100, BOMB = 0, BIO = 100, RAD = 100, FIRE = 90, ACID = 30, STAMINA = 0)
 	resistance_flags = FIRE_PROOF
+	layer = ABOVE_WINDOW_LAYER
 
 	var/cyclestate = AIRLOCK_CYCLESTATE_INOPEN
 	var/interior_pressure = ONE_ATMOSPHERE
@@ -116,12 +117,12 @@
 	qdel(wires)
 	wires = null
 	cut_links()
-	SSair.atmos_machinery -= src
+	SSair.start_processing_machine(src)
 	return ..()
 
 /obj/machinery/advanced_airlock_controller/Initialize(mapload)
 	. = ..()
-	SSair.atmos_machinery += src
+	SSair.stop_processing_machine(src)
 	scan_on_late_init = mapload
 	if(mapload && (. != INITIALIZE_HINT_QDEL))
 		return INITIALIZE_HINT_LATELOAD
@@ -147,9 +148,14 @@
 		if(environment)
 			pressure = environment.return_pressure()
 	var/maxpressure = (exterior_pressure && (cyclestate == AIRLOCK_CYCLESTATE_OUTCLOSING || cyclestate == AIRLOCK_CYCLESTATE_OUTOPENING || cyclestate == AIRLOCK_CYCLESTATE_OUTOPEN)) ? exterior_pressure : interior_pressure
-	var/pressure_bars = round(pressure / maxpressure * 5 + 0.01)
+	var/pressure_bars
+	if(maxpressure == 0)
+		//1 is the lowest value found in monitors.dmi
+		pressure_bars = 1
+	else
+		pressure_bars = round(pressure / maxpressure * 5 + 0.01)
 
-	var/new_overlays_hash = "[pressure_bars]-[cyclestate]-[buildstage]-[panel_open]-[stat]-[shorted]-[locked]-\ref[vis_target]"
+	var/new_overlays_hash = "[pressure_bars]-[cyclestate]-[buildstage]-[panel_open]-[machine_stat]-[shorted]-[locked]-[vis_target]"
 	if(use_hash && new_overlays_hash == overlays_hash)
 		return
 	overlays_hash = new_overlays_hash
@@ -167,7 +173,7 @@
 
 	icon_state = "aac"
 
-	if((stat & (NOPOWER|BROKEN)) || shorted)
+	if((machine_stat & (NOPOWER|BROKEN)) || shorted)
 		return
 
 	var/is_exterior_pressure = (cyclestate == AIRLOCK_CYCLESTATE_OUTCLOSING || cyclestate == AIRLOCK_CYCLESTATE_OUTOPENING || cyclestate == AIRLOCK_CYCLESTATE_OUTOPEN)
@@ -187,7 +193,7 @@
 		var/matrix/TR = new
 		TR.Translate(0, 16)
 		TR.Multiply(new /matrix(s_dx, f_dx, 0, s_dy, f_dy, 0))
-		var/mutable_appearance/M = mutable_appearance(icon, "hologram-line", ABOVE_LIGHTING_LAYER, ABOVE_LIGHTING_PLANE)
+		var/mutable_appearance/M = mutable_appearance(icon, "hologram-line", FLOAT_LAYER, ABOVE_LIGHTING_PLANE)
 		M.transform = TR
 		add_overlay(M)
 
@@ -202,7 +208,7 @@
 				aidisabled = FALSE
 
 /obj/machinery/advanced_airlock_controller/proc/shock(mob/user, prb)
-	if((stat & (NOPOWER)))		// unpowered, no shock
+	if((machine_stat & (NOPOWER)))		// unpowered, no shock
 		return 0
 	if(!prob(prb))
 		return 0 //you lucked out, no shock for you
@@ -294,7 +300,7 @@
 	process_atmos()
 
 /obj/machinery/advanced_airlock_controller/process_atmos()
-	if((stat & (NOPOWER|BROKEN)) || shorted)
+	if((machine_stat & (NOPOWER|BROKEN)) || shorted)
 		update_icon(TRUE)
 		return
 
@@ -451,7 +457,7 @@
 				to_chat(user, "<span class='notice'>The wires have been [panel_open ? "exposed" : "unexposed"].</span>")
 				update_icon()
 				return
-			else if(istype(W, /obj/item/card/id) || istype(W, /obj/item/pda))// trying to unlock the interface with an ID card
+			else if(istype(W, /obj/item/card/id) || istype(W, /obj/item/modular_computer/tablet/pda))// trying to unlock the interface with an ID card
 				togglelock(user)
 				return
 			else if(panel_open && is_wire_tool(W))
@@ -600,6 +606,7 @@
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "AdvancedAirlockController")
+		ui.set_autoupdate(TRUE) // Pressure display, mode changes as part of the cycle process
 		ui.open()
 
 /obj/machinery/advanced_airlock_controller/ui_data(mob/user)
@@ -686,10 +693,12 @@
 							A.do_animate("deny")
 			if(is_allowed)
 				cycle_to(text2num(params["exterior"]))
+				. = TRUE
 		if("skip")
 			if((world.time - skip_timer) >= skip_delay && (cyclestate == AIRLOCK_CYCLESTATE_OUTCLOSING || cyclestate == AIRLOCK_CYCLESTATE_OUTOPENING || cyclestate == AIRLOCK_CYCLESTATE_INOPENING || cyclestate == AIRLOCK_CYCLESTATE_INCLOSING))
 				is_skipping = TRUE
-	if((locked && !usr.has_unlimited_silicon_privilege) || (usr.has_unlimited_silicon_privilege && aidisabled))
+				. = TRUE
+	if(!. && ((locked && !usr.has_unlimited_silicon_privilege) || (usr.has_unlimited_silicon_privilege && aidisabled)))
 		return
 	switch(action)
 		if("lock")
@@ -707,34 +716,46 @@
 				vents[vent] = curr_role & ~(role_to_toggle)
 			else
 				vents[vent] = curr_role | role_to_toggle
+			. = TRUE
 		if("set_airlock_role")
 			var/airlock = locate(params["airlock_id"])
 			if(airlock == null || airlocks[airlock] == null)
 				return
 			airlocks[airlock] = !!text2num(params["val"])
+			. = TRUE
 		if("clear_vis")
 			vis_target = null
+			. = TRUE
 		if("set_vis_vent")
 			var/vent = locate(params["vent_id"])
 			if(vent == null || vents[vent] == null)
 				return
 			vis_target = vent
+			. = TRUE
 		if("set_vis_airlock")
 			var/airlock = locate(params["airlock_id"])
 			if(airlock == null || airlocks[airlock] == null)
 				return
 			vis_target = airlock
+			. = TRUE
 		if("scan")
 			scan()
+			. = TRUE
 		if("interior_pressure")
-			interior_pressure = CLAMP(text2num(params["pressure"]), 0, ONE_ATMOSPHERE)
+			interior_pressure = clamp(text2num(params["pressure"]), 0, ONE_ATMOSPHERE)
+			. = TRUE
 		if("exterior_pressure")
-			exterior_pressure = CLAMP(text2num(params["pressure"]), 0, ONE_ATMOSPHERE)
+			exterior_pressure = clamp(text2num(params["pressure"]), 0, ONE_ATMOSPHERE)
+			. = TRUE
 		if("depressurization_margin")
-			depressurization_margin = CLAMP(text2num(params["pressure"]), 0.15, 40)
+			depressurization_margin = clamp(text2num(params["pressure"]), 0.15, 40)
+			. = TRUE
 		if("skip_delay")
-			skip_delay = CLAMP(text2num(params["skip_delay"]), 0, 1200)
-	update_icon(TRUE)
+			skip_delay = clamp(text2num(params["skip_delay"]), 0, 1200)
+			. = TRUE
+
+	if(.)
+		update_icon(TRUE)
 
 /obj/machinery/advanced_airlock_controller/proc/request_from_door(airlock)
 	var/role = airlocks[airlock]
@@ -771,14 +792,13 @@
 		togglelock(user)
 
 /obj/machinery/advanced_airlock_controller/proc/togglelock(mob/living/user)
-	if(stat & (NOPOWER|BROKEN))
+	if(machine_stat & (NOPOWER|BROKEN))
 		to_chat(user, "<span class='warning'>It does nothing!</span>")
 	else
 		if(src.allowed(usr) && !wires.is_cut(WIRE_IDSCAN))
 			locked = !locked
 			update_icon()
 			to_chat(user, "<span class='notice'>You [ locked ? "lock" : "unlock"] the airlock controller interface.</span>")
-			updateUsrDialog()
 		else
 			to_chat(user, "<span class='danger'>Access denied.</span>")
 	return
@@ -787,10 +807,8 @@
 	..()
 	update_icon()
 
-/obj/machinery/advanced_airlock_controller/emag_act(mob/user)
-	if(obj_flags & EMAGGED)
-		return
-	obj_flags |= EMAGGED
+/obj/machinery/advanced_airlock_controller/on_emag(mob/user)
+	..()
 	visible_message("<span class='warning'>Sparks fly out of [src]!</span>", "<span class='notice'>You emag [src], disabling its safeties.</span>")
 	playsound(src, "sparks", 50, 1)
 
@@ -810,7 +828,7 @@
 /obj/machinery/door/airlock
 	var/obj/machinery/advanced_airlock_controller/aac
 
-/obj/machinery/door/airlock/Initialize()
+/obj/machinery/door/airlock/Initialize(mapload)
 	. = ..()
 	update_aac_docked()
 /obj/machinery/door/airlock/Destroy()

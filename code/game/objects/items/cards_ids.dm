@@ -16,6 +16,7 @@
 	desc = "Does card things."
 	icon = 'icons/obj/card.dmi'
 	w_class = WEIGHT_CLASS_TINY
+	item_flags = ISWEAPON
 
 	var/list/files = list()
 
@@ -36,22 +37,17 @@
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
 	var/detail_color = COLOR_ASSEMBLY_ORANGE
 
-/obj/item/card/data/Initialize()
+/obj/item/card/data/Initialize(mapload)
 	.=..()
 	update_icon()
 
-/obj/item/card/data/update_icon()
-	cut_overlays()
+/obj/item/card/data/update_overlays()
+	. = ..()
 	if(detail_color == COLOR_FLOORTILE_GRAY)
 		return
 	var/mutable_appearance/detail_overlay = mutable_appearance('icons/obj/card.dmi', "[icon_state]-color")
 	detail_overlay.color = detail_color
-	add_overlay(detail_overlay)
-
-/obj/item/proc/GetCard()
-
-/obj/item/card/data/GetCard()
-	return src
+	. += detail_overlay
 
 /obj/item/card/data/full_color
 	desc = "A plastic magstripe card for simple and speedy data storage and transfer. This one has the entire card colored."
@@ -71,14 +67,20 @@
 	item_state = "card-id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
-	item_flags = NO_MAT_REDEMPTION | NOBLUDGEON
+	item_flags = NO_MAT_REDEMPTION | NOBLUDGEON | ISWEAPON
 	var/prox_check = TRUE //If the emag requires you to be in range
+	var/charges = 4
+	var/max_charges = 4
+	var/list/charge_timers = list()
+	var/charge_time = 30 SECONDS
+	var/updating = FALSE
+	var/sound/recharge_sound
+	var/soundvary = TRUE
 
-/obj/item/card/emag/bluespace
-	name = "bluespace cryptographic sequencer"
-	desc = "It's a blue card with a magnetic strip attached to some circuitry. It appears to have some sort of transmitter attached to it."
-	icon_state = "emag_bs"
-	prox_check = FALSE
+/obj/item/card/emag/Initialize(mapload)
+	. = ..()
+	update_appearance(updates = UPDATE_OVERLAYS)
+	recharge_sound = sound('sound/machines/twobeep.ogg', FALSE, FALSE, 0, 10)
 
 /obj/item/card/emag/attack()
 	return
@@ -88,8 +90,58 @@
 	var/atom/A = target
 	if(!proximity && prox_check)
 		return
-	log_combat(user, A, "attempted to emag")
-	A.emag_act(user)
+	log_combat(user, A, "attempted to emag with [charges] charges")
+	A.use_emag(user, src)
+
+/obj/item/card/emag/proc/use_charge()
+	charges--
+	charge_timers.Add(addtimer(CALLBACK(src, PROC_REF(recharge)), charge_time, TIMER_STOPPABLE))
+	INVOKE_ASYNC(src, PROC_REF(do_animation))
+
+/obj/item/card/emag/proc/recharge()
+	charges = min(charges+1, max_charges)
+	if(soundvary)
+		recharge_sound.frequency = get_rand_frequency()
+	if(get_dist(src, usr) == 0)
+		SEND_SOUND(usr, recharge_sound)
+	charge_timers.Remove(charge_timers[1])
+	INVOKE_ASYNC(src, PROC_REF(do_animation))
+
+/obj/item/card/emag/proc/do_animation()
+	updating = TRUE
+	update_appearance(updates = UPDATE_OVERLAYS)
+	sleep(3)
+	updating = FALSE
+	update_appearance(updates = UPDATE_OVERLAYS)
+
+/obj/item/card/emag/examine(mob/user)
+	. = ..()
+	switch(charges)
+		if(2 to INFINITY)
+			. += "<span class='notice'>It has [charges] charges remaining.</span>"
+		if(1)
+			. += "<span class='notice'>It has [charges] charge remaining.</span>"
+		if(-INFINITY to 0)
+			. += "<span class='warning'>It's out of charges!</span>"
+
+/obj/item/card/emag/update_overlays()
+	. = ..()
+	if(updating)
+		. += "emag_progress"
+	else
+		switch(charges)
+			if(-INFINITY to 0)
+				. += "emag_0"
+			if(10 to INFINITY)
+				. += "emag_9"
+			if(1 to 9)
+				. += "emag_[charges]"
+
+/obj/item/card/emag/bluespace
+	name = "bluespace cryptographic sequencer"
+	desc = "It's a blue card with a magnetic strip attached to some circuitry. It appears to have some sort of transmitter attached to it."
+	icon_state = "emag_bs"
+	prox_check = FALSE
 
 /obj/item/card/emagfake
 	desc = "It is an ID card, the magnetic strip is exposed and attached to some circuitry. Closer inspection shows that this card is a poorly made replica, with a \"DonkCo\" logo stamped on the back."
@@ -108,23 +160,27 @@
 	desc = "A card used to provide ID and determine access across the station."
 	icon_state = "id"
 	item_state = "card-id"
+	worn_icon_state = "card-id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
 	slot_flags = ITEM_SLOT_ID
-	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 100)
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100, STAMINA = 0)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
-	var/mining_points = 0 //For redeeming at mining equipment vendors
 	var/list/access = list()
-	var/registered_name = null // The name registered_name on the card
-	var/assignment = null
+	var/registered_name// The name registered_name on the card
+	var/assignment
+	var/hud_state = JOB_HUD_UNKNOWN
 	var/access_txt // mapping aid
 	var/datum/bank_account/registered_account
 	var/obj/machinery/paystand/my_store
+	/// controls various things, disable to make it have no bank account, ineditable in id machines, etc
+	var/electric = TRUE  // removes account info from examine
 
 /obj/item/card/id/Initialize(mapload)
 	. = ..()
 	if(mapload && access_txt)
 		access = text2access(access_txt)
+	//RegisterSignal(src, COMSIG_ATOM_UPDATED_ICON, PROC_REFupdate_in_wallet))
 
 /obj/item/card/id/Destroy()
 	if (registered_account)
@@ -132,6 +188,13 @@
 	if (my_store && my_store.my_card == src)
 		my_store.my_card = null
 	return ..()
+
+/obj/item/card/id/proc/set_hud_icon_on_spawn(jobname)
+	if(jobname)
+		var/temp = get_hud_by_jobname(jobname)
+		if(temp != JOB_HUD_UNKNOWN)
+			hud_state = temp
+	// This is needed for some irregular jobs
 
 /obj/item/card/id/attack_self(mob/user)
 	if(Adjacent(user))
@@ -142,18 +205,36 @@
 	. = ..()
 	if(.)
 		switch(var_name)
-			if("assignment","registered_name")
+			if(NAMEOF(src, assignment),NAMEOF(src, registered_name))
 				update_label()
 
+/obj/item/card/id/vv_get_dropdown()
+	. = ..()
+	VV_DROPDOWN_OPTION("", "---------")
+	VV_DROPDOWN_OPTION(VV_ID_PAYDAY, "Trigger Payday")
+	VV_DROPDOWN_OPTION(VV_ID_GIVE_MINING_POINT, "Give Mining Points")
+
+/obj/item/card/id/vv_do_topic(list/href_list)
+	. = ..()
+	if(href_list[VV_ID_PAYDAY])
+		if(!registered_account)
+			to_chat(usr, "There's no account registered!")
+			return
+		registered_account.payday(1)
+
+	if(href_list[VV_ID_GIVE_MINING_POINT])
+		if(!registered_account)
+			to_chat(usr, "There's no account registered!")
+			return
+		var/target_value = input(usr, "How many mining points would you like to add? (use nagative to take)", "Give mining points") as num
+		if(!registered_account.adjust_currency(ACCOUNT_CURRENCY_MINING, target_value))
+			to_chat(usr, "Failed: Your input was [target_value], but [registered_account.account_holder]'s account has only [registered_account.report_currency(ACCOUNT_CURRENCY_MINING)].")
+		else
+			to_chat(usr, "Success: [target_value] points have been added. [registered_account.account_holder]'s account now holds [registered_account.report_currency(ACCOUNT_CURRENCY_MINING)].")
+
 /obj/item/card/id/attackby(obj/item/W, mob/user, params)
-	if(istype(W, /obj/item/holochip))
+	if(iscash(W))
 		insert_money(W, user)
-		return
-	else if(istype(W, /obj/item/stack/spacecash))
-		insert_money(W, user, TRUE)
-		return
-	else if(istype(W, /obj/item/coin))
-		insert_money(W, user, TRUE)
 		return
 	else if(istype(W, /obj/item/storage/bag/money))
 		var/obj/item/storage/bag/money/money_bag = W
@@ -167,7 +248,7 @@
 	else
 		return ..()
 
-/obj/item/card/id/proc/insert_money(obj/item/I, mob/user, physical_currency)
+/obj/item/card/id/proc/insert_money(obj/item/I, mob/user)
 	if(!registered_account)
 		to_chat(user, "<span class='warning'>[src] doesn't have a linked account to deposit [I] into!</span>")
 		return
@@ -177,7 +258,7 @@
 		return
 
 	registered_account.adjust_money(cash_money)
-	if(physical_currency)
+	if(istype(I, /obj/item/stack/spacecash) || istype(I, /obj/item/coin))
 		to_chat(user, "<span class='notice'>You stuff [I] into [src]. It disappears in a small puff of bluespace smoke, adding [cash_money] credits to the linked account.</span>")
 	else
 		to_chat(user, "<span class='notice'>You insert [I] into [src], adding [cash_money] credits to the linked account.</span>")
@@ -273,16 +354,33 @@
 		registered_account.bank_card_talk("<span class='warning'>ERROR: The linked account requires [difference] more credit\s to perform that withdrawal.</span>", TRUE)
 
 /obj/item/card/id/examine(mob/user)
-	..()
-	if(mining_points)
-		. += "There's [mining_points] mining equipment redemption point\s loaded onto this card."
 	. = ..()
+	if(!electric)  // forces off bank info for paper slip
+		return .
 	if(registered_account)
+		if(registered_account.report_currency(ACCOUNT_CURRENCY_MINING))
+			. += "There's [registered_account.report_currency(ACCOUNT_CURRENCY_MINING)] mining equipment redemption point\s loaded onto the account of this card."
 		. += "The account linked to the ID belongs to '[registered_account.account_holder]' and reports a balance of $[registered_account.account_balance]."
-		if(registered_account.account_job)
-			var/datum/bank_account/D = SSeconomy.get_dep_account(registered_account.account_job.paycheck_department)
-			if(D)
-				. += "The [D.account_holder] reports a balance of $[D.account_balance]."
+		if(!istype(src, /obj/item/card/id/departmental_budget))
+			var/list/payment_result = list()
+			for(var/D in registered_account.payment_per_department)
+				if(registered_account.payment_per_department[D] > 0)
+					payment_result += "[D]: $[registered_account.payment_per_department[D]]"
+			if(length(payment_result))
+				. += "The payment of this account is -"
+				for(var/each in payment_result)
+					. += "\t[each]"
+			if(!HAS_TRAIT(SSstation, STATION_TRAIT_UNITED_BUDGET))
+				for(var/datum/bank_account/department/D in SSeconomy.budget_accounts)
+					if(D.department_bitflag & registered_account.active_departments)
+						if(D.show_budget_information)
+							. += "The [D.account_holder] reports a balance of $[D.account_balance]."
+			else
+				var/datum/bank_account/B = SSeconomy.get_budget_account(ACCOUNT_CAR_ID)
+				if(B)
+					. += "The [B.account_holder] reports a balance of $[B.account_balance]."
+
+
 		. += "<span class='info'>Alt-Click the ID to pull money from the linked account in the form of holochips.</span>"
 		. += "<span class='info'>You can insert credits into the linked account by pressing holochips, cash, or coins against the ID.</span>"
 		if(registered_account.account_holder == user.real_name)
@@ -295,6 +393,21 @@
 
 /obj/item/card/id/GetID()
 	return src
+
+/obj/item/card/id/RemoveID()
+	return src
+
+/*
+/// Called on COMSIG_ATOM_UPDATED_ICON. Updates the visuals of the wallet this card is in.
+/obj/item/card/id/proc/update_in_wallet()
+	SIGNAL_HANDLER
+
+	if(istype(loc, /obj/item/storage/wallet))
+		var/obj/item/storage/wallet/powergaming = loc
+		if(powergaming.front_id == src)
+			powergaming.update_label()
+			powergaming.update_appearance()
+*/
 
 /*
 Usage:
@@ -318,12 +431,14 @@ update_label("John Doe", "Clowny")
 	item_state = "silver_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
+	hud_state = JOB_HUD_RAWCENTCOM
 
 /obj/item/card/id/silver/reaper
 	name = "Thirteen's ID Card (Reaper)"
 	access = list(ACCESS_MAINT_TUNNELS)
 	assignment = "Reaper"
 	registered_name = "Thirteen"
+	hud_state = JOB_HUD_SYNDICATE
 
 /obj/item/card/id/gold
 	name = "gold identification card"
@@ -332,47 +447,72 @@ update_label("John Doe", "Clowny")
 	item_state = "gold_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
+	hud_state = JOB_HUD_RAWCOMMAND
+
+/obj/item/card/id/silver/spacepol
+	name = "space police access card"
+	access = list(ACCESS_HUNTERS)
+	hud_state = JOB_HUD_NOTCENTCOM
+
+/obj/item/card/id/silver/bounty
+	name = "bounty hunter access card"
+	access = list(ACCESS_HUNTERS)
+	hud_state = JOB_HUD_UNKNOWN
+
+/obj/item/card/id/space_russian
+	name = "space russian card"
+	access = list(ACCESS_HUNTERS)
+	hud_state = JOB_HUD_UNKNOWN
+
+/obj/item/card/id/pirate
+	name = "pirate ship card"
+	access = list(ACCESS_PIRATES)
+	hud_state = JOB_HUD_SYNDICATE
 
 /obj/item/card/id/syndicate
 	name = "agent card"
 	access = list(ACCESS_MAINT_TUNNELS, ACCESS_SYNDICATE)
+	icon_state = "syndicate"
+	hud_state = JOB_HUD_SYNDICATE
 	var/anyone = FALSE //Can anyone forge the ID or just syndicate?
-	var/forged = FALSE //have we set a custom name and job assignment, or will we use what we're given when we chameleon change?
-	var/static/list/available_icon_states = list(
-		"id",
-		"orange",
-		"serv",
-		"chap",
-		"lawyer",
-		"gold",
-		"silver",
-		"ce",
-		"engi",
-		"atmos",
-		"cmo",
-		"med",
-		"hos",
-		"warden",
-		"detective",
-		"sec",
-		"rd",
-		"sci",
-		"qm",
-		"cargo",
-		"miner",
-		"clown",
-		"mime",
-		"ert",
-		"centcom",
-		"syndicate",
-		"ratvar",
-	)
 
-/obj/item/card/id/syndicate/Initialize()
+	var/datum/action/item_action/chameleon/change/chameleon_action
+
+/obj/item/card/id/syndicate/Initialize(mapload)
 	. = ..()
-	var/datum/action/item_action/chameleon/change/chameleon_action = new(src)
+	chameleon_action = new(src)
 	chameleon_action.chameleon_type = /obj/item/card/id
 	chameleon_action.chameleon_name = "ID Card"
+	chameleon_action.chameleon_blacklist = typecacheof(list(
+		/obj/item/card,
+		/obj/item/card/data,
+		/obj/item/card/data/full_color,
+		/obj/item/card/data/disk,
+		/obj/item/card/emag,
+		/obj/item/card/emag/bluespace,
+		/obj/item/card/emag/halloween,
+		/obj/item/card/emagfake,
+		/obj/item/card/id/pass/deputy,
+		/obj/item/card/id/pass/mining_access_card,
+		/obj/item/card/mining_point_card,
+		/obj/item/card/id,
+		/obj/item/card/id/prisoner/one,
+		/obj/item/card/id/prisoner/two,
+		/obj/item/card/id/prisoner/three,
+		/obj/item/card/id/prisoner/four,
+		/obj/item/card/id/prisoner/five,
+		/obj/item/card/id/prisoner/six,
+		/obj/item/card/id/prisoner/seven,
+		/obj/item/card/id/departmental_budget,
+		/obj/item/card/id/syndicate/anyone,
+		/obj/item/card/id/syndicate/nuke_leader,
+		/obj/item/card/id/syndicate/debug,
+		/obj/item/card/id/syndicate/broken,
+		/obj/item/card/id/away/old/apc,
+		/obj/item/card/id/away/deep_storage,
+		/obj/item/card/id/changeling,
+		/obj/item/card/id/golem,
+		/obj/item/card/id/pass), only_root_path = TRUE)
 	chameleon_action.initialize_disguises()
 
 /obj/item/card/id/syndicate/afterattack(obj/item/O, mob/user, proximity)
@@ -387,6 +527,8 @@ update_label("John Doe", "Clowny")
 				to_chat(usr, "<span class='notice'>The card's microscanners activate as you pass it over the ID, copying its access.</span>")
 
 /obj/item/card/id/syndicate/attack_self(mob/user)
+	if(chameleon_action.hidden)
+		return ..()
 	if(isliving(user) && user.mind)
 		var/first_use = registered_name ? FALSE : TRUE
 		if(!(user.mind.special_role || anyone)) //Unless anyone is allowed, only syndies can use the card, to stop metagaming.
@@ -395,10 +537,13 @@ update_label("John Doe", "Clowny")
 			else
 				return ..()
 
-		var/popup_input = alert(user, "Choose Action", "Agent ID", "Show", "Forge/Reset", "Change Account ID")
+		var/popup_input = alert(user, "Choose Action", "Agent ID", "Show", "Forge", "Change Account ID")
 		if(user.incapacitated())
 			return
-		if(popup_input == "Forge/Reset" && !forged)
+		if(popup_input == "Forge")
+			if(!assignment)
+				assignment = "Assistant"
+
 			var/input_name = stripped_input(user, "What name would you like to put on this card? Leave blank to randomise.", "Agent card name", registered_name ? registered_name : (ishuman(user) ? user.real_name : user.name), MAX_NAME_LEN)
 			input_name = reject_bad_name(input_name)
 			if(!input_name)
@@ -410,16 +555,27 @@ update_label("John Doe", "Clowny")
 				else
 					input_name = "[pick(GLOB.first_names)] [pick(GLOB.last_names)]"
 
-			var/target_occupation = stripped_input(user, "What occupation would you like to put on this card?\nNote: This will not grant any access levels other than Maintenance.", "Agent card job assignment", assignment ? assignment : "Assistant", MAX_MESSAGE_LEN)
+			var/target_id_style = "-"
+			while(target_id_style[1] == "-") // trick. "-" is only non-valid option here.
+				target_id_style = input(user, "Select an ID skin (Cancel to change nothing)\nCard HUD icon will follow the job you choose.", "Chameleon card shape") as null|anything in get_card_style_list(TRUE)
+				if(!target_id_style)
+					break
+
+			var/target_occupation = stripped_input(user, "What occupation would you like to put on this card?\nNote: This will not grant any access levels other than Maintenance.", "Agent card job assignment", !(assignment in get_card_style_list(TRUE)) ? assignment : target_id_style, MAX_MESSAGE_LEN) // ternary operator means you keep custom title if your title is special(not in standard job titles). if that is in job title list, you just get new job title.
 			if(!target_occupation)
-				return
-			log_id("[key_name(user)] forged agent ID [src] name to [input_name] and occupation to [target_occupation] at [AREACOORD(user)].")
+				target_occupation = assignment ? assignment : "Assistant"
+
+			log_id("[key_name(user)] forged agent ID [src] name to [input_name] and occupation to [target_occupation][target_id_style ? " with [target_id_style] card style" : " with non changed [icon_state] shape, [hud_state] hud style"] at [AREACOORD(user)].")
 			registered_name = input_name
-			assignment = target_occupation
+			assignment = capitalize(target_occupation)
+			if(target_id_style)
+				icon_state = get_cardstyle_by_jobname(target_id_style)
+				hud_state = get_hud_by_jobname(target_id_style)
+				var/mob/living/carbon/human/H = user
+				H.sec_hud_set_ID()
 			update_label()
-			forged = TRUE
 			to_chat(user, "<span class='notice'>You successfully forge the ID card.</span>")
-			log_game("[key_name(user)] has forged \the [initial(name)] with name \"[registered_name]\" and occupation \"[assignment]\".")
+			log_game("[key_name(user)] has forged \the [initial(name)] with name \"[registered_name]\" and occupation \"[assignment]\"[target_id_style ? " with [target_id_style] card style" : " with non changed [icon_state] shape, [hud_state] hud style"].")
 
 			// First time use automatically sets the account id to the user.
 			if (first_use && !registered_account)
@@ -428,24 +584,50 @@ update_label("John Doe", "Clowny")
 
 					for(var/bank_account in SSeconomy.bank_accounts)
 						var/datum/bank_account/account = bank_account
-						if(account.account_id == accountowner.account_id)
+						if(account.account_id == accountowner.mind?.account_id)
 							account.bank_cards += src
 							registered_account = account
 							to_chat(user, "<span class='notice'>Your account number has been automatically assigned.</span>")
-			return
-		else if (popup_input == "Forge/Reset" && forged)
-			registered_name = initial(registered_name)
-			assignment = initial(assignment)
-			log_id("[key_name(user)] reset agent ID [src] name to default at [AREACOORD(user)].")
-			log_game("[key_name(user)] has reset \the [initial(name)] named \"[src]\" to default.")
-			update_label()
-			forged = FALSE
-			to_chat(user, "<span class='notice'>You successfully reset the ID card.</span>")
 			return
 		else if (popup_input == "Change Account ID")
 			set_new_account(user)
 			return
 	return ..()
+
+
+/obj/item/card/id/syndicate/emp_act(severity)
+	. = ..()
+	if(. & EMP_PROTECT_SELF)
+		return
+	chameleon_action.emp_randomise()
+
+/obj/item/card/id/syndicate/attackby(obj/item/W, mob/user, params)
+	if(W.tool_behaviour == TOOL_MULTITOOL)
+		if(chameleon_action.hidden)
+			chameleon_action.hidden = FALSE
+			actions += chameleon_action
+			chameleon_action.Grant(user)
+			log_game("[key_name(user)] has removed the disguise lock on the agent ID ([name]) with [W]")
+			return
+		else
+			chameleon_action.hidden = TRUE
+			actions -= chameleon_action
+			chameleon_action.Remove(user)
+			log_game("[key_name(user)] has locked the disguise of the agent ID ([name]) with [W]")
+			return
+	. = ..()
+
+// broken chameleon agent card
+/obj/item/card/id/syndicate/broken
+	access = list() // their access is even broken
+
+/obj/item/card/id/syndicate/broken/afterattack(obj/item/O, mob/user, proximity)
+	return
+
+/obj/item/card/id/syndicate/broken/Initialize(mapload)
+	. = ..()
+	chameleon_action.emp_randomise(INFINITY)
+
 /obj/item/card/id/syndicate/anyone
 	anyone = TRUE
 
@@ -457,6 +639,7 @@ update_label("John Doe", "Clowny")
 	name = "servant ID card"
 	icon_state = "ratvar"
 	access = list(ACCESS_CLOCKCULT, ACCESS_MAINT_TUNNELS)
+	hud_state = JOB_HUD_UNKNOWN
 
 /obj/item/card/id/syndicate_command
 	name = "syndicate ID card"
@@ -465,6 +648,21 @@ update_label("John Doe", "Clowny")
 	icon_state = "syndicate"
 	assignment = "Syndicate Officer"
 	access = list(ACCESS_SYNDICATE)
+	hud_state = JOB_HUD_SYNDICATE
+
+/obj/item/card/id/syndicate/debug
+	name = "\improper Debug ID"
+	desc = "A shimmering ID card with the ability to open anything."
+	icon_state = "centcom"
+	registered_name = JOB_CENTCOM_CENTRAL_COMMAND
+	assignment = JOB_CENTCOM_ADMIRAL
+	anyone = TRUE
+	hud_state = JOB_HUD_CENTCOM
+
+/obj/item/card/id/syndicate/debug/Initialize(mapload)
+	access = get_every_access()
+	registered_account = SSeconomy.get_budget_account(ACCOUNT_VIP_ID)
+	. = ..()
 
 /obj/item/card/id/captains_spare
 	name = "captain's spare ID"
@@ -473,10 +671,12 @@ update_label("John Doe", "Clowny")
 	item_state = "gold_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
-	registered_name = "Captain"
-	assignment = "Captain"
+	registered_name = JOB_NAME_CAPTAIN
+	assignment = JOB_NAME_CAPTAIN
+	investigate_flags = ADMIN_INVESTIGATE_TARGET
+	hud_state = JOB_HUD_ACTINGCAPTAIN
 
-/obj/item/card/id/captains_spare/Initialize()
+/obj/item/card/id/captains_spare/Initialize(mapload)
 	var/datum/job/captain/J = new/datum/job/captain
 	access = J.get_access()
 	. = ..()
@@ -485,10 +685,11 @@ update_label("John Doe", "Clowny")
 	name = "\improper CentCom ID"
 	desc = "A shimmering Central Command ID card. Simply seeing this is illegal for the majority of the crew."
 	icon_state = "centcom"
-	registered_name = "Central Command"
+	registered_name = JOB_CENTCOM_CENTRAL_COMMAND
 	assignment = "General"
+	hud_state = JOB_HUD_CENTCOM
 
-/obj/item/card/id/centcom/Initialize()
+/obj/item/card/id/centcom/Initialize(mapload)
 	access = get_all_centcom_access()
 	. = ..()
 
@@ -496,57 +697,76 @@ update_label("John Doe", "Clowny")
 	name = "\improper CentCom ID"
 	desc = "A shimmering Emergency Response Team ID card. All access with style."
 	icon_state = "ert"
-	registered_name = "Emergency Response Team Commander"
-	assignment = "Emergency Response Team Commander"
+	registered_name = JOB_ERT_COMMANDER
+	assignment = JOB_ERT_COMMANDER
+	hud_state = JOB_HUD_CENTCOM
 
-/obj/item/card/id/ert/Initialize()
+/obj/item/card/id/ert/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("commander")-ACCESS_CHANGE_IDS
 	. = ..()
 
 /obj/item/card/id/ert/Security
-	registered_name = "Security Response Officer"
-	assignment = "Security Response Officer"
+	registered_name = JOB_ERT_OFFICER
+	assignment = JOB_ERT_OFFICER
 	icon_state = "ert"
 
-/obj/item/card/id/ert/Security/Initialize()
+/obj/item/card/id/ert/Security/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("sec")-ACCESS_CHANGE_IDS
 	. = ..()
 
 /obj/item/card/id/ert/Engineer
-	registered_name = "Engineer Response Officer"
-	assignment = "Engineer Response Officer"
+	registered_name = JOB_ERT_ENGINEER
+	assignment = JOB_ERT_ENGINEER
 	icon_state = "ert"
 
-/obj/item/card/id/ert/Engineer/Initialize()
+/obj/item/card/id/ert/Engineer/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("eng")-ACCESS_CHANGE_IDS
 	. = ..()
 
 /obj/item/card/id/ert/Medical
-	registered_name = "Medical Response Officer"
-	assignment = "Medical Response Officer"
+	registered_name = JOB_ERT_MEDICAL_DOCTOR
+	assignment = JOB_ERT_MEDICAL_DOCTOR
 	icon_state = "ert"
 
-/obj/item/card/id/ert/Medical/Initialize()
+/obj/item/card/id/ert/Medical/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("med")-ACCESS_CHANGE_IDS
 	. = ..()
 
 /obj/item/card/id/ert/chaplain
-	registered_name = "Religious Response Officer"
-	assignment = "Religious Response Officer"
+	registered_name = JOB_ERT_CHAPLAIN
+	assignment = JOB_ERT_CHAPLAIN
 	icon_state = "ert"
 
-/obj/item/card/id/ert/chaplain/Initialize()
+/obj/item/card/id/ert/chaplain/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("sec")-ACCESS_CHANGE_IDS
 	. = ..()
 
 /obj/item/card/id/ert/Janitor
-	registered_name = "Janitorial Response Officer"
-	assignment = "Janitorial Response Officer"
+	registered_name = JOB_ERT_JANITOR
+	assignment = JOB_ERT_JANITOR
 	icon_state = "ert"
 
-/obj/item/card/id/ert/Janitor/Initialize()
+/obj/item/card/id/ert/Janitor/Initialize(mapload)
 	access = get_all_accesses()
 	. = ..()
+
+/obj/item/card/id/ert/kudzu
+	registered_name = "Weed Whacker"
+	assignment = "Weed Whacker"
+	icon_state = "ert"
+
+/obj/item/card/id/ert/kudzu/Initialize(mapload)
+	access = get_all_accesses()
+	. = ..()
+
+/obj/item/card/id/ert/lawyer
+	registered_name = "CentCom Attorney"
+	assignment = "CentCom Attorney"
+	icon_state = "centcom"
+
+/obj/item/card/id/ert/lawyer/Initialize(mapload)
+	. = ..()
+	access = list(ACCESS_CENT_GENERAL, ACCESS_COURT, ACCESS_BRIG, ACCESS_FORENSICS_LOCKERS)
 
 /obj/item/card/id/prisoner
 	name = "prisoner ID card"
@@ -555,13 +775,19 @@ update_label("John Doe", "Clowny")
 	item_state = "orange-id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
-	assignment = "Prisoner"
-	registered_name = "Scum"
 	var/goal = 0 //How far from freedom?
 	var/points = 0
+	var/permanent = FALSE
+	hud_state = JOB_HUD_PRISONER
 
-/obj/item/card/id/prisoner/attack_self(mob/user)
-	to_chat(usr, "<span class='notice'>You have accumulated [points] out of the [goal] points you need for freedom.</span>")
+/obj/item/card/id/prisoner/examine(mob/user)
+	. = ..()
+
+	if(!permanent)
+		. += "<span class='notice'>A little display on the card reads: You have accumulated [points] out of the [goal] points you need for freedom.</span>"
+
+	else
+		. += "<span class='notice'>The mark on the ID indicates the sentence is permanent.</span>"
 
 /obj/item/card/id/prisoner/one
 	name = "Prisoner #13-001"
@@ -591,50 +817,113 @@ update_label("John Doe", "Clowny")
 	name = "Prisoner #13-007"
 	registered_name = "Prisoner #13-007"
 
-/obj/item/card/id/mining
-	name = "mining ID"
+/obj/item/card/id/golem
+	name = "Golem Mining ID"
+	assignment = "Free Golem"
+	hud_state = JOB_HUD_RAWCARGO
 	access = list(ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MECH_MINING, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM)
+	var/need_setup = TRUE
+
+/obj/item/card/id/golem/Initialize(mapload)
+	registered_account = SSeconomy.get_budget_account(ACCOUNT_GOLEM_ID)
+	. = ..()
+
+/obj/item/card/id/golem/pickup(mob/user)
+	. = ..()
+	if(need_setup)
+		if(isgolem(user))
+			registered_name = user.name // automatically change registered name if it's picked up by a golem at first time
+			update_label()
+		need_setup = FALSE
+		// if non-golem picks it up, the renaming feature will be disabled
+
+/obj/item/card/id/golem/spawner
+	need_setup = FALSE
+
+/obj/item/card/id/paper
+	name = "paper nametag"
+	desc = "Some spare papers taped into a vague card shape, with a name scribbled on it. Seems trustworthy."
+	icon_state = "paper"
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 50, STAMINA = 0)
+	resistance_flags = null  // removes all resistance because its a piece of paper
+	access = list()
+	assignment = "Unknown"
+	hud_state = JOB_HUD_PAPER
+	electric = FALSE
+
+/obj/item/card/id/paper/attackby(obj/item/W, mob/user, params)
+	if(istype(W, /obj/item/pen))
+		var/target_name = stripped_input(user, "What name would you like to write onto the card?", "Written name:", registered_name || "John Doe", MAX_MESSAGE_LEN)
+		registered_name = target_name || registered_name  // in case they hit cancel
+		assignment = "Unknown"
+		to_chat(user, "<span class='notice'>You scribble the name [target_name] onto the slip.</span>")
+		update_label()
+
+/obj/item/card/id/paper/alt_click_can_use_id(mob/living/user)
+	to_chat(user, "<span class='warning'>There's no money circuitry in here!</span>")
+
+/obj/item/card/id/paper/insert_money(obj/item/I, mob/user, physical_currency)
+	to_chat(user, "<span class='warning'>You can't insert money into a slip!</span>")  // not sure if this is triggerable but just as a safeclip
+
+/obj/item/card/id/paper/GetAccess()
+	return list()
+
+/obj/item/card/id/paper/update_label(newname, newjob)
+	if(newname || newjob)
+		name = "[(!newname)	? "paper slip identifier": "[newname]'s paper slip"]"
+		return
+
+	name = "[(!registered_name)	? "paper slip identifier": "[registered_name]'s paper slip"]"
+
 
 /obj/item/card/id/away
 	name = "\proper a perfectly generic identification card"
 	desc = "A perfectly generic identification card. Looks like it could use some flavor."
+	hud_state = JOB_HUD_UNKNOWN
 	access = list(ACCESS_AWAY_GENERAL)
 
 /obj/item/card/id/away/hotel
 	name = "Staff ID"
 	desc = "A staff ID used to access the hotel's doors."
+	hud_state = JOB_HUD_RAWSERVICE
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT)
 
 /obj/item/card/id/away/hotel/securty
 	name = "Officer ID"
+	hud_state = JOB_HUD_RAWSECURITY
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT, ACCESS_AWAY_SEC)
 
 /obj/item/card/id/away/old
 	name = "\proper a perfectly generic identification card"
 	desc = "A perfectly generic identification card. Looks like it could use some flavor."
 	icon_state = "centcom"
+	hud_state = JOB_HUD_RAWCENTCOM
 
 /obj/item/card/id/away/old/sec
 	name = "Charlie Station Security Officer's ID card"
 	desc = "A faded Charlie Station ID card. You can make out the rank \"Security Officer\"."
 	assignment = "Charlie Station Security Officer"
+	hud_state = JOB_HUD_RAWSECURITY
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_SEC)
 
 /obj/item/card/id/away/old/sci
 	name = "Charlie Station Scientist's ID card"
 	desc = "A faded Charlie Station ID card. You can make out the rank \"Scientist\"."
 	assignment = "Charlie Station Scientist"
+	hud_state = JOB_HUD_RAWSCIENCE
 	access = list(ACCESS_AWAY_GENERAL)
 
 /obj/item/card/id/away/old/eng
 	name = "Charlie Station Engineer's ID card"
 	desc = "A faded Charlie Station ID card. You can make out the rank \"Station Engineer\"."
 	assignment = "Charlie Station Engineer"
+	hud_state = JOB_HUD_RAWENGINEERING
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_ENGINE)
 
 /obj/item/card/id/away/old/apc
 	name = "APC Access ID"
 	desc = "A special ID card that allows access to APC terminals."
+	hud_state = JOB_HUD_UNKNOWN
 	access = list(ACCESS_ENGINE_EQUIP)
 
 /obj/item/card/id/away/deep_storage //deepstorage.dmm space ruin
@@ -643,21 +932,28 @@ update_label("John Doe", "Clowny")
 ///Department Budget Cards///
 
 /obj/item/card/id/departmental_budget
-	name = "departmental card (FUCK)"
+	name = "departmental card (budget)"
 	desc = "Provides access to the departmental budget."
 	icon_state = "budget"
-	var/department_ID = ACCOUNT_CIV
+	var/department_ID = ACCOUNT_CIV_ID
 	var/department_name = ACCOUNT_CIV_NAME
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+	investigate_flags = ADMIN_INVESTIGATE_TARGET
 
-/obj/item/card/id/departmental_budget/Initialize()
+/obj/item/card/id/departmental_budget/Initialize(mapload)
 	. = ..()
-	var/datum/bank_account/B = SSeconomy.get_dep_account(department_ID)
+	var/datum/bank_account/department/B = SSeconomy.get_budget_account(department_ID)
+	if(HAS_TRAIT(SSstation, STATION_TRAIT_UNITED_BUDGET) && !B.is_nonstation_account())
+		department_ID = ACCOUNT_CAR_ID
+		department_name = ACCOUNT_ALL_NAME
+		B = SSeconomy.get_budget_account(department_ID)
+
 	if(B)
 		registered_account = B
 		if(!B.bank_cards.Find(src))
 			B.bank_cards += src
 		name = "departmental card ([department_name])"
-		desc = "Provides access to the [department_name]."
+		desc = "Provides access to the [department_name] budget."
 	SSeconomy.dep_cards += src
 
 /obj/item/card/id/departmental_budget/Destroy()
@@ -665,125 +961,367 @@ update_label("John Doe", "Clowny")
 	return ..()
 
 /obj/item/card/id/departmental_budget/civ
-	department_ID = ACCOUNT_CIV
+	department_ID = ACCOUNT_CIV_ID
 	department_name = ACCOUNT_CIV_NAME
 	icon_state = "budget"
+	hud_state = JOB_HUD_RAWCOMMAND
 
 /obj/item/card/id/departmental_budget/eng
-	department_ID = ACCOUNT_ENG
+	department_ID = ACCOUNT_ENG_ID
 	department_name = ACCOUNT_ENG_NAME
 	icon_state = "budget_eng"
+	hud_state = JOB_HUD_RAWENGINEERING
 
 /obj/item/card/id/departmental_budget/sci
-	department_ID = ACCOUNT_SCI
+	department_ID = ACCOUNT_SCI_ID
 	department_name = ACCOUNT_SCI_NAME
 	icon_state = "budget_sci"
+	hud_state = JOB_HUD_RAWSCIENCE
 
 /obj/item/card/id/departmental_budget/med
-	department_ID = ACCOUNT_MED
+	department_ID = ACCOUNT_MED_ID
 	department_name = ACCOUNT_MED_NAME
 	icon_state = "budget_med"
+	hud_state = JOB_HUD_RAWMEDICAL
 
 /obj/item/card/id/departmental_budget/srv
-	department_ID = ACCOUNT_SRV
+	department_ID = ACCOUNT_SRV_ID
 	department_name = ACCOUNT_SRV_NAME
 	icon_state = "budget_srv"
+	hud_state = JOB_HUD_RAWSERVICE
 
 /obj/item/card/id/departmental_budget/car
-	department_ID = ACCOUNT_CAR
+	department_ID = ACCOUNT_CAR_ID
 	department_name = ACCOUNT_CAR_NAME
 	icon_state = "budget_car"
+	hud_state = JOB_HUD_RAWCARGO
 
 /obj/item/card/id/departmental_budget/sec
-	department_ID = ACCOUNT_SEC
+	department_ID = ACCOUNT_SEC_ID
 	department_name = ACCOUNT_SEC_NAME
 	icon_state = "budget_sec"
+	hud_state = JOB_HUD_RAWSECURITY
 
-///Job Specific ID Cards///
+// These will never be spawned, but should be trackable by admins anyway.
+/obj/item/card/id/departmental_budget/com
+	department_ID = ACCOUNT_COM_ID
+	department_name = ACCOUNT_COM_NAME
+	icon_state = "budget_centcom"
+	hud_state = JOB_HUD_ACTINGCAPTAIN
 
+/obj/item/card/id/departmental_budget/vip
+	department_ID = ACCOUNT_VIP_ID
+	department_name = ACCOUNT_VIP_NAME
+	icon_state = "budget_centcom"
+	hud_state = JOB_HUD_VIP
+
+/// Job Specific ID Cards///
+// These should have default job name and hud state, etc, because chameleon card needs such information
+// ---- Command ----
 /obj/item/card/id/job/captain
+	name = "Job card (Com) - Captain"
 	icon_state = "captain"
+	assignment = JOB_NAME_CAPTAIN
+	hud_state = JOB_HUD_CAPTAIN
 
-/obj/item/card/id/job/hop
+/obj/item/card/id/job/rawcommand
+	name = "Job card (Com) - Custom"
+	icon_state = JOB_HUD_RAWCOMMAND
+	hud_state = JOB_HUD_RAWCOMMAND
+
+// ---- Service ----
+/obj/item/card/id/job/assistant
+	name = "Job card (Serv) - Assistant"
+	icon_state = "id"
+	assignment = JOB_NAME_ASSISTANT
+	hud_state = JOB_HUD_ASSISTANT
+
+/obj/item/card/id/job/head_of_personnel
+	name = "Job card (Serv) - HoP"
 	icon_state = "hop"
+	assignment = JOB_NAME_HEADOFPERSONNEL
+	hud_state = JOB_HUD_HEADOFPERSONNEL
 
-/obj/item/card/id/job/ce
-	icon_state = "ce"
-
-/obj/item/card/id/job/engi
-	icon_state = "engi"
-
-/obj/item/card/id/job/atmos
-	icon_state = "atmos"
-
-/obj/item/card/id/job/cmo
-	icon_state = "cmo"
-
-/obj/item/card/id/job/med
-	icon_state = "med"
-
-/obj/item/card/id/job/paramed
-	icon_state = "paramed"
-
-/obj/item/card/id/job/viro
-	icon_state = "viro"
-
-/obj/item/card/id/job/chemist
-	icon_state = "chemist"
-
-/obj/item/card/id/job/gene
-	icon_state = "gene"
-
-/obj/item/card/id/job/hos
-	icon_state = "hos"
-
-/obj/item/card/id/job/sec
-	icon_state = "sec"
-
-/obj/item/card/id/job/brigphys
-	icon_state = "brigphys"
-
-/obj/item/card/id/job/deputy
-	icon_state = "deputy"
-
-/obj/item/card/id/job/detective
-	icon_state = "detective"
-
-/obj/item/card/id/job/warden
-	icon_state = "warden"
-
-/obj/item/card/id/job/rd
-	icon_state = "rd"
-
-/obj/item/card/id/job/roboticist
-	icon_state = "roboticist"
-
-/obj/item/card/id/job/sci
-	icon_state = "sci"
-
-/obj/item/card/id/job/serv //service jobs, botany, etc
+/obj/item/card/id/job/botanist
+	name = "Job card (Serv) - Botanist"
 	icon_state = "serv"
+	assignment = JOB_NAME_BOTANIST
+	hud_state = JOB_HUD_BOTANIST
 
-/obj/item/card/id/job/chap
+/obj/item/card/id/job/cook
+	name = "Job card (Serv) - Cook"
+	icon_state = "serv"
+	assignment = JOB_NAME_COOK
+	hud_state = JOB_HUD_COOK
+
+/obj/item/card/id/job/bartender
+	name = "Job card (Serv) - Bartender"
+	icon_state = "serv"
+	assignment = JOB_NAME_BARTENDER
+	hud_state = JOB_HUD_BARTENDER
+
+/obj/item/card/id/job/barber
+	name = "Job card (Serv) - Barber"
+	icon_state = "serv"
+	assignment = JOB_NAME_BARBER
+	hud_state = JOB_HUD_BARBER
+
+/obj/item/card/id/job/stage_magician
+	name = "Job card (Serv) - Magician"
+	icon_state = "serv"
+	assignment = JOB_NAME_STAGEMAGICIAN
+	hud_state = JOB_HUD_STAGEMAGICIAN
+
+/obj/item/card/id/job/curator
+	name = "Job card (Serv) - Curator"
 	icon_state = "chap"
+	assignment = JOB_NAME_CURATOR
+	hud_state = JOB_HUD_CURATOR
+
+/obj/item/card/id/job/chaplain
+	name = "Job card (Serv) - Chaplain"
+	icon_state = "chap"
+	assignment = JOB_NAME_CHAPLAIN
+	hud_state = JOB_HUD_CHAPLAIN
 
 /obj/item/card/id/job/janitor
+	name = "Job card (Serv) - Janitor"
 	icon_state = "janitor"
-
-/obj/item/card/id/job/qm
-	icon_state = "qm"
-
-/obj/item/card/id/job/miner
-	icon_state = "miner"
-
-/obj/item/card/id/job/cargo
-	icon_state = "cargo"
+	assignment = JOB_NAME_JANITOR
+	hud_state = JOB_HUD_JANITOR
 
 /obj/item/card/id/job/clown
+	name = "Job card (Serv) - Clown"
 	icon_state = "clown"
+	assignment = JOB_NAME_CLOWN
+	hud_state = JOB_HUD_CLOWN
 
 /obj/item/card/id/job/mime
+	name = "Job card (Serv) - Mime"
 	icon_state = "mime"
+	assignment = JOB_NAME_MIME
+	hud_state = JOB_HUD_MIME
 
 /obj/item/card/id/job/lawyer
+	name = "Job card (Serv) - Lawyer"
 	icon_state = "lawyer"
+	assignment = JOB_NAME_LAWYER
+	hud_state = JOB_HUD_LAWYER
+
+/obj/item/card/id/job/rawservice
+	name = "Job card (Serv) - Custom"
+	icon_state = JOB_HUD_RAWSERVICE
+	hud_state = JOB_HUD_RAWSERVICE
+
+// ---- Cargo ----
+/obj/item/card/id/job/quartermaster
+	name = "Job card (Cargo) - QM"
+	icon_state = "qm"
+	assignment = JOB_NAME_QUARTERMASTER
+	hud_state = JOB_HUD_QUARTERMASTER
+
+/obj/item/card/id/job/shaft_miner
+	name = "Job card (Cargo) - Shaft Miner"
+	icon_state = "miner"
+	assignment = JOB_NAME_SHAFTMINER
+	hud_state = JOB_HUD_SHAFTMINER
+
+/obj/item/card/id/job/cargo_technician
+	name = "Job card (Cargo) - Cargo Tech"
+	icon_state = "cargo"
+	assignment = JOB_NAME_CARGOTECHNICIAN
+	hud_state = JOB_HUD_CARGOTECHNICIAN
+
+/obj/item/card/id/job/rawcargo
+	name = "Job card (Cargo) - Custom"
+	icon_state = "rawcargo"
+	hud_state = JOB_HUD_RAWCARGO
+
+// ---- Engineering -----
+/obj/item/card/id/job/chief_engineer
+	name = "Job card (Eng) - CE"
+	icon_state = "ce"
+	assignment = JOB_NAME_CHIEFENGINEER
+	hud_state = JOB_HUD_CHIEFENGINEER
+
+/obj/item/card/id/job/station_engineer
+	name = "Job card (Eng) - Station Engi"
+	icon_state = "engi"
+	assignment = JOB_NAME_STATIONENGINEER
+	hud_state = JOB_HUD_STATIONENGINEER
+
+/obj/item/card/id/job/atmospheric_technician
+	name = "Job card (Eng) - Atmos"
+	icon_state = "atmos"
+	assignment = JOB_NAME_ATMOSPHERICTECHNICIAN
+	hud_state = JOB_HUD_ATMOSPHERICTECHNICIAN
+
+/obj/item/card/id/job/rawengineering
+	name = "Job card (Eng) - Custom"
+	icon_state = "rawengineering"
+	hud_state = JOB_HUD_RAWENGINEERING
+
+// ---- Medical ----
+/obj/item/card/id/job/chief_medical_officer
+	name = "Job card (Med) - CMO"
+	icon_state = "cmo"
+	assignment = JOB_NAME_CHIEFMEDICALOFFICER
+	hud_state = JOB_HUD_CHEIFMEDICALOFFICIER
+
+/obj/item/card/id/job/medical_doctor
+	name = "Job card (Med) - Medical Doctor"
+	icon_state = "med"
+	assignment = JOB_NAME_MEDICALDOCTOR
+	hud_state = JOB_HUD_MEDICALDOCTOR
+
+/obj/item/card/id/job/paramedic
+	name = "Job card (Med) - Paramedic"
+	icon_state = "paramed"
+	assignment = JOB_NAME_PARAMEDIC
+	hud_state = JOB_HUD_PARAMEDIC
+
+/obj/item/card/id/job/virologist
+	name = "Job card (Med) - Virologist"
+	icon_state = "viro"
+	assignment = JOB_NAME_VIROLOGIST
+	hud_state = JOB_HUD_VIROLOGIST
+
+/obj/item/card/id/job/chemist
+	name = "Job card (Med) - Chemist"
+	icon_state = "chemist"
+	assignment = JOB_NAME_CHEMIST
+	hud_state = JOB_HUD_CHEMIST
+
+/obj/item/card/id/job/geneticist
+	name = "Job card (Med) - Geneticist"
+	icon_state = "gene"
+	assignment = JOB_NAME_GENETICIST
+	hud_state = JOB_HUD_GENETICIST
+
+/obj/item/card/id/job/psychiatrist
+	name = "Job card (Med) - Psychiatrist"
+	icon_state = "med"
+	assignment = JOB_NAME_PSYCHIATRIST
+	hud_state = JOB_HUD_PSYCHIATRIST
+
+/obj/item/card/id/job/rawmedical
+	name = "Job card (Med) - Custom"
+	icon_state = "rawmedical"
+	hud_state = JOB_HUD_RAWMEDICAL
+
+
+// ---- Science -----
+/obj/item/card/id/job/research_director
+	name = "Job card (RND) - RD"
+	icon_state = "rd"
+	assignment = JOB_NAME_RESEARCHDIRECTOR
+	hud_state = JOB_HUD_RESEARCHDIRECTOR
+
+/obj/item/card/id/job/scientist
+	name = "Job card (RND) - Scientist"
+	icon_state = "sci"
+	assignment = JOB_NAME_SCIENTIST
+	hud_state = JOB_HUD_SCIENTIST
+
+/obj/item/card/id/job/roboticist
+	name = "Job card (RND) - Roboticist"
+	icon_state = "roboticist"
+	assignment = JOB_NAME_ROBOTICIST
+	hud_state = JOB_HUD_ROBOTICIST
+
+/obj/item/card/id/job/exploration_crew
+	name = "Job card (RND) - Explo Crew"
+	icon_state = "exploration"
+	assignment = JOB_NAME_EXPLORATIONCREW
+	hud_state = JOB_HUD_EXPLORATIONCREW
+
+/obj/item/card/id/job/rawscience
+	name = "Job card (RND) - Custom"
+	icon_state = "rawscience"
+	hud_state = JOB_HUD_RAWSCIENCE
+
+// ---- Security ----
+/obj/item/card/id/job/head_of_security
+	name = "Job card (Sec) - HoS"
+	icon_state = "hos"
+	assignment = JOB_NAME_HEADOFSECURITY
+	hud_state = JOB_HUD_HEADOFSECURITY
+
+/obj/item/card/id/job/warden
+	name = "Job card (Sec) - Warden"
+	icon_state = "warden"
+	assignment = JOB_NAME_WARDEN
+	hud_state = JOB_HUD_WARDEN
+
+/obj/item/card/id/job/security_officer
+	name = "Job card (Sec) - Security Officer"
+	icon_state = "sec"
+	assignment = JOB_NAME_SECURITYOFFICER
+	hud_state = JOB_HUD_SECURITYOFFICER
+
+/obj/item/card/id/job/detective
+	name = "Job card (Sec) - Detective"
+	icon_state = "detective"
+	assignment = JOB_NAME_DETECTIVE
+	hud_state = JOB_HUD_DETECTIVE
+
+/obj/item/card/id/job/brig_physician
+	name = "Job card (Sec) - Brig Phys"
+	icon_state = "brigphys"
+	assignment = JOB_NAME_BRIGPHYSICIAN
+	hud_state = JOB_HUD_BRIGPHYSICIAN
+
+/obj/item/card/id/job/deputy
+	name = "Job card (Sec) - Deputy"
+	icon_state = "deputy"
+	assignment = JOB_NAME_DEPUTY
+	hud_state = JOB_HUD_DEPUTY
+
+/obj/item/card/id/job/rawsecurity
+	name = "Job card (Sec) - Custom"
+	icon_state = "rawsecurity"
+	hud_state = JOB_HUD_RAWSECURITY
+
+ // ---- ???? ----
+/obj/item/card/id/job/unknown
+	name = "Job card - unassigned"
+	icon_state = "id"
+	hud_state = JOB_HUD_UNKNOWN
+
+/obj/item/card/id/gold/vip
+	name = "important gold identification card"
+	assignment = JOB_NAME_VIP
+	hud_state = JOB_HUD_VIP
+
+/obj/item/card/id/gold/king
+	name = "their majesty's gold identification card"
+	assignment = JOB_NAME_KING
+	hud_state = JOB_HUD_KING
+
+
+/obj/item/card/id/pass
+	name = "promotion pass"
+	desc = "A card that, when swiped on your ID card, will grant you all the access. Should not substitute your actual ID card."
+	icon_state = "data_1"
+	registered_name = "Unregistered ID"
+	assignment = "Access Pass"
+	hud_state = JOB_HUD_UNKNOWN
+
+/obj/item/card/id/pass/afterattack(atom/target, mob/user, proximity)
+	. = ..()
+	if (!proximity)
+		return .
+	var/obj/item/card/id/idcard = target
+	if(istype(idcard))
+		if(!idcard.electric)
+			to_chat(user, to_chat(user, "<span class='warning'>You swipe the id card. Nothing happens. </span>"))
+			return
+		for(var/give_access in access)
+			idcard.access |= give_access
+		if(assignment!=initial(assignment))
+			idcard.assignment = assignment
+		if(name!=initial(name))
+			idcard.name = name
+		to_chat(user, "You upgrade your [idcard] with the [name].")
+		log_id("[key_name(user)] added access to '[idcard]' using [src] at [AREACOORD(user)].")
+		qdel(src)

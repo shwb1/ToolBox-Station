@@ -20,7 +20,7 @@ GLOBAL_LIST_EMPTY(telecomms_list)
 	light_color = LIGHT_COLOR_CYAN
 	var/list/links = list() // list of machines this machine is linked to
 	var/traffic = 0 // value increases as traffic increases
-	var/netspeed = 5 // how much traffic to lose per tick (50 gigabytes/second * netspeed)
+	var/netspeed = 2.5 // how much traffic to lose per second (50 gigabytes/second * netspeed)
 	var/list/autolinkers = list() // list of text/number values to link with
 	var/id = "NULL" // identification string
 	var/network = "NULL" // the network of the machinery
@@ -53,7 +53,7 @@ GLOBAL_LIST_EMPTY(telecomms_list)
 			continue
 		if(amount && send_count >= amount)
 			break
-		if(z != machine.loc.z && !long_range_link && !machine.long_range_link)
+		if(get_virtual_z_level() != machine.loc.get_virtual_z_level() && !long_range_link && !machine.long_range_link)
 			continue
 
 		send_count++
@@ -105,7 +105,7 @@ GLOBAL_LIST_EMPTY(telecomms_list)
 	var/turf/T_position = get_turf(T)
 	var/same_zlevel = FALSE
 	if(position && T_position)	//Stops a bug with a phantom telecommunications interceptor which is spawned by circuits caching their components into nullspace
-		if(position.z == T_position.z)
+		if(position.get_virtual_z_level() == T_position.get_virtual_z_level())
 			same_zlevel = TRUE
 	if(same_zlevel || (long_range_link && T.long_range_link))
 		if(src != T)
@@ -128,34 +128,29 @@ GLOBAL_LIST_EMPTY(telecomms_list)
 			icon_state = "[initial(icon_state)]_off"
 
 /obj/machinery/telecomms/proc/update_power()
+	var/newState = on
 
 	if(toggled)
-		if(stat & (BROKEN|NOPOWER|EMPED)) // if powered, on. if not powered, off. if too damaged, off
-			on = FALSE
+		if(machine_stat & (BROKEN|NOPOWER|EMPED)) // if powered, on. if not powered, off. if too damaged, off
+			newState = FALSE
 		else
-			on = TRUE
+			newState = TRUE
 	else
-		on = FALSE
+		newState = FALSE
 
-	set_light(on)
+	if(newState != on)
+		on = newState
+		ui_update()
+		set_light(on)
 
-/obj/machinery/telecomms/process()
+/obj/machinery/telecomms/process(delta_time)
 	update_power()
 
 	// Update the icon
 	update_icon()
 
 	if(traffic > 0)
-		traffic -= netspeed
-
-/obj/machinery/telecomms/emp_act(severity)
-	. = ..()
-	if(. & EMP_PROTECT_SELF)
-		return
-	if(prob(100/severity) && !(stat & EMPED))
-		stat |= EMPED
-		var/duration = (300 * 10)/severity
-		addtimer(CALLBACK(src, .proc/de_emp), rand(duration - 20, duration + 20))
+		traffic -= netspeed * delta_time
 
 /obj/machinery/telecomms/obj_break(damage_flag)
 	. = ..()
@@ -164,6 +159,3 @@ GLOBAL_LIST_EMPTY(telecomms_list)
 /obj/machinery/telecomms/power_change()
 	..()
 	update_power()
-
-/obj/machinery/telecomms/proc/de_emp()
-	stat &= ~EMPED

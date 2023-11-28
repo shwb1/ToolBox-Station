@@ -14,24 +14,60 @@ If you create T5+ please take a pass at gene_modder.dm [L40]. Max_values MUST fi
 	var/pshoom_or_beepboopblorpzingshadashwoosh = 'sound/items/rped.ogg'
 	var/alt_sound = null
 
-/obj/item/storage/part_replacer/pre_attack(obj/machinery/T, mob/living/user, params)
-	if(!istype(T) || !T.component_parts)
+/obj/item/storage/part_replacer/pre_attack(obj/attacked_object, mob/living/user, params)
+	if(!istype(attacked_object, /obj/machinery) && !istype(attacked_object, /obj/structure/frame/machine))
 		return ..()
-	if(user.Adjacent(T)) // no TK upgrading.
-		if(works_from_distance)
-			user.Beam(T, icon_state = "rped_upgrade", time = 5)
-		T.exchange_parts(user, src)
-		return FALSE
-	return ..()
 
-/obj/item/storage/part_replacer/afterattack(obj/machinery/T, mob/living/user, adjacent, params)
-	if(adjacent || !istype(T) || !T.component_parts)
+	if(!user.Adjacent(attacked_object)) // no TK upgrading.
 		return ..()
+
+	if(istype(attacked_object, /obj/machinery))
+		var/obj/machinery/attacked_machinery = attacked_object
+
+		if(!attacked_machinery.component_parts)
+			return ..()
+
+		if(works_from_distance)
+			user.Beam(attacked_machinery, icon_state = "rped_upgrade", time = 5)
+		attacked_machinery.exchange_parts(user, src)
+		return FALSE
+
+	var/obj/structure/frame/machine/attacked_frame = attacked_object
+
+	if(!attacked_frame.components)
+		return ..()
+	attacked_frame.attackby(src, user)
 	if(works_from_distance)
-		user.Beam(T, icon_state = "rped_upgrade", time = 5)
-		T.exchange_parts(user, src)
+		user.Beam(attacked_frame, icon_state = "rped_upgrade", time = 5)
+	return TRUE
+
+/obj/item/storage/part_replacer/afterattack(obj/attacked_object, mob/living/user, adjacent, params)
+	if(!istype(attacked_object, /obj/machinery) && !istype(attacked_object, /obj/structure/frame/machine))
+		return ..()
+
+	if(adjacent)
+		return ..()
+
+	if(ismachinery(attacked_object))
+		var/obj/machinery/attacked_machinery = attacked_object
+
+		if(!attacked_machinery.component_parts)
+			return ..()
+
+		if(works_from_distance)
+			user.Beam(attacked_machinery, icon_state = "rped_upgrade", time = 5)
+			attacked_machinery.exchange_parts(user, src)
 		return
-	return ..()
+
+	var/obj/structure/frame/machine/attacked_frame = attacked_object
+	if(!adjacent && !works_from_distance)
+		return
+	if(!attacked_frame.components)
+		return ..()
+
+	attacked_frame.attackby(src, user)
+	if(works_from_distance)
+		user.Beam(attacked_frame, icon_state = "rped_upgrade", time = 5)
 
 /obj/item/storage/part_replacer/proc/play_rped_sound()
 	//Plays the sound for RPED exhanging or installing parts.
@@ -44,6 +80,7 @@ If you create T5+ please take a pass at gene_modder.dm [L40]. Max_values MUST fi
 	name = "bluespace rapid part exchange device"
 	desc = "A version of the RPED that allows for replacement of parts and scanning from a distance, along with higher capacity for parts."
 	icon_state = "BS_RPED"
+	item_state = "BS_RPED"
 	w_class = WEIGHT_CLASS_NORMAL
 	works_from_distance = TRUE
 	pshoom_or_beepboopblorpzingshadashwoosh = 'sound/items/pshoom.ogg'
@@ -53,42 +90,46 @@ If you create T5+ please take a pass at gene_modder.dm [L40]. Max_values MUST fi
 /obj/item/storage/part_replacer/bluespace/tier1
 
 /obj/item/storage/part_replacer/bluespace/tier1/PopulateContents()
-	for(var/i in 1 to 10)
+	for(var/i in 1 to 50)
 		new /obj/item/stock_parts/capacitor(src)
 		new /obj/item/stock_parts/scanning_module(src)
 		new /obj/item/stock_parts/manipulator(src)
 		new /obj/item/stock_parts/micro_laser(src)
 		new /obj/item/stock_parts/matter_bin(src)
+		new /obj/item/stock_parts/cell/high(src)
 
 /obj/item/storage/part_replacer/bluespace/tier2
 
 /obj/item/storage/part_replacer/bluespace/tier2/PopulateContents()
-	for(var/i in 1 to 10)
+	for(var/i in 1 to 50)
 		new /obj/item/stock_parts/capacitor/adv(src)
 		new /obj/item/stock_parts/scanning_module/adv(src)
 		new /obj/item/stock_parts/manipulator/nano(src)
 		new /obj/item/stock_parts/micro_laser/high(src)
 		new /obj/item/stock_parts/matter_bin/adv(src)
+		new /obj/item/stock_parts/cell/super(src)
 
 /obj/item/storage/part_replacer/bluespace/tier3
 
 /obj/item/storage/part_replacer/bluespace/tier3/PopulateContents()
-	for(var/i in 1 to 10)
+	for(var/i in 1 to 50)
 		new /obj/item/stock_parts/capacitor/super(src)
 		new /obj/item/stock_parts/scanning_module/phasic(src)
 		new /obj/item/stock_parts/manipulator/pico(src)
 		new /obj/item/stock_parts/micro_laser/ultra(src)
 		new /obj/item/stock_parts/matter_bin/super(src)
+		new /obj/item/stock_parts/cell/hyper(src)
 
 /obj/item/storage/part_replacer/bluespace/tier4
 
 /obj/item/storage/part_replacer/bluespace/tier4/PopulateContents()
-	for(var/i in 1 to 10)
+	for(var/i in 1 to 50)
 		new /obj/item/stock_parts/capacitor/quadratic(src)
 		new /obj/item/stock_parts/scanning_module/triphasic(src)
 		new /obj/item/stock_parts/manipulator/femto(src)
 		new /obj/item/stock_parts/micro_laser/quadultra(src)
 		new /obj/item/stock_parts/matter_bin/bluespace(src)
+		new /obj/item/stock_parts/cell/bluespace(src)
 
 /obj/item/storage/part_replacer/cargo //used in a cargo crate
 
@@ -118,10 +159,10 @@ If you create T5+ please take a pass at gene_modder.dm [L40]. Max_values MUST fi
 	w_class = WEIGHT_CLASS_SMALL
 	var/rating = 1
 
-/obj/item/stock_parts/Initialize()
+/obj/item/stock_parts/Initialize(mapload)
 	. = ..()
-	pixel_x = rand(-5, 5)
-	pixel_y = rand(-5, 5)
+	pixel_x = base_pixel_x + rand(-5, 5)
+	pixel_y = base_pixel_y + rand(-5, 5)
 
 /obj/item/stock_parts/get_part_rating()
 	return rating

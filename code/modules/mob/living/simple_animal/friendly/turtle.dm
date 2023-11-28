@@ -16,14 +16,14 @@
 	response_disarm = "gently pushes aside"
 	response_harm = "kicks"
 	mob_biotypes = list(MOB_ORGANIC, MOB_BEAST)
-	gold_core_spawnable = FRIENDLY_SPAWN
-	melee_damage = 18
+	gold_core_spawnable = NO_SPAWN
+	melee_damage = 0.5
 	health = 2500
 	maxHealth = 2500
-	speed = 8
+	speed = 4
 	glide_size = 2
 	can_be_held = TRUE
-	mobsay_color = "#E7D26F"
+	chat_color = "#E7D26F"
 
 	do_footstep = TRUE
 
@@ -45,7 +45,7 @@
 
 //-----WANDERING - Time to mosey around
 	else
-		walk(src, 0)
+		SSmove_manager.stop_looping(src)
 
 		if(prob(10))
 			step(src, pick(GLOB.cardinals))
@@ -62,7 +62,7 @@
 	return ..()
 
 //Bullets
-/mob/living/simple_animal/turtle/bullet_act(obj/item/projectile/Proj)
+/mob/living/simple_animal/turtle/bullet_act(obj/projectile/Proj)
 	if(!stat && !client)
 		if(icon_state == icon_hiding)
 			turtle_hide_dur = turtle_hide_max //Reset its hiding timer

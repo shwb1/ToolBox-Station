@@ -1,4 +1,3 @@
-import { Fragment } from 'inferno';
 import { useBackend } from '../backend';
 import { Button, LabeledList, NumberInput, Section } from '../components';
 import { Window } from '../layouts';
@@ -17,49 +16,41 @@ export const GulagTeleporterConsole = (props, context) => {
     can_teleport,
     goal = 0,
     prisoner = {},
+    permanent,
   } = data;
   return (
-    <Window
-      width={350}
-      height={295}>
+    <Window width={350} height={295}>
       <Window.Content>
         <Section
           title="Teleporter Console"
-          buttons={(
-            <Fragment>
+          buttons={
+            <>
               <Button
                 content={teleporter_state_open ? 'Open' : 'Closed'}
                 disabled={teleporter_lock}
                 selected={teleporter_state_open}
-                onClick={() => act('toggle_open')} />
+                onClick={() => act('toggle_open')}
+              />
               <Button
                 icon={teleporter_lock ? 'lock' : 'unlock'}
                 content={teleporter_lock ? 'Locked' : 'Unlocked'}
                 selected={teleporter_lock}
                 disabled={teleporter_state_open}
-                onClick={() => act('teleporter_lock')} />
-            </Fragment>
-          )}>
+                onClick={() => act('teleporter_lock')}
+              />
+            </>
+          }>
           <LabeledList>
             <LabeledList.Item
               label="Teleporter Unit"
               color={teleporter ? 'good' : 'bad'}
-              buttons={!teleporter && (
-                <Button
-                  content="Reconnect"
-                  onClick={() => act('scan_teleporter')}
-                />
-              )}>
+              buttons={!teleporter && <Button content="Reconnect" onClick={() => act('scan_teleporter')} />}>
               {teleporter ? teleporter_location : 'Not Connected'}
             </LabeledList.Item>
             <LabeledList.Item
               label="Receiver Beacon"
               color={beacon ? 'good' : 'bad'}
-              buttons={!beacon && (
-                <Button
-                  content="Reconnect"
-                  onClick={() => act('scan_beacon')} />
-              )}>
+              buttons={!beacon && <Button content="Reconnect" onClick={() => act('scan_beacon')} />}>
               {beacon ? beacon_location : 'Not Connected'}
             </LabeledList.Item>
           </LabeledList>
@@ -67,10 +58,7 @@ export const GulagTeleporterConsole = (props, context) => {
         <Section title="Prisoner Details">
           <LabeledList>
             <LabeledList.Item label="Prisoner ID">
-              <Button
-                fluid
-                content={id ? id_name : 'No ID'}
-                onClick={() => act('handle_id')} />
+              <Button fluid content={id ? id_name : 'No ID'} onClick={() => act('handle_id')} />
             </LabeledList.Item>
             <LabeledList.Item label="Point Goal">
               <NumberInput
@@ -78,14 +66,12 @@ export const GulagTeleporterConsole = (props, context) => {
                 width="48px"
                 minValue={1}
                 maxValue={1000}
-                onChange={(e, value) => act('set_goal', { value })} />
+                onChange={(e, value) => act('set_goal', { value })}
+              />
+              <Button.Checkbox content="Permanent sentence" checked={permanent} onClick={() => act('set_permanent')} />
             </LabeledList.Item>
-            <LabeledList.Item label="Occupant">
-              {prisoner.name || 'No Occupant'}
-            </LabeledList.Item>
-            <LabeledList.Item label="Criminal Status">
-              {prisoner.crimstat || 'No Status'}
-            </LabeledList.Item>
+            <LabeledList.Item label="Occupant">{prisoner.name || 'No Occupant'}</LabeledList.Item>
+            <LabeledList.Item label="Criminal Status">{prisoner.crimstat || 'No Status'}</LabeledList.Item>
           </LabeledList>
         </Section>
         <Button
@@ -94,7 +80,8 @@ export const GulagTeleporterConsole = (props, context) => {
           disabled={!can_teleport}
           textAlign="center"
           color="bad"
-          onClick={() => act('teleport')} />
+          onClick={() => act('teleport')}
+        />
       </Window.Content>
     </Window>
   );

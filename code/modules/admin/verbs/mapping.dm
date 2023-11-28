@@ -51,7 +51,10 @@ GLOBAL_LIST_INIT(admin_verbs_debug_mapping, list(
 	/client/proc/show_line_profiling,
 	/client/proc/create_mapping_job_icons,
 	/client/proc/debug_z_levels,
-	/client/proc/place_ruin
+	/client/proc/place_ruin,
+	/client/proc/test_tgui_inputs,
+	/client/proc/analyze_openturf,
+	/client/proc/update_all_openturf,
 ))
 GLOBAL_PROTECT(admin_verbs_debug_mapping)
 
@@ -84,9 +87,8 @@ GLOBAL_PROTECT(admin_verbs_debug_mapping)
 			for(var/turf/T in C.can_see())
 				seen[T]++
 		for(var/turf/T in seen)
-			T.maptext = "[seen[T]]"
+			T.maptext = MAPTEXT("[seen[T]]")
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Show Camera Range") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-	SSblackbox.record_feedback("tally", "admin_verb", 1, "Show Camera Range")
 
 #ifdef TESTING
 GLOBAL_LIST_EMPTY(dirty_vars)
@@ -239,18 +241,19 @@ GLOBAL_LIST_EMPTY(dirty_vars)
 
 	var/list/atom/atom_list = list()
 
-	for(var/atom/A in world)
-		if(istype(A,type_path))
-			var/atom/B = A
-			while(!(isturf(B.loc)))
+	for(var/area/T as() in get_areas(/area, num_level))
+		for(var/atom/A in T)
+			if(istype(A, type_path))
+				var/atom/B = A
+				while(!(isturf(B.loc)))
 				if(B?.loc)
 					B = B.loc
 				else
 					break
-			if(B)
-				if(B.z == num_level)
+				if(B)
 					count++
 					atom_list += A
+			CHECK_TICK
 
 	to_chat(world, "There are [count] objects of type [type_path] on z-level [num_level]")
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Count Objects Zlevel") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
@@ -298,10 +301,10 @@ GLOBAL_VAR_INIT(say_disabled, FALSE)
 	for(var/job in subtypesof(/datum/job))
 		var/datum/job/JB = new job
 		switch(JB.title)
-			if("AI")
-				final.Insert(icon('icons/mob/ai.dmi', "ai", SOUTH, 1), "AI")
-			if("Cyborg")
-				final.Insert(icon('icons/mob/robots.dmi', "robot", SOUTH, 1), "Cyborg")
+			if(JOB_NAME_AI)
+				final.Insert(icon('icons/mob/ai.dmi', "ai", SOUTH, 1), JOB_NAME_AI)
+			if(JOB_NAME_CYBORG)
+				final.Insert(icon('icons/mob/robots.dmi', "robot", SOUTH, 1), JOB_NAME_CYBORG)
 			else
 				for(var/obj/item/I in D)
 					qdel(I)
@@ -375,3 +378,25 @@ GLOBAL_VAR_INIT(say_disabled, FALSE)
 	messages += "</table>"
 
 	to_chat(src, messages.Join(""))
+
+/client/proc/test_tgui_inputs()
+	set name = "Test TGUI Inputs"
+	set category = "Debug"
+	var/response = tgui_alert(usr, "Message Here", "Title Here", list("Button 1", "Button 2", "Button 3"))
+	to_chat(usr, response)
+	response = tgui_alert(usr, "Message Here", "Title Here", list("Yes", "No"))
+	to_chat(usr, response)
+	var/list/L = list()
+	for (var/obj/machinery/camera/cam in GLOB.cameranet.cameras)
+		L["[cam.c_tag]"] = cam
+	response = tgui_input_list(usr, "Message Here", "Title Here", L)
+	to_chat(usr, response)
+	response = tgui_input_number(usr, "Message Here", "Title Here", 10, 500, 2)
+	to_chat(usr, response)
+	response = tgui_input_text(usr, "Message Here", "Title Here", "Default Text", 32, FALSE)
+	to_chat(usr, response)
+	response = tgui_input_text(usr, "Message Here", "Title Here", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore\
+	 et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit\
+	  in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id\
+	   est laborum.", 1024, TRUE)
+	to_chat(usr, response)

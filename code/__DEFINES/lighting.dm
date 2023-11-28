@@ -1,3 +1,16 @@
+///Object doesn't use any of the light systems. Should be changed to add a light source to the object.
+#define NO_LIGHT_SUPPORT 0
+///Light made with the lighting datums, applying a matrix.
+#define STATIC_LIGHT 1
+///Light made by masking the lighting darkness plane.
+#define MOVABLE_LIGHT 2
+
+///Is a movable light source attached to another movable (its loc), meaning that the lighting component should go one level deeper.
+#define LIGHT_ATTACHED (1<<0)
+
+///This light doesn't affect turf's lumcount calculations. Set to 1<<15 to ignore conflicts
+#define LIGHT_NO_LUMCOUNT (1<<15)
+
 //Bay lighting engine shit, not in /code/modules/lighting because BYOND is being shit about it
 #define LIGHTING_INTERVAL       5 // frequency, in 1/10ths of a second, of the lighting process
 
@@ -71,6 +84,10 @@
 #define DYNAMIC_LIGHTING_IFSTARLIGHT 3 //! dynamic lighting enabled only if starlight is.
 #define IS_DYNAMIC_LIGHTING(A) A.dynamic_lighting
 
+// Fullbright lighting defines
+#define FULLBRIGHT_NONE 0		//! Do not use fullbright (Only applies to turfs)
+#define FULLBRIGHT_DEFAULT 1	//! Use the default fullbright overlay of just 100% lighting
+#define FULLBRIGHT_STARLIGHT 2	//! Use the starlight brightness overlay
 
 //code assumes higher numbers override lower numbers.
 #define LIGHTING_NO_UPDATE 0
@@ -81,6 +98,25 @@
 #define FLASH_LIGHT_DURATION 2
 #define FLASH_LIGHT_POWER 3
 #define FLASH_LIGHT_RANGE 3.8
+
+/// Uses vis_overlays to leverage caching so that very few new items need to be made for the overlay. For anything that doesn't change outline or opaque area much or at all.
+#define EMISSIVE_BLOCK_GENERIC 1
+/// Uses a dedicated render_target object to copy the entire appearance in real time to the blocking layer. For things that can change in appearance a lot from the base state, like humans.
+#define EMISSIVE_BLOCK_UNIQUE 2
+
+#define EMISSIVE_COLOR list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1, 1,1,1,0)
+/// A globaly cached version of [EMISSIVE_COLOR] for quick access.
+GLOBAL_LIST_INIT(emissive_color, EMISSIVE_COLOR)
+/// The color matrix applied to all emissive blockers. Should be solely dependent on alpha and not have RGB overlap with [EMISSIVE_COLOR].
+#define EM_BLOCK_COLOR list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0)
+/// A globaly cached version of [EM_BLOCK_COLOR] for quick access.
+GLOBAL_LIST_INIT(em_block_color, EM_BLOCK_COLOR)
+/// A set of appearance flags applied to all emissive and emissive blocker overlays.
+#define EMISSIVE_APPEARANCE_FLAGS (KEEP_APART|KEEP_TOGETHER|RESET_COLOR|RESET_TRANSFORM)
+/// The color matrix used to mask out emissive blockers on the emissive plane. Alpha should default to zero, be solely dependent on the RGB value of [EMISSIVE_COLOR], and be independent of the RGB value of [EM_BLOCK_COLOR].
+#define EM_MASK_MATRIX list(0,0,0,1/3, 0,0,0,1/3, 0,0,0,1/3, 0,0,0,0, 1,1,1,0)
+/// A globaly cached version of [EM_MASK_MATRIX] for quick access.
+GLOBAL_LIST_INIT(em_mask_matrix, EM_MASK_MATRIX)
 
 /// Returns the red part of a #RRGGBB hex sequence as number
 #define GETREDPART(hexa) hex2num(copytext(hexa, 2, 4))
@@ -105,3 +141,17 @@ do { \
 		source.lum_b = 1; \
 	}; \
 } while (FALSE)
+
+GLOBAL_DATUM_INIT(fullbright_overlay, /image, create_fullbright_overlay())
+
+/proc/create_fullbright_overlay()
+	var/image/lighting_effect = new()
+	lighting_effect.appearance = /obj/effect/fullbright
+	return lighting_effect
+
+GLOBAL_DATUM_INIT(starlight_overlay, /image, create_starlight_overlay())
+
+/proc/create_starlight_overlay()
+	var/image/lighting_effect = new()
+	lighting_effect.appearance = /obj/effect/fullbright/starlight
+	return lighting_effect

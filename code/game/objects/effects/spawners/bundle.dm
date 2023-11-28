@@ -7,12 +7,11 @@
 	var/list/items
 
 /obj/effect/spawner/bundle/Initialize(mapload)
-	..()
+	. = ..()
 	if(items?.len)
 		var/turf/T = get_turf(src)
 		for(var/path in items)
 			new path(T)
-	return INITIALIZE_HINT_QDEL
 
 /obj/effect/spawner/bundle/costume/chicken
 	name = "chicken costume spawner"
@@ -138,7 +137,7 @@
 /obj/effect/spawner/bundle/costume/marisawizard
 	name = "marisa wizard costume spawner"
 	items = list(
-		/obj/item/clothing/shoes/sandal/marisa,
+		/obj/item/clothing/shoes/sneakers/marisa,
 		/obj/item/clothing/head/wizard/marisa/fake,
 		/obj/item/clothing/suit/wizrobe/marisa/fake)
 

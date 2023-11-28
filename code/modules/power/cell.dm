@@ -11,15 +11,22 @@
 	throw_speed = 2
 	throw_range = 5
 	w_class = WEIGHT_CLASS_SMALL
-	var/charge = 0	// note %age conveted to actual charge in New
+	/// note %age conveted to actual charge in New
+	var/charge = 0
 	var/maxcharge = 1000
 	materials = list(/datum/material/iron=700, /datum/material/glass=50)
 	grind_results = list(/datum/reagent/lithium = 15, /datum/reagent/iron = 5, /datum/reagent/silicon = 5)
-	var/rigged = FALSE	// true if rigged to explode
-	var/chargerate = 100 //how much power is given every tick in a recharger
-	var/self_recharge = 0 //does it self recharge, over time, or not?
+	/// true if rigged to explode
+	var/rigged = FALSE
+	///how much power is given every tick in a recharger
+	var/chargerate = 100
+	///does it self recharge, over time, or not?
+	var/self_recharge = FALSE
+	///stores the chargerate to restore when hit with EMP, for slime cores
+	var/emp_timer = 0
 	var/ratingdesc = TRUE
-	var/grown_battery = FALSE // If it's a grown that acts as a battery, add a wire overlay to it.
+	/// If it's a grown that acts as a battery, add a wire overlay to it.
+	var/grown_battery = FALSE
 
 /obj/item/stock_parts/cell/get_cell()
 	return src
@@ -32,7 +39,7 @@
 		maxcharge = override_maxcharge
 	charge = maxcharge
 	if(ratingdesc)
-		desc += " This one has a rating of [DisplayEnergy(maxcharge)], and you should not swallow it."
+		desc += " This one has a rating of [display_energy(maxcharge)], and you should not swallow it."
 	update_icon()
 
 /obj/item/stock_parts/cell/Destroy()
@@ -41,16 +48,18 @@
 
 /obj/item/stock_parts/cell/vv_edit_var(var_name, var_value)
 	switch(var_name)
-		if("self_recharge")
+		if(NAMEOF(src, self_recharge))
 			if(var_value)
 				START_PROCESSING(SSobj, src)
 			else
 				STOP_PROCESSING(SSobj, src)
 	. = ..()
 
-/obj/item/stock_parts/cell/process()
+/obj/item/stock_parts/cell/process(delta_time)
+	if(emp_timer > world.time)
+		return
 	if(self_recharge)
-		give(chargerate * 0.25)
+		give(chargerate * 0.125 * delta_time)
 	else
 		return PROCESS_KILL
 
@@ -66,12 +75,12 @@
 		add_overlay("cell-o1")
 
 /obj/item/stock_parts/cell/proc/percent()		// return % charge of cell
-	return 100*charge/maxcharge
+	return maxcharge ? 100 * charge / maxcharge : 0 //Division by 0 protection
 
 // use power from a cell
 /obj/item/stock_parts/cell/use(amount)
 	if(rigged && amount > 0)
-		explode()
+		plasma_ignition(4)
 		return 0
 	if(charge < amount)
 		return 0
@@ -83,7 +92,7 @@
 // recharge the cell
 /obj/item/stock_parts/cell/proc/give(amount)
 	if(rigged && amount > 0)
-		explode()
+		plasma_ignition(4)
 		return 0
 	if(maxcharge < amount)
 		amount = maxcharge
@@ -98,9 +107,9 @@
 	else
 		. += "The charge meter reads [round(src.percent() )]%."
 
-/obj/item/stock_parts/cell/suicide_act(mob/user)
+/obj/item/stock_parts/cell/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] is licking the electrodes of [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
-	return (FIRELOSS)
+	return FIRELOSS
 
 /obj/item/stock_parts/cell/on_reagent_change(changetype)
 	rigged = !isnull(reagents.has_reagent(/datum/reagent/toxin/plasma, 5)) //has_reagent returns the reagent datum
@@ -136,6 +145,9 @@
 	charge -= 1000 / severity
 	if (charge < 0)
 		charge = 0
+	if(self_recharge)
+		emp_timer = world.time + 30 SECONDS
+
 
 /obj/item/stock_parts/cell/ex_act(severity, target)
 	..()
@@ -154,35 +166,46 @@
 		var/datum/species/ethereal/E = H.dna.species
 		if(E.drain_time > world.time)
 			return
-
-		if(charge < 100)
-			to_chat(H, "<span class='warning'>The [src] doesn't have enough power!</span>")
-			return
-		var/obj/item/organ/stomach/ethereal/stomach = H.getorganslot(ORGAN_SLOT_STOMACH)
+		var/obj/item/organ/stomach/battery/stomach = H.getorganslot(ORGAN_SLOT_STOMACH)
 		if(!istype(stomach))
 			to_chat(H, "<span class='warning'>You can't receive charge!</span>")
 			return
-		if(stomach.crystal_charge >= ETHEREAL_CHARGE_FULL)
-			to_chat(H, "<span class='warning'>Your charge is full!</span>")
+		if(H.nutrition >= NUTRITION_LEVEL_ALMOST_FULL)
+			to_chat(user, "<span class='warning'>You are already fully charged!</span>")
 			return
+
 		to_chat(H, "<span class='notice'>You clumsily channel power through the [src] and into your body, wasting some in the process.</span>")
-		E.drain_time = world.time + 20
-		if((charge < 100) || (stomach.crystal_charge >= ETHEREAL_CHARGE_FULL))
-			return
-		if(do_after(user, 20, target = src))
-			to_chat(H, "<span class='notice'>You receive some charge from the [src].</span>")
-			stomach.adjust_charge(3)
-			charge -= 100 //you waste way more than you receive, so that ethereals cant just steal one cell and forget about hunger
-		else
-			to_chat(H, "<span class='warning'>You fail to receive charge from the [src]!</span>")
+		E.drain_time = world.time + 25
+		while(do_after(user, 20, target = src))
+			if(!istype(stomach))
+				to_chat(H, "<span class='warning'>You can't receive charge!</span>")
+				return
+			E.drain_time = world.time + 25
+			if(charge > 300)
+				stomach.adjust_charge(75)
+				charge -= 300 //you waste way more than you receive, so that ethereals cant just steal one cell and forget about hunger
+				to_chat(H, "<span class='notice'>You receive some charge from the [src].</span>")
+			else
+				stomach.adjust_charge(charge/4)
+				charge = 0
+				to_chat(H, "<span class='notice'>You drain the [src].</span>")
+				E.drain_time = 0
+				return
+
+			if(stomach.charge >= stomach.max_charge)
+				to_chat(H, "<span class='notice'>You are now fully charged.</span>")
+				E.drain_time = 0
+				return
+		to_chat(H, "<span class='warning'>You fail to receive charge from the [src]!</span>")
+		E.drain_time = 0
 	return
 
 /obj/item/stock_parts/cell/blob_act(obj/structure/blob/B)
-	src.ex_act(EXPLODE_HEAVY)
+	SSexplosions.high_mov_atom += src
 
 /obj/item/stock_parts/cell/proc/get_electrocute_damage()
 	if(charge >= 1000)
-		return CLAMP(20 + round(charge/25000), 20, 195) + rand(-5,5)
+		return clamp(20 + round(charge/25000), 20, 195) + rand(-5,5)
 	else
 		return 0
 
@@ -190,7 +213,7 @@
 	return rating * maxcharge
 
 /* Cell variants*/
-/obj/item/stock_parts/cell/empty/Initialize()
+/obj/item/stock_parts/cell/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 
@@ -200,7 +223,7 @@
 	maxcharge = 500
 	materials = list(/datum/material/glass=40)
 
-/obj/item/stock_parts/cell/crap/empty/Initialize()
+/obj/item/stock_parts/cell/crap/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
@@ -222,7 +245,7 @@
 	maxcharge = 600	//600 max charge / 100 charge per shot = six shots
 	materials = list(/datum/material/glass=40)
 
-/obj/item/stock_parts/cell/secborg/empty/Initialize()
+/obj/item/stock_parts/cell/secborg/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
@@ -246,6 +269,7 @@
 	maxcharge = 10000
 	materials = list(/datum/material/glass=60)
 	chargerate = 1500
+	rating = 1
 
 /obj/item/stock_parts/cell/high/plus
 	name = "high-capacity power cell+"
@@ -254,7 +278,7 @@
 	maxcharge = 15000
 	chargerate = 2250
 
-/obj/item/stock_parts/cell/high/empty/Initialize()
+/obj/item/stock_parts/cell/high/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
@@ -265,8 +289,9 @@
 	maxcharge = 20000
 	materials = list(/datum/material/glass=300)
 	chargerate = 2000
+	rating = 2
 
-/obj/item/stock_parts/cell/super/empty/Initialize()
+/obj/item/stock_parts/cell/super/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
@@ -277,8 +302,9 @@
 	maxcharge = 30000
 	materials = list(/datum/material/glass=400)
 	chargerate = 3000
+	rating = 3
 
-/obj/item/stock_parts/cell/hyper/empty/Initialize()
+/obj/item/stock_parts/cell/hyper/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
@@ -290,8 +316,9 @@
 	maxcharge = 40000
 	materials = list(/datum/material/glass=600)
 	chargerate = 4000
+	rating = 4
 
-/obj/item/stock_parts/cell/bluespace/empty/Initialize()
+/obj/item/stock_parts/cell/bluespace/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
@@ -336,7 +363,9 @@
 	icon_state = "yellow slime extract"
 	materials = list()
 	rating = 5 //self-recharge makes these desirable
-	self_recharge = 1 // Infused slime cores self-recharge, over time
+	self_recharge = TRUE // Infused slime cores self-recharge, over time
+	chargerate = 100
+	maxcharge = 2000
 
 /obj/item/stock_parts/cell/emproof
 	name = "\improper EMP-proof cell"
@@ -344,14 +373,14 @@
 	maxcharge = 500
 	rating = 3
 
-/obj/item/stock_parts/cell/emproof/empty/Initialize()
+/obj/item/stock_parts/cell/emproof/empty/Initialize(mapload)
 	. = ..()
 	charge = 0
 	update_icon()
 
 /obj/item/stock_parts/cell/emproof/empty/ComponentInitialize()
 	. = ..()
-	AddComponent(/datum/component/empprotection, EMP_PROTECT_SELF)
+	AddElement(/datum/element/empprotection, EMP_PROTECT_SELF)
 
 /obj/item/stock_parts/cell/emproof/corrupt()
 	return
@@ -369,7 +398,7 @@
 	. = ..()
 	if(. & EMP_PROTECT_SELF)
 		return
-	charge = CLAMP((charge-(10000/severity)),0,maxcharge)
+	charge = clamp((charge-(10000/severity)),0,maxcharge)
 
 /obj/item/stock_parts/cell/emergency_light
 	name = "miniature power cell"
@@ -378,7 +407,7 @@
 	materials = list(/datum/material/glass = 20)
 	w_class = WEIGHT_CLASS_TINY
 
-/obj/item/stock_parts/cell/emergency_light/Initialize()
+/obj/item/stock_parts/cell/emergency_light/Initialize(mapload)
 	. = ..()
 	var/area/A = get_area(src)
 	if(!A.lightswitch || !A.light_power)

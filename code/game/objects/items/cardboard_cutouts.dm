@@ -65,9 +65,9 @@
 		if(prob(I.force))
 			push_over()
 
-/obj/item/cardboard_cutout/bullet_act(obj/item/projectile/P)
-	if(istype(P, /obj/item/projectile/bullet/reusable))
-		P.on_hit(src, 0)
+/obj/item/cardboard_cutout/bullet_act(obj/projectile/P, def_zone, piercing_hit = FALSE)
+	if(istype(P, /obj/projectile/bullet/reusable))
+		P.on_hit(src, 0, piercing_hit)
 	visible_message("<span class='danger'>[src] is hit by [P]!</span>")
 	playsound(src, 'sound/weapons/slice.ogg', 50, 1)
 	if(prob(P.damage))
@@ -85,10 +85,10 @@
 	if(crayon.is_capped)
 		to_chat(user, "<span class='warning'>Take the cap off first!</span>")
 		return
-	var/new_appearance = input(user, "Choose a new appearance for [src].", "26th Century Deception") as null|anything in sortList(possible_appearances)
+	var/new_appearance = input(user, "Choose a new appearance for [src].", "26th Century Deception") as null|anything in sort_list(possible_appearances)
 	if(!new_appearance || !crayon || !user.canUseTopic(src, BE_CLOSE))
 		return
-	if(!do_after(user, 10, FALSE, src, TRUE))
+	if(!do_after(user, 10, src, progress = TRUE))
 		return
 	user.visible_message("<span class='notice'>[user] gives [src] a new look.</span>", "<span class='notice'>Voila! You give [src] a new look.</span>")
 	crayon.use_charges(1)
@@ -153,7 +153,7 @@
 			desc = "A cardboard cutout of a swarmer."
 			icon_state = "cutout_swarmer"
 		if("Ash Walker")
-			name = lizard_name(pick(MALE, FEMALE))
+			name = random_lizard_name(pick(MALE, FEMALE))
 			desc = "A cardboard cutout of an ash walker."
 			icon_state = "cutout_free_antag"
 		if("Deathsquad Officer")
@@ -185,3 +185,63 @@
 
 /obj/item/cardboard_cutout/adaptive //Purchased by Syndicate agents, these cutouts are indistinguishable from normal cutouts but aren't discolored when their appearance is changed
 	deceptive = TRUE
+
+//	--- CHESS PIECES ---
+
+// WHITE
+
+/obj/item/cardboard_cutout/adaptive/chess
+	desc = "A large cardboard cutout resembling a chess piece."
+
+/obj/item/cardboard_cutout/adaptive/chess/king
+	name = "White King"
+	icon_state = "cutout_ian";
+
+/obj/item/cardboard_cutout/adaptive/chess/queen
+	name = "White Queen"
+	icon_state = "cutout_clown";
+
+/obj/item/cardboard_cutout/adaptive/chess/rook
+	name = "White Rook"
+	icon_state = "cutout_deathsquad";
+
+/obj/item/cardboard_cutout/adaptive/chess/knight
+	name = "White Knight"
+	icon_state = "cutout_lusty";
+
+/obj/item/cardboard_cutout/adaptive/chess/bishop
+	name = "White Bishop"
+	icon_state = "cutout_ntsec";
+
+/obj/item/cardboard_cutout/adaptive/chess/pawn
+	name = "White Pawn"
+	icon_state = "cutout_greytide";
+
+// BLACK
+
+/obj/item/cardboard_cutout/adaptive/chess/black
+	color = "#9999BB";
+
+/obj/item/cardboard_cutout/adaptive/chess/black/king
+	name = "Black King"
+	icon_state = "cutout_wizard";
+
+/obj/item/cardboard_cutout/adaptive/chess/black/queen
+	name = "Black Queen"
+	icon_state = "cutout_traitor";
+
+/obj/item/cardboard_cutout/adaptive/chess/black/rook
+	name = "Black Rook"
+	icon_state = "cutout_cultist";
+
+/obj/item/cardboard_cutout/adaptive/chess/black/knight
+	name = "Black Knight"
+	icon_state = "cutout_fukken_xeno";
+
+/obj/item/cardboard_cutout/adaptive/chess/black/bishop
+	name = "Black Bishop"
+	icon_state = "cutout_fluke";
+
+/obj/item/cardboard_cutout/adaptive/chess/black/pawn
+	name = "Black Pawn"
+	icon_state = "cutout_shadowling";

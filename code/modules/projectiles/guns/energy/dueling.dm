@@ -124,7 +124,7 @@
 	if(get_dist(A,B) != required_distance)
 		return FALSE
 	for(var/turf/T in getline(get_turf(A),get_turf(B)))
-		if(is_blocked_turf(T,TRUE))
+		if(T.is_blocked_turf(TRUE))
 			return FALSE
 	return TRUE
 
@@ -142,7 +142,7 @@
 	var/datum/duel/duel
 	var/mutable_appearance/setting_overlay
 
-/obj/item/gun/energy/dueling/Initialize()
+/obj/item/gun/energy/dueling/Initialize(mapload)
 	. = ..()
 	setting_overlay = mutable_appearance(icon,setting_iconstate())
 	add_overlay(setting_overlay)
@@ -184,9 +184,9 @@
 
 /obj/item/gun/energy/dueling/Destroy()
 	. = ..()
-	if(duel.gun_A == src)
+	if(duel?.gun_A == src)
 		duel.gun_A = null
-	if(duel.gun_B == src)
+	if(duel?.gun_B == src)
 		duel.gun_B = null
 	duel = null
 
@@ -244,12 +244,12 @@
 
 /obj/item/ammo_casing/energy/duel
 	e_cost = 0
-	projectile_type = /obj/item/projectile/energy/duel
+	projectile_type = /obj/projectile/energy/duel
 	var/setting
 
 /obj/item/ammo_casing/energy/duel/ready_proj(atom/target, mob/living/user, quiet, zone_override)
 	. = ..()
-	var/obj/item/projectile/energy/duel/D = BB
+	var/obj/projectile/energy/duel/D = BB
 	D.setting = setting
 	D.update_icon()
 
@@ -261,14 +261,14 @@
 
 //Projectile
 
-/obj/item/projectile/energy/duel
+/obj/projectile/energy/duel
 	name = "dueling beam"
 	icon_state = "declone"
 	reflectable = FALSE
 	homing = TRUE
 	var/setting
 
-/obj/item/projectile/energy/duel/update_icon()
+/obj/projectile/energy/duel/update_icon()
 	. = ..()
 	switch(setting)
 		if(DUEL_SETTING_A)
@@ -278,7 +278,7 @@
 		if(DUEL_SETTING_C)
 			color = "blue"
 
-/obj/item/projectile/energy/duel/on_hit(atom/target, blocked)
+/obj/projectile/energy/duel/on_hit(atom/target, blocked)
 	. = ..()
 	var/turf/T = get_turf(target)
 	var/obj/effect/temp_visual/dueling_chaff/C = locate() in T
@@ -307,14 +307,10 @@
 	name = "dueling pistol case"
 	desc = "Let's solve this like gentlespacemen."
 	icon_state = "medalbox+l"
-	item_state = "syringe_kit"
-	lefthand_file = 'icons/mob/inhands/equipment/medical_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/equipment/medical_righthand.dmi'
-	w_class = WEIGHT_CLASS_NORMAL
+	item_state = "medalbox+l"
+	base_icon_state = "medalbox"
+	w_class = WEIGHT_CLASS_LARGE
 	req_access = list(ACCESS_CAPTAIN)
-	icon_locked = "medalbox+l"
-	icon_closed = "medalbox"
-	icon_broken = "medalbox+b"
 
 /obj/item/storage/lockbox/dueling/ComponentInitialize()
 	. = ..()
@@ -322,18 +318,6 @@
 	STR.max_w_class = WEIGHT_CLASS_SMALL
 	STR.max_items = 2
 	STR.can_hold = typecacheof(list(/obj/item/gun/energy/dueling))
-
-/obj/item/storage/lockbox/dueling/update_icon()
-	cut_overlays()
-	var/locked = SEND_SIGNAL(src, COMSIG_IS_STORAGE_LOCKED)
-	if(locked)
-		icon_state = "medalbox+l"
-	else
-		icon_state = "medalbox"
-		if(open)
-			icon_state += "open"
-		if(broken)
-			icon_state += "+b"
 
 /obj/item/storage/lockbox/dueling/PopulateContents()
 	. = ..()

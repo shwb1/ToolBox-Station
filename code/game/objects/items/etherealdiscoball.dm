@@ -23,7 +23,7 @@
 	var/range = 7
 	var/power = 3
 
-/obj/structure/etherealball/Initialize()
+/obj/structure/etherealball/Initialize(mapload)
 	. = ..()
 	update_icon()
 
@@ -62,11 +62,14 @@
 	set_light(range, power, current_color)
 	add_atom_colour("#[current_color]", FIXED_COLOUR_PRIORITY)
 	update_icon()
-	TimerID = addtimer(CALLBACK(src, .proc/DiscoFever), 5, TIMER_STOPPABLE)  //Call ourselves every 0.5 seconds to change colors
+	TimerID = addtimer(CALLBACK(src, PROC_REF(DiscoFever)), 5, TIMER_STOPPABLE)  //Call ourselves every 0.5 seconds to change colors
 
-/obj/structure/etherealball/update_icon()
-	cut_overlays()
+/obj/structure/etherealball/update_icon_state()
 	icon_state = "ethdisco_head_[TurnedOn]"
+	return ..()
+
+/obj/structure/etherealball/update_overlays()
+	. = ..()
 	var/mutable_appearance/base_overlay = mutable_appearance(icon, "ethdisco_base")
 	base_overlay.appearance_flags = RESET_COLOR
-	add_overlay(base_overlay)
+	. += base_overlay

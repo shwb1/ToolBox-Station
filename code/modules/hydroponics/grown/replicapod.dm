@@ -26,7 +26,7 @@
 	var/contains_sample = FALSE
 	var/being_harvested = FALSE
 
-/obj/item/seeds/replicapod/Initialize()
+/obj/item/seeds/replicapod/Initialize(mapload)
 	. = ..()
 
 	create_reagents(volume, INJECTABLE|DRAWABLE)
@@ -43,7 +43,6 @@
 				blood_type = B.data["blood_type"]
 				features = B.data["features"]
 				factions = B.data["factions"]
-				quirks = B.data["quirks"]
 				sampleDNA = B.data["blood_DNA"]
 				contains_sample = TRUE
 				visible_message("<span class='notice'>The [src] is injected with a fresh blood sample.</span>")
@@ -88,7 +87,7 @@
 						// Devil code
 						if(isliving(M))
 							var/mob/living/L = M
-							make_podman = !L.hellbound
+							make_podman = !L.ishellbound()
 						break
 		else //If the player has ghosted from his corpse before blood was drawn, his ckey is no longer attached to the mob, so we need to match up the cloned player through the mind key
 			for(var/mob/M in GLOB.player_list)
@@ -101,7 +100,7 @@
 					// Devil code
 					if(isliving(M))
 						var/mob/living/L = M
-						make_podman = !L.hellbound
+						make_podman = !L.ishellbound()
 					ckey_holder = M.ckey
 					break
 
@@ -109,7 +108,7 @@
 	if(!make_podman)
 		// Prevent accidental harvesting. Make sure the user REALLY wants to do this if there's a chance of this coming from a living creature.
 		if(mind || ckey)
-			if(alert("The pod is currently devoid of soul. There is a possibility that a soul could claim this creature, or you could harvest it for seeds.", "Harvest Seeds?", "Harvest Seeds", "Cancel") == "Cancel")
+			if(alert("The pod is currently devoid of soul. There is a possibility that a soul could claim this creature, or you could harvest it for seeds.", "Harvest Seeds?", "Harvest Seeds", "Cancel") != "Harvest Seeds")
 				return result
 
 		// If this plant has already been harvested, return early.
@@ -152,10 +151,13 @@
 		features["mcolor"] = "#59CE00"
 	for(var/V in quirks)
 		new V(podman)
-	podman.hardset_dna(null,null,podman.real_name,blood_type, new /datum/species/pod,features)//Discard SE's and UI's, podman cloning is inaccurate, and always make them a podman
+	podman.hardset_dna(null,null,podman.real_name,blood_type, new /datum/species/pod,features,null)//Discard SE's and UI's, podman cloning is inaccurate, and always make them a podman
 	podman.set_cloned_appearance()
 	// On harvest
 	to_chat(podman, "<span class='notice'><b>There is a bright flash!</b><br><i>You feel like a new being.</i></span>")
+	var/postclonemessage = CONFIG_GET(string/policy_postclonetext)
+	if(postclonemessage)
+		to_chat(podman, postclonemessage)
 	podman.flash_act()
 	log_cloning("[key_name(mind)] cloned as a podman via [src] in [parent] at [AREACOORD(parent)].")
 

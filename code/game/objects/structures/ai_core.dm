@@ -6,13 +6,14 @@
 	icon_state = "0"
 	desc = "The framework for an artificial intelligence core."
 	max_integrity = 500
+	z_flags = Z_BLOCK_IN_DOWN | Z_BLOCK_IN_UP
 	var/state = EMPTY_CORE
 	var/datum/ai_laws/laws
 	var/obj/item/circuitboard/aicore/circuit
 	var/obj/item/mmi/brain
 	var/can_deconstruct = TRUE
 
-/obj/structure/AIcore/Initialize()
+/obj/structure/AIcore/Initialize(mapload)
 	. = ..()
 	laws = new
 	laws.set_laws_config()
@@ -22,19 +23,16 @@
 		circuit = null
 		if((state != GLASS_CORE) && (state != AI_READY_CORE))
 			state = EMPTY_CORE
-			update_icon()
+			update_appearance()
 	if(A == brain)
 		brain = null
-	. = ..()
+	return ..()
 
 
 /obj/structure/AIcore/Destroy()
-	if(circuit)
-		qdel(circuit)
-		circuit = null
-	if(brain)
-		qdel(brain)
-		brain = null
+	QDEL_NULL(circuit)
+	QDEL_NULL(brain)
+	QDEL_NULL(laws)
 	return ..()
 
 /obj/structure/AIcore/latejoin_inactive
@@ -62,7 +60,7 @@
 		return FALSE
 	var/turf/T = get_turf(src)
 	var/area/A = get_area(src)
-	if(!A.blob_allowed)
+	if(!(A.area_flags & BLOBS_ALLOWED))
 		return FALSE
 	if(!A.power_equip)
 		return FALSE
@@ -79,7 +77,7 @@
 		return
 	return ..()
 
-/obj/structure/AIcore/latejoin_inactive/Initialize()
+/obj/structure/AIcore/latejoin_inactive/Initialize(mapload)
 	. = ..()
 	GLOB.latejoin_ai_cores += src
 
@@ -196,7 +194,7 @@
 						to_chat(user, "<span class='warning'>Sticking an inactive [M.name] into the frame would sort of defeat the purpose.</span>")
 						return
 
-					if(!CONFIG_GET(flag/allow_ai) || (is_banned_from(M.brainmob.ckey, "AI") && !QDELETED(src) && !QDELETED(user) && !QDELETED(M) && !QDELETED(user) && Adjacent(user)))
+					if(!CONFIG_GET(flag/allow_ai) || (is_banned_from(M.brainmob.ckey, JOB_NAME_AI) && !QDELETED(src) && !QDELETED(user) && !QDELETED(M) && !QDELETED(user) && Adjacent(user)))
 						if(!QDELETED(M))
 							to_chat(user, "<span class='warning'>This [M.name] does not seem to fit!</span>")
 						return
@@ -255,8 +253,7 @@
 
 			if(AI_READY_CORE)
 				if(istype(P, /obj/item/aicard))
-					P.transfer_ai("INACTIVE", "AICARD", src, user)
-					return
+					return //handled by /obj/structure/ai_core/transfer_ai()
 
 				if(P.tool_behaviour == TOOL_SCREWDRIVER)
 					P.play_tool_sound(src)
@@ -301,7 +298,7 @@
 	anchored = TRUE
 	state = AI_READY_CORE
 
-/obj/structure/AIcore/deactivated/Initialize()
+/obj/structure/AIcore/deactivated/Initialize(mapload)
 	. = ..()
 	circuit = new(src)
 

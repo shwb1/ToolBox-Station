@@ -70,7 +70,7 @@
 	materials = list(/datum/material/iron = 60000, /datum/material/glass = 5000)  // costs more than what it did in the autolathe, this one comes loaded.
 	build_path = /obj/item/construction/rcd/loaded
 	category = list("Tool Designs")
-	departmental_flags =  DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_CARGO
+	departmental_flags =  DEPARTMENTAL_FLAG_ENGINEERING
 
 
 /datum/design/rcd_upgrade/frames
@@ -102,6 +102,37 @@
 	build_path = /obj/item/rcd_upgrade/silo_link
 	category = list("Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING
+
+/datum/design/rpd_upgrade/unwrench
+	name = "RPD unwrenching upgrade"
+	desc = "Adds reverse wrench mode to the RPD. Warning: This mode is hard linked to the destroy mode control button."
+	id = "rpd_upgrade_unwrench"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 5000, /datum/material/glass = 2500)
+	build_path = /obj/item/rpd_upgrade/unwrench
+	category = list("Tool Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING
+
+/datum/design/atmos_backpack_upgrade
+	name = "Generic Backpack Firefighter Tank upgrade"
+	desc = "You're not supposed to see this"
+	build_type = PROTOLATHE
+	category = list("Tool Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING
+
+/datum/design/atmos_backpack_upgrade/smartfoam
+	name = "Backpack Firefighter Tank smart foam upgrade"
+	desc = "Allows the backpack firefighter tank to synthesize a better foam compound which can pass through already deployed foam and have a chain reaction of dissipation."
+	id = "bft_upgrade_smartfoam"
+	materials = list(/datum/material/iron = 10000, /datum/material/glass = 5000, /datum/material/plasma = 2500, /datum/material/plastic = 2500) //That's right, gotta ask chem for help
+	build_path = /obj/item/atmostank_upgrade/smartfoam
+
+/datum/design/atmos_backpack_upgrade/efficiency
+	name = "Backpack Firefighter Tank efficiency upgrade"
+	desc = "Improves the nozzle's efficiency, decreasing the amount of water used per resin launch and shortets the time it takes to synthesize the resin, as well as increasing the volume of the tank."
+	id = "bft_upgrade_efficiency"
+	materials = list(/datum/material/iron = 5000, /datum/material/glass = 2500)
+	build_path = /obj/item/atmostank_upgrade/efficiency
 
 /////////////////////////////////////////
 //////////////Alien Tools////////////////
@@ -230,3 +261,42 @@
 	materials = list(/datum/material/iron = 2000, /datum/material/silver = 1500, /datum/material/plasma = 500, /datum/material/titanium = 1500)
 	category = list("Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+
+/datum/design/discoveryscanner
+	name = "Discovery Scanner"
+	id = "discovery_scanner"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 200, /datum/material/glass = 50)
+	build_path = /obj/item/discovery_scanner
+	category = list("Tool Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
+
+/datum/design/researchdisklocator
+	name = "Research Disk Locator"
+	id = "researchdisk_locator"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 250, /datum/material/glass = 25)
+	build_path = /obj/item/research_disk_pinpointer
+	category = list("Tool Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
+
+/datum/design/wirebrush
+	name = "Wirebrush"
+	desc = "A tool to remove rust from walls."
+	id = "wirebrush"
+	build_type = AUTOLATHE | PROTOLATHE
+	category = list("initial", "Tools")
+	materials = list(/datum/material/iron = 200, /datum/material/glass = 200)
+	build_path = /obj/item/wirebrush
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE
+
+/datum/design/wirebrush_adv
+	name = "Advanced Wirebrush"
+	desc = "An advanced wirebrush."
+	id = "wirebrush_adv"
+	build_type = PROTOLATHE
+	materials = list(/datum/material/iron = 200, /datum/material/glass = 200, /datum/material/uranium = 200, /datum/material/plasma = 200)
+	build_path = /obj/item/wirebrush/advanced
+	category = list("Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_SERVICE

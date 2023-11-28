@@ -8,6 +8,7 @@
 	icon_dead = "fox_dead"
 	speak = list("Ack-Ack","Ack-Ack-Ack-Ackawoooo","Geckers","Awoo","Tchoff")
 	speak_emote = list("geckers", "barks")
+	speak_language = /datum/language/metalanguage
 	emote_hear = list("howls.","barks.")
 	emote_see = list("shakes its head.", "shivers.")
 	speak_chance = 1
@@ -18,11 +19,12 @@
 	response_disarm = "gently pushes aside"
 	response_harm = "kicks"
 	gold_core_spawnable = FRIENDLY_SPAWN
-	mobsay_color = "#FFAE64"
+	chat_color = "#FFAE64"
 	mobchatspan = "fox"
 	can_be_held = TRUE
 	held_state = "fox"
 	do_footstep = TRUE
+	worn_slot_flags = ITEM_SLOT_HEAD
 
 //Captain fox
 /mob/living/simple_animal/pet/fox/Renault

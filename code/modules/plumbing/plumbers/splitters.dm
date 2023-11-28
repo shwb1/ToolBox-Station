@@ -21,6 +21,7 @@
 /obj/machinery/plumbing/splitter/Initialize(mapload, bolt)
 	. = ..()
 	AddComponent(/datum/component/plumbing/splitter, bolt)
+	update_appearance() //so the input/output pipes will overlay properly during init
 
 
 /obj/machinery/plumbing/splitter/ui_state(mob/user)
@@ -42,11 +43,10 @@
 /obj/machinery/plumbing/splitter/ui_act(action, params)
 	if(..())
 		return
-	. = TRUE
 	switch(action)
 		if("set_amount")
 			var/direction = params["target"]
-			var/value = CLAMP(text2num(params["amount"]), 1, max_transfer)
+			var/value = clamp(text2num(params["amount"]), 1, max_transfer)
 			switch(direction)
 				if("straight")
 					transfer_straight = value
@@ -54,3 +54,4 @@
 					transfer_side = value
 				else
 					return FALSE
+			. = TRUE

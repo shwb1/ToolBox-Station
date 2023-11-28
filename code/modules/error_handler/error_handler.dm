@@ -30,6 +30,7 @@ GLOBAL_VAR_INIT(total_runtimes_skipped, 0)
 		for (var/line in splittext(E.desc, "\n"))
 			if (text2ascii(line) != 32)
 				stack_trace_storage += line
+		return
 
 	var/static/list/error_last_seen = list()
 	var/static/list/error_cooldown = list() /* Error_cooldown items will either be positive(cooldown time) or negative(silenced error)
@@ -130,6 +131,9 @@ GLOBAL_VAR_INIT(total_runtimes_skipped, 0)
 		//good day, sir
 		GLOB.current_test.Fail("[main_line]\n[desclines.Join("\n")]")
 #endif
+
+	if (Debugger?.enabled)
+		to_chat(world, "<span class='alertwarning'>[main_line]</span>", MESSAGE_TYPE_DEBUG)
 
 
 	// This writes the regular format (unwrapping newlines and inserting timestamps as needed).

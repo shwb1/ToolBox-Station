@@ -2,7 +2,7 @@
 
 /obj/machinery/atmospherics/pipe/manifold
 	icon = 'icons/obj/atmospherics/pipes/manifold.dmi'
-	icon_state = "manifold-2"
+	icon_state = "manifold-3"
 
 	name = "pipe manifold"
 	desc = "A manifold composed of regular pipes."
@@ -48,4 +48,3 @@
 			add_overlay( getpipeimage(icon, "pipe-[piping_layer]", get_dir(src, nodes[i])) )
 
 	update_layer()
-	update_alpha()

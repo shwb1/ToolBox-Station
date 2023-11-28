@@ -1,13 +1,8 @@
-/mob/living/proc/Life(seconds, times_fired)
+/mob/living/proc/Life(delta_time, times_fired)
 	set waitfor = FALSE
 	set invisibility = 0
 
-	if(digitalinvis) //AI unable to see mob
-		if(!digitaldisguise)
-			src.digitaldisguise = image(loc = src)
-		src.digitaldisguise.override = 1
-		for(var/mob/living/silicon/ai/AI in GLOB.ai_list)
-			AI.client?.images |= src.digitaldisguise
+	SEND_SIGNAL(src, COMSIG_LIVING_LIFE, delta_time, times_fired)
 
 	if((movement_type & FLYING) && !(movement_type & FLOATING))	//TODO: Better floating
 		float(on = TRUE)
@@ -48,12 +43,11 @@
 		if(gravity > STANDARD_GRAVITY)
 			if(!get_filter("gravity"))
 				add_filter("gravity",1,list("type"="motion_blur", "x"=0, "y"=0))
-			INVOKE_ASYNC(src, .proc/gravity_pulse_animation)
 			handle_high_gravity(gravity)
 
 		if(stat != DEAD)
-			handle_traits() // eye, ear, brain damages
-			handle_status_effects() //all special effects, stun, knockdown, jitteryness, hallucination, sleeping, etc
+			handle_traits(delta_time) // eye, ear, brain damages
+			handle_status_effects(delta_time) //all special effects, stun, knockdown, jitteryness, hallucination, sleeping, etc
 
 	handle_fire()
 
@@ -66,6 +60,8 @@
 		return 1
 
 /mob/living/proc/handle_breathing(times_fired)
+	// SEND_SIGNAL(src, COMSIG_LIVING_HANDLE_BREATHING, delta_time, times_fired)
+	SEND_SIGNAL(src, COMSIG_LIVING_HANDLE_BREATHING, SSMOBS_DT, times_fired) //Bee edit: Holy shit I do not want to port delta time Life() refactor just for my mothroach behavior to be better
 	return
 
 /mob/living/proc/handle_mutations_and_radiation()
@@ -92,44 +88,29 @@
 		ExtinguishMob()
 		return TRUE //mob was put out, on_fire = FALSE via ExtinguishMob(), no need to update everything down the chain.
 	var/datum/gas_mixture/G = loc.return_air() // Check if we're standing in an oxygenless environment
-	if(G.get_moles(/datum/gas/oxygen) < 1)
+	if(G.get_moles(GAS_O2) < 1)
 		ExtinguishMob() //If there's no oxygen in the tile we're on, put out the fire
 		return TRUE
 	var/turf/location = get_turf(src)
 	location.hotspot_expose(700, 50, 1)
 
 //this updates all special effects: knockdown, druggy, stuttering, etc..
-/mob/living/proc/handle_status_effects()
+/mob/living/proc/handle_status_effects(delta_time)
 	if(confused)
-		confused = max(0, confused - 1)
+		confused = max(0, confused - (1 * delta_time))
 
-/mob/living/proc/handle_traits()
+/mob/living/proc/handle_traits(delta_time)
 	//Eyes
-	if(eye_blind)			//blindness, heals slowly over time
-		if(!stat && !(HAS_TRAIT(src, TRAIT_BLIND)))
-			eye_blind = max(eye_blind-1,0)
-			if(client && !eye_blind)
-				clear_alert("blind")
-				clear_fullscreen("blind")
-		else
-			eye_blind = max(eye_blind-1,1)
-	else if(eye_blurry)			//blurry eyes heal slowly
-		eye_blurry = max(eye_blurry-1, 0)
-		if(client)
-			update_eye_blur()
+	if(eye_blind) //blindness, heals slowly over time
+		if(HAS_TRAIT_FROM(src, TRAIT_BLIND, EYES_COVERED)) //covering your eyes heals blurry eyes faster
+			adjust_blindness(-1.5 * delta_time)
+		else if(!stat && !(HAS_TRAIT(src, TRAIT_BLIND)))
+			adjust_blindness(-0.5 * delta_time)
+	else if(eye_blurry) //blurry eyes heal slowly
+		adjust_blurriness(-0.5 * delta_time)
 
 /mob/living/proc/update_damage_hud()
 	return
-
-/mob/living/proc/gravity_animate()
-	if(!get_filter("gravity"))
-		add_filter("gravity",1,list("type"="motion_blur", "x"=0, "y"=0))
-	INVOKE_ASYNC(src, .proc/gravity_pulse_animation)
-
-/mob/living/proc/gravity_pulse_animation()
-	animate(get_filter("gravity"), y = 1, time = 10)
-	sleep(10)
-	animate(get_filter("gravity"), y = 0, time = 10)
 
 /mob/living/proc/handle_high_gravity(gravity)
 	if(gravity >= GRAVITY_DAMAGE_TRESHOLD) //Aka gravity values of 3 or more

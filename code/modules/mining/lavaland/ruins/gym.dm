@@ -33,6 +33,9 @@
 	. = ..()
 	if(.)
 		return
+	if(!Adjacent(user))
+		to_chat(user, "You're too far away to get swole!")
+		return
 	if(obj_flags & IN_USE)
 		to_chat(user, "It's already in use - wait a bit.")
 		return
@@ -48,13 +51,13 @@
 
 		playsound(user, 'sound/machines/click.ogg', 60, 1)
 		obj_flags &= ~IN_USE
-		user.pixel_y = 0
+		user.pixel_y = user.base_pixel_y
 		var/finishmessage = pick("You feel stronger!","You feel like you can take on the world!","You feel robust!","You feel indestructible!")
 
-		
+
 		if (user.client)
-			SSmedals.UnlockMedal(MEDAL_USE_WEIGHT_MACHINE,user.client)
-		
+			user.client.give_award(/datum/award/achievement/misc/weights, user)
+
 
 		SEND_SIGNAL(user, COMSIG_ADD_MOOD_EVENT, "exercise", /datum/mood_event/exercise)
 		icon_state = initial(icon_state)

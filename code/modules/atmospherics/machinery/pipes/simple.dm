@@ -3,7 +3,7 @@
 
 /obj/machinery/atmospherics/pipe/simple
 	icon = 'icons/obj/atmospherics/pipes/simple.dmi'
-	icon_state = "pipe11-2"
+	icon_state = "pipe11-3"
 
 	name = "pipe"
 	desc = "A one meter section of regular pipe."
@@ -35,4 +35,3 @@
 /obj/machinery/atmospherics/pipe/simple/update_icon()
 	icon_state = "pipe[nodes[1] ? "1" : "0"][nodes[2] ? "1" : "0"]-[piping_layer]"
 	update_layer()
-	update_alpha()

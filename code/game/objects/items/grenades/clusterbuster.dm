@@ -14,7 +14,10 @@
 	var/max_spawned = 8
 	var/segment_chance = 35
 
-/obj/item/grenade/clusterbuster/prime()
+/obj/item/grenade/clusterbuster/prime(mob/living/lanced_by)
+	. = ..()
+	if(!.)
+		return
 	update_mob()
 	var/numspawned = rand(min_spawned,max_spawned)
 	var/again = 0
@@ -28,7 +31,7 @@
 		new /obj/item/grenade/clusterbuster/segment(drop_location(), src)//Creates 'segments' that launches a few more payloads
 
 	new payload_spawner(drop_location(), payload, numspawned)//Launches payload
-	playsound(src, prime_sound, 75, 1, -3)
+	playsound(src, prime_sound, 75, TRUE, -3)
 	qdel(src)
 
 //////////////////////
@@ -57,11 +60,15 @@
 	var/steps = rand(1,4)
 	for(var/i in 1 to steps)
 		step_away(src,loc)
-	addtimer(CALLBACK(src, .proc/prime), rand(15,60))
+	addtimer(CALLBACK(src, PROC_REF(prime)), rand(15,60))
 
-/obj/item/grenade/clusterbuster/segment/prime()
+/obj/item/grenade/clusterbuster/segment/prime(mob/living/lanced_by)
+	if(dud_flags)
+		active = FALSE
+		update_icon()
+		return FALSE
 	new payload_spawner(drop_location(), payload, rand(min_spawned,max_spawned))
-	playsound(src, prime_sound, 75, 1, -3)
+	playsound(src, prime_sound, 75, TRUE, -3)
 	qdel(src)
 
 //////////////////////////////////
@@ -77,7 +84,7 @@
 		var/obj/item/grenade/P = new type(loc)
 		if(istype(P))
 			P.active = TRUE
-			addtimer(CALLBACK(P, /obj/item/grenade/proc/prime), rand(15,60))
+			addtimer(CALLBACK(P, TYPE_PROC_REF(/obj/item/grenade, prime)), rand(15,60))
 		var/steps = rand(1,4)
 		for(var/i in 1 to steps)
 			step_away(src,loc)
@@ -106,7 +113,7 @@
 		var/chosen = pick(subtypesof(/obj/item/slime_extract))
 		var/obj/item/slime_extract/P = new chosen(loc)
 		if(volatile)
-			addtimer(CALLBACK(P, /obj/item/slime_extract/proc/activate_slime), rand(15,60))
+			addtimer(CALLBACK(P, TYPE_PROC_REF(/obj/item/slime_extract, activate_slime)), rand(15,60))
 		var/steps = rand(1,4)
 		for(var/i in 1 to steps)
 			step_away(src,loc)
@@ -173,7 +180,7 @@
 /obj/item/grenade/clusterbuster/random
 	icon_state = "random_clusterbang"
 
-/obj/item/grenade/clusterbuster/random/Initialize()
+/obj/item/grenade/clusterbuster/random/Initialize(mapload)
 	..()
 	var/real_type = pick(subtypesof(/obj/item/grenade/clusterbuster))
 	new real_type(loc)

@@ -93,17 +93,17 @@
 
 /atom/movable/screen/blob/ReadaptStrain
 	icon_state = "ui_chemswap"
-	name = "Readapt Strain (40)"
+	name = "Readapt Strain"
 	desc = "Allows you to choose a new strain from 4 random choices for 40 resources."
 
 /atom/movable/screen/blob/ReadaptStrain/MouseEntered(location,control,params)
 	if(hud && hud.mymob && isovermind(hud.mymob))
 		var/mob/camera/blob/B = hud.mymob
 		if(B.free_strain_rerolls)
-			name = "Readapt Strain (FREE)"
+			name = "[initial(name)] (FREE)"
 			desc = "Randomly rerolls your strain for free."
 		else
-			name = initial(name)
+			name = "[initial(name)] ([BLOB_REROLL_COST])"
 			desc = initial(desc)
 	..()
 
@@ -131,7 +131,6 @@
 	blobpwrdisplay.icon_state = "block"
 	blobpwrdisplay.screen_loc = ui_health
 	blobpwrdisplay.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	blobpwrdisplay.layer = ABOVE_HUD_LAYER
 	blobpwrdisplay.plane = ABOVE_HUD_PLANE
 	blobpwrdisplay.hud = src
 	infodisplay += blobpwrdisplay

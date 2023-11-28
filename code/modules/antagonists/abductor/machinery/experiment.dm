@@ -67,6 +67,7 @@
 	if(!ui)
 		ui = new(user, src, "ProbingConsole", name)
 		ui.open()
+		ui.set_autoupdate(TRUE)
 
 /obj/machinery/abductor/experiment/ui_data(mob/user)
 	var/list/data = list()
@@ -177,7 +178,7 @@
 	H.Sleeping(160)
 	H.uncuff()
 	if(console && console.pad && console.pad.teleport_target)
-		do_teleport(H, console.pad.teleport_target, channel = TELEPORT_CHANNEL_FREE, no_effects = TRUE, teleport_mode = TELEPORT_MODE_ABDUCTORS)
+		do_teleport(H, console.pad.teleport_target, channel = TELEPORT_CHANNEL_BLINK, no_effects = TRUE, teleport_mode = TELEPORT_MODE_ABDUCTORS)
 		return
 	//Area not chosen / It's not safe area - teleport to arrivals
 	SSjob.SendToLateJoin(H, FALSE)
@@ -188,3 +189,4 @@
 		icon_state = "experiment-open"
 	else
 		icon_state = "experiment"
+	return ..()

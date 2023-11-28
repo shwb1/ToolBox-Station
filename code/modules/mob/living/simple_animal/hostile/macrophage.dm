@@ -16,17 +16,18 @@
 	move_to_delay = 0
 	obj_damage = 0
 	environment_smash = ENVIRONMENT_SMASH_NONE
-	pass_flags = PASSTABLE | PASSGRILLE | PASSMOB
+	pass_flags = PASSTABLE | PASSMOB
 	density = FALSE
 	mob_size = MOB_SIZE_TINY
 	mob_biotypes = list(MOB_ORGANIC, MOB_BUG)
 	ventcrawler = VENTCRAWLER_ALWAYS
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	minbodytemp = 0
-	del_on_death = 1
+	del_on_death = TRUE
 	var/aggressive = FALSE
-	var/datum/disease/basedisease = null
+	var/datum/disease/base_disease = null
 	var/list/infections = list()
+	discovery_points = 2000
 
 /mob/living/simple_animal/hostile/macrophage/CanAttack(atom/the_target)
 	. = ..()
@@ -36,7 +37,7 @@
 	if(isliving(the_target))
 		var/mob/living/M = the_target
 		for(var/datum/disease/D in M.diseases)
-			if(D.GetDiseaseID() == basedisease.GetDiseaseID())
+			if(D.GetDiseaseID() == base_disease.GetDiseaseID())
 				if(aggressive)
 					if(D.stage >= 4)
 						alreadyinfected = TRUE
@@ -45,15 +46,14 @@
 	if(alreadyinfected)
 		return FALSE
 
-/mob/living/simple_animal/hostile/macrophage/extrapolator_act(mob/user, var/obj/item/extrapolator/E, scan = TRUE)
-	if(scan)
-		E.scan(src, infections, user)
-	else
-		if(E.create_culture(basedisease, user))
-			dust()
-			user.visible_message("<span class='danger'>[user] stabs [src] with [E], sucking it up!</span>", \
-	 				 "<span class='danger'>You stab [src] with [E]'s probe, destroying it!</span>")
-	return TRUE
+/mob/living/simple_animal/hostile/macrophage/extrapolator_act(mob/living/user, obj/item/extrapolator/extrapolator, dry_run = FALSE)
+	. = ..()
+	EXTRAPOLATOR_ACT_ADD_DISEASES(., base_disease)
+	if(!dry_run && !EXTRAPOLATOR_ACT_CHECK(., EXTRAPOLATOR_ACT_PRIORITY_SPECIAL) && extrapolator.create_culture(user, base_disease))
+		user.visible_message("<span class='danger'>[user] stabs [src] with [extrapolator], sucking it up!</span>", \
+				"<span class='danger'>You stab [src] with [extrapolator]'s probe, destroying it!</span>")
+		dust()
+		EXTRAPOLATOR_ACT_SET(., EXTRAPOLATOR_ACT_PRIORITY_SPECIAL)
 
 /mob/living/simple_animal/hostile/macrophage/AttackingTarget()
 	. = ..()
@@ -66,7 +66,7 @@
 		else if(aggressive)
 			M.visible_message("<span class='danger'>the [src] begins penetrating [M]' protection!</span>", \
 	 				 "<span class='danger'>[src] begins penetrating your protection!</span>")
-			if(do_mob(src, M, 15))
+			if(do_after(src, 1.5 SECONDS, M))
 				for(var/datum/disease/D in infections)
 					if(M.ForceContractDisease(D))
 						to_chat(src, "<span class ='notice'>You infect [M] with [D]!</span>")
@@ -89,12 +89,12 @@
 
 /mob/living/simple_animal/hostile/macrophage/aggro/vector
 
-/mob/living/simple_animal/hostile/macrophage/aggro/vector/Initialize()
+/mob/living/simple_animal/hostile/macrophage/aggro/vector/Initialize(mapload)
 	.=..()
 	var/datum/disease/advance/random/macrophage/D = new
-	health += D.properties["resistance"]
-	maxHealth += D.properties["resistance"]
-	melee_damage += max(0, D.properties["resistance"])
+	health += D.resistance
+	maxHealth += D.resistance
+	melee_damage += max(0, D.resistance)
 	infections += D
-	basedisease = D
+	base_disease = D
 

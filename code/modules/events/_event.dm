@@ -1,4 +1,4 @@
-#define RANDOM_EVENT_ADMIN_INTERVENTION_TIME 10
+#define RANDOM_EVENT_ADMIN_INTERVENTION_TIME 30
 
 //this singleton datum is used by the events controller to dictate how it selects events
 /datum/round_event_control
@@ -29,14 +29,22 @@
 
 	var/triggering	//admin cancellation
 	var/auto_add = TRUE				//Auto add to the event pool, if not you have to do it yourself!
+	var/can_malf_fake_alert = FALSE	//Can be faked by malf ai?
 
-	/// Whether or not dynamic should hijack this event
+	/// Whether or not dynamic is allowed to cancel these events if it is planning to run its own midround event soon,
+	/// or has run a midround event recently.
+	/// Avoid enabling this setting without adding a dynamic ruleset to replace it as it will significantly decrease
+	/// the event's spawn rate.
 	var/dynamic_should_hijack = FALSE
+	var/cannot_spawn_after_shuttlecall = FALSE	// Prevents the event from spawning after the shuttle was called
 
 /datum/round_event_control/New()
 	if(config && !wizardevent) // Magic is unaffected by configs
 		earliest_start = CEILING(earliest_start * CONFIG_GET(number/events_min_time_mul), 1)
 		min_players = CEILING(min_players * CONFIG_GET(number/events_min_players_mul), 1)
+	if(max_occurrences <= 0)
+		name = "\[Admin only\] [name]"
+
 
 /datum/round_event_control/wizard
 	wizardevent = TRUE
@@ -58,7 +66,9 @@
 		return FALSE
 	if(holidayID && (!SSevents.holidays || !SSevents.holidays[holidayID]))
 		return FALSE
-	if(ispath(typepath, /datum/round_event/ghost_role) && GHOSTROLE_MIDROUND_EVENT)
+	if(cannot_spawn_after_shuttlecall && !EMERGENCY_IDLE_OR_RECALLED)
+		return FALSE
+	if(ispath(typepath, /datum/round_event/ghost_role) && !(GLOB.ghost_role_flags & GHOSTROLE_MIDROUND_EVENT))
 		return FALSE
 
 	var/datum/game_mode/dynamic/dynamic = SSticker.mode
@@ -77,6 +87,7 @@
 	triggering = TRUE
 	if (alert_observers)
 		message_admins("Random Event triggering in [RANDOM_EVENT_ADMIN_INTERVENTION_TIME] seconds: [name] (<a href='?src=[REF(src)];cancel=1'>CANCEL</a>)")
+		play_sound_to_all_admins('sound/effects/admin_alert.ogg')
 		sleep(RANDOM_EVENT_ADMIN_INTERVENTION_TIME SECONDS)
 		var/gamemode = SSticker.mode.config_tag
 		var/players_amt = get_active_player_count(alive_check = TRUE, afk_check = TRUE, human_check = TRUE)
@@ -151,9 +162,8 @@
 //Provides ghosts a follow link to an atom if possible
 //Only called once.
 /datum/round_event/proc/announce_to_ghosts(atom/atom_of_interest)
-	if(control.alert_observers)
-		if (atom_of_interest)
-			notify_ghosts("[control.name] has an object of interest: [atom_of_interest]!", source=atom_of_interest, action=NOTIFY_ORBIT, header="Something's Interesting!")
+	if(control.alert_observers && atom_of_interest)
+		notify_ghosts("[control.name] has an object of interest: [atom_of_interest]!", source=atom_of_interest, action=NOTIFY_ORBIT, header="Something's Interesting!")
 	return
 
 //Called when the tick is equal to the announceWhen variable.
@@ -213,6 +223,9 @@
 
 	activeFor++
 
+// Called when an admin triggers the event.
+/datum/round_event/proc/on_admin_trigger()
+	return
 
 //Garbage collects the event by removing it from the global events list,
 //which should be the only place it's referenced.

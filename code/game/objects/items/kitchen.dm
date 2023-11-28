@@ -13,6 +13,7 @@
 	icon = 'icons/obj/kitchen.dmi'
 	lefthand_file = 'icons/mob/inhands/equipment/kitchen_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/kitchen_righthand.dmi'
+	item_flags = ISWEAPON
 
 /obj/item/kitchen/fork
 	name = "fork"
@@ -27,7 +28,7 @@
 	flags_1 = CONDUCT_1
 	attack_verb = list("attacked", "stabbed", "poked")
 	hitsound = 'sound/weapons/bladeslice.ogg'
-	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 30)
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 30, STAMINA = 0)
 	var/datum/reagent/forkload //used to eat omelette
 
 /obj/item/kitchen/fork/suicide_act(mob/living/carbon/user)
@@ -56,7 +57,7 @@
 	else
 		return ..()
 
-/obj/item/kitchen/knife/poison/attack(mob/living/M, mob/user)
+/obj/item/knife/poison/attack(mob/living/M, mob/user)
 	if (!istype(M))
 		return
 	. = ..()
@@ -69,12 +70,10 @@
 	reagents.reaction(M,INJECT,amount)
 	reagents.trans_to(M,amount_inject)
 
-/obj/item/kitchen/knife
+/obj/item/knife/kitchen
 	name = "kitchen knife"
-	icon_state = "knife"
-	item_state = "knife"
 	desc = "A general purpose Chef's Knife made by SpaceCook Incorporated. Guaranteed to stay sharp for years to come."
-	flags_1 = CONDUCT_1
+	flags_1 = CONDUCT_1 //Large MERGE here, asked to remove almost everything and replace with nothing.
 	force = 10
 	w_class = WEIGHT_CLASS_SMALL
 	throwforce = 10
@@ -229,7 +228,7 @@
 /obj/item/kitchen/knife/shank/suicide_act(mob/user)
 	user.visible_message("<span class='suicide'>[user] is slitting [user.p_their()] [pick("wrists", "throat")] with the shank! It looks like [user.p_theyre()] trying to commit suicide.</span>")
 	return (BRUTELOSS)
-
+//End of what would be removed by MERGE
 /obj/item/kitchen/rollingpin
 	name = "rolling pin"
 	desc = "Used to knock out the Bartender."
@@ -241,8 +240,8 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	attack_verb = list("bashed", "battered", "bludgeoned", "thrashed", "whacked")
 	custom_price = 20
+	tool_behaviour = TOOL_ROLLINGPIN
 
 /obj/item/kitchen/rollingpin/suicide_act(mob/living/carbon/user)
 	user.visible_message("<span class='suicide'>[user] begins flattening [user.p_their()] head with \the [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	return BRUTELOSS
-

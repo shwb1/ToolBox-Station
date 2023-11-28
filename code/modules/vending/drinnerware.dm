@@ -15,14 +15,14 @@
 					/obj/item/reagent_containers/food/condiment/peppermill = 5,
 					/obj/item/clothing/suit/apron/chef = 2,
 					/obj/item/kitchen/rollingpin = 2,
-					/obj/item/kitchen/knife = 2,
+					/obj/item/knife/kitchen = 2,
 					/obj/item/book/granter/crafting_recipe/cooking_sweets_101 = 2)
 	contraband = list(/obj/item/kitchen/rollingpin = 2,
-					  /obj/item/kitchen/knife/butcher = 2)
+					  /obj/item/knife/butcher = 2)
 	refill_canister = /obj/item/vending_refill/dinnerware
 	default_price = 5
 	extra_price = 50
-	payment_department = ACCOUNT_SRV
+	dept_req_for_free = ACCOUNT_SRV_BITFLAG
 
 /obj/item/vending_refill/dinnerware
 	machine_name = "Plasteel Chef's Dinnerware Vendor"

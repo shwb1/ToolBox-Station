@@ -30,7 +30,7 @@
 	var/cooldownTime = 1800 //3 minutes
 	var/production_time = 30
 	//The item the dispenser will create
-	var/dispense_type = /obj/item/drone_shell
+	var/dispense_type = /obj/effect/mob_spawn/drone
 
 	// The maximum number of "idle" drone shells it will make before
 	// ceasing production. Set to 0 for infinite.
@@ -48,7 +48,7 @@
 	var/break_message = "lets out a tinny alarm before falling dark."
 	var/break_sound = 'sound/machines/warning-buzzer.ogg'
 
-/obj/machinery/droneDispenser/Initialize()
+/obj/machinery/droneDispenser/Initialize(mapload)
 	. = ..()
 	var/datum/component/material_container/materials = AddComponent(/datum/component/material_container, list(/datum/material/iron, /datum/material/glass), MINERAL_MATERIAL_AMOUNT * MAX_STACK_SIZE * 2, TRUE, /obj/item/stack)
 	materials.insert_amount_mat(starting_amount)
@@ -61,7 +61,7 @@
 /obj/machinery/droneDispenser/syndrone //Please forgive me
 	name = "syndrone shell dispenser"
 	desc = "A suspicious machine that will create Syndicate exterminator drones when supplied with iron and glass. Disgusting."
-	dispense_type = /obj/item/drone_shell/syndrone
+	dispense_type = /obj/effect/mob_spawn/drone/syndrone
 	//If we're gonna be a jackass, go the full mile - 10 second recharge timer
 	cooldownTime = 100
 	end_create_message = "dispenses a suspicious drone shell."
@@ -70,14 +70,14 @@
 /obj/machinery/droneDispenser/syndrone/badass //Please forgive me
 	name = "badass syndrone shell dispenser"
 	desc = "A suspicious machine that will create Syndicate exterminator drones when supplied with iron and glass. Disgusting. This one seems ominous."
-	dispense_type = /obj/item/drone_shell/syndrone/badass
+	dispense_type = /obj/effect/mob_spawn/drone/syndrone/badass
 	end_create_message = "dispenses an ominous suspicious drone shell."
 
 // I don't need your forgiveness, this is awesome.
 /obj/machinery/droneDispenser/snowflake
 	name = "snowflake drone shell dispenser"
 	desc = "A hefty machine that, when supplied with iron and glass, will periodically create a snowflake drone shell. Does not need to be manually operated."
-	dispense_type = /obj/item/drone_shell/snowflake
+	dispense_type = /obj/effect/mob_spawn/drone/snowflake
 	end_create_message = "dispenses a snowflake drone shell."
 	// Those holoprojectors aren't cheap
 	iron_cost = 2000
@@ -130,15 +130,11 @@
 
 /obj/machinery/droneDispenser/examine(mob/user)
 	. = ..()
-	if((mode == DRONE_RECHARGING) && !stat && recharging_text)
+	if((mode == DRONE_RECHARGING) && !machine_stat && recharging_text)
 		. += "<span class='warning'>[recharging_text]</span>"
 
-/obj/machinery/droneDispenser/power_change()
-	..()
-	update_icon()
-
 /obj/machinery/droneDispenser/process()
-	if((stat & (NOPOWER|BROKEN)) || !anchored)
+	if((machine_stat & (NOPOWER|BROKEN)) || !anchored)
 		return
 
 	var/datum/component/material_container/materials = GetComponent(/datum/component/material_container)
@@ -195,7 +191,7 @@
 			.++
 
 /obj/machinery/droneDispenser/update_icon()
-	if(stat & (BROKEN|NOPOWER))
+	if(machine_stat & (BROKEN|NOPOWER))
 		icon_state = icon_off
 	else if(mode == DRONE_RECHARGING)
 		icon_state = icon_recharging
@@ -212,7 +208,7 @@
 		to_chat(user, "<span class='notice'>You retrieve the materials from [src].</span>")
 
 	else if(I.tool_behaviour == TOOL_WELDER)
-		if(!(stat & BROKEN))
+		if(!(machine_stat & BROKEN))
 			to_chat(user, "<span class='warning'>[src] doesn't need repairs.</span>")
 			return
 
@@ -230,21 +226,20 @@
 			"<span class='notice'>[user] fixes [src]!</span>",
 			"<span class='notice'>You restore [src] to operation.</span>")
 
-		stat &= ~BROKEN
+		set_machine_stat(machine_stat & ~BROKEN)
 		obj_integrity = max_integrity
 		update_icon()
 	else
 		return ..()
 
 /obj/machinery/droneDispenser/obj_break(damage_flag)
-	if(!(flags_1 & NODECONSTRUCT_1))
-		if(!(stat & BROKEN))
-			if(break_message)
-				audible_message("<span class='warning'>[src] [break_message]</span>")
-			if(break_sound)
-				playsound(src, break_sound, 50, 1)
-			stat |= BROKEN
-			update_icon()
+	. = ..()
+	if(!.)
+		return
+	if(break_message)
+		audible_message("<span class='warning'>[src] [break_message]</span>")
+	if(break_sound)
+		playsound(src, break_sound, 50, TRUE)
 
 /obj/machinery/droneDispenser/deconstruct(disassembled = TRUE)
 	if(!(flags_1 & NODECONSTRUCT_1))

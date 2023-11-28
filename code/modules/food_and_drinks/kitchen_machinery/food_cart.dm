@@ -17,7 +17,7 @@
 	var/list/stored_food = list()
 	var/obj/item/reagent_containers/mixer
 
-/obj/machinery/food_cart/Initialize()
+/obj/machinery/food_cart/Initialize(mapload)
 	. = ..()
 	create_reagents(LIQUID_CAPACIY, OPENCONTAINER | NO_REACT)
 	mixer = new /obj/item/reagent_containers(src, MIXER_CAPACITY)
@@ -123,7 +123,7 @@
 					break
 
 	if(href_list["portion"])
-		portion = CLAMP(input("How much drink do you want to dispense per glass?") as num, 0, 50)
+		portion = clamp(input("How much drink do you want to dispense per glass?") as num, 0, 50)
 
 	if(href_list["pour"] || href_list["m_pour"])
 		if(glasses-- <= 0)
@@ -163,7 +163,7 @@
 	glasses = 10
 	portion = 20
 
-/obj/machinery/food_cart/coffee/Initialize()
+/obj/machinery/food_cart/coffee/Initialize(mapload)
 	..()
 	var/A = rand(0,3)
 	var/B = rand(0,3)

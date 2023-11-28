@@ -1,17 +1,8 @@
-GLOBAL_VAR_INIT(admin_notice, "") //! Admin notice that all clients see when joining the server
-
-GLOBAL_VAR_INIT(timezoneOffset, 0) //! The difference betwen midnight (of the host computer) and 0 world.ticks.
-
 GLOBAL_VAR_INIT(fileaccess_timer, 0) //! For FTP requests. (i.e. downloading runtime logs.) However it'd be ok to use for accessing attack logs and such too, which are even laggier.
 
 GLOBAL_VAR_INIT(TAB, "&nbsp;&nbsp;&nbsp;&nbsp;")
 
 GLOBAL_DATUM_INIT(data_core, /datum/datacore, new)
-
-GLOBAL_VAR_INIT(CELLRATE, 0.002)  //! conversion ratio between a watt-tick and kilojoule
-GLOBAL_VAR_INIT(CHARGELEVEL, 0.001) //! Cap for how fast cells charge, as a percentage-per-tick (.001 means cellcharge is capped to 1% per second)
-
-GLOBAL_LIST_EMPTY(powernets)
 
 GLOBAL_VAR_INIT(bsa_unlock, FALSE)	//! BSA unlocked by head ID swipes
 
@@ -20,26 +11,39 @@ GLOBAL_LIST_EMPTY(player_details)	//! ckey -> /datum/player_details
 ///All currently running polls held as datums
 GLOBAL_LIST_EMPTY(polls)
 GLOBAL_PROTECT(polls)
+///Active polls
+GLOBAL_LIST_EMPTY(active_polls)
+GLOBAL_PROTECT(active_polls)
 
 ///All poll option datums of running polls
 GLOBAL_LIST_EMPTY(poll_options)
 GLOBAL_PROTECT(poll_options)
-
-// All religion stuff
-GLOBAL_VAR(religion)
-GLOBAL_VAR(deity)
-GLOBAL_VAR(bible_name)
-GLOBAL_VAR(bible_icon_state)
-GLOBAL_VAR(bible_item_state)
-GLOBAL_VAR(holy_weapon_type)
-GLOBAL_VAR(holy_armor_type)
 
 // Monkeycube/chicken/slime spam prevention
 GLOBAL_VAR_INIT(total_cube_monkeys, 0)
 GLOBAL_VAR_INIT(total_chickens, 0)
 GLOBAL_VAR_INIT(total_slimes, 0)
 
-GLOBAL_VAR_INIT(internal_tick_usage, 0.2 * world.tick_lag) //This var is updated every tick by a DLL if present, used to reduce lag
-
 ///Global var for insecure comms key rate limiting
 GLOBAL_VAR_INIT(topic_cooldown, 0)
+
+//Upload code for law changes
+GLOBAL_VAR(upload_code)
+
+// Topic stuff
+GLOBAL_LIST_EMPTY(topic_commands)
+GLOBAL_PROTECT(topic_commands)
+GLOBAL_LIST_EMPTY(topic_tokens)
+GLOBAL_PROTECT(topic_tokens)
+GLOBAL_LIST_EMPTY(topic_servers)
+GLOBAL_PROTECT(topic_servers)
+
+// Tooltips. tooltip is stored in "config/tooltips.txt"
+GLOBAL_LIST_EMPTY(tooltips)
+
+//Should be in the form of "tag to be replaced" = list("replacement for beginning", "replacement for end")
+GLOBAL_LIST_INIT(markup_tags, list("_"  = list("<i>", "</i>"),
+								   "**" = list("<b>", "</b>")))
+//Should be in the form of "((\\W|^)@)(\[^@\]*)(@(\\W|$)), "g"", where @ is the appropriate tag from markup_tags
+GLOBAL_LIST_INIT(markup_regex, list("_"  = new /regex("((\\W|^)_)(\[^_\]*)(_(\\W|$))", "g"),
+									"**" = new /regex("((\\W|^)\\*\\*)(\[^\\*\\*\]*)(\\*\\*(\\W|$))", "g")))

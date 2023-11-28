@@ -27,12 +27,14 @@
 	var/holder_type = null // The holder's typepath (used to make wire colors common to all holders).
 	var/proper_name = "Unknown" // The display name for the wire set shown in station blueprints. Not used if randomize is true or it's an item NT wouldn't know about (Explosives/Nuke)
 
-	var/list/wires = list() // List of wires.
+	var/list/wires = list() // Dictionary of wires to colours.
 	var/list/cut_wires = list() // List of wires that have been cut.
 	var/list/colors = list() // Dictionary of colors to wire.
+	var/list/wire_to_colors = list() // Dictionary of colors to wire.
 	var/list/assemblies = list() // List of attached assemblies.
 	var/randomize = 0 // If every instance of these wires should be random.
 					  // Prevents wires from showing up in station blueprints
+	var/list/labelled_wires = list() // Associative List of wires that have labels. Key = wire, Value = Bool (Revealed) [To be refactored into skills]
 
 /datum/wires/New(atom/holder)
 	..()
@@ -50,9 +52,13 @@
 		else
 			colors = GLOB.wire_color_directory[holder_type]
 
+	for (var/colour in colors)
+		var/wire = colors[colour]
+		wire_to_colors[wire] = colour
+
 /datum/wires/Destroy()
 	holder = null
-	assemblies = list()
+	assemblies.Cut()
 	return ..()
 
 /datum/wires/proc/add_duds(duds)
@@ -90,18 +96,17 @@
 /datum/wires/proc/shuffle_wires()
 	colors.Cut()
 	randomize()
+	ui_update()
 
 /datum/wires/proc/repair()
 	cut_wires.Cut()
+	ui_update()
 
 /datum/wires/proc/get_wire(color)
 	return colors[color]
 
 /datum/wires/proc/get_color_of_wire(wire_type)
-	for(var/color in colors)
-		var/other_type = colors[color]
-		if(wire_type == other_type)
-			return color
+	return wire_to_colors[wire_type]
 
 /datum/wires/proc/get_attached(color)
 	if(assemblies[color])
@@ -135,29 +140,36 @@
 	else
 		cut_wires += wire
 		on_cut(wire, mend = FALSE)
+	ui_update()
 
 /datum/wires/proc/cut_color(color)
 	cut(get_wire(color))
+	ui_update()
 
 /datum/wires/proc/cut_random()
 	cut(wires[rand(1, wires.len)])
+	ui_update()
 
 /datum/wires/proc/cut_all()
 	for(var/wire in wires)
 		cut(wire)
+	ui_update()
 
 /datum/wires/proc/pulse(wire, user)
 	if(is_cut(wire))
 		return
 	on_pulse(wire, user)
+	ui_update()
 
 /datum/wires/proc/pulse_color(color, mob/living/user)
 	pulse(get_wire(color), user)
+	ui_update()
 
 /datum/wires/proc/pulse_assembly(obj/item/assembly/S)
 	for(var/color in assemblies)
 		if(S == assemblies[color])
 			pulse_color(color)
+			ui_update()
 			return TRUE
 
 /datum/wires/proc/attach_assembly(color, obj/item/assembly/S)
@@ -165,6 +177,7 @@
 		assemblies[color] = S
 		S.forceMove(holder)
 		S.connected = src
+		ui_update()
 		return S
 
 /datum/wires/proc/detach_assembly(color)
@@ -173,6 +186,7 @@
 		assemblies -= color
 		S.connected = null
 		S.forceMove(holder.drop_location())
+		ui_update()
 		return S
 
 /datum/wires/proc/emp_pulse()
@@ -185,6 +199,7 @@
 			remaining_pulses--
 			if(!remaining_pulses)
 				break
+	ui_update()
 
 // Overridable Procs
 /datum/wires/proc/interactable(mob/user)
@@ -241,13 +256,14 @@
 		reveal_wires = TRUE
 
 	// Station blueprints do that too, but only if the wires are not randomized.
-	else if(user.is_holding_item_of_type(/obj/item/areaeditor/blueprints) && !randomize)
+	else if(user.is_holding_item_of_type(/obj/item/areaeditor/blueprints) && (!randomize || holder_type == /obj/machinery/door/airlock))
 		reveal_wires = TRUE
 
 	for(var/color in colors)
+		var/wire_type = get_wire(color)
 		payload.Add(list(list(
 			"color" = color,
-			"wire" = ((reveal_wires && !is_dud_color(color)) ? get_wire(color) : null),
+			"wire" = (((reveal_wires || labelled_wires[wire_type]) && !is_dud_color(color)) ? wire_type : null),
 			"cut" = is_color_cut(color),
 			"attached" = is_attached(color)
 		)))

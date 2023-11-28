@@ -1,11 +1,12 @@
 /datum/antagonist/official
-	name = "CentCom Official"
+	name = JOB_CENTCOM_OFFICIAL
 	show_name_in_check_antagonists = TRUE
 	show_in_antagpanel = FALSE
+	can_elimination_hijack = ELIMINATION_PREVENT
 	var/datum/objective/mission
 	var/datum/team/ert/ert_team
-	can_hijack = HIJACK_PREVENT
 	show_to_ghosts = TRUE
+	banning_key = ROLE_ERT
 
 /datum/antagonist/official/greet()
 	to_chat(owner, "<B><font size=3 color=red>You are a CentCom Official.</font></B>")
@@ -18,8 +19,10 @@
 	var/mob/living/carbon/human/H = owner.current
 	if(!istype(H))
 		return
+	if(isplasmaman(H))
+		H.equipOutfit(/datum/outfit/plasmaman/official)
+		H.open_internals(H.get_item_for_held_index(2))
 	H.equipOutfit(/datum/outfit/centcom_official)
-
 	if(CONFIG_GET(flag/enforce_human_authority))
 		H.set_species(/datum/species/human)
 

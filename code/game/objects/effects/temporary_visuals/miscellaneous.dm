@@ -114,10 +114,18 @@
 	duration = 32
 	var/fades = TRUE
 
+/obj/effect/temp_visual/dir_setting/curse/long // Necro Sect Usage
+	duration = 330
+
 /obj/effect/temp_visual/dir_setting/curse/Initialize(mapload, set_dir)
 	. = ..()
 	if(fades)
 		animate(src, alpha = 0, time = 32)
+
+/obj/effect/temp_visual/dir_setting/curse/long/Initialize(mapload, set_dir)
+	. = ..()
+	if(fades)
+		animate(src, alpha = 0, time = 330)
 
 /obj/effect/temp_visual/dir_setting/curse/blob
 	icon_state = "curseblob"
@@ -137,10 +145,6 @@
 /obj/effect/temp_visual/dir_setting/curse/hand
 	icon_state = "cursehand"
 
-/obj/effect/temp_visual/dir_setting/curse/hand/Initialize(mapload, set_dir, handedness)
-	. = ..()
-	update_icon()
-
 /obj/effect/temp_visual/bsa_splash
 	name = "\improper Bluespace energy wave"
 	desc = "A massive, rippling wave of bluepace energy, all rapidly exhausting itself the moment it leaves the concentrated beam of light."
@@ -157,9 +161,6 @@
 			icon_state = "beam_splash_w"
 		if(EAST)
 			icon_state = "beam_splash_e"
-
-/obj/item/projectile/curse_hand/update_icon()
-	icon_state = "[icon_state][handedness]"
 
 /obj/effect/temp_visual/wizard
 	name = "water"
@@ -184,14 +185,14 @@
 	icon_state = "blspell"
 	duration = 5
 
-/obj/effect/temp_visual/guardian
+/obj/effect/temp_visual/holoparasite
 	randomdir = 0
 
-/obj/effect/temp_visual/guardian/phase
+/obj/effect/temp_visual/holoparasite/phase
 	duration = 5
 	icon_state = "phasein"
 
-/obj/effect/temp_visual/guardian/phase/out
+/obj/effect/temp_visual/holoparasite/phase/out
 	icon_state = "phaseout"
 
 /obj/effect/temp_visual/decoy
@@ -238,6 +239,9 @@
 	name = "spooky lights"
 	icon_state = "purplesparkles"
 
+/obj/effect/temp_visual/revenant/blightcure
+	icon_state = "blessed"
+
 /obj/effect/temp_visual/blightdisease
 	name = "spreadingsickness"
 	icon_state = "greenshatter"
@@ -276,6 +280,9 @@
 	name = "bluespace fissure"
 	icon_state = "bluestream_fade"
 	duration = 9
+
+/obj/effect/temp_visual/bluespace_fissure/long
+	duration = 300
 
 /obj/effect/temp_visual/gib_animation
 	icon = 'icons/mob/mob.dmi'
@@ -407,7 +414,7 @@
 /obj/effect/temp_visual/love_heart/invisible/Initialize(mapload, mob/seer)
 	. = ..()
 	var/image/I = image(icon = 'icons/effects/effects.dmi', icon_state = "heart", layer = ABOVE_MOB_LAYER, loc = src)
-	add_alt_appearance(/datum/atom_hud/alternate_appearance/basic/onePerson, "heart", I, seer)
+	add_alt_appearance(/datum/atom_hud/alternate_appearance/basic/one_person, "heart", I, seer)
 	I.alpha = 255
 	I.appearance_flags = RESET_ALPHA
 	animate(I, alpha = 0, time = duration)
@@ -480,29 +487,33 @@
 	status = rcd_status
 	delay = rcd_delay
 	if (status == RCD_DECONSTRUCT)
-		addtimer(CALLBACK(src, /atom/.proc/update_icon), 11)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), 11)
 		delay -= 11
 		icon_state = "rcd_end_reverse"
 	else
 		update_icon()
 
-/obj/effect/constructing_effect/update_icon()
+/obj/effect/constructing_effect/update_icon_state()
 	icon_state = "rcd"
 	if (delay < 10)
 		icon_state += "_shortest"
+		return ..()
 	else if (delay < 20)
 		icon_state += "_shorter"
+		return ..()
 	else if (delay < 37)
 		icon_state += "_short"
+		return ..()
 	if (status == RCD_DECONSTRUCT)
 		icon_state += "_reverse"
+	return ..()
 
 /obj/effect/constructing_effect/proc/end_animation()
 	if (status == RCD_DECONSTRUCT)
 		qdel(src)
 	else
 		icon_state = "rcd_end"
-		addtimer(CALLBACK(src, .proc/end), 15)
+		addtimer(CALLBACK(src, PROC_REF(end)), 15)
 
 /obj/effect/constructing_effect/proc/end()
 	qdel(src)
@@ -534,7 +545,7 @@
 /obj/effect/temp_visual/steam_release
 	name = "all the steam"
 
-/obj/effect/temp_visual/steam_release/Initialize()
+/obj/effect/temp_visual/steam_release/Initialize(mapload)
 	..()
 	for(var/V in GLOB.cardinals)
 		var/turf/T = get_step(src, V)
@@ -544,17 +555,6 @@
 /obj/effect/temp_visual/parry
 	icon_state = "shield-flash"
 	duration = 5
-
-/obj/effect/temp_visual/dir_setting/space_wind
-	icon = 'icons/effects/atmospherics.dmi'
-	icon_state = "space_wind"
-	layer = FLY_LAYER
-	duration = 20
-	mouse_opacity = 0
-
-/obj/effect/temp_visual/dir_setting/space_wind/Initialize(mapload, set_dir, set_alpha = 255)
-	. = ..()
-	alpha = set_alpha
 
 /obj/effect/temp_visual/vent_wind
 	icon = 'icons/effects/atmospherics.dmi'

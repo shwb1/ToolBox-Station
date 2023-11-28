@@ -15,11 +15,13 @@
 	if(!isatom(parent))
 		return COMPONENT_INCOMPATIBLE
 
-	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, .proc/examine)
-	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY,.proc/action)
+	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(examine))
+	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY,PROC_REF(action))
 	update_parent(index)
 
 /datum/component/construction/proc/examine(datum/source, mob/user, list/examine_list)
+	SIGNAL_HANDLER
+
 	if(desc)
 		examine_list += desc
 
@@ -30,7 +32,9 @@
 		update_parent(index)
 
 /datum/component/construction/proc/action(datum/source, obj/item/I, mob/living/user)
-	return check_step(I, user)
+	SIGNAL_HANDLER
+
+	return check_step(I, user) ? COMPONENT_NO_AFTERATTACK : NONE
 
 /datum/component/construction/proc/update_index(diff)
 	index += diff
@@ -71,10 +75,9 @@
 	if(target_index > 0 && target_index <= steps.len)
 		target_step = steps[target_index]
 
-	. = TRUE
-
 	if(I.tool_behaviour)
-		. = I.use_tool(parent, user, 0, volume=50)
+		INVOKE_ASYNC(I, TYPE_PROC_REF(/obj/item, use_tool), parent, user, 0, 0, 50)
+		return TRUE
 
 	else if(diff == FORWARD)
 		switch(current_step["action"])
@@ -82,14 +85,15 @@
 				. = user.transferItemToLoc(I, parent)
 				if(.)
 					qdel(I)
+				return TRUE
 
 			if(ITEM_MOVE_INSIDE)
-				. = user.transferItemToLoc(I, parent)
+				return user.transferItemToLoc(I, parent)
 
 			// Using stacks
 			else if(istype(I, /obj/item/stack))
-				. = I.use_tool(parent, user, 0, volume=50, amount=current_step["amount"])
-
+				INVOKE_ASYNC(I, TYPE_PROC_REF(/obj/item, use_tool), parent, user, 0, current_step["amount"], 50)
+				return TRUE
 
 	// Going backwards? Undo the last action. Drop/respawn the items used in last action, if any.
 	if(. && diff == BACKWARD && target_step && !target_step["no_refund"])
@@ -106,6 +110,8 @@
 
 			else if(ispath(target_step_key, /obj/item/stack))
 				new target_step_key(drop_location(), target_step["amount"])
+		return TRUE
+	return FALSE
 
 /datum/component/construction/proc/spawn_result()
 	// Some constructions result in new components being added.

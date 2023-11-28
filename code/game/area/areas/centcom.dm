@@ -1,6 +1,10 @@
 
 // CENTCOM
 
+// Side note, be sure to change the network_root_id of any areas that are not a part of centcom
+// and just using the z space as safe harbor.  It shouldn't matter much as centcom z is isolated
+// from everything anyway
+
 /area/centcom
 	name = "CentCom"
 	icon_state = "centcom"
@@ -8,8 +12,9 @@
 	requires_power = FALSE
 	has_gravity = STANDARD_GRAVITY
 	teleport_restriction = TELEPORT_ALLOW_NONE
-	blob_allowed = FALSE //Should go without saying, no blobs should take over centcom as a win condition.
+	area_flags = VALID_TERRITORY | UNIQUE_AREA
 	flags_1 = NONE
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_MAXIMUM
 
 /area/centcom/control
 	name = "CentCom Docks"
@@ -29,7 +34,7 @@
 /area/centcom/holding
 	name = "Holding Facility"
 
-/area/centcom/supplypod/flyMeToTheMoon
+/area/centcom/supplypod/supplypod_temp_holding
 	name = "Supplypod Shipping lane"
 	icon_state = "supplypod_flight"
 
@@ -45,21 +50,35 @@
 /area/centcom/supplypod/loading
 	name = "Supplypod Loading Facility"
 	icon_state = "supplypod_loading"
+	var/loading_id = ""
+
+/area/centcom/supplypod/loading/Initialize(mapload)
+	. = ..()
+	if(!loading_id)
+		CRASH("[type] created without a loading_id")
+	if(GLOB.supplypod_loading_bays[loading_id])
+		CRASH("Duplicate loading bay area: [type] ([loading_id])")
+	GLOB.supplypod_loading_bays[loading_id] = src
 
 /area/centcom/supplypod/loading/one
 	name = "Bay #1"
+	loading_id = "1"
 
 /area/centcom/supplypod/loading/two
 	name = "Bay #2"
+	loading_id = "2"
 
 /area/centcom/supplypod/loading/three
 	name = "Bay #3"
+	loading_id = "3"
 
 /area/centcom/supplypod/loading/four
 	name = "Bay #4"
+	loading_id = "4"
 
 /area/centcom/supplypod/loading/ert
 	name = "ERT Bay"
+	loading_id = "5"
 //THUNDERDOME
 
 /area/tdome
@@ -90,11 +109,11 @@
 
 /area/tdome/tdomeadmin
 	name = "Thunderdome (Admin.)"
-	icon_state = "purple"
+	icon_state = "thunder_admin"
 
 /area/tdome/tdomeobserve
 	name = "Thunderdome (Observer.)"
-	icon_state = "purple"
+	icon_state = "thunder_observe"
 
 
 //ENEMY
@@ -107,7 +126,10 @@
 	requires_power = FALSE
 	has_gravity = STANDARD_GRAVITY
 	teleport_restriction = TELEPORT_ALLOW_NONE
+	area_flags = VALID_TERRITORY | UNIQUE_AREA
 	flags_1 = NONE
+	network_root_id = "MAGIC_NET"
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_MAXIMUM
 
 //Abductors
 /area/abductor_ship
@@ -115,8 +137,11 @@
 	icon_state = "yellow"
 	requires_power = FALSE
 	teleport_restriction = TELEPORT_ALLOW_ABDUCTORS
+	area_flags = VALID_TERRITORY | UNIQUE_AREA
 	has_gravity = STANDARD_GRAVITY
 	flags_1 = NONE
+	network_root_id = "ALIENS"
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_MAXIMUM
 
 //Syndicates
 /area/syndicate_mothership
@@ -125,18 +150,22 @@
 	requires_power = FALSE
 	has_gravity = STANDARD_GRAVITY
 	teleport_restriction = TELEPORT_ALLOW_NONE
-	blob_allowed = FALSE //Not... entirely sure this will ever come up... but if the bus makes blobs AND ops, it shouldn't aim for the ops to win.
+	area_flags = VALID_TERRITORY | UNIQUE_AREA
 	flags_1 = NONE
-	ambient_effects = HIGHSEC
+	ambience_index = AMBIENCE_DANGER
+	network_root_id = SYNDICATE_NETWORK_ROOT
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_MAXIMUM
 
 /area/syndicate_mothership/control
 	name = "Syndicate Control Room"
 	icon_state = "syndie-control"
 	dynamic_lighting = DYNAMIC_LIGHTING_FORCED
+	network_root_id = SYNDICATE_NETWORK_ROOT
 
 /area/syndicate_mothership/elite_squad
 	name = "Syndicate Elite Squad"
 	icon_state = "syndie-elite"
+	network_root_id = SYNDICATE_NETWORK_ROOT
 
 //CAPTURE THE FLAG
 
@@ -145,6 +174,7 @@
 	icon_state = "yellow"
 	requires_power = FALSE
 	has_gravity = STANDARD_GRAVITY
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_ELITE
 
 /area/ctf/control_room
 	name = "Control Room A"
@@ -181,11 +211,12 @@
 	requires_power = FALSE
 	has_gravity = STANDARD_GRAVITY
 	teleport_restriction = TELEPORT_ALLOW_CLOCKWORK
-	hidden = TRUE
-	ambient_effects = REEBE
+	area_flags = VALID_TERRITORY | UNIQUE_AREA | HIDDEN_AREA
+	ambience_index = AMBIENCE_REEBE
+	airlock_hack_difficulty = AIRLOCK_WIRE_SECURITY_ELITE
 
 /area/reebe/city_of_cogs
 	name = "Reebe - City of Cogs"
 	icon_state = "purple"
-	hidden = FALSE
+	area_flags = VALID_TERRITORY | UNIQUE_AREA | HIDDEN_AREA
 	var/playing_ambience = FALSE

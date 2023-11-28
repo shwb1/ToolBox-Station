@@ -18,9 +18,10 @@ Buildable meters
 	icon_state = "simple"
 	item_state = "buildpipe"
 	w_class = WEIGHT_CLASS_NORMAL
-	level = 2
 	var/piping_layer = PIPING_LAYER_DEFAULT
 	var/RPD_type
+	/// whether it can be painted
+	var/paintable = FALSE
 
 /obj/item/pipe/directional
 	RPD_type = PIPE_UNARY
@@ -57,6 +58,7 @@ Buildable meters
 	pipename = make_from.name
 	add_atom_colour(make_from.color, FIXED_COLOUR_PRIORITY)
 	pipe_type = make_from.type
+	paintable = make_from.paintable
 
 /obj/item/pipe/trinary/flippable/make_from_existing(obj/machinery/atmospherics/components/trinary/make_from)
 	..()
@@ -64,9 +66,9 @@ Buildable meters
 		do_a_flip()
 
 /obj/item/pipe/dropped()
+	..()
 	if(loc)
 		setPipingLayer(piping_layer)
-	return ..()
 
 /obj/item/pipe/proc/setPipingLayer(new_layer = PIPING_LAYER_DEFAULT)
 	var/obj/machinery/atmospherics/fakeA = pipe_type
@@ -176,7 +178,7 @@ Buildable meters
 	..()
 	T.flipped = flipped
 
-/obj/item/pipe/directional/suicide_act(mob/user)
+/obj/item/pipe/directional/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] shoves [src] in [user.p_their()] mouth and turns it on! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	if(iscarbon(user))
 		var/mob/living/carbon/C = user
@@ -227,7 +229,7 @@ Buildable meters
 	qdel(src)
 
 /obj/item/pipe_meter/dropped()
-	. = ..()
+	..()
 	if(loc)
 		setAttachLayer(piping_layer)
 

@@ -3,6 +3,7 @@
 	desc = "A small cog that seems to spin by its own acord when left alone."
 	icon_state = "integration_cog"
 	clockwork_desc = "A sharp cog that can cut through and be inserted into APCs to extract power for the gateway."
+	item_flags = ISWEAPON
 
 /obj/item/clockwork/integration_cog/attack_obj(obj/O, mob/living/user)
 	if(!is_servant_of_ratvar(user))
@@ -38,3 +39,6 @@
 			//Update the cog counts
 			for(var/obj/item/clockwork/clockwork_slab/S in GLOB.clockwork_slabs)
 				S.update_integration_cogs()
+			if(GLOB.clockcult_eminence)
+				var/mob/living/simple_animal/eminence/eminence = GLOB.clockcult_eminence
+				eminence.cog_change()

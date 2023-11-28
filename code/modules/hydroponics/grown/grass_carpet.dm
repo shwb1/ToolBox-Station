@@ -15,7 +15,7 @@
 	icon_grow = "grass-grow"
 	icon_dead = "grass-dead"
 	genes = list(/datum/plant_gene/trait/repeated_harvest)
-	mutatelist = list(/obj/item/seeds/grass/carpet)
+	mutatelist = list(/obj/item/seeds/grass/carpet, /obj/item/seeds/grass/fairy, /obj/item/seeds/grass/shamrock)
 	reagents_add = list(/datum/reagent/consumable/nutriment = 0.02, /datum/reagent/hydrogen = 0.05)
 
 /obj/item/reagent_containers/food/snacks/grown/grass
@@ -40,12 +40,64 @@
 	new stacktype(user.drop_location(), grassAmt)
 	qdel(src)
 
+//Fairygrass
+/obj/item/seeds/grass/fairy
+	name = "pack of fairygrass seeds"
+	desc = "These seeds grow into a more mystical grass."
+	icon_state = "seed-fairygrass"
+	species = "fairygrass"
+	plantname = "Fairygrass"
+	product = /obj/item/reagent_containers/food/snacks/grown/grass/fairy
+	icon_grow = "fairygrass-grow"
+	genes = list(/datum/plant_gene/trait/repeated_harvest, /datum/plant_gene/trait/glow/blue)
+	reagents_add = list(/datum/reagent/consumable/nutriment = 0.02, /datum/reagent/hydrogen = 0.05, /datum/reagent/drug/space_drugs = 0.15)
+
+/obj/item/reagent_containers/food/snacks/grown/grass/fairy
+	seed = /obj/item/seeds/grass/fairy
+	name = "fairygrass"
+	desc = "Glowing, and smells fainly of mushrooms."
+	icon_state = "fairygrassclump"
+	filling_color = "#3399ff"
+	stacktype = /obj/item/stack/tile/fairygrass
+	discovery_points = 300
+
+/obj/item/reagent_containers/food/snacks/grown/grass/fairy/attack_self(mob/user)
+	var/datum/plant_gene/trait/glow/G = null
+	for(var/datum/plant_gene/trait/glow/gene in seed.genes)
+		G = gene
+		break
+
+	stacktype = initial(stacktype)
+
+	if(G)
+		switch(G.type)
+			if(/datum/plant_gene/trait/glow/white)
+				stacktype = /obj/item/stack/tile/fairygrass/white
+			if(/datum/plant_gene/trait/glow/red)
+				stacktype = /obj/item/stack/tile/fairygrass/red
+			if(/datum/plant_gene/trait/glow/yellow)
+				stacktype = /obj/item/stack/tile/fairygrass/yellow
+			if(/datum/plant_gene/trait/glow/green)
+				stacktype = /obj/item/stack/tile/fairygrass/green
+			if(/datum/plant_gene/trait/glow/orange)
+				stacktype = /obj/item/stack/tile/fairygrass/orange
+			if(/datum/plant_gene/trait/glow/blue)
+				stacktype = /obj/item/stack/tile/fairygrass/blue
+			if(/datum/plant_gene/trait/glow/purple)
+				stacktype = /obj/item/stack/tile/fairygrass/purple
+			if(/datum/plant_gene/trait/glow/pink)
+				stacktype = /obj/item/stack/tile/fairygrass/pink
+			if(/datum/plant_gene/trait/glow/shadow)
+				stacktype = /obj/item/stack/tile/fairygrass/dark
+
+	. = ..()
+
 // Carpet
 /obj/item/seeds/grass/carpet
 	name = "pack of carpet seeds"
 	desc = "These seeds grow into stylish carpet samples."
 	icon_state = "seed-carpet"
-	species = /datum/reagent/carpet
+	species = "carpet"
 	plantname = "Carpet"
 	product = /obj/item/reagent_containers/food/snacks/grown/grass/carpet
 	mutatelist = list()
@@ -58,3 +110,48 @@
 	icon_state = "carpetclump"
 	stacktype = /obj/item/stack/tile/carpet
 	can_distill = FALSE
+
+// shamrocks
+/obj/item/seeds/grass/shamrock
+	name = "pack of shamrock seeds"
+	desc = "These seeds grow into shamrock producing plants."
+	icon_state = "seed-shamrock"
+	species = "shamrock"
+	plantname = "Shamrock Plants"
+	product = /obj/item/reagent_containers/food/snacks/grown/grass/shamrock
+	mutatelist = list()
+	rarity = 10
+	genes = list(/datum/plant_gene/trait/repeated_harvest)
+	reagents_add = list(/datum/reagent/nitrogen = 0.1, /datum/reagent/consumable/nutriment = 0.02)
+
+/obj/item/reagent_containers/food/snacks/grown/grass/shamrock
+	seed = /obj/item/seeds/grass/shamrock
+	name = "shamrock"
+	desc = "Luck of the irish."
+	icon_state = "shamrock"
+	slot_flags = ITEM_SLOT_HEAD
+	filling_color = "#245c39"
+	bitesize_mod = 3
+	can_distill = FALSE
+
+/obj/item/reagent_containers/food/snacks/grown/grass/shamrock/equipped(mob/user, slot)
+	. = ..()
+	if(slot == ITEM_SLOT_HEAD)
+		SEND_SIGNAL(user, COMSIG_ADD_MOOD_EVENT, "flower_worn", /datum/mood_event/flower_worn, src)
+
+/obj/item/reagent_containers/food/snacks/grown/grass/shamrock/dropped(mob/living/carbon/user)
+	..()
+	if(user.head != src)
+		return
+	else
+		SEND_SIGNAL(user, COMSIG_CLEAR_MOOD_EVENT, "flower_worn")
+
+//clover
+/obj/item/reagent_containers/food/snacks/grown/grass/shamrock/Initialize(mapload, /obj/item/seeds/new_seed)
+	. = ..()
+	if(prob(0.001)) // 0.001% chance to be a clover
+		name = "four leafed clover"
+		desc = "A rare sought after trinket said to grant luck to it's holder."
+		icon_state = "clover"
+		filling_color = "#358a55"
+

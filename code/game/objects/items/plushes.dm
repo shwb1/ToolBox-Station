@@ -2,14 +2,16 @@
 	name = "plush"
 	desc = "This is the special coder plush, do not steal."
 	icon = 'icons/obj/plushes.dmi'
+	lefthand_file = 'icons/mob/inhands/plushes_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/plushes_righthand.dmi'
 	icon_state = "debug"
 	attack_verb = list("thumped", "whomped", "bumped")
 	w_class = WEIGHT_CLASS_SMALL
+	item_flags = ISWEAPON
 	resistance_flags = FLAMMABLE
 	var/list/squeak_override //Weighted list; If you want your plush to have different squeak sounds use this
 	var/stuffed = TRUE //If the plushie has stuffing in it
 	var/obj/item/grenade/grenade //You can remove the stuffing from a plushie and add a grenade to it for *nefarious uses*
-	//--love ~<3--
 	gender = NEUTER
 	var/obj/item/toy/plush/lover
 	var/obj/item/toy/plush/partner
@@ -22,7 +24,7 @@
 	var/heartbroken = FALSE
 	var/vowbroken = FALSE
 	var/young = FALSE
-///Prevents players from cutting stuffing out of a plushie if true
+	///Prevents players from cutting stuffing out of a plushie if true
 	var/divine = FALSE
 	var/mood_message
 	var/list/love_message
@@ -31,9 +33,8 @@
 	var/list/vowbroken_message
 	var/list/parent_message
 	var/normal_desc
-	//--end of love :'(--
 
-/obj/item/toy/plush/Initialize()
+/obj/item/toy/plush/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/squeak, squeak_override)
 	AddElement(/datum/element/bed_tuckable, 6, -5, 90)
@@ -160,19 +161,19 @@
 
 	//we are not catholic
 	if(young == TRUE || Kisser.young == TRUE)
-		user.show_message("<span class='notice'>[src] plays tag with [Kisser].</span>", 1,
-			"<span class='notice'>They're happy.</span>", 0)
+		user.show_message("<span class='notice'>[src] plays tag with [Kisser].</span>", MSG_VISUAL,
+			"<span class='notice'>They're happy.</span>", NONE)
 		Kisser.cheer_up()
 		cheer_up()
 
 	//never again
 	else if(Kisser in scorned)
 		//message, visible, alternate message, neither visible nor audible
-		user.show_message("<span class='notice'>[src] rejects the advances of [Kisser]!</span>", 1,
-			"<span class='notice'>That didn't feel like it worked.</span>", 0)
+		user.show_message("<span class='notice'>[src] rejects the advances of [Kisser]!</span>", MSG_VISUAL,
+			"<span class='notice'>That didn't feel like it worked.</span>", NONE)
 	else if(src in Kisser.scorned)
-		user.show_message("<span class='notice'>[Kisser] realises who [src] is and turns away.</span>", 1,
-			"<span class='notice'>That didn't feel like it worked.</span>", 0)
+		user.show_message("<span class='notice'>[Kisser] realises who [src] is and turns away.</span>", MSG_VISUAL,
+			"<span class='notice'>That didn't feel like it worked.</span>", NONE)
 
 	//first comes love
 	else if(Kisser.lover != src && Kisser.partner != src)	//cannot be lovers or married
@@ -192,8 +193,8 @@
 			new_lover(Kisser)
 			Kisser.new_lover(src)
 		else
-			user.show_message("<span class='notice'>[src] rejects the advances of [Kisser], maybe next time?</span>", 1,
-								"<span class='notice'>That didn't feel like it worked, this time.</span>", 0)
+			user.show_message("<span class='notice'>[src] rejects the advances of [Kisser], maybe next time?</span>", MSG_VISUAL,
+								"<span class='notice'>That didn't feel like it worked, this time.</span>", NONE)
 
 	//then comes marriage
 	else if(Kisser.lover == src && Kisser.partner != src)	//need to be lovers (assumes loving is a two way street) but not married (also assumes similar)
@@ -217,7 +218,7 @@
 
 	//then oh fuck something unexpected happened
 	else
-		user.show_message("<span class='warning'>[Kisser] and [src] don't know what to do with one another.</span>", 0)
+		user.show_message("<span class='warning'>[Kisser] and [src] don't know what to do with one another.</span>", NONE)
 
 /obj/item/toy/plush/proc/heartbreak(obj/item/toy/plush/Brutus)
 	if(lover != Brutus)
@@ -360,16 +361,15 @@
 			mood_message = null
 	cheer_up()
 
-/obj/item/toy/plush/proc/update_desc()
+/obj/item/toy/plush/update_desc()
 	desc = normal_desc
 	if(mood_message)
 		desc += mood_message
-
+	return ..()
 /obj/item/toy/plush/carpplushie
 	name = "space carp plushie"
 	desc = "An adorable stuffed toy that resembles a space carp."
 	icon_state = "carpplush"
-	item_state = "carp_plushie"
 	attack_verb = list("bitten", "eaten", "fin slapped")
 	squeak_override = list('sound/weapons/bite.ogg'=1)
 
@@ -455,7 +455,7 @@
 		P.say(pick("Nooooo...", "Not die. To y-", "Die. Ratv-", "Sas tyen re-"))
 		playsound(src, 'sound/magic/clockwork/anima_fragment_attack.ogg', 50, TRUE, frequency = 2)
 		playsound(P, 'sound/magic/demon_dies.ogg', 50, TRUE, frequency = 2)
-		explosion(P, 0, 0, 1)
+		explosion(P, 0, 0, 1, holy = TRUE)
 		qdel(P)
 		clash_target = null
 	else
@@ -463,7 +463,7 @@
 		P.say(pick("Ha.", "Ra'sha fonn dest.", "You fool. To come here."))
 		playsound(src, 'sound/magic/clockwork/anima_fragment_death.ogg', 62, TRUE, frequency = 2)
 		playsound(P, 'sound/magic/demon_attack1.ogg', 50, TRUE, frequency = 2)
-		explosion(src, 0, 0, 1)
+		explosion(src, 0, 0, 1, holy = TRUE)
 		qdel(src)
 		P.clashing = FALSE
 
@@ -473,8 +473,16 @@
 	icon_state = "narplush"
 	divine = TRUE
 	var/clashing
-	var/is_invoker = TRUE
+	var/invoker_charges = 2
 	gender = FEMALE	//it's canon if the toy is
+
+/obj/item/toy/plush/narplush/examine(mob/user)
+	. = ..()
+	if(invoker_charges == 0)
+		. += "<span class='notice'>She looks tired.</span>"
+		return
+	if(IS_CULTIST(user))
+		. += "<span class='warning'>She has [invoker_charges] [invoker_charges == 1 ? "charge" : "charges"] left!</span>"
 
 /obj/item/toy/plush/narplush/Moved()
 	. = ..()
@@ -483,38 +491,33 @@
 		P.clash_of_the_plushies(src)
 
 /obj/item/toy/plush/narplush/hugbox
-	desc = "A small stuffed doll of the elder goddess Nar'Sie. Who thought this was a good children's toy? <b>It looks sad.</b>"
-	is_invoker = FALSE
+	invoker_charges = 0
 
 /obj/item/toy/plush/lizardplushie
 	name = "lizard plushie"
 	desc = "An adorable stuffed toy that resembles a lizardperson."
-	icon_state = "plushie_lizard"
-	item_state = "plushie_lizard"
+	icon_state = "lizardplush"
 	attack_verb = list("clawed", "hissed", "tail slapped")
 	squeak_override = list('sound/weapons/slash.ogg' = 1)
 
 /obj/item/toy/plush/snakeplushie
 	name = "snake plushie"
 	desc = "An adorable stuffed toy that resembles a snake. Not to be mistaken for the real thing."
-	icon_state = "plushie_snake"
-	item_state = "plushie_snake"
+	icon_state = "snakeplush"
 	attack_verb = list("bitten", "hissed", "tail slapped")
 	squeak_override = list('sound/weapons/bite.ogg' = 1)
 
 /obj/item/toy/plush/nukeplushie
 	name = "operative plushie"
 	desc = "A stuffed toy that resembles a syndicate nuclear operative. The tag claims operatives to be purely fictitious."
-	icon_state = "plushie_nuke"
-	item_state = "plushie_nuke"
+	icon_state = "nukeplush"
 	attack_verb = list("shot", "nuked", "detonated")
 	squeak_override = list('sound/effects/hit_punch.ogg' = 1)
 
 /obj/item/toy/plush/slimeplushie
 	name = "slime plushie"
 	desc = "An adorable stuffed toy that resembles a slime. It is practically just a hacky sack."
-	icon_state = "plushie_slime"
-	item_state = "plushie_slime"
+	icon_state = "slimeplush"
 	attack_verb = list("blorbled", "slimed", "absorbed")
 	squeak_override = list('sound/effects/blobattack.ogg' = 1)
 	gender = FEMALE	//given all the jokes and drawings, I'm not sure the xenobiologists would make a slimeboy
@@ -523,8 +526,7 @@
 /obj/item/toy/plush/awakenedplushie
 	name = "awakened plushie"
 	desc = "An ancient plushie that has grown enlightened to the true nature of reality."
-	icon_state = "plushie_awake"
-	item_state = "plushie_awake"
+	icon_state = "awakeplush"
 
 /obj/item/toy/plush/awakenedplushie/ComponentInitialize()
 	. = ..()
@@ -533,17 +535,22 @@
 /obj/item/toy/plush/beeplushie
 	name = "bee plushie"
 	desc = "A cute toy that resembles an even cuter bee."
-	icon_state = "plushie_h"
-	item_state = "plushie_h"
+	icon_state = "beeplush"
 	attack_verb = list("stung")
 	gender = FEMALE
 	squeak_override = list('sound/voice/moth/scream_moth.ogg'=1)
+
+/obj/item/toy/plush/rouny
+	name = "runner plushie"
+	desc = "A plushie depicting a xenomorph runner, made to commemorate the centenary of the Battle of LV-426. Much cuddlier than the real thing."
+	icon_state = "rounyplush"
+	attack_verb = list("slashes", "bites", "charges")
+	squeak_override = list('sound/weapons/bite.ogg' = 1)
 
 /obj/item/toy/plush/moth
 	name = "moth plushie"
 	desc = "An adorable mothperson plushy. It's a huggable bug!"
 	icon_state = "moffplush"
-	item_state = "moffplush"
 	attack_verb = list("fluttered", "flapped")
 	squeak_override = list('sound/voice/moth/scream_moth.ogg'=1)
 ///Used to track how many people killed themselves with item/toy/plush/moth
@@ -565,3 +572,150 @@
 		forceMove(random_open_spot)
 	user.dust(just_ash = FALSE, drop_items = TRUE)
 	return MANUAL_SUICIDE
+
+/obj/item/toy/plush/moth/random
+	name = "\improper Random Mothplush"
+	icon_state = "moffplush_random"
+	desc = "An undefined mothperson plushy. It's a debuggable bug! (if you see this, contact an upper beign as soon as possible)."
+
+/obj/item/toy/plush/moth/random/Initialize()
+	var moff_type = pick(subtypesof(/obj/item/toy/plush/moth) - /obj/item/toy/plush/moth/random/)
+	new moff_type(loc)
+	return INITIALIZE_HINT_QDEL
+
+/obj/item/toy/plush/moth/monarch
+	name = "monarch moth plushie"
+	desc = "An adorable mothperson plushy. It's an important bug!"
+	icon_state = "moffplush_monarch"
+
+/obj/item/toy/plush/moth/luna
+	name = "luna moth plushie"
+	desc = "An adorable mothperson plushy. It's a lunar bug!"
+	icon_state = "moffplush_luna"
+
+/obj/item/toy/plush/moth/atlas
+	name = "atlas moth plushie"
+	desc = "An adorable mothperson plushy. It's a wide bug!"
+	icon_state = "moffplush_atlas"
+
+/obj/item/toy/plush/moth/redish
+	name = "redish moth plushie"
+	desc = "An adorable mothperson plushy. It's a red bug!"
+	icon_state = "moffplush_redish"
+
+/obj/item/toy/plush/moth/royal
+	name = "royal moth plushie"
+	desc = "An adorable mothperson plushy. It's a royal bug!"
+	icon_state = "moffplush_royal"
+
+/obj/item/toy/plush/moth/gothic
+	name = "gothic moth plushie"
+	desc = "An adorable mothperson plushy. It's a dark bug!"
+	icon_state = "moffplush_gothic"
+
+/obj/item/toy/plush/moth/lovers
+	name = "lovers moth plushie"
+	desc = "An adorable mothperson plushy. It's a loveley bug!"
+	icon_state = "moffplush_lovers"
+
+/obj/item/toy/plush/moth/whitefly
+	name = "whitefly moth plushie"
+	desc = "An adorable mothperson plushy. It's a shy bug!"
+	icon_state = "moffplush_whitefly"
+
+/obj/item/toy/plush/moth/punished
+	name = "punished moth plushie"
+	desc = "An adorable mothperson plushy. It's a sad bug... that's quite sad actualy."
+	icon_state = "moffplush_punished"
+
+/obj/item/toy/plush/moth/firewatch
+	name = "firewatch moth plushie"
+	desc = "An adorable mothperson plushy. It's a firey bug!"
+	icon_state = "moffplush_firewatch"
+
+/obj/item/toy/plush/moth/deadhead
+	name = "deadhead moth plushie"
+	desc = "An adorable mothperson plushy. It's a silent bug!"
+	icon_state = "moffplush_deadhead"
+
+/obj/item/toy/plush/moth/poison
+	name = "poison moth plushie"
+	desc = "An adorable mothperson plushy. It's a toxic bug!"
+	icon_state = "moffplush_poison"
+
+/obj/item/toy/plush/moth/ragged
+	name = "ragged moth plushie"
+	desc = "An adorable mothperson plushy. It's a robust bug!"
+	icon_state = "moffplush_ragged"
+
+/obj/item/toy/plush/moth/snow
+	name = "snow moth plushie"
+	desc = "An adorable mothperson plushy. It's a cool bug!"
+	icon_state = "moffplush_snow"
+
+/obj/item/toy/plush/moth/clockwork
+	name = "clockwork moth plushie"
+	desc = "An adorable mothperson plushy. It's a precise bug!"
+	icon_state = "moffplush_clockwork"
+
+/obj/item/toy/plush/moth/moonfly
+	name = "moonfly moth plushie"
+	desc = "An adorable mothperson plushy. It's a nightly bug!"
+	icon_state = "moffplush_moonfly"
+
+/obj/item/toy/plush/moth/error
+	name = "error moth plushie"
+	desc = "An adorable mothperson plushy. It's a debuggable bug!"
+	icon_state = "moffplush_random"
+
+/obj/item/toy/plush/moth/rainbow
+	name = "rainbow moth plushie"
+	desc = "An adorable mothperson plushy. It's a colorfull bug!"
+	icon_state = "moffplush_rainbow"
+
+/obj/item/toy/plush/crossed
+	name = "ghost plushie"
+	desc = "It reminds you of someone important, you just can't make out who."
+	icon_state = "crossedplush"
+	squeak_override = list('sound/items/haunted/ghostitemattack.ogg'=1)
+
+/obj/item/toy/plush/runtime
+	name = "Runtime plushie"
+	desc = "GPLUSH."
+	icon_state = "runtimeplush"
+	squeak_override = list('sound/effects/meow1.ogg'=1)
+
+/obj/item/toy/plush/gondola
+	name = "gondola plushie"
+	desc = "The silent walker, in plush form."
+	icon_state = "gondolaplush"
+	squeak_override = list('sound/misc/null.ogg'=1)
+
+/obj/item/toy/plush/flushed
+	name = "flushed plushie"
+	desc = "Hgrgrhrhg cute."
+	icon_state = "flushplush"
+
+/////////////////
+//DONATOR ITEMS//
+/////////////////
+
+/obj/item/toy/plush/ian
+	name = "ian plushie"
+	desc = "Keep him by your side."
+	icon_state = "ianplush"
+
+/obj/item/toy/plush/lisa
+	name = "lisa plushie"
+	desc = "Keep her by your side."
+	icon_state = "lisaplush"
+
+/obj/item/toy/plush/renault
+	name = "renault plushie"
+	desc = "AWOOOO!"
+	icon_state = "renaultplush"
+
+/obj/item/toy/plush/opa
+	name = "metal upa"
+	desc = "You feel like this could have prevented World War 3 in a parallel timeline."
+	icon_state = "upaplush"

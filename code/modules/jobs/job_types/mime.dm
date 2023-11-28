@@ -1,34 +1,49 @@
 /datum/job/mime
-	title = "Mime"
+	title = JOB_NAME_MIME
 	flag = MIME
-	department_head = list("Head of Personnel")
-	department_flag = CIVILIAN
+	description = "Be the Clown's mute counterpart and arch nemesis. Conduct pantomimes and performances, create interesting situations with your mime powers. Remember your job is to keep things funny for others, not just yourself."
+	department_for_prefs = DEPT_BITFLAG_CIV
+	department_head = list(JOB_NAME_HEADOFPERSONNEL)
+	supervisors = "the head of personnel"
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-	supervisors = "the head of personnel"
 	selection_color = "#dddddd"
-	chat_color = "#BAD3BB"
 
 	outfit = /datum/outfit/job/mime
 
-	access = list(ACCESS_THEATRE,ACCESS_SILENT)
-	minimal_access = list(ACCESS_THEATRE,ACCESS_SILENT)
-	paycheck = PAYCHECK_MINIMAL
-	paycheck_department = ACCOUNT_SRV
+	access = list(ACCESS_THEATRE, ACCESS_SILENT)
+	minimal_access = list(ACCESS_THEATRE, ACCESS_SILENT)
+
+	department_flag = CIVILIAN
+	departments = DEPT_BITFLAG_SRV
+	bank_account_department = ACCOUNT_SRV_BITFLAG
+	payment_per_department = list(ACCOUNT_SRV_ID = PAYCHECK_MINIMAL)
 
 	display_order = JOB_DISPLAY_ORDER_MIME
+	rpg_title = "Fool"
 
-/datum/job/mime/after_spawn(mob/living/carbon/human/H, mob/M)
+	species_outfits = list(
+		SPECIES_PLASMAMAN = /datum/outfit/plasmaman/mime
+	)
+
+	minimal_lightup_areas = list(/area/crew_quarters/theatre)
+
+/datum/job/mime/after_spawn(mob/living/carbon/human/H, mob/M, latejoin = FALSE, client/preference_source, on_dummy = FALSE)
 	. = ..()
-	H.apply_pref_name("mime", M.client)
+	if(!ishuman(H))
+		return
+	if(!M.client || on_dummy)
+		return
+	H.apply_pref_name(/datum/preference/name/mime, preference_source)
+
 
 /datum/outfit/job/mime
-	name = "Mime"
+	name = JOB_NAME_MIME
 	jobtype = /datum/job/mime
 
 	id = /obj/item/card/id/job/mime
-	belt = /obj/item/pda/mime
+	belt = /obj/item/modular_computer/tablet/pda/mime
 	ears = /obj/item/radio/headset/headset_srv
 	uniform = /obj/item/clothing/under/rank/civilian/mime
 	mask = /obj/item/clothing/mask/gas/mime

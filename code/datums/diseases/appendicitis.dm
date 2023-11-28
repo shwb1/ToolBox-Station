@@ -7,7 +7,7 @@
 	viable_mobtypes = list(/mob/living/carbon/human)
 	permeability_mod = 1
 	desc = "If left untreated the subject will become very weak, and may vomit often."
-	severity = DISEASE_SEVERITY_MEDIUM
+	danger = DISEASE_MEDIUM
 	disease_flags = CAN_CARRY|CAN_RESIST
 	spread_flags = DISEASE_SPREAD_NON_CONTAGIOUS
 	visibility_flags = HIDDEN_PANDEMIC
@@ -34,3 +34,10 @@
 			if(prob(1))
 				affected_mob.vomit(95)
 				affected_mob.adjustOrganLoss(ORGAN_SLOT_APPENDIX, 15)
+
+/datum/disease/appendicitis/cure(add_resistance)
+	var/obj/item/organ/appendix/A = affected_mob.getorgan(/obj/item/organ/appendix)
+	if(A)
+		A.inflamed = FALSE
+		A.update_icon()
+	return ..()

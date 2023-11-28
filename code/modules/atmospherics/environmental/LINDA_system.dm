@@ -17,58 +17,98 @@
 /turf/open/CanAtmosPassVertical = ATMOS_PASS_PROC
 
 /turf/open/CanAtmosPass(turf/T, vertical = FALSE)
-	var/dir = vertical? get_dir_multiz(src, T) : get_dir(src, T)
-	var/opp = dir_inverse_multiz(dir)
-	var/R = FALSE
+	var/dir = vertical ? get_dir_multiz(src, T) : get_dir(src, T)
+	var/opp = REVERSE_DIR(dir)
+	. = TRUE
 	if(vertical && !(zAirOut(dir, T) && T.zAirIn(dir, src)))
-		R = TRUE
-	if(blocks_air || T.blocks_air)
-		R = TRUE
+		. = FALSE
+	if(isclosedturf(src) || isclosedturf(T))
+		. = FALSE
 	if (T == src)
-		return !R
+		return .
 	for(var/obj/O in contents+T.contents)
 		var/turf/other = (O.loc == src ? T : src)
 		if(!(vertical? (CANVERTICALATMOSPASS(O, other)) : (CANATMOSPASS(O, other))))
-			R = TRUE
-			if(O.BlockSuperconductivity()) 	//the direction and open/closed are already checked on CanAtmosPass() so there are no arguments
-				atmos_supeconductivity |= dir
-				T.atmos_supeconductivity |= opp
-				return FALSE						//no need to keep going, we got all we asked
+			. = FALSE
+		if(O.BlockThermalConductivity()) 	//the direction and open/closed are already checked on CanAtmosPass() so there are no arguments
+			conductivity_blocked_directions |= dir
+			T.conductivity_blocked_directions |= opp
+			if(!.)
+				return .
 
-	atmos_supeconductivity &= ~dir
-	T.atmos_supeconductivity &= ~opp
-
-	return !R
-
-/atom/movable/proc/BlockSuperconductivity() // objects that block air and don't let superconductivity act. Only firelocks atm.
+/atom/movable/proc/BlockThermalConductivity() // Objects that don't let heat through.
 	return FALSE
 
 /turf/proc/ImmediateCalculateAdjacentTurfs()
+	if(SSair.thread_running())
+		CALCULATE_ADJACENT_TURFS(src)
+		return
+	LAZYINITLIST(src.atmos_adjacent_turfs)
+	var/is_closed = isclosedturf(src)
+	var/list/atmos_adjacent_turfs = src.atmos_adjacent_turfs
 	var/canpass = CANATMOSPASS(src, src)
 	var/canvpass = CANVERTICALATMOSPASS(src, src)
+	// I am essentially inlineing two get_dir_multizs here, because they're way too slow on their own. I'm sorry brother
+	var/list/z_traits = SSmapping.multiz_levels[z]
 	for(var/direction in GLOB.cardinals_multiz)
-		var/turf/T = get_step_multiz(src, direction)
-		var/opp_dir = dir_inverse_multiz(direction)
-		if(!isopenturf(T))
+		// Yes this is a reimplementation of get_step_mutliz. It's faster tho. fuck you
+		var/turf/current_turf = (direction & (UP|DOWN)) ? \
+			(direction & UP) ? \
+				(z_traits[Z_LEVEL_UP]) ? \
+					(get_step(locate(x, y, z + 1), NONE)) : \
+				(null) : \
+				(z_traits[Z_LEVEL_DOWN]) ? \
+					(get_step(locate(x, y, z - 1), NONE)) : \
+				(null) : \
+			(get_step(src, direction))
+		if(!isopenturf(current_turf))
 			continue
-		if(!(blocks_air || T.blocks_air) && ((direction & (UP|DOWN))? (canvpass && CANVERTICALATMOSPASS(T, src)) : (canpass && CANATMOSPASS(T, src))) )
-			LAZYINITLIST(atmos_adjacent_turfs)
-			LAZYINITLIST(T.atmos_adjacent_turfs)
-			atmos_adjacent_turfs[T] = direction
-			T.atmos_adjacent_turfs[src] = opp_dir
-			T.__update_extools_adjacent_turfs()
+		if(!is_closed && ((direction & (UP|DOWN)) ? (canvpass && CANVERTICALATMOSPASS(current_turf, src)) : (canpass && CANATMOSPASS(current_turf, src))))
+			LAZYINITLIST(current_turf.atmos_adjacent_turfs)
+			atmos_adjacent_turfs[current_turf] = TRUE
+			current_turf.atmos_adjacent_turfs[src] = TRUE
 		else
-			if (atmos_adjacent_turfs)
-				atmos_adjacent_turfs -= T
-			if (T.atmos_adjacent_turfs)
-				T.atmos_adjacent_turfs -= src
-				T.__update_extools_adjacent_turfs()
-			UNSETEMPTY(T.atmos_adjacent_turfs)
+			atmos_adjacent_turfs -= current_turf
+			if (current_turf.atmos_adjacent_turfs)
+				current_turf.atmos_adjacent_turfs -= src
+			UNSETEMPTY(current_turf.atmos_adjacent_turfs)
+			current_turf.set_sleeping(isclosedturf(current_turf))
+		current_turf.__update_auxtools_turf_adjacency_info()
 	UNSETEMPTY(atmos_adjacent_turfs)
 	src.atmos_adjacent_turfs = atmos_adjacent_turfs
-	__update_extools_adjacent_turfs()
+	set_sleeping(is_closed)
+	__update_auxtools_turf_adjacency_info()
 
-/turf/proc/__update_extools_adjacent_turfs()
+/turf/proc/ImmediateDisableAdjacency(disable_adjacent = TRUE)
+	if(SSair.thread_running())
+		SSadjacent_air.disable_queue[src] = disable_adjacent
+		return
+	if(disable_adjacent)
+		// I am essentially inlineing two get_dir_multizs here, because they're way too slow on their own. I'm sorry brother
+		var/list/z_traits = SSmapping.multiz_levels[z]
+		for(var/direction in GLOB.cardinals_multiz)
+			// Yes this is a reimplementation of get_step_mutliz. It's faster tho.
+			var/turf/current_turf = (direction & (UP|DOWN)) ? \
+				(direction & UP) ? \
+					(z_traits[Z_LEVEL_UP]) ? \
+						(get_step(locate(x, y, z + 1), NONE)) : \
+					(null) : \
+					(z_traits[Z_LEVEL_DOWN]) ? \
+						(get_step(locate(x, y, z - 1), NONE)) : \
+					(null) : \
+				(get_step(src, direction))
+			if(!istype(current_turf))
+				continue
+			if (current_turf.atmos_adjacent_turfs)
+				current_turf.atmos_adjacent_turfs -= src
+			UNSETEMPTY(current_turf.atmos_adjacent_turfs)
+			current_turf.__update_auxtools_turf_adjacency_info()
+	LAZYCLEARLIST(atmos_adjacent_turfs)
+	__update_auxtools_turf_adjacency_info()
+
+/turf/proc/set_sleeping(should_sleep)
+
+/turf/proc/__update_auxtools_turf_adjacency_info()
 
 //returns a list of adjacent turfs that can share air with this one.
 //alldir includes adjacent diagonal tiles that can share
@@ -106,15 +146,18 @@
 	return adjacent_turfs
 
 /atom/proc/air_update_turf(command = 0)
+	if(!SSair.initialized) // I'm sorry for polutting user code, I'll do 10 hail giacom's
+		return
 	if(!isturf(loc) && command)
 		return
 	var/turf/T = get_turf(loc)
 	T.air_update_turf(command)
 
 /turf/air_update_turf(command = 0)
+	if(!SSair.initialized) // I'm sorry for polutting user code, I'll do 10 hail giacom's
+		return
 	if(command)
 		ImmediateCalculateAdjacentTurfs()
-	SSair.add_to_active(src,command)
 
 /atom/movable/proc/move_update_air(turf/T)
     if(isturf(T))
@@ -133,7 +176,4 @@
 
 	var/datum/gas_mixture/G = new
 	G.parse_gas_string(text)
-
-	air.merge(G)
-	archive()
-	SSair.add_to_active(src, 0)
+	assume_air(G)

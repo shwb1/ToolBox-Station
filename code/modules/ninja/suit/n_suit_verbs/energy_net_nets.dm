@@ -10,7 +10,7 @@ It is possible to destroy the net by the occupant or someone else.
 	icon_state = "energynet"
 
 	density = TRUE//Can't pass through.
-	opacity = 0//Can see through.
+	opacity = FALSE//Can see through.
 	mouse_opacity = MOUSE_OPACITY_ICON//So you can hit it with stuff.
 	anchored = TRUE//Can't drag/grab the net.
 	layer = ABOVE_ALL_MOB_LAYER
@@ -18,9 +18,9 @@ It is possible to destroy the net by the occupant or someone else.
 	can_buckle = 1
 	buckle_lying = 0
 	buckle_prevents_pull = TRUE
-	var/mob/living/carbon/affecting//Who it is currently affecting, if anyone.
-	var/mob/living/carbon/master//Who shot web. Will let this person know if the net was successful or failed.
-	var/check = 15//30 seconds before teleportation. Could be extended I guess.
+	var/mob/living/carbon/affecting //Who it is currently affecting, if anyone.
+	var/mob/living/carbon/master //Who shot web. Will let this person know if the net was successful or failed.
+	var/check = 30 // seconds before teleportation. Could be extended I guess.
 	var/success = FALSE
 
 
@@ -39,13 +39,13 @@ It is possible to destroy the net by the occupant or someone else.
 			to_chat(master, "<span class='userdanger'>ERROR</span>: unable to initiate transport protocol. Procedure terminated.")
 	return ..()
 
-/obj/structure/energy_net/process()
+/obj/structure/energy_net/process(delta_time)
 	if(QDELETED(affecting)||affecting.loc!=loc)
 		qdel(src)//Get rid of the net.
 		return
 
-	if(check>0)
-		check--
+	if(check > 0)
+		check -= delta_time
 		return
 
 	success = TRUE
@@ -54,8 +54,14 @@ It is possible to destroy the net by the occupant or someone else.
 		var/mob/living/carbon/human/H = affecting
 		for(var/obj/item/W in H)
 			if(W == H.w_uniform)
+				ADD_TRAIT(W, TRAIT_NODROP, NINJA_KIDNAPPED_TRAIT)
+				for (var/obj/item/subitem in W)
+					H.dropItemToGround(subitem)
 				continue//So all they're left with are shoes and uniform.
 			if(W == H.shoes)
+				ADD_TRAIT(W, TRAIT_NODROP, NINJA_KIDNAPPED_TRAIT)
+				for (var/obj/item/subitem in W)
+					H.dropItemToGround(subitem)
 				continue
 			H.dropItemToGround(W)
 
@@ -68,18 +74,52 @@ It is possible to destroy the net by the occupant or someone else.
 	visible_message("[affecting] suddenly vanishes!")
 	affecting.forceMove(pick(GLOB.holdingfacility)) //Throw mob in to the holding facility.
 	to_chat(affecting, "<span class='danger'>You appear in a strange place!</span>")
+	to_chat(affecting, "<span class='hypnotext'>You have been captured by a ninja! The portal that brought you here will collapse in 5 minutes and return you to the station.</span>")
 
 	if(!QDELETED(master))//As long as they still exist.
 		to_chat(master, "<span class='notice'><b>SUCCESS</b>: transport procedure of [affecting] complete.</span>")
+		// Give them a point towards their objective
+		for (var/datum/antagonist/antag in master.mind?.antag_datums)
+			for (var/datum/objective/capture/capture in antag.objectives)
+				capture.register_capture(affecting)
 	do_sparks(5, FALSE, affecting)
 	playsound(affecting, 'sound/effects/phasein.ogg', 25, 1)
 	playsound(affecting, 'sound/effects/sparks2.ogg', 50, 1)
 	new /obj/effect/temp_visual/dir_setting/ninja/phase(affecting.drop_location(), affecting.dir)
+	// Return the mob to the station after 5 minutes in prison
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(force_teleport_to_safe_location), affecting), 5 MINUTES)
+
+/proc/force_teleport_to_safe_location(mob/living/target)
+	// If you get gibbed or deleted, your soul will be trapped forever
+	if (QDELETED(target))
+		return
+	// Drop any items acquired from the location
+	if(ishuman(target))
+		var/mob/living/carbon/human/H = target
+		for(var/obj/item/W in H)
+			if(W == H.w_uniform)
+				REMOVE_TRAIT(W, TRAIT_NODROP, NINJA_KIDNAPPED_TRAIT)
+				// So no cheeky buggers can store stuff in their boots to bring it back
+				for (var/obj/item/subitem in W)
+					H.dropItemToGround(subitem)
+				continue//So all they're left with are shoes and uniform.
+			if(W == H.shoes)
+				REMOVE_TRAIT(W, TRAIT_NODROP, NINJA_KIDNAPPED_TRAIT)
+				for (var/obj/item/subitem in W)
+					H.dropItemToGround(subitem)
+				continue
+			H.dropItemToGround(W)
+		// After we remove items, at least give them what they need to live.
+		H.dna.species.give_important_for_life(H)
+	// Teleport
+	var/turf/safe_location = get_safe_random_station_turfs()
+	do_teleport(target, safe_location, channel = TELEPORT_CHANNEL_FREE, forced = TRUE)
+	target.Unconscious(3 SECONDS)
 
 /obj/structure/energy_net/attack_paw(mob/user)
 	return attack_hand()
 
-/obj/structure/energy_net/user_buckle_mob(mob/living/M, mob/living/user)
+/obj/structure/energy_net/user_buckle_mob(mob/living/M, mob/living/user, check_loc = TRUE)
 	return//We only want our target to be buckled
 
 /obj/structure/energy_net/user_unbuckle_mob(mob/living/buckled_mob, mob/living/user)

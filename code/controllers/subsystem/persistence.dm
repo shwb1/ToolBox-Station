@@ -8,21 +8,26 @@ SUBSYSTEM_DEF(persistence)
 	var/list/obj/structure/chisel_message/chisel_messages = list()
 	var/list/saved_messages = list()
 	var/list/saved_modes = list(1,2,3)
+	var/list/saved_dynamic_rulesets = list()
 	var/list/saved_trophies = list()
 	var/list/antag_rep = list()
 	var/list/antag_rep_change = list()
 	var/list/picture_logging_information = list()
 	var/list/obj/structure/sign/picture_frame/photo_frames
+	var/list/obj/structure/sign/painting/painting_frames = list()
 	var/list/obj/item/storage/photo_album/photo_albums
+	var/list/paintings = list()
 
 /datum/controller/subsystem/persistence/Initialize()
 	LoadPoly()
 	LoadChiselMessages()
 	LoadTrophies()
 	LoadRecentModes()
+	LoadRecentDynamicRules()
 	LoadPhotoPersistence()
 	if(CONFIG_GET(flag/use_antag_rep))
 		LoadAntagReputation()
+	LoadPaintings()
 	return ..()
 
 /datum/controller/subsystem/persistence/proc/LoadPoly()
@@ -103,6 +108,15 @@ SUBSYSTEM_DEF(persistence)
 		return
 	saved_modes = json["data"]
 
+/datum/controller/subsystem/persistence/proc/LoadRecentDynamicRules()
+	var/json_file = file("data/RecentDynamicRules.json")
+	if(!fexists(json_file))
+		return
+	var/list/json = json_decode(rustg_file_read(json_file))
+	if(!json)
+		return
+	saved_dynamic_rulesets = json["data"]
+
 /datum/controller/subsystem/persistence/proc/LoadAntagReputation()
 	var/json = rustg_file_read(FILE_ANTAG_REP)
 	if(!json)
@@ -127,7 +141,7 @@ SUBSYSTEM_DEF(persistence)
 
 		var/list/chosen_trophy = trophy_data
 
-		if(!chosen_trophy || isemptylist(chosen_trophy)) //Malformed
+		if(!chosen_trophy || !length(chosen_trophy)) //Malformed
 			continue
 
 		var/path = text2path(chosen_trophy["path"]) //If the item no longer exist, this returns null
@@ -143,9 +157,11 @@ SUBSYSTEM_DEF(persistence)
 	CollectChiselMessages()
 	CollectTrophies()
 	CollectRoundtype()
+	CollectDynamicRules()
 	SavePhotoPersistence()						//THIS IS PERSISTENCE, NOT THE LOGGING PORTION.
 	if(CONFIG_GET(flag/use_antag_rep))
 		CollectAntagReputation()
+	SavePaintings()
 
 /datum/controller/subsystem/persistence/proc/GetPhotoAlbums()
 	var/album_path = file("data/photo_albums.json")
@@ -268,6 +284,23 @@ SUBSYSTEM_DEF(persistence)
 	fdel(json_file)
 	WRITE_FILE(json_file, json_encode(file_data))
 
+/datum/controller/subsystem/persistence/proc/CollectDynamicRules()
+	var/list/amount_of_rules = length(CONFIG_GET(number_list/repeated_mode_adjust))
+	var/datum/game_mode/dynamic/dynamic = SSticker.mode
+	if(istype(dynamic))
+		var/list/this_round = list()
+		for(var/datum/dynamic_ruleset/rule in dynamic.executed_rules)
+			if(!CHECK_BITFIELD(rule.flags, PERSISTENT_RULESET))
+				continue
+			this_round |= rule.name
+		saved_dynamic_rulesets.Insert(1, list(this_round))
+	if(length(saved_dynamic_rulesets) > amount_of_rules)
+		saved_dynamic_rulesets.Cut(amount_of_rules + 1)
+	fdel("data/RecentDynamicRules.json")
+	rustg_file_write(json_encode(list(
+		"data" = saved_dynamic_rulesets
+	)), "data/RecentDynamicRules.json")
+
 /datum/controller/subsystem/persistence/proc/CollectAntagReputation()
 	var/ANTAG_REP_MAXIMUM = CONFIG_GET(number/antag_rep_maximum)
 
@@ -282,3 +315,18 @@ SUBSYSTEM_DEF(persistence)
 	fdel(FILE_ANTAG_REP)
 	rustg_file_append(json_encode(antag_rep), FILE_ANTAG_REP)
 
+/datum/controller/subsystem/persistence/proc/LoadPaintings()
+	var/json_file = file("data/paintings.json")
+	if(fexists(json_file))
+		paintings = json_decode(file2text(json_file))
+
+	for(var/obj/structure/sign/painting/P in painting_frames)
+		P.load_persistent()
+
+/datum/controller/subsystem/persistence/proc/SavePaintings()
+	for(var/obj/structure/sign/painting/P in painting_frames)
+		P.save_persistent()
+
+	var/json_file = file("data/paintings.json")
+	fdel(json_file)
+	WRITE_FILE(json_file, json_encode(paintings))

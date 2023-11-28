@@ -17,7 +17,7 @@
 /mob/living/silicon/ai/IsVocal()
 	return !CONFIG_GET(flag/silent_ai)
 
-/mob/living/silicon/ai/radio(message, message_mode, list/spans, language)
+/mob/living/silicon/ai/radio(message, list/message_mods = list(), list/spans, language)
 	if(incapacitated())
 		return FALSE
 	if(!radio_enabled) //AI cannot speak if radio is disabled (via intellicard) or depowered.
@@ -25,33 +25,40 @@
 		return FALSE
 	..()
 
-/mob/living/silicon/ai/get_message_mode(message)
-	var/static/regex/holopad_finder = regex(@"[:.#][hH]")
-	if(holopad_finder.Find(message, 1, 1))
-		return MODE_HOLOPAD
-	else
-		return ..()
-
 //For holopads only. Usable by AI.
 /mob/living/silicon/ai/proc/holopad_talk(message, language)
-
-
 	message = trim(message)
 
 	if (!message)
 		return
+	if(CHAT_FILTER_CHECK(message))
+		to_chat(usr, "<span class='warning'>Your message contains forbidden words.</span>")
+		return
 
-	var/obj/machinery/holopad/T = current
-	if(istype(T) && T.masters[src])//If there is a hologram and its master is the user.
-		var/turf/padturf = get_turf(T)
-		var/padloc
-		if(padturf)
-			padloc = AREACOORD(padturf)
-		else
-			padloc = "(UNKNOWN)"
-		src.log_talk(message, LOG_SAY, tag="HOLOPAD in [padloc]")
-		send_speech(message, 7, T, "robot", message_language = language)
-		to_chat(src, "<i><span class='game say'>Holopad transmitted, <span class='name'>[real_name]</span> <span class='message robot'>\"[message]\"</span></span></i>")
+	if(!QDELETED(ai_hologram))
+		ai_hologram.say(message, language = language, source=current_holopad)
+		src.log_talk(message, LOG_SAY, tag="Hologram in [AREACOORD(ai_hologram)]")
+		ai_hologram.create_private_chat_message(
+			message = message,
+			message_language = language,
+			hearers = list(src),
+			includes_ghosts = FALSE) // ghosts already see this except for you...
+
+		// duplication part from `game/say.dm` to make a language icon
+		var/language_icon = ""
+		var/datum/language/D = GLOB.language_datum_instances[language]
+		if(istype(D) && D.display_icon(src))
+			language_icon = "[D.get_icon()] "
+
+		message = "<span class='robot'>[say_emphasis(lang_treat(src, language, message))]</span>"
+		message = "<span class='srt_radio holocall'><b>\[Holocall\] [language_icon]<span class='name'>[real_name]</span></b> [message]</span>"
+		to_chat(src, message)
+
+		for(var/mob/dead/observer/each_ghost in GLOB.dead_mob_list)
+			if(!each_ghost.client || !each_ghost.client.prefs.read_player_preference(/datum/preference/toggle/chat_ghostradio))
+				continue
+			var/follow_link = FOLLOW_LINK(each_ghost, eyeobj || ai_hologram)
+			to_chat(each_ghost, "[follow_link] [message]")
 	else
 		to_chat(src, "No holopad connected.")
 
@@ -132,9 +139,10 @@
 	announcing_vox = world.time + VOX_DELAY
 
 	log_game("[key_name(src)] made a vocal announcement with the following message: [message].")
+	message_admins("[key_name(src)] made a vocal announcement with the following message: [message].")
 
 	for(var/word in words)
-		play_vox_word(word, src.z, null)
+		play_vox_word(word, src.get_virtual_z_level(), null)
 
 
 /proc/play_vox_word(word, z_level, mob/only_listener)
@@ -151,9 +159,9 @@
 		if(!only_listener)
 			// Play voice for all mobs in the z level
 			for(var/mob/M in GLOB.player_list)
-				if(M.client && M.can_hear() && (M.client.prefs.toggles & SOUND_ANNOUNCEMENTS))
+				if(M.client && M.can_hear() && M.client.prefs.read_player_preference(/datum/preference/toggle/sound_vox))
 					var/turf/T = get_turf(M)
-					if(T.z == z_level)
+					if(T.get_virtual_z_level() == z_level)
 						SEND_SOUND(M, voice)
 		else
 			SEND_SOUND(only_listener, voice)

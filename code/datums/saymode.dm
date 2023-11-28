@@ -1,6 +1,7 @@
 /datum/saymode
 	var/key
 	var/mode
+	var/early = FALSE
 
 //Return FALSE if you have handled the message. Otherwise, return TRUE and saycode will continue doing saycode things.
 //user = whoever said the message
@@ -9,61 +10,6 @@
 /datum/saymode/proc/handle_message(mob/living/user, message, datum/language/language)
 	return TRUE
 
-
-/datum/saymode/changeling
-	key = MODE_KEY_CHANGELING
-	mode = MODE_CHANGELING
-
-/datum/saymode/changeling/handle_message(mob/living/user, message, datum/language/language)
-	switch(user.lingcheck())
-		if(LINGHIVE_LINK)
-			var/msg = "<span class='changeling'><b>[user.mind]:</b> [message]</span>"
-			for(var/_M in GLOB.player_list)
-				var/mob/M = _M
-				if(M in GLOB.dead_mob_list)
-					var/link = FOLLOW_LINK(M, user)
-					to_chat(M, "[link] [msg]")
-				else
-					if(M)
-						switch(M.lingcheck())
-							if (LINGHIVE_LING)
-								var/mob/living/L = M
-								if (!HAS_TRAIT(L, CHANGELING_HIVEMIND_MUTE))
-									to_chat(M, msg)
-							if(LINGHIVE_LINK)
-								to_chat(M, msg)
-							if(LINGHIVE_OUTSIDER)
-								if(prob(40))
-									to_chat(M, "<span class='changeling'>We can faintly sense an outsider trying to communicate through the hivemind...</span>")
-		if(LINGHIVE_LING)
-			if (HAS_TRAIT(user, CHANGELING_HIVEMIND_MUTE))
-				to_chat(user, "<span class='warning'>The poison in the air hinders our ability to interact with the hivemind.</span>")
-				return FALSE
-			var/datum/antagonist/changeling/changeling = user.mind.has_antag_datum(/datum/antagonist/changeling)
-			var/msg = "<span class='changeling'><b>[changeling.changelingID]:</b> [message]</span>"
-			user.log_talk(message, LOG_SAY, tag="changeling [changeling.changelingID]")
-			for(var/_M in GLOB.player_list)
-				var/mob/M = _M
-				if(M in GLOB.dead_mob_list)
-					var/link = FOLLOW_LINK(M, user)
-					to_chat(M, "[link] [msg]")
-				else
-					if(M)
-						switch(M.lingcheck())
-							if(LINGHIVE_LINK)
-								to_chat(M, msg)
-							if(LINGHIVE_LING)
-								var/mob/living/L = M
-								if (!HAS_TRAIT(L, CHANGELING_HIVEMIND_MUTE))
-									to_chat(M, msg)
-							if(LINGHIVE_OUTSIDER)
-								if(prob(40))
-									to_chat(M, "<span class='changeling'>We can faintly sense another of our kind trying to communicate through the hivemind...</span>")
-		if(LINGHIVE_OUTSIDER)
-			to_chat(user, "<span class='changeling'>Our senses have not evolved enough to be able to communicate this way...</span>")
-	return FALSE
-
-
 /datum/saymode/xeno
 	key = "a"
 	mode = MODE_ALIEN
@@ -71,6 +17,8 @@
 /datum/saymode/xeno/handle_message(mob/living/user, message, datum/language/language)
 	if(user.hivecheck())
 		user.alien_talk(message)
+	else if("carp" in user.faction)
+		user.carp_talk(message)
 	return FALSE
 
 
@@ -115,27 +63,38 @@
 	if(isAI(user))
 		var/mob/living/silicon/ai/AI = user
 		AI.holopad_talk(message, language)
-		return FALSE
 	return TRUE
 
-/datum/saymode/monkey
-	key = "k"
-	mode = MODE_MONKEY
+/datum/saymode/slime_link
+	key = MODE_KEY_SLIMELINK
+	mode = MODE_SLIMELINK
+	early = TRUE
 
-/datum/saymode/monkey/handle_message(mob/living/user, message, datum/language/language)
-	var/datum/mind = user.mind
-	if(!mind)
+/datum/saymode/slime_link/handle_message(mob/living/user, message, datum/language/_language)
+	. = FALSE
+	if(!istype(user) || !user?.mind || !message || !length(message))
 		return TRUE
-	if(is_monkey_leader(mind) || (ismonkey(user) && is_monkey(mind)))
-		user.log_talk(message, LOG_SAY, tag="monkey")
-		if(prob(75) && ismonkey(user))
-			user.visible_message("<span class='notice'>\The [user] chimpers.</span>")
-		var/msg = "<span class='[is_monkey_leader(mind) ? "monkeylead" : "monkeyhive"]'><b><font size=2>\[[is_monkey_leader(mind) ? "Monkey Leader" : "Monkey"]\]</font> [user]</b>: [message]</span>"
-		for(var/_M in GLOB.mob_list)
-			var/mob/M = _M
-			if(M in GLOB.dead_mob_list)
-				var/link = FOLLOW_LINK(M, user)
-				to_chat(M, "[link] [msg]")
-			if((is_monkey_leader(M.mind) || ismonkey(M)) && (M.mind in SSticker.mode.ape_infectees))
-				to_chat(M, msg)
-		return FALSE
+	if(isstargazer(user))
+		// They're a stargazer, and therefore they'll talk on their own slime link.
+		var/mob/living/carbon/human/h_user = user
+		var/datum/species/oozeling/stargazer/stargazer = h_user.dna.species
+		stargazer.slime_chat(h_user, message)
+		return
+	// Alright, the user is not a stargazer, so instead we're gonna make sure they're a part of a slime link.
+	var/datum/weakref/link_owner_ref = GLOB.slime_links_by_mind[user.mind]
+	var/datum/species/oozeling/stargazer/owning_stargazer = link_owner_ref?.resolve()
+	if(!owning_stargazer || !istype(owning_stargazer))
+		// Nope, no slime link here. Continue normal say() behavior.
+		return TRUE
+	owning_stargazer.slime_chat(user, message)
+
+/datum/saymode/holoparasite
+	key = MODE_KEY_HOLOPARASITE
+	mode = MODE_HOLOPARASITE
+	early = TRUE
+
+/datum/saymode/holoparasite/handle_message(mob/living/user, message, datum/language/_language)
+	. = FALSE
+	if(!istype(user) || !user.mind || !length(message) || (!isholopara(user) && !user.has_holoparasites()))
+		return TRUE
+	user.holoparasite_telepathy(message, sanitize = FALSE) // sanitize = FALSE is used because say() sanitizes the message before passing it to any saymodes, even early saymodes.

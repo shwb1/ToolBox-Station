@@ -2,6 +2,12 @@
 
 //say based modes like binary are in living/say.dm
 
+// ------------------------------------------------------------------------------------
+//
+// If you update these PLEASE update [[tgui\packages\tgui-say\constants\index.tsx]]
+//
+// ------------------------------------------------------------------------------------
+
 #define RADIO_CHANNEL_COMMON "Common"
 #define RADIO_KEY_COMMON ";"
 
@@ -33,10 +39,13 @@
 #define RADIO_KEY_SERVICE "v"
 #define RADIO_TOKEN_SERVICE ":v"
 
+#define RADIO_CHANNEL_EXPLORATION "Exploration"
+#define RADIO_KEY_EXPLORATION "q"
+#define RADIO_TOKEN_EXPLORATION ":q"
+
 #define RADIO_CHANNEL_AI_PRIVATE "AI Private"
 #define RADIO_KEY_AI_PRIVATE "o"
 #define RADIO_TOKEN_AI_PRIVATE ":o"
-
 
 #define RADIO_CHANNEL_SYNDICATE "Syndicate"
 #define RADIO_KEY_SYNDICATE "t"
@@ -49,11 +58,15 @@
 #define RADIO_CHANNEL_CTF_RED "Red Team"
 #define RADIO_CHANNEL_CTF_BLUE "Blue Team"
 
+#define RADIO_CHANNEL_UPLINK "Uplink"
+#define RADIO_KEY_UPLINK "d"
+#define RADIO_TOKEN_UPLINK ":d"
 
 #define MIN_FREE_FREQ 1201 // -------------------------------------------------
 // Frequencies are always odd numbers and range from 1201 to 1599.
 
 #define FREQ_SYNDICATE 1213  //!  Nuke op comms frequency, dark brown
+#define FREQ_UPLINK 1214   //!  Dummy channel for headset uplink
 #define FREQ_CTF_RED 1215  //!  CTF red team comms frequency, red
 #define FREQ_CTF_BLUE 1217  //!  CTF blue team comms frequency, blue
 #define FREQ_CENTCOM 1337  //!  CentCom comms frequency, gray
@@ -64,6 +77,7 @@
 #define FREQ_MEDICAL 1355  //! Medical comms frequency, soft blue
 #define FREQ_ENGINEERING 1357  //! Engineering comms frequency, orange
 #define FREQ_SECURITY 1359  //! Security comms frequency, red
+#define FREQ_EXPLORATION 1361 //! Exploration comms frequency, cyan
 
 #define FREQ_STATUS_DISPLAYS 1435
 #define FREQ_ATMOS_ALARMS 1437  //! air alarms <-> alert computers
@@ -101,6 +115,7 @@
 #define RADIO_ATMOSIA "atmosia"
 #define RADIO_AIRLOCK "airlock"
 #define RADIO_MAGNETS "magnets"
+#define RADIO_XENOA "xenoa_radio"
 
 #define DEFAULT_SIGNALER_CODE 30
 

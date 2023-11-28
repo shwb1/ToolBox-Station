@@ -4,25 +4,30 @@
 	//- floor_tile is now a path, and not a tile obj
 	name = "floor"
 	icon = 'icons/turf/floors.dmi'
+	base_icon_state = "floor"
 	baseturfs = /turf/open/floor/plating
+	max_integrity = 250
 
 	footstep = FOOTSTEP_FLOOR
 	barefootstep = FOOTSTEP_HARD_BAREFOOT
 	clawfootstep = FOOTSTEP_HARD_CLAW
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
 
-	var/icon_regular_floor = "floor" //used to remember what icon the tile should have by default
-	var/icon_plating = "plating"
-	thermal_conductivity = 0.040
+	thermal_conductivity = 0.04
 	heat_capacity = 10000
-	intact = 1
+	tiled_dirt = TRUE
+	smoothing_groups = list(SMOOTH_GROUP_TURF_OPEN, SMOOTH_GROUP_OPEN_FLOOR)
+	canSmoothWith = list(SMOOTH_GROUP_TURF_OPEN, SMOOTH_GROUP_OPEN_FLOOR)
+
+	overfloor_placed = TRUE
+
+	var/icon_plating = "plating"
 	var/broken = 0
 	var/burnt = 0
 	var/floor_tile = null //tile that this floor drops
 	var/list/broken_states
 	var/list/burnt_states
 
-	tiled_dirt = TRUE
 
 /turf/open/floor/Initialize(mapload)
 
@@ -36,24 +41,6 @@
 	if(!burnt && burnt_states && (icon_state in burnt_states))
 		burnt = TRUE
 	. = ..()
-	//This is so damaged or burnt tiles or platings don't get remembered as the default tile
-	var/static/list/icons_to_ignore_at_floor_init = list("foam_plating", "plating","light_on","light_on_flicker1","light_on_flicker2",
-					"light_on_clicker3","light_on_clicker4","light_on_clicker5",
-					"light_on_broken","light_off","wall_thermite","grass", "sand",
-					"asteroid","asteroid_dug",
-					"asteroid0","asteroid1","asteroid2","asteroid3","asteroid4",
-					"asteroid5","asteroid6","asteroid7","asteroid8","asteroid9","asteroid10","asteroid11","asteroid12",
-					"basalt","basalt_dug",
-					"basalt0","basalt1","basalt2","basalt3","basalt4",
-					"basalt5","basalt6","basalt7","basalt8","basalt9","basalt10","basalt11","basalt12",
-					"oldburning","light-on-r","light-on-y","light-on-g","light-on-b", "wood", "carpetsymbol", "carpetstar",
-					"carpetcorner", "carpetside", "carpet", "ironsand1", "ironsand2", "ironsand3", "ironsand4", "ironsand5",
-					"ironsand6", "ironsand7", "ironsand8", "ironsand9", "ironsand10", "ironsand11",
-					"ironsand12", "ironsand13", "ironsand14", "ironsand15")
-	if(broken || burnt || (icon_state in icons_to_ignore_at_floor_init)) //so damaged/burned tiles or plating icons aren't saved as the default
-		icon_regular_floor = "floor"
-	else
-		icon_regular_floor = icon_state
 	if(mapload && prob(33))
 		MakeDirty()
 	if(is_station_level(z))
@@ -62,54 +49,11 @@
 /turf/open/floor/Destroy()
 	if(is_station_level(z))
 		GLOB.station_turfs -= src
-	..()
-
-/turf/open/floor/ex_act(severity, target)
-	var/shielded = is_shielded()
-	..()
-	if(severity != 1 && shielded && target != src)
-		return
-	if(target == src)
-		ScrapeAway(flags = CHANGETURF_INHERIT_AIR)
-		return
-	if(target != null)
-		severity = 3
-
-	switch(severity)
-		if(1)
-			ScrapeAway(2, flags = CHANGETURF_INHERIT_AIR)
-		if(2)
-			switch(pick(1,2;75,3))
-				if(1)
-					if(!length(baseturfs) || !ispath(baseturfs[baseturfs.len-1], /turf/open/floor))
-						ScrapeAway(flags = CHANGETURF_INHERIT_AIR)
-						ReplaceWithLattice()
-					else
-						ScrapeAway(2, flags = CHANGETURF_INHERIT_AIR)
-					if(prob(33))
-						new /obj/item/stack/sheet/iron(src)
-				if(2)
-					ScrapeAway(2, flags = CHANGETURF_INHERIT_AIR)
-				if(3)
-					if(prob(80))
-						ScrapeAway(flags = CHANGETURF_INHERIT_AIR)
-					else
-						break_tile()
-					hotspot_expose(1000,CELL_VOLUME)
-					if(prob(33))
-						new /obj/item/stack/sheet/iron(src)
-		if(3)
-			if (prob(50))
-				src.break_tile()
-				src.hotspot_expose(1000,CELL_VOLUME)
+	return ..()
 
 /turf/open/floor/is_shielded()
 	for(var/obj/structure/A in contents)
-		if(A.level == 3)
-			return 1
-
-/turf/open/floor/blob_act(obj/structure/blob/B)
-	return
+		return 1
 
 /turf/open/floor/update_icon()
 	. = ..()
@@ -118,8 +62,15 @@
 /turf/open/floor/attack_paw(mob/user)
 	return attack_hand(user)
 
-/turf/open/floor/proc/gets_drilled()
-	return
+/turf/open/floor/after_damage(damage_amount, damage_type, damage_flag)
+	if (broken || burnt)
+		return
+	if (damage_flag == BURN)
+		if (integrity < max_integrity * 0.5)
+			burn_tile()
+	else
+		if (integrity < max_integrity * 0.5)
+			break_tile()
 
 /turf/open/floor/proc/break_tile_to_plating()
 	var/turf/open/floor/plating/T = make_plating()
@@ -150,25 +101,27 @@
 		return ..() //fucking turfs switch the fucking src of the fucking running procs
 	if(!ispath(path, /turf/open/floor))
 		return ..()
-	var/old_icon = icon_regular_floor
 	var/old_dir = dir
 	var/turf/open/floor/W = ..()
-	W.icon_regular_floor = old_icon
+	if (flags & CHANGETURF_SKIP)
+		dir = old_dir
+		return W
 	W.setDir(old_dir)
-	W.update_icon()
+	W.update_appearance()
 	return W
 
-/turf/open/floor/attackby(obj/item/C, mob/user, params)
-	if(!C || !user)
-		return 1
+/turf/open/floor/attackby(obj/item/object, mob/living/user, params)
+	if(!object || !user)
+		return TRUE
 	if(..())
 		return 1
-	if(intact && istype(C, /obj/item/stack/tile))
-		try_replace_tile(C, user, params)
-	return 0
+	if(overfloor_placed && istype(object, /obj/item/stack/tile))
+		try_replace_tile(object, user, params)
+	return FALSE
 
 /turf/open/floor/crowbar_act(mob/living/user, obj/item/I)
-	return intact ? pry_tile(I, user) : FALSE
+	if(overfloor_placed && pry_tile(I, user))
+		return TRUE
 
 /turf/open/floor/proc/try_replace_tile(obj/item/stack/tile/T, mob/user, params)
 	if(T.turf_type == type)
@@ -256,6 +209,10 @@
 	switch(passed_mode)
 		if(RCD_FLOORWALL)
 			to_chat(user, "<span class='notice'>You build a wall.</span>")
+			log_attack("[key_name(user)] has constructed a wall at [loc_name(src)] using [format_text(initial(the_rcd.name))]")
+			var/overlapping_lattice = locate(/obj/structure/lattice) in get_turf(src)
+			if(overlapping_lattice)
+				qdel(overlapping_lattice) // Don't need lattice burried under the wall, or in the case of catwalk - on top of it.
 			PlaceOnTop(/turf/closed/wall)
 			return TRUE
 		if(RCD_LADDER)
@@ -267,6 +224,7 @@
 			if(locate(/obj/machinery/door/airlock) in src)
 				return FALSE
 			to_chat(user, "<span class='notice'>You build an airlock.</span>")
+			log_attack("[key_name(user)] has constructed an airlock at [loc_name(src)] using [format_text(initial(the_rcd.name))]")
 			var/obj/machinery/door/airlock/A = new the_rcd.airlock_type(src)
 			A.electronics = new /obj/item/electronics/airlock(A)
 			if(the_rcd.airlock_electronics)
@@ -283,14 +241,17 @@
 			A.update_icon()
 			return TRUE
 		if(RCD_DECONSTRUCT)
-			if(ScrapeAway(flags = CHANGETURF_INHERIT_AIR) == src)
+			var/previous_turf = initial(name)
+			if(!ScrapeAway(flags = CHANGETURF_INHERIT_AIR))
 				return FALSE
-			to_chat(user, "<span class='notice'>You deconstruct [src].</span>")
+			to_chat(user, "<span class='notice'>You deconstruct [previous_turf].</span>")
+			log_attack("[key_name(user)] has deconstructed [previous_turf] at [loc_name(src)] using [format_text(initial(the_rcd.name))]")
 			return TRUE
 		if(RCD_WINDOWGRILLE)
 			if(locate(/obj/structure/grille) in src)
 				return FALSE
 			to_chat(user, "<span class='notice'>You construct the grille.</span>")
+			log_attack("[key_name(user)] has constructed a grille at [loc_name(src)] using [format_text(initial(the_rcd.name))]")
 			var/obj/structure/grille/G = new(src)
 			G.anchored = TRUE
 			return TRUE

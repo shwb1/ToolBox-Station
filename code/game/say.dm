@@ -8,6 +8,7 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	"[FREQ_MEDICAL]" = "medradio",
 	"[FREQ_ENGINEERING]" = "engradio",
 	"[FREQ_SUPPLY]" = "suppradio",
+	"[FREQ_EXPLORATION]" = "explradio",
 	"[FREQ_SERVICE]" = "servradio",
 	"[FREQ_SECURITY]" = "secradio",
 	"[FREQ_COMMAND]" = "comradio",
@@ -18,7 +19,7 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	"[FREQ_CTF_BLUE]" = "blueteamradio"
 	))
 
-/atom/movable/proc/say(message, bubble_type, var/list/spans = list(), sanitize = TRUE, datum/language/language = null, ignore_spam = FALSE, forced = null)
+/atom/movable/proc/say(message, bubble_type, var/list/spans = list(), sanitize = TRUE, datum/language/language = null, ignore_spam = FALSE, forced = null, atom/source=src)
 	if(!can_speak())
 		return
 	if(message == "" || !message)
@@ -26,23 +27,47 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	spans |= speech_span
 	if(!language)
 		language = get_selected_language()
-	send_speech(message, 7, src, , spans, message_language=language)
+	send_speech(message, 7, source, , spans, message_language=language)
 
-/atom/movable/proc/Hear(message, atom/movable/speaker, message_language, raw_message, radio_freq, list/spans, message_mode)
-	SEND_SIGNAL(src, COMSIG_MOVABLE_HEAR, message, speaker, message_language, raw_message, radio_freq, spans, message_mode)
+/atom/movable/proc/Hear(message, atom/movable/speaker, message_language, raw_message, radio_freq, list/spans, list/message_mods = list())
+	SEND_SIGNAL(src, COMSIG_MOVABLE_HEAR, args)
 
 /atom/movable/proc/can_speak()
-	return 1
+	//SHOULD_BE_PURE(TRUE) // TODO: Make calls to this actually pure. Its a lot of work, best done in its own PR.
+	return TRUE
 
-/atom/movable/proc/send_speech(message, range = 7, obj/source = src, bubble_type, list/spans, datum/language/message_language = null, message_mode)
-	var/rendered = compose_message(src, message_language, message, , spans, message_mode)
-	for(var/atom/movable/AM as() in get_hearers_in_view(range, source))
-		AM.Hear(rendered, src, message_language, message, , spans, message_mode)
+/atom/movable/proc/send_speech(message, range = 7, obj/source = src, bubble_type, list/spans, datum/language/message_language = null, list/message_mods = list())
+	var/rendered = compose_message(src, message_language, message, , spans, message_mods)
+	var/list/show_overhead_message_to = list()
+	for(var/atom/movable/AM as() in get_hearers_in_view(range, source, SEE_INVISIBLE_MAXIMUM))
+		if(ismob(AM))
+			var/mob/M = AM
+			if(M.should_show_chat_message(source, message_language, FALSE, is_heard = TRUE))
+				show_overhead_message_to += M
+		AM.Hear(rendered, src, message_language, message, , spans, message_mods)
+	if(length(show_overhead_message_to))
+		create_chat_message(src, message_language, show_overhead_message_to, message, spans, message_mods)
 
-/atom/movable/proc/compose_message(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, list/spans, message_mode, face_name = FALSE)
-	//This proc uses text() because it is faster than appending strings. Thanks BYOND.
+/// this creates runechat, so that they can communicate better
+/atom/movable/proc/create_private_chat_message(message, datum/language/message_language=/datum/language/metalanguage, list/hearers, includes_ghosts=TRUE)
+	if(!hearers || !islist(hearers))
+		return
+	if(includes_ghosts)
+		hearers += GLOB.dead_mob_list.Copy()
+	var/list/runechat_readers = list()
+	for(var/mob/each_mob in hearers)
+		if(!each_mob.should_show_chat_message(src, message_language))
+			continue
+		runechat_readers += each_mob
+	create_chat_message(src,
+		message_language = message_language,
+		hearers = runechat_readers, // only you and your target sees the runechat (+ghosts)
+		raw_message = message)
+	// Note for troubleshooting: if a spell doesn't show runechat, it's because the spell is object, and src is spell. you should call this proc from the mob.
+
+/atom/movable/proc/compose_message(atom/movable/speaker, datum/language/message_language, raw_message, radio_freq, list/spans, list/message_mods = list(), face_name = FALSE)
 	//Basic span
-	var/spanpart1 = "<span class='[radio_freq ? get_radio_span(radio_freq) : "game say"]'>"
+	var/spanpart1 = "<span class='[radio_freq ? "srt_radio [get_radio_span(radio_freq)]" : "game say"]'>"
 	//Start name span.
 	var/spanpart2 = "<span class='name'>"
 	//Radio freq/name display
@@ -54,21 +79,12 @@ GLOBAL_LIST_INIT(freqtospan, list(
 		if(face_name)
 			namepart = "[H.get_face_name()]" //So "fake" speaking like in hallucinations does not give the speaker away if disguised
 		if(!radio_freq)
-			if(H.wear_id)
-				var/datum/job/wearer_job = SSjob.GetJob(H.wear_id.GetJobName())
-				var/wearer_say_span
-				if(wearer_job)
-					wearer_say_span = wearer_job.say_span
+			if(H.wear_id?.GetID())
+				var/obj/item/card/id/idcard = H.wear_id.GetID()
+				if(idcard.hud_state == JOB_HUD_UNKNOWN)
+					spanpart2 = "<span class='name unassigned'>"
 				else
-					switch(H.wear_id.GetJobName())
-						if("CentCom")
-							wearer_say_span = "centcom"
-						if("Prisoner")
-							wearer_say_span = "prisoner"
-						else
-							wearer_say_span = "unknown"
-				if(wearer_say_span)
-					spanpart2 = "<span class='name [wearer_say_span]'>"
+					spanpart2 = "<span class='name [idcard.hud_state]'>"
 			else
 				spanpart2 = "<span class='name unknown'>"
 	else if(isliving(speaker) && !radio_freq)
@@ -79,12 +95,19 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	var/endspanpart = "</span>"
 
 	//Message
-	var/messagepart = " <span class='message'>[lang_treat(speaker, message_language, raw_message, spans, message_mode)]</span></span>"
+	var/messagepart
 
 	var/languageicon = ""
-	var/datum/language/D = GLOB.language_datum_instances[message_language]
-	if(istype(D) && D.display_icon(src))
-		languageicon = "[D.get_icon()] "
+	if(message_mods[MODE_CUSTOM_SAY_ERASE_INPUT])
+		messagepart = message_mods[MODE_CUSTOM_SAY_EMOTE]
+	else
+		messagepart = lang_treat(speaker, message_language, raw_message, spans, message_mods)
+
+		var/datum/language/D = GLOB.language_datum_instances[message_language]
+		if(istype(D) && D.display_icon(src))
+			languageicon = "[D.get_icon()] "
+
+	messagepart = " <span class='message'>[say_emphasis(messagepart)]</span></span>"
 
 	return "[spanpart1][spanpart2][freqpart][languageicon][compose_track_href(speaker, namepart)][namepart][compose_job(speaker, message_language, raw_message, radio_freq)][endspanpart][messagepart]"
 
@@ -94,7 +117,7 @@ GLOBAL_LIST_INIT(freqtospan, list(
 /atom/movable/proc/compose_job(atom/movable/speaker, message_langs, raw_message, radio_freq)
 	return ""
 
-/atom/movable/proc/say_mod(input, message_mode)
+/atom/movable/proc/say_mod(input, list/message_mods = list())
 	var/ending = copytext_char(input, -1)
 	if(copytext_char(input, -2) == "!!")
 		return verb_yell
@@ -105,31 +128,37 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	else
 		return verb_say
 
-/atom/movable/proc/say_quote(input, list/spans=list(speech_span), message_mode)
+/atom/movable/proc/say_quote(input, list/spans=list(speech_span), list/message_mods = list())
 	if(!input)
 		input = "..."
 
 	if(copytext_char(input, -2) == "!!")
 		spans |= SPAN_YELL
 
-	var/spanned = attach_spans(input, spans)
-	return "[say_mod(input, message_mode)], \"[spanned]\""
+	var/say_mod = message_mods[MODE_CUSTOM_SAY_EMOTE]
+	if(!say_mod)
+		say_mod = say_mod(input, message_mods)
 
-/atom/movable/proc/lang_treat(atom/movable/speaker, datum/language/language, raw_message, list/spans, message_mode)
+	var/spanned = attach_spans(input, spans)
+	return "[say_mod], \"[spanned]\""
+
+/// Scans the input sentence for speech emphasis modifiers, notably _italics_ and **bold**
+/atom/proc/say_emphasis(message, var/list/ignore = list())
+	var/regex/markup
+	for(var/tag in (GLOB.markup_tags - ignore))
+		markup = GLOB.markup_regex[tag]
+		message = markup.Replace_char(message, "$2[GLOB.markup_tags[tag][1]]$3[GLOB.markup_tags[tag][2]]$5")
+
+	return message
+
+/atom/movable/proc/lang_treat(atom/movable/speaker, datum/language/language, raw_message, list/spans, list/message_mods = list(), no_quote = FALSE)
+	var/atom/movable/source = speaker.GetSource() || speaker //is the speaker virtual
 	if(has_language(language))
-		var/atom/movable/AM = speaker.GetSource()
-		if(AM) //Basically means "if the speaker is virtual"
-			return AM.say_quote(raw_message, spans, message_mode)
-		else
-			return speaker.say_quote(raw_message, spans, message_mode)
+		return no_quote ? raw_message : source.say_quote(raw_message, spans, message_mods)
 	else if(language)
-		var/atom/movable/AM = speaker.GetSource()
 		var/datum/language/D = GLOB.language_datum_instances[language]
 		raw_message = D.scramble(raw_message)
-		if(AM)
-			return AM.say_quote(raw_message, spans, message_mode)
-		else
-			return speaker.say_quote(raw_message, spans, message_mode)
+		return no_quote ? raw_message : source.say_quote(raw_message, spans, message_mods)
 	else
 		return "makes a strange sound."
 
@@ -187,12 +216,12 @@ GLOBAL_LIST_INIT(freqtospan, list(
 	var/obj/item/radio/radio
 
 INITIALIZE_IMMEDIATE(/atom/movable/virtualspeaker)
-/atom/movable/virtualspeaker/Initialize(mapload, atom/movable/M, radio)
+/atom/movable/virtualspeaker/Initialize(mapload, atom/movable/M, _radio)
 	. = ..()
-	radio = radio
+	radio = _radio
 	source = M
-	if (istype(M))
-		name = M.GetVoice()
+	if(istype(M))
+		name = radio.anonymize ? "Unknown" : M.GetVoice()
 		verb_say = M.verb_say
 		verb_ask = M.verb_ask
 		verb_exclaim = M.verb_exclaim

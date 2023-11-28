@@ -15,7 +15,8 @@
 There are a number of ways to download the source code. Some are described here, an alternative all-inclusive guide is also located at https://wiki.beestation13.com/view/Downloading_the_source_code
 
 Option 1:
-Follow this: https://wiki.beestation13.com/view/Setting_up_git
+Follow this: https://wiki.beestation13.com/view/Guide_to_git
+Clone the repository using `git clone`.
 
 Option 2: Download the source code as a zip by clicking the ZIP button in the
 code tab of https://github.com/beestation/beestation-hornet
@@ -30,18 +31,20 @@ docker run -d -p <your port>:1337 -v /path/to/your/config:/beestation/config -v 
 
 ## INSTALLATION
 
-You can **no** longer compile the codebase simply through **DreamMaker**.
+**You can no longer compile the codebase simply through Dream Maker**.
 
-You will find `BUILD.bat` in the root folder of Beestation, double-clicking it will initiate the build. It consists of multiple steps and might take around 1-5 minutes to compile. Unix users can directly call ./tools/build/build.
+**Building Beestation in Dream Maker directly is now deprecated and might produce errors**, such as `'tgui.bundle.js': cannot find file`.
 
-**Building Beestation in DreamMaker directly is now deprecated and might produce errors**, such as `'tgui.bundle.js': cannot find file`.
+### Building with VSCode (Preferred)
 
 **[How to compile in VSCode and other build options](tools/build/README.md).**
+
+### Building without VSCode
+You will find `BUILD.bat` in the root folder of BeeStation, double-clicking it will initiate the build. It consists of multiple steps and might take around 1-5 minutes to compile (particularly the first time). Unix users can directly call ./tools/build/build.
 
 If you see any errors or warnings, something has gone wrong - possibly a corrupt
 download or the files extracted wrong. If problems persist, ask for assistance
 in https://discord.gg/Vh8TJp9 or https://discord.gg/z9ttAvA
-
 
 Once that's done, open up the config folder. You'll want to edit config.txt to
 set the probabilities for different gamemodes in Secret and to set your server
@@ -77,6 +80,10 @@ you set up the SQL backend (see below).
 
 ## UPDATING
 
+Just use git, or see the following subsection.
+
+### Manual Update
+
 To update an existing installation, first back up your /config and /data folders
 as these store your server configuration, player preferences and banlist.
 
@@ -88,7 +95,7 @@ the new version.
 
 ## HOSTING
 
-Hosting requires the [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685). Specifically, 	
+Hosting requires the [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685). Specifically,
 `vc_redist.x86.exe`. *Not* the 64-bit version. There is a decent chance you already have it if you've installed a game on Steam.
 
 If you'd like a more robust server hosting option, check out tgstation's server tools suite at
@@ -98,11 +105,14 @@ https://github.com/tgstation/tgstation-server
 
 BeeStation currently comes equipped with these maps.
 
-* [DeltaStation (default)](https://wiki.beestation13.com/view/DeltaStation)
 * [BoxStation](https://wiki.beestation13.com/view/Boxstation)
-* [MetaStation](https://wiki.beestation13.com/view/MetaStation)
-* [PubbyStation](https://wiki.beestation13.com/view/PubbyStation)
-
+* [CorgStation](https://wiki.beestation13.com/view/CorgsStation)
+* [DeltaStation](https://wiki.beestation13.com/view/DeltaStation)
+* [FlandStation](https://wiki.beestation13.com/view/FlandStation)
+* [KiloStation](https://wiki.beestation13.com/view/KiloStation)
+* [MetaStation (default)](https://wiki.beestation13.com/view/MetaStation)
+* [RadStation](https://wiki.beestation13.com/view/RadStation)
+* [RuntimeStation (used for debugging)](https://wiki.beestation13.com/view/RuntimeStation)
 
 All maps have their own code file that is in the base of the _maps directory. Maps are loaded dynamically when the game starts. Follow this guideline when adding your own map, to your fork, for easy compatibility.
 
@@ -122,9 +132,9 @@ To enable an away mission open `config/awaymissionconfig.txt` and uncomment one 
 
 ## SQL SETUP
 
-The SQL backend requires a Mariadb server running 10.2 or later. Mysql is not supported but Mariadb is a drop in replacement for mysql. SQL is required for the library, stats tracking, admin notes, and job-only bans, among other features, mostly related to server administration. Your server details go in /config/dbconfig.txt, and the SQL schema is in /SQL/beestation_schema.sql and /SQL/beestation_schema_prefix.sql depending on if you want table prefixes.  More detailed setup instructions are located here: https://wiki.beestation13.com/view/Downloading_the_source_code#Setting_up_the_database
+The SQL backend requires a MariaDB server running 10.2 or later. MySQL is not supported. The database is required for the library, stats tracking, admin notes, bans, and persistent characters/preferences. Your server details go in `/config/dbconfig.txt`, and the SQL schema is in `/SQL/beestation_schema.sql`.
 
-If you are hosting a testing server on windows you can use a standalone version of MariaDB pre load with a blank (but initialized) tgdb database. Find them here: https://tgstation13.download/database/ Just unzip and run for a working (but insecure) database server. Includes a zipped copy of the data folder for easy resetting back to square one.
+More detailed setup instructions are located here: https://wiki.beestation13.com/view/Working_with_the_database#Database_Setup
 
 ## WEB/CDN RESOURCE DELIVERY
 

@@ -7,7 +7,7 @@
 	clothes_req = FALSE
 	stat_allowed = FALSE
 	invocation = "KN'A FTAGHU, PUCK 'BTHNK!"
-	invocation_type = "shout"
+	invocation_type = INVOCATION_SHOUT
 	range = 7
 	cooldown_min = 30
 	selection_type = "range"
@@ -16,14 +16,14 @@
 	action_icon_state = "barn"
 
 /obj/effect/proc_holder/spell/targeted/barnyardcurse/cast(list/targets, mob/user = usr)
-	if(!targets.len)
+	if(!length(targets))
 		to_chat(user, "<span class='notice'>No target found in range.</span>")
 		return
 
 	var/mob/living/carbon/target = targets[1]
 
 
-	if(!is_type_in_typecache(target, compatible_mobs_typecache))
+	if(!compatible_mobs_typecache[target.type])
 		to_chat(user, "<span class='notice'>You are unable to curse [target]'s head!</span>")
 		return
 
@@ -45,6 +45,6 @@
 						   "<span class='danger'>Your face burns up, and shortly after the fire you realise you have the face of a barnyard animal!</span>")
 	if(!target.dropItemToGround(target.wear_mask))
 		qdel(target.wear_mask)
-	target.equip_to_slot_if_possible(magichead, SLOT_WEAR_MASK, 1, 1)
+	target.equip_to_slot_if_possible(magichead, ITEM_SLOT_MASK, 1, 1)
 
 	target.flash_act()

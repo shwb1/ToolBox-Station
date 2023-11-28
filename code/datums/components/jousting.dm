@@ -18,21 +18,27 @@
 /datum/component/jousting/Initialize()
 	if(!isitem(parent))
 		return COMPONENT_INCOMPATIBLE
-	RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, .proc/on_equip)
-	RegisterSignal(parent, COMSIG_ITEM_DROPPED, .proc/on_drop)
-	RegisterSignal(parent, COMSIG_ITEM_ATTACK, .proc/on_attack)
+	RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, PROC_REF(on_equip))
+	RegisterSignal(parent, COMSIG_ITEM_DROPPED, PROC_REF(on_drop))
+	RegisterSignal(parent, COMSIG_ITEM_ATTACK, PROC_REF(on_attack))
 
 /datum/component/jousting/proc/on_equip(datum/source, mob/user, slot)
-	RegisterSignal(user, COMSIG_MOVABLE_MOVED, .proc/mob_move, TRUE)
+	SIGNAL_HANDLER
+
+	RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(mob_move), TRUE)
 	current_holder = user
 
 /datum/component/jousting/proc/on_drop(datum/source, mob/user)
+	SIGNAL_HANDLER
+
 	UnregisterSignal(user, COMSIG_MOVABLE_MOVED)
 	current_holder = null
 	current_direction = NONE
 	current_tile_charge = 0
 
 /datum/component/jousting/proc/on_attack(datum/source, mob/living/target, mob/user)
+	SIGNAL_HANDLER
+
 	if(user != current_holder)
 		return
 	var/current = current_tile_charge
@@ -59,6 +65,8 @@
 			user.visible_message("<span class='danger'>[msg]!</span>")
 
 /datum/component/jousting/proc/mob_move(datum/source, newloc, dir)
+	SIGNAL_HANDLER
+
 	if(!current_holder || (requires_mount && ((requires_mob_riding && !ismob(current_holder.buckled)) || (!current_holder.buckled))))
 		return
 	if(dir != current_direction)
@@ -68,7 +76,7 @@
 		current_tile_charge++
 	if(current_timerid)
 		deltimer(current_timerid)
-	current_timerid = addtimer(CALLBACK(src, .proc/reset_charge), movement_reset_tolerance, TIMER_STOPPABLE)
+	current_timerid = addtimer(CALLBACK(src, PROC_REF(reset_charge)), movement_reset_tolerance, TIMER_STOPPABLE)
 
 /datum/component/jousting/proc/reset_charge()
 	current_tile_charge = 0

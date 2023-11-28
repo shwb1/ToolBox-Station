@@ -1,15 +1,16 @@
 /datum/job/captain
-	title = "Captain"
+	title = JOB_NAME_CAPTAIN
 	flag = CAPTAIN
+	description = "Supreme leader of the station, oversee and appoint missing heads of staff, manage alert levels and contact CentCom if needed. Don't forget to secure the nuclear authentication disk."
+	department_for_prefs = DEPT_BITFLAG_CAPTAIN
+	department_head_for_prefs = JOB_NAME_CAPTAIN
 	auto_deadmin_role_flags = DEADMIN_POSITION_HEAD|DEADMIN_POSITION_SECURITY
 	department_head = list("CentCom")
-	department_flag = ENGSEC
+	supervisors = "Nanotrasen officials and Space law"
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-	supervisors = "Nanotrasen officials and Space law"
 	selection_color = "#ccccff"
-	chat_color = "#FFDC9B"
 	req_admin_notify = 1
 	minimal_player_age = 14
 	exp_requirements = 1200
@@ -20,12 +21,27 @@
 
 	access = list() 			//See get_access()
 	minimal_access = list() 	//See get_access()
-	paycheck = PAYCHECK_COMMAND
-	paycheck_department = ACCOUNT_SEC
 
+	department_flag = ENGSEC
+	departments = DEPT_BITFLAG_COM
+	bank_account_department = ACCOUNT_SEC_BITFLAG | ACCOUNT_COM_BITFLAG
+	payment_per_department = list(
+		ACCOUNT_COM_ID = PAYCHECK_COMMAND_NT,
+		ACCOUNT_SEC_ID = PAYCHECK_COMMAND_DEPT)
 	mind_traits = list(TRAIT_DISK_VERIFIER)
 
 	display_order = JOB_DISPLAY_ORDER_CAPTAIN
+	rpg_title = "Star Duke"
+
+	species_outfits = list(
+		SPECIES_PLASMAMAN = /datum/outfit/plasmaman/command
+	)
+
+	minimal_lightup_areas = list(
+		/area/crew_quarters/heads/captain,
+		/area/crew_quarters/heads/hop,
+		/area/security
+	)
 
 /datum/job/captain/get_access()
 	return get_all_accesses()
@@ -35,14 +51,14 @@
 	var/therank = "[title]"
 	if(H.mind && H.mind.assigned_role && H.mind.assigned_role != therank)
 		therank = H.mind.assigned_role
-	SSticker.OnRoundstart(CALLBACK(GLOBAL_PROC, .proc/minor_announce, "[therank] [H.real_name] on deck!"))
+	SSticker.OnRoundstart(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(minor_announce), "[therank] [H.real_name] on deck!"))
 
 /datum/outfit/job/captain
-	name = "Captain"
+	name = JOB_NAME_CAPTAIN
 	jobtype = /datum/job/captain
 
 	id = /obj/item/card/id/job/captain
-	belt = /obj/item/pda/captain
+	belt = /obj/item/modular_computer/tablet/pda/heads/captain
 	glasses = /obj/item/clothing/glasses/sunglasses/advanced
 	ears = /obj/item/radio/headset/heads/captain/alt
 	gloves = /obj/item/clothing/gloves/color/captain

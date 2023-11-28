@@ -13,13 +13,18 @@
 
 /obj/machinery/computer/aifixer/screwdriver_act(mob/living/user, obj/item/I)
 	if(occupier)
-		if(stat & (NOPOWER|BROKEN))
+		if(machine_stat & (NOPOWER|BROKEN))
 			to_chat(user, "<span class='warning'>The screws on [name]'s screen won't budge.</span>")
 		else
 			to_chat(user, "<span class='warning'>The screws on [name]'s screen won't budge and it emits a warning beep.</span>")
 	else
 		return ..()
 
+
+/obj/machinery/computer/aifixer/ui_requires_update(mob/user, datum/tgui/ui)
+	. = ..()
+	if(restoring)
+		. = TRUE
 
 /obj/machinery/computer/aifixer/ui_state(mob/user)
 	return GLOB.default_state
@@ -29,6 +34,7 @@
 	if(!ui)
 		ui = new(user, src, "AiRestorer")
 		ui.open()
+		ui.set_autoupdate(TRUE)
 
 /obj/machinery/computer/aifixer/ui_data(mob/user)
 	var/list/data = list()
@@ -84,10 +90,12 @@
 			restoring = Fix()
 			if(oldstat != occupier.stat)
 				update_icon()
+			if(!restoring)
+				ui_update() // One final update
 
 /obj/machinery/computer/aifixer/update_icon()
 	..()
-	if(stat & (NOPOWER|BROKEN))
+	if(machine_stat & (NOPOWER|BROKEN))
 		return
 	if(restoring)
 		add_overlay("ai-fixer-on")
@@ -105,7 +113,7 @@
 		return
 	//Downloading AI from card to terminal.
 	if(interaction == AI_TRANS_FROM_CARD)
-		if(stat & (NOPOWER|BROKEN))
+		if(machine_stat & (NOPOWER|BROKEN))
 			to_chat(user, "<span class='alert'>[src] is offline and cannot take an AI at this time.</span>")
 			return
 		AI.forceMove(src)
@@ -116,6 +124,7 @@
 		to_chat(user, "<span class='notice'>Transfer Successful</span>: [AI.name] ([rand(1000,9999)].exe) installed and executed successfully. Local copy has been removed.")
 		card.AI = null
 		update_icon()
+		ui_update()
 
 	else //Uploading AI from terminal to card
 		if(occupier && !restoring)
@@ -125,6 +134,7 @@
 			card.AI = occupier
 			occupier = null
 			update_icon()
+			ui_update()
 		else if (restoring)
 			to_chat(user, "<span class='alert'>ERROR: Reconstruction in progress.</span>")
 		else if (!occupier)

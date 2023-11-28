@@ -19,18 +19,26 @@
 	icon_state = "oldcomp"
 	icon_screen = "library"
 	icon_keyboard = null
+
+	//these muthafuckas arent supposed to smooth
+	base_icon_state = null
+	smoothing_flags = null
+	smoothing_groups = null
+	canSmoothWith = null
+
 	circuit = /obj/item/circuitboard/computer/libraryconsole
 	desc = "Checked out books MUST be returned on time."
+	clockwork = TRUE //it'd look weird
+	broken_overlay_emissive = TRUE
 	var/screenstate = 0
 	var/title
 	var/category = "Any"
 	var/author
-	var/SQLquery
-	clockwork = TRUE //it'd look weird
+	var/search_page = 0
 
 /obj/machinery/computer/libraryconsole/ui_interact(mob/user)
 	. = ..()
-	var/dat = "" // <META HTTP-EQUIV='Refresh' CONTENT='10'>
+	var/list/dat = list() // <META HTTP-EQUIV='Refresh' CONTENT='10'>
 	switch(screenstate)
 		if(0)
 			dat += "<h2>Search Settings</h2><br>"
@@ -43,13 +51,48 @@
 				dat += "<font color=red><b>ERROR</b>: Unable to contact External Archive. Please contact your system administrator for assistance.</font><BR>"
 			else if(QDELETED(user))
 				return
-			else if(!SQLquery)
-				dat += "<font color=red><b>ERROR</b>: Malformed search request. Please contact your system administrator for assistance.</font><BR>"
 			else
 				dat += "<table>"
 				dat += "<tr><td>AUTHOR</td><td>TITLE</td><td>CATEGORY</td><td>SS<sup>13</sup>BN</td></tr>"
-
-				var/datum/DBQuery/query_library_list_books = SSdbcore.NewQuery(SQLquery)
+				var/SQLsearch = "isnull(deleted) AND "
+				if(category == "Any")
+					SQLsearch += "author LIKE '%[author]%' AND title LIKE '%[title]%'"
+				else
+					SQLsearch += "author LIKE '%[author]%' AND title LIKE '%[title]%' AND category='[category]'"
+				var/bookcount = 0
+				var/booksperpage = 20
+				var/datum/DBQuery/query_library_count_books = SSdbcore.NewQuery({"
+					SELECT COUNT(id) FROM [format_table_name("library")]
+					WHERE isnull(deleted)
+						AND author LIKE '%' + :author + '%'
+						AND title LIKE '%' + :title + '%'
+						AND (:category = 'Any' OR category = :category)
+				"}, list("author" = author, "title" = title, "category" = category))
+				if(!query_library_count_books.warn_execute())
+					qdel(query_library_count_books)
+					return
+				if(query_library_count_books.NextRow())
+					bookcount = text2num(query_library_count_books.item[1])
+				qdel(query_library_count_books)
+				if(bookcount > booksperpage)
+					dat += "<b>Page: </b>"
+					var/pagecount = 1
+					var/list/pagelist = list()
+					while(bookcount > 0)
+						pagelist += "<a href='?src=[REF(src)];bookpagecount=[pagecount - 1]'>[pagecount == search_page + 1 ? "<b>\[[pagecount]\]</b>" : "\[[pagecount]\]"]</a>"
+						bookcount -= booksperpage
+						pagecount++
+					dat += pagelist.Join(" | ")
+				search_page = text2num(search_page)
+				var/datum/DBQuery/query_library_list_books = SSdbcore.NewQuery({"
+					SELECT author, title, category, id
+					FROM [format_table_name("library")]
+					WHERE isnull(deleted)
+						AND author LIKE '%' + :author + '%'
+						AND title LIKE '%' + :title + '%'
+						AND (:category = 'Any' OR category = :category)
+					LIMIT :skip, :take
+				"}, list("author" = author, "title" = title, "category" = category, "skip" = booksperpage * search_page, "take" = booksperpage))
 				if(!query_library_list_books.Execute())
 					dat += "<font color=red><b>ERROR</b>: Unable to retrieve book listings. Please contact your system administrator for assistance.</font><BR>"
 				else
@@ -65,7 +108,7 @@
 				dat += "</table><BR>"
 			dat += "<A href='?src=[REF(src)];back=1'>\[Go Back\]</A><BR>"
 	var/datum/browser/popup = new(user, "publiclibrary", name, 600, 400)
-	popup.set_content(dat)
+	popup.set_content(jointext(dat, ""))
 	popup.open()
 
 /obj/machinery/computer/libraryconsole/Topic(href, href_list)
@@ -81,28 +124,23 @@
 			title = sanitize(newtitle)
 		else
 			title = null
-		title = sanitize(title)
 	if(href_list["setcategory"])
 		var/newcategory = input("Choose a category to search for:") in list("Any", "Fiction", "Non-Fiction", "Adult", "Reference", "Religion")
 		if(newcategory)
 			category = sanitize(newcategory)
 		else
 			category = "Any"
-		category = sanitize(category)
 	if(href_list["setauthor"])
 		var/newauthor = capped_input(usr, "Enter an author to search for:")
 		if(newauthor)
 			author = sanitize(newauthor)
 		else
 			author = null
-		author = sanitize(author)
 	if(href_list["search"])
-		SQLquery = "SELECT author, title, category, id FROM [format_table_name("library")] WHERE isnull(deleted) AND "
-		if(category == "Any")
-			SQLquery += "author LIKE '%[author]%' AND title LIKE '%[title]%'"
-		else
-			SQLquery += "author LIKE '%[author]%' AND title LIKE '%[title]%' AND category='[category]'"
 		screenstate = 1
+
+	if(href_list["bookpagecount"])
+		search_page = text2num(href_list["bookpagecount"])
 
 	if(href_list["back"])
 		screenstate = 0
@@ -198,7 +236,7 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 			libcomp_menu[page] = ""
 		libcomp_menu[page] += "<tr><td>[C.author]</td><td>[C.title]</td><td>[C.category]</td><td><A href='?src=[REF(src)];targetid=[C.id]'>\[Order\]</A></td></tr>\n"
 
-/obj/machinery/computer/libraryconsole/bookmanagement/Initialize()
+/obj/machinery/computer/libraryconsole/bookmanagement/Initialize(mapload)
 	. = ..()
 	if(circuit)
 		circuit.name = "Book Inventory Management Console (Machine Board)"
@@ -266,7 +304,7 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 				dat += "<A href='?src=[REF(src)];orderbyid=1'>(Order book by SS<sup>13</sup>BN)</A><BR><BR>"
 				dat += "<table>"
 				dat += "<tr><td>AUTHOR</td><td>TITLE</td><td>CATEGORY</td><td></td></tr>"
-				dat += libcomp_menu[CLAMP(page,1,libcomp_menu.len)]
+				dat += libcomp_menu[clamp(page,1,libcomp_menu.len)]
 				dat += "<tr><td><A href='?src=[REF(src)];page=[(max(1,page-1))]'>&lt;&lt;&lt;&lt;</A></td> <td></td> <td></td> <td><span style='text-align:right'><A href='?src=[REF(src)];page=[(min(libcomp_menu.len,page+1))]'>&gt;&gt;&gt;&gt;</A></span></td></tr>"
 				dat += "</table>"
 			dat += "<BR><A href='?src=[REF(src)];switchscreen=0'>(Return to main menu)</A><BR>"
@@ -303,7 +341,15 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 			dat += "<h3>NTGanda(tm) Universal Printing Module</h3>"
 			dat += "What would you like to print?<BR>"
 			dat += "<A href='?src=[REF(src)];printbible=1'>\[Bible\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printspacelaw=1'>\[Space Law\]</A><BR>"
 			dat += "<A href='?src=[REF(src)];printposter=1'>\[Poster\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopcmd=1'>\[Command SOP\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopsec=1'>\[Security SOP\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopeng=1'>\[Engineering SOP\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopsup=1'>\[Supply SOP\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopsci=1'>\[Science SOP\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopmed=1'>\[Medical SOP\]</A><BR>"
+			dat += "<A href='?src=[REF(src)];printsopsvc=1'>\[Service SOP\]</A><BR>"
 			dat += "<A href='?src=[REF(src)];switchscreen=0'>(Return to main menu)</A><BR>"
 		if(8)
 			dat += "<h3>Accessing Forbidden Lore Vault v 1.3</h3>"
@@ -319,10 +365,16 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 	return locate(/obj/machinery/libraryscanner) in range(viewrange, get_turf(src))
 
 /obj/machinery/computer/libraryconsole/bookmanagement/proc/print_forbidden_lore(mob/user)
-	if (prob(50))
-		new /obj/item/melee/cultblade/dagger(get_turf(src))
-		to_chat(user, "<span class='warning'>Your sanity barely endures the seconds spent in the vault's browsing window. The only thing to remind you of this when you stop browsing is a sinister dagger sitting on the desk. You don't even remember where it came from...</span>")
-
+	switch(rand(1,3))
+		if(1)
+			new /obj/item/melee/cultblade/dagger(get_turf(src))
+			to_chat(user, "<span class='warning'>Your sanity barely endures the seconds spent in the vault's browsing window. The only thing to remind you of this when you stop browsing is a sinister dagger sitting on the desk. You don't even remember where it came from...</span>")
+		if(2)
+			new /obj/item/clockwork/clockwork_slab(get_turf(src))
+			to_chat(user, "<span class='warning'>Your sanity barely endures the seconds spent in the vault's browsing window. The only thing to remind you of this when you stop browsing is a strange metal tablet sitting on the desk. You don't even remember where it came from...</span>")
+		if(3)
+			new /obj/item/codex_cicatrix(get_turf(src))
+			to_chat(user, "<span class='warning'>Your sanity barely endures the seconds spent in the vault's browsing window. The only thing to remind you of this when you stop browsing is an ominous book, bound by a chain, sitting on the desk. You don't even remember where it came from...</span>")
 	user.visible_message("[user] stares at the blank screen for a few moments, [user.p_their()] expression frozen in fear. When [user.p_they()] finally awaken[user.p_s()] from it, [user.p_they()] look[user.p_s()] a lot older.", 2)
 
 /obj/machinery/computer/libraryconsole/bookmanagement/attackby(obj/item/W, mob/user, params)
@@ -334,9 +386,8 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 	else
 		return ..()
 
-/obj/machinery/computer/libraryconsole/bookmanagement/emag_act(mob/user)
-	if(density && !(obj_flags & EMAGGED))
-		obj_flags |= EMAGGED
+/obj/machinery/computer/libraryconsole/bookmanagement/should_emag(mob/user)
+	return density && ..()
 
 /obj/machinery/computer/libraryconsole/bookmanagement/Topic(href, href_list)
 	if(..())
@@ -433,13 +484,13 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 		if(!GLOB.news_network)
 			alert("No news network found on station. Aborting.")
 		var/channelexists = 0
-		for(var/datum/newscaster/feed_channel/FC in GLOB.news_network.network_channels)
+		for(var/datum/feed_channel/FC in GLOB.news_network.network_channels)
 			if(FC.channel_name == "Nanotrasen Book Club")
 				channelexists = 1
 				break
 		if(!channelexists)
-			GLOB.news_network.CreateFeedChannel("Nanotrasen Book Club", "Library", null)
-		GLOB.news_network.SubmitArticle(scanner.cache.dat, "[scanner.cache.name]", "Nanotrasen Book Club", null)
+			GLOB.news_network.create_feed_channel("Nanotrasen Book Club", "Library", null)
+		GLOB.news_network.submit_article(scanner.cache.dat, "[scanner.cache.name]", "Nanotrasen Book Club", null)
 		alert("Upload complete. Your uploaded title is now available on station newscasters.")
 	if(href_list["orderbyid"])
 		if(cooldown > world.time)
@@ -491,12 +542,67 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 			cooldown = world.time + PRINTER_COOLDOWN
 		else
 			say("Printer currently unavailable, please wait a moment.")
+	if(href_list["printspacelaw"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/security_space_law(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
 	if(href_list["printposter"])
 		if(cooldown < world.time)
 			new /obj/item/poster/random_official(src.loc)
 			cooldown = world.time + PRINTER_COOLDOWN
 		else
 			say("Printer currently unavailable, please wait a moment.")
+	if(href_list["printsopcmd"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopcommand(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
+	if(href_list["printsopsec"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopsecurity(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
+	if(href_list["printsopeng"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopengineering(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
+	if(href_list["printsopsup"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopsupply(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
+	if(href_list["printsopsci"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopscience(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
+	if(href_list["printsopmed"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopmedical(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
+	if(href_list["printsopsvc"])
+		if(cooldown < world.time)
+			new /obj/item/book/manual/wiki/sopservice(src.loc)
+			cooldown = world.time + PRINTER_COOLDOWN
+		else
+			say("Printer currently unavailable, please wait a moment.")
+
 	add_fingerprint(usr)
 	updateUsrDialog()
 
@@ -577,7 +683,7 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 		return ..()
 
 /obj/machinery/bookbinder/proc/bind_book(mob/user, obj/item/paper/P)
-	if(stat)
+	if(machine_stat)
 		return
 	if(busy)
 		to_chat(user, "<span class='warning'>The book binder is busy. Please wait for completion of previous operation.</span>")
@@ -590,10 +696,14 @@ GLOBAL_LIST(cachedbooks) // List of our cached book datums
 	sleep(rand(200,400))
 	busy = FALSE
 	if(P)
-		if(!stat)
+		if(!machine_stat)
 			visible_message("[src] whirs as it prints and binds a new book.")
 			var/obj/item/book/B = new(src.loc)
-			B.dat = P.info
+			var/raw_content = ""
+			for(var/datum/paper_input/text_input as anything in P.raw_text_inputs)
+				raw_content += text_input.raw_text
+
+			B.dat = trim(raw_content, MAX_PAPER_LENGTH)
 			B.name = "Print Job #" + "[rand(100, 999)]"
 			B.icon_state = "book[rand(1,7)]"
 			qdel(P)

@@ -39,11 +39,11 @@
 /turf/open/floor/plasteel/cafeteria,
 /area/template_noop)
 "d" = (
-/obj/structure/chair/sofa/right,
+/obj/structure/chair/fancy/sofa/old/right,
 /turf/open/floor/carpet/green,
 /area/template_noop)
 "e" = (
-/obj/structure/chair/sofa/left,
+/obj/structure/chair/fancy/sofa/old/left,
 /turf/open/floor/carpet/green,
 /area/template_noop)
 "f" = (
@@ -83,7 +83,7 @@
 /obj/item/retractor,
 /obj/item/storage/toolbox/mechanical,
 /obj/item/clothing/suit/apron/surgical,
-/obj/item/roller,
+/obj/item/rollerbed,
 /obj/item/tank/internals/anesthetic,
 /obj/structure/closet/cardboard,
 /obj/item/cautery,
@@ -97,7 +97,7 @@
 	amount = 2
 	},
 /obj/item/stack/sheet/iron/ten,
-/obj/item/twohanded/required/chainsaw,
+/obj/item/chainsaw,
 /obj/effect/decal/cleanable/cobweb/cobweb2,
 /obj/item/clothing/head/wig/random,
 /obj/item/radio,

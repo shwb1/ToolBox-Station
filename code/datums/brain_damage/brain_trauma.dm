@@ -12,9 +12,10 @@
 	var/gain_text = "<span class='notice'>You feel traumatized.</span>"
 	var/lose_text = "<span class='notice'>You no longer feel traumatized.</span>"
 	var/can_gain = TRUE
-	var/random_gain = TRUE //can this be gained through random traumas?
-	var/resilience = TRAUMA_RESILIENCE_BASIC //how hard is this to cure?
-	var/clonable = TRUE // will this transfer if the brain is cloned?
+	/// How hard is this trauma to cure?
+	var/resilience = TRAUMA_RESILIENCE_BASIC
+	/// Flags for this trauma. See `TRAUMA_X` defines.
+	var/trauma_flags = TRAUMA_DEFAULT_FLAGS
 
 /datum/brain_trauma/Destroy()
 	if(brain?.traumas)
@@ -26,7 +27,7 @@
 	return ..()
 
 /datum/brain_trauma/proc/on_clone()
-	if(clonable)
+	if(CHECK_BITFIELD(trauma_flags, TRAUMA_CLONEABLE))
 		return new type
 
 //Called on life ticks
@@ -40,20 +41,24 @@
 //Called when given to a mob
 /datum/brain_trauma/proc/on_gain()
 	to_chat(owner, gain_text)
-	RegisterSignal(owner, COMSIG_MOB_SAY, .proc/handle_speech)
+	RegisterSignal(owner, COMSIG_MOB_SAY, PROC_REF(handle_speech))
+	RegisterSignal(owner, COMSIG_MOVABLE_HEAR, PROC_REF(handle_hearing))
 
 //Called when removed from a mob
 /datum/brain_trauma/proc/on_lose(silent)
 	if(!silent)
 		to_chat(owner, lose_text)
 	UnregisterSignal(owner, COMSIG_MOB_SAY)
+	UnregisterSignal(owner, COMSIG_MOVABLE_HEAR)
 
 //Called when hearing a spoken message
-/datum/brain_trauma/proc/on_hear(message, speaker, message_language, raw_message, radio_freq)
-	return message
+/datum/brain_trauma/proc/handle_hearing(datum/source, list/hearing_args)
+	SIGNAL_HANDLER
+	UnregisterSignal(owner, COMSIG_MOVABLE_HEAR)
 
 //Called when speaking
 /datum/brain_trauma/proc/handle_speech(datum/source, list/speech_args)
+	SIGNAL_HANDLER
 	UnregisterSignal(owner, COMSIG_MOB_SAY)
 
 //Called when hugging. expand into generally interacting, where future coders could switch the intent?

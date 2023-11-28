@@ -11,15 +11,17 @@
 	throw_speed = 2
 	throw_range = 7
 	w_class = WEIGHT_CLASS_BULKY
+	item_flags = ISWEAPON
 	materials = list(/datum/material/iron = 500)
 	attack_verb = list("robusted")
 	hitsound = 'sound/weapons/smash.ogg'
-	block_upgrade_walk = 1
 	custom_materials = list(/datum/material/iron = 500) //Toolboxes by default use iron as their core, custom material.
 	var/latches = "single_latch"
 	var/has_latches = TRUE
+	drop_sound = 'sound/items/handling/toolbox_drop.ogg'
+	pickup_sound =  'sound/items/handling/toolbox_pickup.ogg'
 
-/obj/item/storage/toolbox/Initialize()
+/obj/item/storage/toolbox/Initialize(mapload)
 	. = ..()
 	if(has_latches)
 		if(prob(10))
@@ -28,16 +30,15 @@
 				latches = "triple_latch"
 	update_icon()
 
-/obj/item/storage/toolbox/update_icon()
-	..()
-	cut_overlays()
+/obj/item/storage/toolbox/update_overlays()
+	. = ..()
 	if(has_latches)
-		add_overlay(latches)
+		. += latches
 
 
-/obj/item/storage/toolbox/suicide_act(mob/user)
+/obj/item/storage/toolbox/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] robusts [user.p_them()]self with [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
-	return (BRUTELOSS)
+	return BRUTELOSS
 
 /obj/item/storage/toolbox/emergency
 	name = "emergency toolbox"
@@ -84,14 +85,20 @@
 	has_latches = FALSE
 	material_flags = MATERIAL_NO_COLOR
 
-/obj/item/storage/toolbox/mechanical/old/heirloom
-	name = "toolbox" //this will be named "X family toolbox"
-	desc = "It's seen better days."
+/obj/item/heirloomtoolbox //Not actually a toolbox at all, just an heirloom
+	name = "family toolbox"
+	icon = 'icons/obj/storage.dmi'
+	icon_state = "toolbox_blue_old"
+	lefthand_file = 'icons/mob/inhands/equipment/toolbox_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/equipment/toolbox_righthand.dmi'
+	flags_1 = CONDUCT_1
+	desc = "It may be rusted shut, but it's still an important keepsake."
 	force = 5
+	throw_speed = 2
+	throw_range = 7
 	w_class = WEIGHT_CLASS_NORMAL
-
-/obj/item/storage/toolbox/mechanical/old/heirloom/PopulateContents()
-	return
+	attack_verb = list("robusted")
+	hitsound = 'sound/weapons/smash.ogg'
 
 /obj/item/storage/toolbox/mechanical/old/clean
 	name = "toolbox"
@@ -104,7 +111,7 @@
 
 /obj/item/storage/toolbox/mechanical/old/clean/proc/calc_damage()
 	var/power = 0
-	for (var/obj/item/stack/telecrystal/TC in GetAllContents())
+	for (var/obj/item/stack/sheet/telecrystal/TC in GetAllContents())
 		power += TC.amount
 	force = 19 + power
 	throwforce = 22 + power
@@ -242,6 +249,8 @@
 	desc = "It contains a few clips."
 	icon_state = "ammobox"
 	item_state = "ammobox"
+	drop_sound = 'sound/items/handling/ammobox_drop.ogg'
+	pickup_sound =  'sound/items/handling/ammobox_pickup.ogg'
 
 /obj/item/storage/toolbox/ammo/PopulateContents()
 	new /obj/item/ammo_box/a762(src)

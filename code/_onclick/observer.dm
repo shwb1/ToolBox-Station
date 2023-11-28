@@ -1,6 +1,6 @@
 /mob/dead/observer/DblClickOn(atom/A, params)
 	if(check_click_intercept(params, A))
-		return	
+		return
 
 	if(can_reenter_corpse && mind && mind.current)
 		if(A == mind.current || (mind.current in A)) // double click your corpse or whatever holds it
@@ -8,35 +8,34 @@
 			return									// seems legit.
 
 	// Things you might plausibly want to follow
-	if(ismovableatom(A))
+	if(ismovable(A))
 		ManualFollow(A)
 
 	// Otherwise jump
 	else if(A.loc)
-		forceMove(get_turf(A))
-		update_parallax_contents()
+		abstract_move(get_turf(A))
 
 /mob/dead/observer/ClickOn(var/atom/A, var/params)
 	if(check_click_intercept(params,A))
 		return
 
 	var/list/modifiers = params2list(params)
-	if(modifiers["shift"] && modifiers["middle"])
-		ShiftMiddleClickOn(A)
-		return
-	if(modifiers["shift"] && modifiers["ctrl"])
-		CtrlShiftClickOn(A)
-		return
-	if(modifiers["middle"])
-		MiddleClickOn(A)
-		return
-	if(modifiers["shift"])
+	if(LAZYACCESS(modifiers, SHIFT_CLICK))
+		if(LAZYACCESS(modifiers, MIDDLE_CLICK))
+			ShiftMiddleClickOn(A, params)
+			return
+		if(LAZYACCESS(modifiers, CTRL_CLICK))
+			CtrlShiftClickOn(A)
+			return
 		ShiftClickOn(A)
 		return
-	if(modifiers["alt"])
-		AltClickNoInteract(src, A)
+	if(LAZYACCESS(modifiers, MIDDLE_CLICK))
+		MiddleClickOn(A, params)
 		return
-	if(modifiers["ctrl"])
+	if(LAZYACCESS(modifiers, ALT_CLICK))
+		AltClickOn(A)
+		return
+	if(LAZYACCESS(modifiers, CTRL_CLICK))
 		CtrlClickOn(A)
 		return
 
@@ -55,7 +54,7 @@
 			return TRUE
 		else if(IsAdminGhost(user))
 			attack_ai(user)
-		else if(user.client.prefs.inquisitive_ghost)
+		else if(user.client.prefs.read_player_preference(/datum/preference/toggle/inquisitive_ghost))
 			user.examinate(src)
 	return FALSE
 
@@ -71,19 +70,25 @@
 
 /obj/machinery/gateway/centerstation/attack_ghost(mob/user)
 	if(awaygate)
-		user.forceMove(awaygate.loc)
+		user.abstract_move(awaygate.loc)
 	else
 		to_chat(user, "[src] has no destination.")
 	return ..()
 
 /obj/machinery/gateway/centeraway/attack_ghost(mob/user)
 	if(stationgate)
-		user.forceMove(stationgate.loc)
+		user.abstract_move(stationgate.loc)
 	else
 		to_chat(user, "[src] has no destination.")
 	return ..()
 
 /obj/machinery/teleport/hub/attack_ghost(mob/user)
-	if(power_station && power_station.engaged && power_station.teleporter_console && power_station.teleporter_console.target)
-		user.forceMove(get_turf(power_station.teleporter_console.target))
-	return ..()
+	if(!power_station?.engaged || !power_station.teleporter_console || !power_station.teleporter_console.target_ref)
+		return ..()
+
+	var/atom/target = power_station.teleporter_console.target_ref.resolve()
+	if(!target)
+		power_station.teleporter_console.target_ref = null
+		return ..()
+
+	user.abstract_move(get_turf(target))

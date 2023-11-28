@@ -1,31 +1,43 @@
 /datum/job/cook
-	title = "Cook"
+	title = JOB_NAME_COOK
 	flag = COOK
-	department_head = list("Head of Personnel")
-	department_flag = CIVILIAN
+	description = "Whip up meals for the crew, get creative and cook different meals, request ingredients from Botany and Cargo. Make sure everyone stays well fed and happy."
+	department_for_prefs = DEPT_BITFLAG_SRV
+	department_head = list(JOB_NAME_HEADOFPERSONNEL)
+	supervisors = "the head of personnel"
 	faction = "Station"
 	total_positions = 2
 	spawn_positions = 1
-	supervisors = "the head of personnel"
 	selection_color = "#bbe291"
-	chat_color = "#A2FBB9"
 	var/cooks = 0 //Counts cooks amount
 
 	outfit = /datum/outfit/job/cook
 
 	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_MINERAL_STOREROOM)
 	minimal_access = list(ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_MINERAL_STOREROOM)
-	paycheck = PAYCHECK_EASY
-	paycheck_department = ACCOUNT_SRV
+
+	department_flag = CIVILIAN
+	departments = DEPT_BITFLAG_SRV
+	bank_account_department = ACCOUNT_SRV_BITFLAG
+	payment_per_department = list(ACCOUNT_SRV_ID = PAYCHECK_EASY)
+
 
 	display_order = JOB_DISPLAY_ORDER_COOK
+	rpg_title = "Tavern Chef"
+
+	species_outfits = list(
+		SPECIES_PLASMAMAN = /datum/outfit/plasmaman/chef
+	)
+
+	minimal_lightup_areas = list(/area/crew_quarters/kitchen, /area/medical/morgue)
+	lightup_areas = list(/area/hydroponics)
 
 /datum/outfit/job/cook
-	name = "Cook"
+	name = JOB_NAME_COOK
 	jobtype = /datum/job/cook
 
-	id = /obj/item/card/id/job/serv
-	belt = /obj/item/pda/cook
+	id = /obj/item/card/id/job/cook
+	belt = /obj/item/modular_computer/tablet/pda/cook
 	ears = /obj/item/radio/headset/headset_srv
 	uniform = /obj/item/clothing/under/rank/civilian/chef
 	suit = /obj/item/clothing/suit/toggle/chef
@@ -39,7 +51,7 @@
 	if(J) // Fix for runtime caused by invalid job being passed
 		if(J.cooks>0)//Cooks
 			suit = /obj/item/clothing/suit/apron/chef
-			head = /obj/item/clothing/head/soft/mime
+			head = /obj/item/clothing/head/soft
 		if(!visualsOnly)
 			J.cooks++
 
@@ -50,7 +62,7 @@
 	var/list/possible_boxes = subtypesof(/obj/item/storage/box/ingredients)
 	var/chosen_box = pick(possible_boxes)
 	var/obj/item/storage/box/I = new chosen_box(src)
-	H.equip_to_slot_or_del(I,SLOT_IN_BACKPACK)
+	H.equip_to_slot_or_del(I,ITEM_SLOT_BACKPACK)
 	var/datum/martial_art/cqc/under_siege/justacook = new
 	justacook.teach(H)
 

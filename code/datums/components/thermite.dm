@@ -38,9 +38,9 @@
 	overlay = mutable_appearance('icons/effects/effects.dmi', "thermite")
 	master.add_overlay(overlay)
 
-	RegisterSignal(parent, COMSIG_COMPONENT_CLEAN_ACT, .proc/clean_react)
-	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, .proc/attackby_react)
-	RegisterSignal(parent, COMSIG_ATOM_FIRE_ACT, .proc/flame_react)
+	RegisterSignal(parent, COMSIG_COMPONENT_CLEAN_ACT, PROC_REF(clean_react))
+	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, PROC_REF(attackby_react))
+	RegisterSignal(parent, COMSIG_ATOM_FIRE_ACT, PROC_REF(flame_react))
 
 /datum/component/thermite/UnregisterFromParent()
 	UnregisterSignal(parent, COMSIG_COMPONENT_CLEAN_ACT)
@@ -52,20 +52,20 @@
 	master.cut_overlay(overlay)
 	return ..()
 
-/datum/component/thermite/InheritComponent(datum/component/thermite/newC, i_am_original, list/arguments)
+/datum/component/thermite/InheritComponent(datum/component/thermite/newC, i_am_original, _amount)
 	if(!i_am_original)
 		return
 	if(newC)
 		amount += newC.amount
 	else
-		amount += arguments[1]
+		amount += _amount
 
 /datum/component/thermite/proc/thermite_melt(mob/user)
 	var/turf/master = parent
 	master.cut_overlay(overlay)
 	playsound(master, 'sound/items/welder.ogg', 100, 1)
 	var/obj/effect/overlay/thermite/fakefire = new(master)
-	addtimer(CALLBACK(src, .proc/burn_parent, fakefire, user), min(amount * 0.35 SECONDS, 20 SECONDS))
+	addtimer(CALLBACK(src, PROC_REF(burn_parent), fakefire, user), min(amount * 0.35 SECONDS, 20 SECONDS))
 	UnregisterFromParent()
 
 /datum/component/thermite/proc/burn_parent(var/datum/fakefire, mob/user)
@@ -80,13 +80,19 @@
 	qdel(src)
 
 /datum/component/thermite/proc/clean_react(datum/source, strength)
+	SIGNAL_HANDLER
+
 	//Thermite is just some loose powder, you could probably clean it with your hands. << todo?
 	qdel(src)
 
 /datum/component/thermite/proc/flame_react(datum/source, exposed_temperature, exposed_volume)
+	SIGNAL_HANDLER
+
 	if(exposed_temperature > 1922) // This is roughly the real life requirement to ignite thermite
 		thermite_melt()
 
 /datum/component/thermite/proc/attackby_react(datum/source, obj/item/thing, mob/user, params)
+	SIGNAL_HANDLER
+
 	if(thing.is_hot())
 		thermite_melt(user)

@@ -5,6 +5,7 @@
 	var/overlays_file = 'icons/obj/doors/airlocks/station/overlays.dmi'
 	anchored = FALSE
 	density = TRUE
+	z_flags = Z_BLOCK_IN_DOWN | Z_BLOCK_IN_UP
 	max_integrity = 200
 	var/state = AIRLOCK_ASSEMBLY_NEEDS_WIRES
 	var/base_name = "airlock"
@@ -20,7 +21,7 @@
 	var/material_type = /obj/item/stack/sheet/iron
 	var/material_amt = 4
 
-/obj/structure/door_assembly/Initialize()
+/obj/structure/door_assembly/Initialize(mapload)
 	. = ..()
 	update_icon()
 	update_name()
@@ -161,6 +162,31 @@
 			name = "near finished airlock assembly"
 			electronics = W
 
+	else if(istype(W, /obj/item/electroadaptive_pseudocircuit) && state == AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS )
+		var/obj/item/electroadaptive_pseudocircuit/EP = W
+		if(EP.adapt_circuit(user, 25))
+			var/obj/item/electronics/airlock/AE = new(src)
+			AE.accesses = EP.electronics.accesses
+			AE.one_access = EP.electronics.one_access
+			AE.unres_sides = EP.electronics.unres_sides
+			AE.play_tool_sound(src, 100)
+			user.visible_message("[user] installs the electronics into the airlock assembly.", \
+								"<span class='notice'>You start to install electronics into the airlock assembly...</span>")
+			if(do_after(user, 40, target = src))
+				if( state != AIRLOCK_ASSEMBLY_NEEDS_ELECTRONICS )
+					qdel(AE)
+					return
+				if(!user.transferItemToLoc(AE, src))
+					qdel(AE)
+					return
+
+				to_chat(user, "<span class='notice'>You install the electroadaptive pseudocircuit.</span>")
+				state = AIRLOCK_ASSEMBLY_NEEDS_SCREWDRIVER
+				name = "near finished airlock assembly"
+				electronics = AE
+			else
+				qdel(AE)
+
 
 	else if((W.tool_behaviour == TOOL_CROWBAR) && state == AIRLOCK_ASSEMBLY_NEEDS_SCREWDRIVER )
 		user.visible_message("[user] removes the electronics from the airlock assembly.", \
@@ -241,7 +267,7 @@
 				//door.req_access = req_access
 				door.electronics = electronics
 				door.heat_proof = heat_proof_finished
-				door.security_level = 0
+				door.security_level = AIRLOCK_SECURITY_NONE
 				if(electronics.one_access)
 					door.req_one_access = electronics.accesses
 				else
@@ -267,7 +293,7 @@
 		add_overlay(get_airlock_overlay("glass_construction", overlays_file))
 	add_overlay(get_airlock_overlay("panel_c[state+1]", overlays_file))
 
-/obj/structure/door_assembly/proc/update_name()
+/obj/structure/door_assembly/update_name()
 	name = ""
 	switch(state)
 		if(AIRLOCK_ASSEMBLY_NEEDS_WIRES)
@@ -278,6 +304,7 @@
 		if(AIRLOCK_ASSEMBLY_NEEDS_SCREWDRIVER)
 			name = "near finished "
 	name += "[heat_proof_finished ? "heat-proofed " : ""][glass ? "window " : ""][base_name] assembly"
+	return ..()
 
 /obj/structure/door_assembly/proc/transfer_assembly_vars(obj/structure/door_assembly/source, obj/structure/door_assembly/target, previous = FALSE)
 	target.glass = source.glass
@@ -323,6 +350,7 @@
 	switch(passed_mode)
 		if(RCD_DECONSTRUCT)
 			to_chat(user, "<span class='notice'>You deconstruct [src].</span>")
+			log_attack("[key_name(user)] has deconstructed [src] at [loc_name(src)] using [format_text(initial(the_rcd.name))]")
 			qdel(src)
 			return TRUE
 	return FALSE

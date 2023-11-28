@@ -13,14 +13,14 @@
 	active_power_usage = 100
 	circuit = /obj/item/circuitboard/machine/smartfridge
 
-
+	var/tgui_theme = null // default theme as null is Nanotrasen theme.
 
 	var/max_n_of_items = 1500
 	var/allow_ai_retrieve = FALSE
 	var/list/initial_contents
 	var/visible_contents = TRUE
 
-/obj/machinery/smartfridge/Initialize()
+/obj/machinery/smartfridge/Initialize(mapload)
 	. = ..()
 	create_reagents(100, NO_REACT)
 
@@ -41,12 +41,8 @@
 	if(in_range(user, src) || isobserver(user))
 		. += "<span class='notice'>The status display reads: This unit can hold a maximum of <b>[max_n_of_items]</b> items.</span>"
 
-/obj/machinery/smartfridge/power_change()
-	..()
-	update_icon()
-
 /obj/machinery/smartfridge/update_icon()
-	if(!stat)
+	if(!machine_stat)
 		if (visible_contents)
 			switch(contents.len)
 				if(0)
@@ -73,7 +69,7 @@
 		cut_overlays()
 		if(panel_open)
 			add_overlay("[initial(icon_state)]-panel")
-		updateUsrDialog()
+		ui_update()
 		return
 
 	if(default_pry_open(O))
@@ -84,10 +80,9 @@
 		return
 
 	if(default_deconstruction_crowbar(O))
-		updateUsrDialog()
 		return
 
-	if(!stat)
+	if(!machine_stat)
 
 		if(contents.len >= max_n_of_items)
 			to_chat(user, "<span class='warning'>\The [src] is full!</span>")
@@ -96,7 +91,6 @@
 		if(accept_check(O))
 			load(O)
 			user.visible_message("[user] has added \the [O] to \the [src].", "<span class='notice'>You add \the [O] to \the [src].</span>")
-			updateUsrDialog()
 			if (visible_contents)
 				update_icon()
 			return TRUE
@@ -110,7 +104,6 @@
 				if(accept_check(G))
 					load(G)
 					loaded++
-			updateUsrDialog()
 
 			if(loaded)
 				if(contents.len >= max_n_of_items)
@@ -141,7 +134,6 @@
 					O.desc = "A container for holding body parts."
 					if(visible_contents)
 						update_icon()
-					updateUsrDialog()
 					return TRUE
 				else
 					to_chat(user, "<span class='warning'>[src] does not accept [I]!</span>")
@@ -152,19 +144,17 @@
 
 	if(user.a_intent != INTENT_HARM)
 		to_chat(user, "<span class='warning'>\The [src] smartly refuses [O].</span>")
-		updateUsrDialog()
 		return FALSE
 	else
 		return ..()
 
 
 /obj/machinery/smartfridge/hitby(atom/movable/AM, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
-	if(!stat)
+	if(!machine_stat)
 		if (istype(AM, /obj/item))
 			var/obj/item/O = AM
 			if(contents.len < max_n_of_items && accept_check(O))
 				load(O)
-				updateUsrDialog()
 				if (visible_contents)
 					update_icon()
 				return TRUE
@@ -183,13 +173,16 @@
 			to_chat(usr, "<span class='warning'>\the [O] is stuck to your hand, you cannot put it in \the [src]!</span>")
 			return FALSE
 		else
-			return TRUE
+			. = TRUE
 	else
 		if(SEND_SIGNAL(O.loc, COMSIG_CONTAINS_STORAGE))
-			return SEND_SIGNAL(O.loc, COMSIG_TRY_STORAGE_TAKE, O, src)
+			. = SEND_SIGNAL(O.loc, COMSIG_TRY_STORAGE_TAKE, O, src)
 		else
 			O.forceMove(src)
-			return TRUE
+			. = TRUE
+
+	if(.)
+		ui_update()
 
 ///Really simple proc, just moves the object "O" into the hands of mob "M" if able, done so I could modify the proc a little for the organ fridge
 /obj/machinery/smartfridge/proc/dispense(obj/item/O, var/mob/M)
@@ -214,18 +207,23 @@
 
 	var/listofitems = list()
 	for (var/I in src)
+		// We do not vend our own components.
+		if(I in component_parts)
+			continue
+
 		var/atom/movable/O = I
 		if (!QDELETED(O))
-			var/md5name = rustg_hash_string(RUSTG_HASH_MD5, O.name)				// This needs to happen because of a bug in a TGUI component, https://github.com/ractivejs/ractive/issues/744
-			if (listofitems[md5name])				// which is fixed in a version we cannot use due to ie8 incompatibility
-				listofitems[md5name]["amount"]++	// The good news is, #30519 made smartfridge UIs non-auto-updating
+			var/md5name = rustg_hash_string(RUSTG_HASH_MD5, O.name)
+			if (listofitems[md5name])
+				listofitems[md5name]["amount"]++
 			else
 				listofitems[md5name] = list("name" = O.name, "type" = O.type, "amount" = 1)
-	sortList(listofitems)
+	sort_list(listofitems)
 
 	.["contents"] = listofitems
 	.["name"] = name
 	.["isdryer"] = FALSE
+	.["ui_theme"] = tgui_theme
 
 
 /obj/machinery/smartfridge/handle_atom_del(atom/A) // Update the UIs in case something inside gets deleted
@@ -246,30 +244,28 @@
 			if (params["amount"])
 				desired = text2num(params["amount"])
 			else
-				desired = input("How many items?", "How many items would you like to take out?", 1) as null|num
+				desired = tgui_input_number(usr, "How many items would you like to take out?", "Release", max_value = 50)
+				if(!desired)
+					return FALSE
 
 			if(QDELETED(src) || QDELETED(usr) || !usr.Adjacent(src)) // Sanity checkin' in case stupid stuff happens while we wait for input()
 				return FALSE
 
-			if(desired == 1 && Adjacent(usr) && !issilicon(usr))
-				for(var/obj/item/O in src)
-					if(O.name == params["name"])
-						dispense(O, usr)
-						break
-				if (visible_contents)
-					update_icon()
-				return TRUE
-
-			for(var/obj/item/O in src)
+			for(var/obj/item/dispensed_item in src)
 				if(desired <= 0)
 					break
-				if(O.name == params["name"])
-					dispense(O, usr)
+				// Grab the first item in contents which name matches our passed name.
+				// format_text() is used here to strip \improper and \proper from both names,
+				// which is required for correct string comparison between them.
+				if(format_text(dispensed_item.name) == format_text(params["name"]))
+					if(dispensed_item in component_parts)
+						CRASH("Attempted removal of [dispensed_item] component_part from smartfridge via smartfridge interface.")
+					dispense(dispensed_item, usr)
 					desired--
+
 			if (visible_contents)
-				update_icon()
+				update_appearance()
 			return TRUE
-	return FALSE
 
 
 // ----------------------------
@@ -284,14 +280,21 @@
 	visible_contents = FALSE
 	var/drying = FALSE
 
-/obj/machinery/smartfridge/drying_rack/Initialize()
+/obj/machinery/smartfridge/drying_rack/Initialize(mapload)
 	. = ..()
-	if(component_parts?.len)
-		component_parts.Cut()
+
+	// Cache the old_parts first, we'll delete it after we've changed component_parts to a new list.
+	// This stops handle_atom_del being called on every part when not necessary.
+	var/list/old_parts = component_parts
+
 	component_parts = null
+	circuit = null
+
+	QDEL_LIST(old_parts)
+	RefreshParts()
 
 /obj/machinery/smartfridge/drying_rack/on_deconstruction()
-	new /obj/item/stack/sheet/mineral/wood(drop_location(), 10)
+	new /obj/item/stack/sheet/wood(drop_location(), 10)
 	..()
 
 /obj/machinery/smartfridge/drying_rack/RefreshParts()
@@ -320,6 +323,16 @@
 			return TRUE
 	return FALSE
 
+/obj/machinery/smartfridge/drying_rack/powered()
+	if(!anchored)
+		return FALSE
+	return ..()
+
+/obj/machinery/smartfridge/drying_rack/power_change()
+	. = ..()
+	if(!powered())
+		toggle_drying(TRUE)
+
 /obj/machinery/smartfridge/drying_rack/load() //For updating the filled overlay
 	..()
 	update_icon()
@@ -344,7 +357,7 @@
 		var/obj/item/reagent_containers/food/snacks/S = O
 		if(S.dried_type)
 			return TRUE
-	if(istype(O, /obj/item/stack/sheet/wetleather/))
+	if(istype(O, /obj/item/stack/sheet/leather/wetleather/))
 		return TRUE
 	return FALSE
 
@@ -370,7 +383,7 @@
 				S.reagents.copy_to(R)
 			qdel(S)
 		return TRUE
-	for(var/obj/item/stack/sheet/wetleather/WL in src)
+	for(var/obj/item/stack/sheet/leather/wetleather/WL in src)
 		new /obj/item/stack/sheet/leather(drop_location(), WL.amount)
 		qdel(WL)
 		return TRUE
@@ -448,19 +461,20 @@
 /obj/machinery/smartfridge/organ/RefreshParts()
 	for(var/obj/item/stock_parts/matter_bin/B in component_parts)
 		max_n_of_items = 20 * B.rating
-		repair_rate = max(0, STANDARD_ORGAN_HEALING * (B.rating - 1))
+		repair_rate = max(0, STANDARD_ORGAN_HEALING * (B.rating - 1) * 0.5)
 
-/obj/machinery/smartfridge/organ/process()
+/obj/machinery/smartfridge/organ/process(delta_time)
 	for(var/organ in contents)
 		var/obj/item/organ/O = organ
 		if(!istype(O))
 			return
-		O.applyOrganDamage(-repair_rate)
+		O.applyOrganDamage(-repair_rate * delta_time)
 
-/obj/machinery/smartfridge/organ/Exited(obj/item/organ/AM, atom/newLoc)
+/obj/machinery/smartfridge/organ/Exited(atom/movable/gone, direction)
 	. = ..()
-	if(istype(AM))
-		AM.organ_flags &= ~ORGAN_FROZEN
+	if(istype(gone))
+		var/obj/item/organ/organ = gone
+		organ.organ_flags &= ~ORGAN_FROZEN
 
 // -----------------------------
 // Chemistry Medical Smartfridge
@@ -483,7 +497,8 @@
 		return TRUE
 	if(!O.reagents || !O.reagents.reagent_list.len) // other empty containers not accepted
 		return FALSE
-	if(istype(O, /obj/item/reagent_containers/syringe) || istype(O, /obj/item/reagent_containers/glass/bottle) || istype(O, /obj/item/reagent_containers/glass/beaker) || istype(O, /obj/item/reagent_containers/spray) || istype(O, /obj/item/reagent_containers/medspray))
+	if(istype(O, /obj/item/reagent_containers/syringe) || istype(O, /obj/item/reagent_containers/glass/bottle) || istype(O, /obj/item/reagent_containers/glass/beaker) \
+	|| istype(O, /obj/item/reagent_containers/spray) || istype(O, /obj/item/reagent_containers/medspray) || istype(O, /obj/item/reagent_containers/chem_bag))
 		return TRUE
 	return FALSE
 
@@ -512,6 +527,37 @@
 		/obj/item/reagent_containers/glass/bottle/formaldehyde = 1,
 		/obj/item/reagent_containers/glass/bottle/cryostylane = 1)
 
+/obj/machinery/smartfridge/chemistry/virology/preloaded/debug
+	name = "debug virus storage"
+	desc = "Oh boy, badmin at it again with the Toxoplasmosis!"
+
+/obj/machinery/smartfridge/chemistry/virology/preloaded/debug/Initialize(mapload)
+	. = ..()
+	for(var/symptom in subtypesof(/datum/symptom))
+		var/datum/symptom/S = new symptom
+		var/datum/disease/advance/symptomholder = new
+		symptomholder.name = S.name
+		symptomholder.symptoms += S
+		symptomholder.Finalize()
+		symptomholder.Refresh()
+		var/list/data = list("viruses" = list(symptomholder))
+		var/obj/item/reagent_containers/glass/bottle/B = new
+		B.name = "[symptomholder.name] culture bottle"
+		B.desc = "A small bottle. Contains [symptomholder.agent] culture in synthblood medium."
+		B.reagents.add_reagent(/datum/reagent/blood, 20, data)
+		B.forceMove(src)
+	for(var/disease in subtypesof(/datum/disease))
+		if(!istype(disease, /datum/disease/advance))
+			var/datum/disease/target = new disease
+			var/list/data = list("viruses" = list(target))
+			var/obj/item/reagent_containers/glass/bottle/B = new
+			B.name = "[target.name] culture bottle"
+			B.desc = "A small bottle. Contains [target.agent] culture in synthblood medium."
+			B.reagents.add_reagent(/datum/reagent/blood, 20, data)
+			B.forceMove(src)
+
+
+
 // ----------------------------
 // Disk """fridge"""
 // ----------------------------
@@ -527,3 +573,24 @@
 		return TRUE
 	else
 		return FALSE
+
+// ----------------------------
+//  Sci smartfridge
+// ----------------------------
+/obj/machinery/smartfridge/sci
+	desc = "A smart storage vender for tech."
+
+/obj/machinery/smartfridge/sci/accept_check(obj/item/O)
+	if(istype(O, /obj/item/stock_parts))
+		return TRUE
+	if(istype(O, /obj/item/disk/tech_disk))
+		return TRUE
+	if(istype(O, /obj/item/circuit_component))
+		return TRUE
+	if(istype(O, /obj/item/assembly))
+		return TRUE
+	if(istype(O, /obj/item/circuitboard))
+		return TRUE
+	if(istype(O, /obj/item/mecha_parts))
+		return TRUE
+	return FALSE

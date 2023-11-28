@@ -11,21 +11,21 @@
 	ammo_x_offset = 3
 	flight_x_offset = 17
 	flight_y_offset = 9
-	block_upgrade_walk = 1
-
-/obj/item/gun/energy/ionrifle/emp_act(severity)
-	return
 
 /obj/item/gun/energy/ionrifle/carbine
 	name = "ion carbine"
 	desc = "The MK.II Prototype Ion Projector is a lightweight carbine version of the larger ion rifle, built to be ergonomic and efficient."
 	icon_state = "ioncarbine"
-	w_class = WEIGHT_CLASS_NORMAL
+	worn_icon_state = "ioncarbine"
+	w_class = WEIGHT_CLASS_LARGE
 	slot_flags = ITEM_SLOT_BELT
 	pin = null
 	ammo_x_offset = 2
 	flight_x_offset = 18
 	flight_y_offset = 11
+
+/obj/item/gun/energy/ionrifle/carbine/pin
+	pin = /obj/item/firing_pin
 
 /obj/item/gun/energy/decloner
 	name = "biological demolecularisor"
@@ -81,7 +81,6 @@
 	desc = "A prototype weapon recovered from the ruins of Research-Station Epsilon."
 	icon_state = "xray"
 	item_state = null
-	block_upgrade_walk = 1
 	ammo_type = list(/obj/item/ammo_casing/energy/mindflayer)
 	ammo_x_offset = 2
 
@@ -136,23 +135,21 @@
 	flags_1 = CONDUCT_1
 	attack_verb = list("attacked", "slashed", "cut", "sliced")
 	force = 12
-	block_upgrade_walk = 1
 	sharpness = IS_SHARP
 	can_charge = FALSE
 	dead_cell = TRUE
-
-	heat = 3800
 	usesound = list('sound/items/welder.ogg', 'sound/items/welder2.ogg')
 	tool_behaviour = TOOL_WELDER
 	toolspeed = 0.7 //plasmacutters can be used as welders, and are faster than standard welders
 	var/progress_flash_divisor = 10  //copypasta is best pasta
 	var/light_intensity = 1
 	var/charge_weld = 25 //amount of charge used up to start action (multiplied by amount) and per progress_flash_divisor ticks of welding
+	var/heat_weld = 3800
 	weapon_weight = WEAPON_LIGHT
 	fire_rate = 3
 	automatic = 1
 
-/obj/item/gun/energy/plasmacutter/Initialize()
+/obj/item/gun/energy/plasmacutter/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/butchering, 25, 105, 0, 'sound/weapons/plasma_cutter.ogg')
 
@@ -215,9 +212,16 @@
 
 /obj/item/gun/energy/plasmacutter/use_tool(atom/target, mob/living/user, delay, amount=1, volume=0, datum/callback/extra_checks)
 	if(amount)
+		target.add_overlay(GLOB.welding_sparks)
 		. = ..()
+		target.cut_overlay(GLOB.welding_sparks)
 	else
 		. = ..(amount=1)
+
+/obj/item/gun/energy/plasmacutter/is_hot()
+	if(use(1))
+		return heat_weld
+	return heat
 
 
 /obj/item/gun/energy/plasmacutter/update_icon()
@@ -237,8 +241,9 @@
 	can_charge = FALSE
 	use_cyborg_cell = TRUE
 	tool_behaviour = null //because it will drain the cutters cell and not the borgs.
-	
-	
+	requires_wielding = FALSE
+
+
 /obj/item/gun/energy/wormhole_projector
 	name = "bluespace wormhole projector"
 	desc = "A projector that emits high density quantum-coupled bluespace beams."
@@ -258,10 +263,10 @@
 	for(var/i in 1 to ammo_type.len)
 		var/obj/item/ammo_casing/energy/wormhole/W = ammo_type[i]
 		if(istype(W))
-			W.gun = src
-			var/obj/item/projectile/beam/wormhole/WH = W.BB
+			W.gun = WEAKREF(src)
+			var/obj/projectile/beam/wormhole/WH = W.BB
 			if(istype(WH))
-				WH.gun = src
+				WH.gun = WEAKREF(src)
 
 /obj/item/gun/energy/wormhole_projector/process_chamber()
 	..()
@@ -295,9 +300,9 @@
 	p_orange.link_portal(p_blue)
 	p_blue.link_portal(p_orange)
 
-/obj/item/gun/energy/wormhole_projector/proc/create_portal(obj/item/projectile/beam/wormhole/W, turf/target)
+/obj/item/gun/energy/wormhole_projector/proc/create_portal(obj/projectile/beam/wormhole/W, turf/target)
 	var/obj/effect/portal/P = new /obj/effect/portal(target, src, 300, null, FALSE, null, atmos_link)
-	if(istype(W, /obj/item/projectile/beam/wormhole/orange))
+	if(istype(W, /obj/projectile/beam/wormhole/orange))
 		qdel(p_orange)
 		p_orange = P
 		P.icon_state = "portal1"
@@ -319,6 +324,7 @@
 	use_cyborg_cell = TRUE
 	automatic = 1
 	fire_rate = 6
+	requires_wielding = FALSE
 
 /obj/item/gun/energy/printer/update_icon()
 	return
@@ -335,13 +341,15 @@
 	automatic = 1
 	fire_rate = 4
 	pin = null
-	block_upgrade_walk = 1
+
+/obj/item/gun/energy/temperature/pin
+	pin = /obj/item/firing_pin
 
 /obj/item/gun/energy/temperature/security
 	name = "security temperature gun"
 	desc = "A weapon that can only be used to its full potential by the truly robust."
 	pin = /obj/item/firing_pin
-	block_upgrade_walk = 1
+	w_class = WEIGHT_CLASS_BULKY
 
 /obj/item/gun/energy/laser/instakill
 	name = "instakill rifle"
@@ -350,7 +358,6 @@
 	desc = "A specialized ASMD laser-rifle, capable of flat-out disintegrating most targets in a single hit."
 	ammo_type = list(/obj/item/ammo_casing/energy/instakill)
 	force = 60
-	block_upgrade_walk = 1
 
 /obj/item/gun/energy/laser/instakill/red
 	desc = "A specialized ASMD laser-rifle, capable of flat-out disintegrating most targets in a single hit. This one has a red design."

@@ -70,7 +70,7 @@
 
 /datum/config_entry/flag/disable_peaceborg
 
-/datum/config_entry/flag/economy	//money money money money money money money money money money money money
+/datum/config_entry/flag/donator_items 	// do you need to be a donator to use donator items
 
 /datum/config_entry/number/traitor_scaling_coeff	//how much does the amount of players get divided by to determine traitors
 	config_entry_value = 6
@@ -187,7 +187,14 @@
 	integer = FALSE
 	min_val = 0
 
+/datum/config_entry/number/malf_ai_minimum_pop	// minimum population for malf AI to occur.
+	config_entry_value = 30
+	min_val = 0
+
 /datum/config_entry/flag/show_game_type_odds	//if set this allows players to see the odds of each roundtype on the get revision screen
+
+/datum/config_entry/string/fallback_default_species
+	config_entry_value = SPECIES_HUMAN
 
 /datum/config_entry/keyed_list/roundstart_races	//races you can play as from the get go.
 	key_mode = KEY_MODE_TEXT
@@ -242,6 +249,8 @@
 
 /datum/config_entry/flag/revival_cloning
 
+/datum/config_entry/flag/post_revival_message
+
 /datum/config_entry/number/revival_brain_life
 	config_entry_value = -1
 	integer = FALSE
@@ -253,13 +262,15 @@
 
 /datum/config_entry/flag/emojis
 
+/datum/config_entry/flag/badges
+
 /datum/config_entry/keyed_list/multiplicative_movespeed
 	key_mode = KEY_MODE_TYPE
 	value_mode = VALUE_MODE_NUM
 	config_entry_value = list(			//DEFAULTS
 	/mob/living/simple_animal = 1,
 	/mob/living/silicon/pai = 1,
-	/mob/living/carbon/alien/humanoid/hunter = -1,
+	/mob/living/carbon/alien/humanoid/hunter = -0.5,
 	/mob/living/carbon/alien/humanoid/royal/praetorian = 1,
 	/mob/living/carbon/alien/humanoid/royal/queen = 3
 	)
@@ -293,28 +304,6 @@
 /datum/config_entry/number/movedelay/walk_delay
 	integer = FALSE
 
-/////////////////////////////////////////////////Outdated move delay
-/datum/config_entry/number/outdated_movedelay
-	deprecated_by = /datum/config_entry/keyed_list/multiplicative_movespeed
-	abstract_type = /datum/config_entry/number/outdated_movedelay
-	integer = FALSE
-	var/movedelay_type
-
-/datum/config_entry/number/outdated_movedelay/DeprecationUpdate(value)
-	return "[movedelay_type] [value]"
-
-/datum/config_entry/number/outdated_movedelay/human_delay
-	movedelay_type = /mob/living/carbon/human
-/datum/config_entry/number/outdated_movedelay/robot_delay
-	movedelay_type = /mob/living/silicon/robot
-/datum/config_entry/number/outdated_movedelay/monkey_delay
-	movedelay_type = /mob/living/carbon/monkey
-/datum/config_entry/number/outdated_movedelay/alien_delay
-	movedelay_type = /mob/living/carbon/alien
-/datum/config_entry/number/outdated_movedelay/slime_delay
-	movedelay_type = /mob/living/simple_animal/slime
-/datum/config_entry/number/outdated_movedelay/animal_delay
-	movedelay_type = /mob/living/simple_animal
 /////////////////////////////////////////////////
 
 /datum/config_entry/flag/virtual_reality	//Will virtual reality be loaded
@@ -361,7 +350,7 @@
 	min_val = -1
 
 /datum/config_entry/string/overflow_job
-	config_entry_value = "Assistant"
+	config_entry_value = JOB_NAME_ASSISTANT
 
 /datum/config_entry/flag/starlight
 /datum/config_entry/flag/grey_assistants
@@ -372,7 +361,7 @@
 	min_val = 0
 
 /datum/config_entry/number/space_budget
-	config_entry_value = 16
+	config_entry_value = 40
 	integer = FALSE
 	min_val = 0
 
@@ -436,11 +425,6 @@
 /datum/config_entry/number/max_slimeperson_bodies
 	config_entry_value = 10
 
-//Maximum citation fine
-/datum/config_entry/number/maxfine
-	config_entry_value = 1000
-	min_val = 0
-
 
 //Shuttle size limiter
 /datum/config_entry/number/max_shuttle_count
@@ -457,8 +441,8 @@
 /datum/config_entry/string/master_mode
 	config_entry_value = "extended"
 
-//Bluespace Miners
-/datum/config_entry/number/roundstart_bluespace_miners
-	min_val = 0
+/datum/config_entry/flag/spare_enforce_coc
 
-/datum/config_entry/flag/bsminer_researchable
+/datum/config_entry/flag/station_traits
+
+/datum/config_entry/flag/dark_unstaffed_departments

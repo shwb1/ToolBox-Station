@@ -1,3 +1,5 @@
+#define MOTION_SENSOR_MINIMUM_ALPHA 200
+
 /obj/machinery/camera
 
 	var/list/datum/weakref/localMotionTargets = list()
@@ -10,7 +12,7 @@
 	if(!isMotion())
 		. = PROCESS_KILL
 		return
-	if(stat & EMPED)
+	if(machine_stat & EMPED)
 		return
 	if (detectTime > 0)
 		var/elapsed = world.time - detectTime
@@ -38,10 +40,9 @@
 	return TRUE
 
 /obj/machinery/camera/Destroy()
-	var/area/ai_monitored/A = get_area(src)
 	localMotionTargets = null
-	if(istype(A))
-		A.motioncameras -= src
+	if(area_motion)
+		area_motion.motioncameras -= src
 	cancelAlarm()
 	return ..()
 
@@ -52,20 +53,16 @@
 		cancelAlarm()
 
 /obj/machinery/camera/proc/cancelAlarm()
-	if (detectTime == -1)
-		for (var/i in GLOB.silicon_mobs)
-			var/mob/living/silicon/aiPlayer = i
-			if (status)
-				aiPlayer.cancelAlarm("Motion", get_area(src), src)
+	if(detectTime == -1 && status)
+		alarm_manager.clear_alarm(ALARM_MOTION)
 	detectTime = 0
 	return TRUE
 
 /obj/machinery/camera/proc/triggerAlarm()
-	if (!detectTime)
+	if(!detectTime)
 		return FALSE
-	for (var/mob/living/silicon/aiPlayer in GLOB.player_list)
-		if (status)
-			aiPlayer.triggerAlarm("Motion", get_area(src), list(src), src)
+	if(status)
+		if(alarm_manager.send_alarm(ALARM_MOTION, src, src))
 			visible_message("<span class='warning'>A red light flashes on the [src]!</span>")
 	detectTime = -1
 	return TRUE
@@ -73,7 +70,8 @@
 /obj/machinery/camera/HasProximity(atom/movable/AM as mob|obj)
 	// Motion cameras outside of an "ai monitored" area will use this to detect stuff.
 	if (!area_motion)
-		if(isliving(AM))
+		//Target must be living and visible enough to the camera
+		if(isliving(AM) && AM.invisibility <= SEE_INVISIBLE_LIVING && AM.alpha >= MOTION_SENSOR_MINIMUM_ALPHA)
 			newTarget(AM)
 
 /obj/machinery/camera/motion/thunderdome
@@ -82,7 +80,7 @@
 	c_tag = "Arena"
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF | FREEZE_PROOF
 
-/obj/machinery/camera/motion/thunderdome/Initialize()
+/obj/machinery/camera/motion/thunderdome/Initialize(mapload)
 	. = ..()
 	proximity_monitor.SetRange(7)
 
@@ -110,3 +108,5 @@
 		detectTime = 0
 		for(var/obj/machinery/computer/security/telescreen/entertainment/TV in GLOB.machines)
 			TV.notify(FALSE)
+
+#undef MOTION_SENSOR_MINIMUM_ALPHA

@@ -1,3 +1,4 @@
+#define SLIME_CARES_ABOUT(to_check) (to_check && (to_check == Target || to_check == Leader || (to_check in Friends)))
 /mob/living/simple_animal/slime
 	name = "grey baby slime (123)"
 	icon = 'icons/mob/slimes.dmi'
@@ -18,7 +19,7 @@
 	speak_emote = list("blorbles")
 	bubble_icon = "slime"
 	initial_language_holder = /datum/language_holder/slime
-	mobsay_color = "#A6E398"
+	chat_color = "#A6E398"
 	mobchatspan = "slimemobsay"
 
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
@@ -41,6 +42,8 @@
 
 	hud_type = /datum/hud/slime
 	hardattacks = TRUE //A sharp blade wont cut a slime from a mere parry
+
+	discovery_points = 1000
 
 	var/cores = 1 // the number of /obj/item/slime_extract's the slime has left inside
 	var/mutation_chance = 30 // Chance of mutating, should be between 25 and 35
@@ -108,7 +111,15 @@
 	create_reagents(100)
 	set_colour(new_colour)
 	. = ..()
-	set_nutrition(700)
+	set_nutrition(SLIME_DEFAULT_NUTRITION)
+	if(transformeffects & SLIME_EFFECT_LIGHT_PINK)
+		set_playable(ROLE_SENTIENCE)
+
+/mob/living/simple_animal/slime/Destroy()
+	set_target(null)
+	set_leader(null)
+	clear_friends()
+	return ..()
 
 /mob/living/simple_animal/slime/proc/set_colour(new_colour)
 	colour = new_colour
@@ -118,7 +129,8 @@
 	coretype = text2path("/obj/item/slime_extract/[sanitizedcolour]")
 	regenerate_icons()
 
-/mob/living/simple_animal/slime/proc/update_name()
+/mob/living/simple_animal/slime/update_name()
+	. = ..()
 	if(slime_name_regex.Find(name))
 		number = rand(1, 1000)
 		name = "[colour] [is_adult ? "adult" : "baby"] slime ([number])"
@@ -161,7 +173,6 @@
 		if(health <= 0)
 			mod += 2
 	add_movespeed_modifier(MOVESPEED_ID_SLIME_HEALTHMOD, TRUE, 100, multiplicative_slowdown = mod, override = TRUE)
-	update_health_hud()
 
 /mob/living/simple_animal/slime/update_health_hud()
 	if(hud_used)
@@ -230,7 +241,7 @@
 	return 2
 
 /mob/living/simple_animal/slime/get_stat_tab_status()
-	var/list/tab_data = list()
+	var/list/tab_data = ..()
 	if(!docile)
 		tab_data["Nutrition"] = GENERATE_STAT_TEXT("[nutrition]/[get_max_nutrition()]")
 	if(amount_grown >= SLIME_EVOLUTION_THRESHOLD)
@@ -250,11 +261,11 @@
 		amount = -abs(amount)
 	return ..() //Heals them
 
-/mob/living/simple_animal/slime/bullet_act(obj/item/projectile/Proj)
+/mob/living/simple_animal/slime/bullet_act(obj/projectile/Proj, def_zone, piercing_hit = FALSE)
 	attacked += 10
 	if((Proj.damage_type == BURN))
 		adjustBruteLoss(-abs(Proj.damage)) //fire projectiles heals slimes.
-		Proj.on_hit(src)
+		Proj.on_hit(src, 0, piercing_hit)
 	else
 		. = ..(Proj)
 	. = . || BULLET_ACT_BLOCK
@@ -272,7 +283,7 @@
 			Feedon(Food)
 	return ..()
 
-/mob/living/simple_animal/slime/doUnEquip(obj/item/W)
+/mob/living/simple_animal/slime/doUnEquip(obj/item/W, was_thrown = FALSE, silent = FALSE)
 	return
 
 /mob/living/simple_animal/slime/start_pulling(atom/movable/AM, state, force = move_force, supress_message = FALSE)
@@ -293,7 +304,7 @@
 		attacked += 5
 		if(nutrition >= 100) //steal some nutrition. negval handled in life()
 			adjust_nutrition(-(50 + (40 * M.is_adult)))
-			M.add_nutrition(50 + (40 * M.is_adult))
+			M.add_nutrition(25 + (20 * M.is_adult))
 		if(health > 0)
 			M.adjustBruteLoss(-10 + (-10 * M.is_adult))
 			M.updatehealth()
@@ -354,10 +365,7 @@
 				if(S.next_step(user,user.a_intent))
 					return 1
 	if(istype(W, /obj/item/stack/sheet/mineral/plasma) && !stat) //Let's you feed slimes plasma.
-		if (user in Friends)
-			++Friends[user]
-		else
-			Friends[user] = 1
+		add_friendship(user, 1)
 		to_chat(user, "<span class='notice'>You feed the slime the plasma. It chirps happily.</span>")
 		var/obj/item/stack/sheet/mineral/plasma/S = W
 		S.use(1)
@@ -393,7 +401,7 @@
 			if(applied >= SLIME_EXTRACT_CROSSING_REQUIRED)
 				to_chat(user, "<span class='notice'>You feed the slime as many of the extracts from the bag as you can, and it mutates!</span>")
 				playsound(src, 'sound/effects/attackblob.ogg', 50, 1)
-				spawn_corecross()
+				spawn_corecross(user)
 				hasOutput = TRUE
 				break
 		if(!hasOutput)
@@ -405,17 +413,25 @@
 		return
 	..()
 
-/mob/living/simple_animal/slime/proc/spawn_corecross()
+/mob/living/simple_animal/slime/proc/spawn_corecross(mob/living/user)
 	var/static/list/crossbreeds = subtypesof(/obj/item/slimecross)
 	visible_message("<span class='danger'>[src] shudders, its mutated core consuming the rest of its body!</span>")
 	playsound(src, 'sound/magic/smoke.ogg', 50, 1)
 	var/crosspath
+	var/crosspath_dangerous = FALSE
+	var/crosspath_name = "crossbred slime extract"
 	for(var/X in crossbreeds)
 		var/obj/item/slimecross/S = X
 		if(initial(S.colour) == colour && initial(S.effect) == effectmod)
 			crosspath = S
+			if(initial(S.dangerous))
+				crosspath_dangerous = TRUE
+			crosspath_name =  initial(S.effect) + " " + initial(S.colour) + " extract"
 			break
 	if(crosspath)
+		log_game("A [crosspath_name] was created at [AREACOORD(src)] by [key_name(user)]")
+		if(crosspath_dangerous)
+			message_admins("A [crosspath_name] was created at [ADMIN_VERBOSEJMP(src)] by [ADMIN_LOOKUPFLW(user)]")
 		new crosspath(loc)
 	else
 		visible_message("<span class='warning'>The mutated core shudders, and collapses into a puddle, unable to maintain its form.</span>")
@@ -428,12 +444,12 @@
 	adjustBruteLoss(new_damage)
 	if(!client)
 		if(Target) // Like cats
-			Target = null
+			set_target(null)
 			++Discipline
 	return
 
 /mob/living/simple_animal/slime/examine(mob/user)
-	. = list("<span class='info'>*---------*\nThis is [icon2html(src, user)] \a <EM>[src]</EM>!")
+	. = list("<span class='info'>This is [icon2html(src, user)] \a <EM>[src]</EM>!")
 	if (stat == DEAD)
 		. += "<span class='deadsay'>It is limp and unresponsive.</span>"
 	else
@@ -460,7 +476,7 @@
 			if(10)
 				. += "<span class='warning'><B>It is radiating with massive levels of electrical activity!</B></span>"
 
-	. += "*---------*</span>"
+	. += "</span>"
 
 /mob/living/simple_animal/slime/proc/discipline_slime(mob/user)
 	if(stat)
@@ -473,8 +489,7 @@
 			if(Discipline == 1)
 				attacked = 0
 
-	if(Target)
-		Target = null
+	set_target(null)
 	if(buckled)
 		Feedstop(silent = TRUE) //we unbuckle the slime from the mob it latched onto.
 		bucklestrength = initial(bucklestrength)
@@ -485,7 +500,7 @@
 	if(user)
 		step_away(src,user,15)
 
-	addtimer(CALLBACK(src, .proc/slime_move, user), 3)
+	addtimer(CALLBACK(src, PROC_REF(slime_move), user), 3)
 
 /mob/living/simple_animal/slime/proc/slime_move(mob/user)
 	if(user)
@@ -516,24 +531,15 @@
 		blocked += 50
 	. = ..(damage, damagetype, def_zone, blocked, forced)
 
-/mob/living/simple_animal/slime/attack_ghost(mob/user)
-	if(transformeffects & SLIME_EFFECT_LIGHT_PINK)
-		make_sentient(user)
+/mob/living/simple_animal/slime/get_discovery_id()
+	return "[colour] slime"
 
-/mob/living/simple_animal/slime/proc/make_sentient(mob/user)
-	if(key || stat)
-		return
-	var/slime_ask = alert("Become a slime?", "Slime time?", "Yes", "No")
-	if(slime_ask == "No" || QDELETED(src))
-		return
-	if(key)
-		to_chat(user, "<span class='warning'>Someone else already took this slime!</span>")
-		return
-	key = user.key
-	if(mind && master)
-		mind.store_memory("<b>Serve [master.real_name], your master.</b>")
-	remove_form_spawner_menu()
-	log_game("[key_name(src)] took control of [name].")
+/mob/living/simple_animal/slime/give_mind(mob/user)
+	. = ..()
+	if (.)
+		if(mind && master)
+			mind.store_memory("<b>Serve [master.real_name], your master.</b>")
+	return .
 
 /mob/living/simple_animal/slime/get_spawner_desc()
 	return "be a slime[master ? " under the command of [master.real_name]" : ""]."
@@ -541,16 +547,61 @@
 /mob/living/simple_animal/slime/get_spawner_flavour_text()
 	return "You are a slime born and raised in a laboratory.[master ? " Your duty is to follow the orders of [master.real_name].": ""]"
 
-/mob/living/simple_animal/slime/ghostize(can_reenter_corpse = TRUE)
-	. = ..()
-	if(. && transformeffects & SLIME_EFFECT_LIGHT_PINK && stat != DEAD)
-		LAZYADD(GLOB.mob_spawners["[master.real_name]'s slime"], src)
-		GLOB.poi_list |= src
-
-/mob/living/simple_animal/slime/proc/remove_form_spawner_menu()
-	for(var/spawner in GLOB.mob_spawners)
-		LAZYREMOVE(GLOB.mob_spawners[spawner], src)
-	GLOB.poi_list -= src
+/mob/living/simple_animal/slime/proc/make_master(mob/user)
+	Friends[user] += SLIME_FRIENDSHIP_ATTACK * 2
+	master = user
 
 /mob/living/simple_animal/slime/rainbow/Initialize(mapload, new_colour="rainbow", new_is_adult)
 	. = ..(mapload, new_colour, new_is_adult)
+
+/mob/living/simple_animal/slime/proc/set_target(new_target)
+	var/old_target = Target
+	Target = new_target
+	if(old_target && !SLIME_CARES_ABOUT(old_target))
+		UnregisterSignal(old_target, COMSIG_PARENT_QDELETING)
+	if(Target)
+		RegisterSignal(Target, COMSIG_PARENT_QDELETING, PROC_REF(clear_memories_of), override = TRUE)
+
+/mob/living/simple_animal/slime/proc/set_leader(new_leader)
+	var/old_leader = Leader
+	Leader = new_leader
+	if(old_leader && !SLIME_CARES_ABOUT(old_leader))
+		UnregisterSignal(old_leader, COMSIG_PARENT_QDELETING)
+	if(Leader)
+		RegisterSignal(Leader, COMSIG_PARENT_QDELETING, PROC_REF(clear_memories_of), override = TRUE)
+
+/mob/living/simple_animal/slime/proc/add_friendship(new_friend, amount = 1)
+	if(!Friends[new_friend])
+		Friends[new_friend] = 0
+	Friends[new_friend] += amount
+	if(new_friend)
+		RegisterSignal(new_friend, COMSIG_PARENT_QDELETING, PROC_REF(clear_memories_of), override = TRUE)
+
+/mob/living/simple_animal/slime/proc/set_friendship(new_friend, amount = 1)
+	Friends[new_friend] = amount
+	if(new_friend)
+		RegisterSignal(new_friend, COMSIG_PARENT_QDELETING, PROC_REF(clear_memories_of), override = TRUE)
+
+/mob/living/simple_animal/slime/proc/remove_friend(friend)
+	Friends -= friend
+	if(friend && !SLIME_CARES_ABOUT(friend))
+		UnregisterSignal(friend, COMSIG_PARENT_QDELETING)
+
+/mob/living/simple_animal/slime/proc/set_friends(new_buds)
+	clear_friends()
+	for(var/mob/friend as anything in new_buds)
+		set_friendship(friend, new_buds[friend])
+
+/mob/living/simple_animal/slime/proc/clear_friends()
+	for(var/mob/friend as anything in Friends)
+		remove_friend(friend)
+
+/mob/living/simple_animal/slime/proc/clear_memories_of(datum/source)
+	SIGNAL_HANDLER
+	if(source == Target)
+		set_target(null)
+	if(source == Leader)
+		set_leader(null)
+	remove_friend(source)
+
+#undef SLIME_CARES_ABOUT

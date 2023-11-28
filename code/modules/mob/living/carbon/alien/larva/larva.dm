@@ -9,6 +9,7 @@
 
 	maxHealth = 25
 	health = 25
+	hardcrit_threshold = HEALTH_THRESHOLD_CRIT
 
 	var/amount_grown = 0
 	var/max_grown = 100
@@ -16,10 +17,12 @@
 
 	rotate_on_lying = 0
 	bodyparts = list(/obj/item/bodypart/chest/larva, /obj/item/bodypart/head/larva)
+	flavor_text = FLAVOR_TEXT_EVIL
+	playable = TRUE
 
 
 //This is fine right now, if we're adding organ specific damage this needs to be updated
-/mob/living/carbon/alien/larva/Initialize()
+/mob/living/carbon/alien/larva/Initialize(mapload)
 
 	AddAbility(new/obj/effect/proc_holder/alien/hide(null))
 	AddAbility(new/obj/effect/proc_holder/alien/larva_evolve(null))
@@ -49,10 +52,6 @@
 
 // new damage icon system
 // now constructs damage icon for each organ from mask * damage field
-
-
-/mob/living/carbon/alien/larva/show_inv(mob/user)
-	return
 
 /mob/living/carbon/alien/larva/toggle_throw_mode()
 	return

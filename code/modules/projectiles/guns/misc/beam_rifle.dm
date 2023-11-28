@@ -19,7 +19,6 @@
 	fire_sound = 'sound/weapons/beam_sniper.ogg'
 	slot_flags = ITEM_SLOT_BACK
 	force = 15
-	block_upgrade_walk = 1
 	materials = list()
 	recoil = 4
 	ammo_x_offset = 3
@@ -76,6 +75,9 @@
 	var/datum/action/item_action/zoom_lock_action/zoom_lock_action
 	var/mob/listeningTo
 
+	var/obj/aiming_target
+	var/aiming_params
+
 /obj/item/gun/energy/beam_rifle/debug
 	delay = 0
 	cell_type = /obj/item/stock_parts/cell/infinite
@@ -89,11 +91,11 @@
 
 /obj/item/gun/energy/beam_rifle/pickup(mob/user)
 	set_user(user)
-	return ..()
+	..()
 
 /obj/item/gun/energy/beam_rifle/dropped(mob/user)
+	..()
 	set_user()
-	return ..()
 
 /obj/item/gun/energy/beam_rifle/ui_action_click(mob/user, actiontype)
 	if(istype(actiontype, zoom_lock_action))
@@ -158,7 +160,7 @@
 	else
 		slowdown = initial(slowdown)
 
-/obj/item/gun/energy/beam_rifle/Initialize()
+/obj/item/gun/energy/beam_rifle/Initialize(mapload)
 	. = ..()
 	fire_delay = delay
 	current_tracers = list()
@@ -172,13 +174,6 @@
 	listeningTo = null
 	return ..()
 
-/obj/item/gun/energy/beam_rifle/emp_act(severity)
-	. = ..()
-	if(. & EMP_PROTECT_SELF)
-		return
-	chambered = null
-	recharge_newshot()
-
 /obj/item/gun/energy/beam_rifle/proc/aiming_beam(force_update = FALSE)
 	var/diff = abs(aiming_lastangle - lastangle)
 	if(!check_user())
@@ -186,7 +181,7 @@
 	if(diff < AIMING_BEAM_ANGLE_CHANGE_THRESHOLD && !force_update)
 		return
 	aiming_lastangle = lastangle
-	var/obj/item/projectile/beam/beam_rifle/hitscan/aiming_beam/P = new
+	var/obj/projectile/beam/beam_rifle/hitscan/aiming_beam/P = new
 	P.gun = src
 	P.wall_pierce_amount = wall_pierce_amount
 	P.structure_pierce_amount = structure_piercing
@@ -197,12 +192,12 @@
 	else
 		P.color = rgb(0, 255, 0)
 	var/turf/curloc = get_turf(src)
-	var/turf/targloc = get_turf(current_user.client.mouseObject)
+	var/turf/targloc = get_turf(aiming_target)
 	if(!istype(targloc))
 		if(!istype(curloc))
 			return
 		targloc = get_turf_in_angle(lastangle, curloc, 10)
-	P.preparePixelProjectile(targloc, current_user, current_user.client.mouseParams, 0)
+	P.preparePixelProjectile(targloc, current_user, aiming_params, 0)
 	P.fire(lastangle)
 
 /obj/item/gun/energy/beam_rifle/process()
@@ -224,14 +219,16 @@
 	return TRUE
 
 /obj/item/gun/energy/beam_rifle/proc/process_aim()
-	if(istype(current_user) && current_user.client && current_user.client.mouseParams)
-		var/angle = mouse_angle_from_client(current_user.client)
+	if(istype(current_user) && current_user.client)
+		var/angle = mouse_angle_from_client(current_user.client, aiming_params)
 		current_user.setDir(angle2dir_cardinal(angle))
 		var/difference = abs(closer_angle_difference(lastangle, angle))
 		delay_penalty(difference * aiming_time_increase_angle_multiplier)
 		lastangle = angle
 
 /obj/item/gun/energy/beam_rifle/proc/on_mob_move()
+	SIGNAL_HANDLER
+
 	check_user()
 	if(aiming)
 		delay_penalty(aiming_time_increase_user_movement)
@@ -261,15 +258,15 @@
 		UnregisterSignal(listeningTo, COMSIG_MOVABLE_MOVED)
 		listeningTo = null
 	if(istype(current_user))
-		LAZYREMOVE(current_user.mousemove_intercept_objects, src)
 		current_user = null
 	if(istype(user))
 		current_user = user
-		LAZYOR(current_user.mousemove_intercept_objects, src)
-		RegisterSignal(user, COMSIG_MOVABLE_MOVED, .proc/on_mob_move)
+		RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(on_mob_move))
 		listeningTo = user
 
 /obj/item/gun/energy/beam_rifle/onMouseDrag(src_object, over_object, src_location, over_location, params, mob)
+	aiming_target = over_object
+	aiming_params = params
 	if(aiming)
 		process_aim()
 		aiming_beam()
@@ -294,7 +291,7 @@
 	process_aim()
 	if(aiming_time_left <= aiming_time_fire_threshold && check_user())
 		sync_ammo()
-		afterattack(M.client.mouseObject, M, FALSE, M.client.mouseParams, passthrough = TRUE)
+		afterattack(object, M, FALSE, params, passthrough = TRUE)
 	stop_aiming()
 	QDEL_LIST(current_tracers)
 	return ..()
@@ -320,7 +317,7 @@
 		AC.sync_stats()
 
 /obj/item/gun/energy/beam_rifle/proc/delay_penalty(amount)
-	aiming_time_left = CLAMP(aiming_time_left + amount, 0, aiming_time)
+	aiming_time_left = clamp(aiming_time_left + amount, 0, aiming_time)
 
 /obj/item/ammo_casing/energy/beam_rifle
 	name = "particle acceleration lens"
@@ -364,18 +361,18 @@
 
 /obj/item/ammo_casing/energy/beam_rifle/ready_proj(atom/target, mob/living/user, quiet, zone_override = "")
 	. = ..()
-	var/obj/item/projectile/beam/beam_rifle/hitscan/HS_BB = BB
+	var/obj/projectile/beam/beam_rifle/hitscan/HS_BB = BB
 	if(!istype(HS_BB))
 		return
 	HS_BB.impact_direct_damage = projectile_damage
 	HS_BB.stun = projectile_stun
 	HS_BB.impact_structure_damage = impact_structure_damage
 	HS_BB.aoe_mob_damage = aoe_mob_damage
-	HS_BB.aoe_mob_range = CLAMP(aoe_mob_range, 0, 15)				//Badmin safety lock
+	HS_BB.aoe_mob_range = clamp(aoe_mob_range, 0, 15)				//Badmin safety lock
 	HS_BB.aoe_fire_chance = aoe_fire_chance
 	HS_BB.aoe_fire_range = aoe_fire_range
 	HS_BB.aoe_structure_damage = aoe_structure_damage
-	HS_BB.aoe_structure_range = CLAMP(aoe_structure_range, 0, 15)	//Badmin safety lock
+	HS_BB.aoe_structure_range = clamp(aoe_structure_range, 0, 15)	//Badmin safety lock
 	HS_BB.wall_devastate = wall_devastate
 	HS_BB.wall_pierce_amount = wall_pierce_amount
 	HS_BB.structure_pierce_amount = structure_piercing
@@ -403,18 +400,18 @@
 	return TRUE
 
 /obj/item/ammo_casing/energy/beam_rifle/hitscan
-	projectile_type = /obj/item/projectile/beam/beam_rifle/hitscan
+	projectile_type = /obj/projectile/beam/beam_rifle/hitscan
 	select_name = "beam"
 	e_cost = 10000
 	fire_sound = 'sound/weapons/beam_sniper.ogg'
 
-/obj/item/projectile/beam/beam_rifle
+/obj/projectile/beam/beam_rifle
 	name = "particle beam"
 	icon = null
 	hitsound = 'sound/effects/explosion3.ogg'
 	damage = 0				//Handled manually.
 	damage_type = BURN
-	flag = "energy"
+	armor_flag = ENERGY
 	range = 150
 	jitter = 10
 	var/obj/item/gun/energy/beam_rifle/gun
@@ -433,103 +430,76 @@
 	var/aoe_mob_damage = 0
 	var/impact_structure_damage = 0
 	var/impact_direct_damage = 0
-	var/turf/cached
 	var/list/pierced = list()
 
-/obj/item/projectile/beam/beam_rifle/proc/AOE(turf/epicenter)
-	set waitfor = FALSE
+/obj/projectile/beam/beam_rifle/proc/AOE(turf/epicenter)
 	if(!epicenter)
 		return
 	new /obj/effect/temp_visual/explosion/fast(epicenter)
 	for(var/mob/living/L in hearers(aoe_mob_range, epicenter))		//handle aoe mob damage
 		L.adjustFireLoss(aoe_mob_damage)
 		to_chat(L, "<span class='userdanger'>\The [src] sears you!</span>")
-	for(var/turf/open/T in RANGE_TURFS(aoe_fire_range, epicenter))		//handle aoe fire
-		if(prob(aoe_fire_chance) && can_see(epicenter, T, aoe_fire_range))
+	for(var/turf/T in RANGE_TURFS(aoe_fire_range, epicenter))		//handle aoe fire
+		if(prob(aoe_fire_chance))
 			new /obj/effect/hotspot(T)
 	for(var/obj/O in range(aoe_structure_range, epicenter))
 		if(!isitem(O))
-			if(O.level == 1)	//Please don't break underfloor items!
-				continue
-			O.take_damage(aoe_structure_damage * get_damage_coeff(O), BURN, "laser", FALSE)
+			O.take_damage(aoe_structure_damage * get_damage_coeff(O), BURN, LASER, FALSE)
 
-/obj/item/projectile/beam/beam_rifle/proc/check_pierce(atom/target)
-	if(!do_pierce)
-		return FALSE
-	if(pierced[target])		//we already pierced them go away
-		return TRUE
-	if(isclosedturf(target))
-		if(wall_pierce++ < wall_pierce_amount)
-			if(prob(wall_devastate))
-				if(iswallturf(target))
-					var/turf/closed/wall/W = target
-					W.dismantle_wall(TRUE, TRUE)
-				else
-					target.ex_act(EXPLODE_HEAVY)
-			return TRUE
-	if(ismovableatom(target))
-		var/atom/movable/AM = target
-		if(AM.density && !AM.CanPass(src, get_turf(target)) && !ismob(AM))
-			if(structure_pierce < structure_pierce_amount)
-				if(isobj(AM))
-					var/obj/O = AM
-					O.take_damage((impact_structure_damage + aoe_structure_damage) * structure_bleed_coeff * get_damage_coeff(AM), BURN, "energy", FALSE)
-				pierced[AM] = TRUE
-				structure_pierce++
-				return TRUE
-	return FALSE
+/obj/projectile/beam/beam_rifle/prehit_pierce(atom/A)
+	if(isclosedturf(A) && (wall_pierce < wall_pierce_amount))
+		if(prob(wall_devastate))
+			if(iswallturf(A))
+				var/turf/closed/wall/W = A
+				W.dismantle_wall(TRUE, TRUE)
+			else
+				SSexplosions.medturf += A
+		++wall_pierce
+		return PROJECTILE_PIERCE_PHASE			// yeah this gun is a snowflakey piece of garbage
+	if(isobj(A) && (structure_pierce < structure_pierce_amount))
+		++structure_pierce
+		var/obj/O = A
+		O.take_damage((impact_structure_damage + aoe_structure_damage) * structure_bleed_coeff * get_damage_coeff(A), BURN, ENERGY, FALSE)
+		return PROJECTILE_PIERCE_PHASE			// ditto and this could be refactored to on_hit honestly
+	return ..()
 
-/obj/item/projectile/beam/beam_rifle/proc/get_damage_coeff(atom/target)
+/obj/projectile/beam/beam_rifle/proc/get_damage_coeff(atom/target)
 	if(istype(target, /obj/machinery/door))
 		return 0.4
 	if(istype(target, /obj/structure/window))
 		return 0.5
 	return 1
 
-/obj/item/projectile/beam/beam_rifle/proc/handle_impact(atom/target)
+/obj/projectile/beam/beam_rifle/proc/handle_impact(atom/target)
 	if(isobj(target))
 		var/obj/O = target
-		O.take_damage(impact_structure_damage * get_damage_coeff(target), BURN, "laser", FALSE)
+		O.take_damage(impact_structure_damage * get_damage_coeff(target), BURN, LASER, FALSE)
 	if(isliving(target))
 		var/mob/living/L = target
 		L.adjustFireLoss(impact_direct_damage)
 		L.emote("scream")
 
-/obj/item/projectile/beam/beam_rifle/proc/handle_hit(atom/target)
+/obj/projectile/beam/beam_rifle/proc/handle_hit(atom/target, piercing_hit = FALSE)
 	set waitfor = FALSE
-	if(!cached && !QDELETED(target))
-		cached = get_turf(target)
 	if(nodamage)
 		return FALSE
-	playsound(cached, 'sound/effects/explosion3.ogg', 100, 1)
-	AOE(cached)
+	playsound(src, 'sound/effects/explosion3.ogg', 100, TRUE)
+	if(!piercing_hit)
+		AOE(get_turf(target) || get_turf(src))
 	if(!QDELETED(target))
 		handle_impact(target)
 
-/obj/item/projectile/beam/beam_rifle/Bump(atom/target)
-	if(check_pierce(target))
-		permutated += target
-		trajectory_ignore_forcemove = TRUE
-		forceMove(target.loc)
-		trajectory_ignore_forcemove = FALSE
-		return FALSE
-	if(!QDELETED(target))
-		cached = get_turf(target)
+/obj/projectile/beam/beam_rifle/on_hit(atom/target, blocked = FALSE, piercing_hit = FALSE)
+	handle_hit(target, piercing_hit)
 	return ..()
 
-/obj/item/projectile/beam/beam_rifle/on_hit(atom/target, blocked = FALSE)
-	if(!QDELETED(target))
-		cached = get_turf(target)
-	handle_hit(target)
-	return ..()
-
-/obj/item/projectile/beam/beam_rifle/hitscan
+/obj/projectile/beam/beam_rifle/hitscan
 	icon_state = ""
 	hitscan = TRUE
 	tracer_type = /obj/effect/projectile/tracer/tracer/beam_rifle
 	var/constant_tracer = FALSE
 
-/obj/item/projectile/beam/beam_rifle/hitscan/generate_hitscan_tracers(cleanup = TRUE, duration = 5, impacting = TRUE, highlander)
+/obj/projectile/beam/beam_rifle/hitscan/generate_hitscan_tracers(cleanup = TRUE, duration = 5, impacting = TRUE, highlander)
 	set waitfor = FALSE
 	if(isnull(highlander))
 		highlander = constant_tracer
@@ -545,7 +515,7 @@
 		beam_segments = null
 		QDEL_NULL(beam_index)
 
-/obj/item/projectile/beam/beam_rifle/hitscan/aiming_beam
+/obj/projectile/beam/beam_rifle/hitscan/aiming_beam
 	tracer_type = /obj/effect/projectile/tracer/tracer/aiming
 	name = "aiming beam"
 	hitsound = null
@@ -558,10 +528,9 @@
 	hitscan_light_color_override = "#99ff99"
 	reflectable = REFLECT_FAKEPROJECTILE
 
-/obj/item/projectile/beam/beam_rifle/hitscan/aiming_beam/prehit(atom/target)
-	qdel(src)
-	return FALSE
+/obj/projectile/beam/beam_rifle/hitscan/aiming_beam/prehit_pierce(atom/target)
+	return PROJECTILE_DELETE_WITHOUT_HITTING
 
-/obj/item/projectile/beam/beam_rifle/hitscan/aiming_beam/on_hit()
+/obj/projectile/beam/beam_rifle/hitscan/aiming_beam/on_hit()
 	qdel(src)
-	return BULLET_ACT_HIT
+	return BULLET_ACT_BLOCK

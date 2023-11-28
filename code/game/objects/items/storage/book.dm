@@ -8,6 +8,7 @@
 	w_class = WEIGHT_CLASS_NORMAL
 	resistance_flags = FLAMMABLE
 	var/title = "book"
+	item_flags = ISWEAPON
 
 /obj/item/storage/book/ComponentInitialize()
 	. = ..()
@@ -16,12 +17,6 @@
 
 /obj/item/storage/book/attack_self(mob/user)
 	to_chat(user, "<span class='notice'>The pages of [title] have been cut out!</span>")
-
-GLOBAL_LIST_INIT(biblenames, list("Bible", "Quran", "Scrapbook", "Burning Bible", "Clown Bible", "Banana Bible", "Creeper Bible", "White Bible", "Holy Light",  "The God Delusion", "Tome",        "The King in Yellow", "Ithaqua", "Scientology", "Melted Bible", "Necronomicon","Insulationism"))
-//If you get these two lists not matching in size, there will be runtimes and I will hurt you in ways you couldn't even begin to imagine
-// if your bible has no custom itemstate, use one of the existing ones
-GLOBAL_LIST_INIT(biblestates, list("bible", "koran", "scrapbook", "burning", "honk1", "honk2", "creeper", "white", "holylight", "atheist", "tome", "kingyellow", "ithaqua", "scientology", "melted", "necronomicon","insuls"))
-GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning", "honk1", "honk2", "creeper", "white", "holylight", "atheist", "tome", "kingyellow", "ithaqua", "scientology", "melted", "necronomicon", "kingyellow"))
 
 /mob/proc/bible_check() //The bible, if held, might protect against certain things
 	var/obj/item/storage/book/bible/B = locate() in src
@@ -40,66 +35,113 @@ GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning",
 	var/mob/affecting = null
 	var/deity_name = "Christ"
 	force_string = "holy"
-	block_upgrade_walk = 1
 
-/obj/item/storage/book/bible/Initialize()
+/obj/item/storage/book/bible/ComponentInitialize()
 	. = ..()
-	AddComponent(/datum/component/anti_magic, FALSE, TRUE)
+	AddComponent(/datum/component/anti_magic, FALSE, TRUE, _allowed_slots = ITEM_SLOT_HANDS)
 
-/obj/item/storage/book/bible/suicide_act(mob/user)
+/obj/item/storage/book/bible/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] is offering [user.p_them()]self to [deity_name]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
-	return (BRUTELOSS)
+	return BRUTELOSS
 
 /obj/item/storage/book/bible/attack_self(mob/living/carbon/human/H)
 	if(!istype(H))
 		return
-	if(!H.can_read(src))
-		return FALSE
-	// If H is the Chaplain, we can set the icon_state of the bible (but only once!)
-	if(!GLOB.bible_icon_state && H.job == "Chaplain")
-		var/dat = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><title>Pick Bible Style</title></head><body><center><h2>Pick a bible style</h2></center><table>"
-		for(var/i in 1 to GLOB.biblestates.len)
-			var/icon/bibleicon = icon('icons/obj/storage.dmi', GLOB.biblestates[i])
-			var/nicename = GLOB.biblenames[i]
-			H << browse_rsc(bibleicon, nicename)
-			dat += {"<tr><td><img src="[nicename]"></td><td><a href="?src=[REF(src)];seticon=[i]">[nicename]</a></td></tr>"}
-		dat += "</table></body></html>"
-		H << browse(dat, "window=editicon;can_close=0;can_minimize=0;size=250x650")
+	// If H is the Chaplain, we can set the icon_state of the bible (but only once per bible)
+	if(!current_skin && H.mind.holy_role == HOLY_ROLE_HIGHPRIEST)
+		if(GLOB.bible_icon_state)//If the original has been reskinned but this one hasn't been, we make it look like the original
+			icon_state = GLOB.bible_icon_state
+			item_state = GLOB.bible_item_state
+			if(icon_state == "honk1" || icon_state == "honk2")
+				var/mob/living/carbon/C = H
+				if(C.has_dna())
+					C.dna.add_mutation(CLOWNMUT)
+				C.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/clown_hat(C), ITEM_SLOT_MASK)
+			src.update_icon()
+			return
+		if(isnull(unique_reskin_icon))
+			unique_reskin_icon = list(
+			"Bible" = "bible",
+			"Quran" = "koran",
+			"Scrapbook" = "scrapbook",
+			"Burning Bible" = "burning",
+			"Clown Bible" = "honk1",
+			"Banana Bible" = "honk2",
+			"Creeper Bible" = "creeper",
+			"White Bible" = "white",
+			"Holy Light" = "holylight",
+			"The God Delusion" = "atheist",
+			"Tome" = "tome",
+			"The King in Yellow" = "kingyellow",
+			"Ithaqua" = "ithaqua",
+			"Scientology" = "scientology",
+			"Melted Bible" = "melted",
+			"Necronomicon" = "necronomicon",
+			"Insulationism" = "insuls"
+		)
+		if(isnull(unique_reskin))
+			unique_reskin = list( //Unique_reskin is declared here so that the bible can't be reskinned through alt-clicking
+				"Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "bible"),
+				"Quran" = image(icon = 'icons/obj/storage.dmi', icon_state = "koran"),
+				"Scrapbook" = image(icon = 'icons/obj/storage.dmi', icon_state = "scrapbook"),
+				"Burning Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "burning"),
+				"Clown Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "honk1"),
+				"Banana Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "honk2"),
+				"Creeper Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "creeper"),
+				"White Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "white"),
+				"Holy Light" = image(icon = 'icons/obj/storage.dmi', icon_state = "holylight"),
+				"The God Delusion" = image(icon = 'icons/obj/storage.dmi', icon_state = "atheist"),
+				"Tome" = image(icon = 'icons/obj/storage.dmi', icon_state = "tome"),
+				"The King in Yellow" = image(icon = 'icons/obj/storage.dmi', icon_state = "kingyellow"),
+				"Ithaqua" = image(icon = 'icons/obj/storage.dmi', icon_state = "ithaqua"),
+				"Scientology" = image(icon = 'icons/obj/storage.dmi', icon_state = "scientology"),
+				"Melted Bible" = image(icon = 'icons/obj/storage.dmi', icon_state = "melted"),
+				"Necronomicon" = image(icon = 'icons/obj/storage.dmi', icon_state = "necronomicon"),
+				"Insulationism" = image(icon = 'icons/obj/storage.dmi', icon_state = "insuls")
+			)
+		reskin_bible(H)
 
-/obj/item/storage/book/bible/Topic(href, href_list)
-	if(!usr.canUseTopic(src, BE_CLOSE))
-		return
-	if(href_list["seticon"] && !GLOB.bible_icon_state)
-		var/iconi = text2num(href_list["seticon"])
-		var/biblename = GLOB.biblenames[iconi]
-		icon_state = GLOB.biblestates[iconi]
-		item_state = GLOB.bibleitemstates[iconi]
-
-		if(icon_state == "honk1" || icon_state == "honk2")
-			var/mob/living/carbon/human/H = usr
-			H.dna.add_mutation(CLOWNMUT)
-			H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/clown_hat(H), SLOT_WEAR_MASK)
-
+/obj/item/storage/book/bible/proc/reskin_bible(mob/M)//Total override of the proc because I need some new things added to it
+	var/choice = show_radial_menu(M, src, unique_reskin, radius = 42, require_near = TRUE, tooltips = TRUE)
+	if(!QDELETED(src) && choice && !current_skin && !M.incapacitated() && in_range(M,src))
+		if(!unique_reskin[choice])
+			return
+		current_skin = choice
+		icon_state = unique_reskin_icon[choice]
 		GLOB.bible_icon_state = icon_state
+		item_state = unique_reskin_icon[choice]
 		GLOB.bible_item_state = item_state
+		if(choice == "Clown Bible" || choice == "Banana Bible")
+			var/mob/living/carbon/C = M
+			if(C.has_dna())
+				C.dna.add_mutation(CLOWNMUT)
+			C.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/clown_hat(C), ITEM_SLOT_MASK)
+		to_chat(M, "[src] is now skinned as '[choice].'")
+		src.update_icon()
+		SSblackbox.record_feedback("text", "religion_book", 1, "[choice]")//I don't know why it's here but I'm keeping it in case it breaks something
+	return
 
-		SSblackbox.record_feedback("text", "religion_book", 1, "[biblename]")
-		usr << browse(null, "window=editicon")
+/obj/item/storage/book/bible/proc/bless(mob/living/L, mob/living/user)
+	if(GLOB.religious_sect)
+		return GLOB.religious_sect.sect_bless(L,user)
+	if(!ishuman(L))
+		return
 
-/obj/item/storage/book/bible/proc/bless(mob/living/carbon/human/H, mob/living/user)
+	var/mob/living/carbon/human/H = L
+
 	for(var/X in H.bodyparts)
 		var/obj/item/bodypart/BP = X
-		if(BP.status == BODYPART_ROBOTIC)
+		if(!IS_ORGANIC_LIMB(BP))
 			to_chat(user, "<span class='warning'>[src.deity_name] refuses to heal this metallic taint!</span>")
 			return 0
 
 	var/heal_amt = 10
-	var/list/hurt_limbs = H.get_damaged_bodyparts(1, 1, null, BODYPART_ORGANIC)
+	var/list/hurt_limbs = H.get_damaged_bodyparts(1, 1, null, BODYTYPE_ORGANIC)
 
 	if(hurt_limbs.len)
 		for(var/X in hurt_limbs)
 			var/obj/item/bodypart/affecting = X
-			if(affecting.heal_damage(heal_amt, heal_amt, null, BODYPART_ORGANIC))
+			if(affecting.heal_damage(heal_amt, heal_amt, null, BODYTYPE_ORGANIC))
 				H.update_damage_overlays()
 		H.visible_message("<span class='notice'>[user] heals [H] with the power of [deity_name]!</span>")
 		to_chat(H, "<span class='boldnotice'>May the power of [deity_name] compel you to be healed!</span>")
@@ -120,7 +162,7 @@ GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning",
 		return
 
 	var/chaplain = 0
-	if(user.mind && (user.mind.isholy))
+	if(user?.mind?.holy_role)
 		chaplain = 1
 
 	if(!chaplain)
@@ -138,7 +180,7 @@ GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning",
 			to_chat(user, "<span class='warning'>You can't heal yourself!</span>")
 			return
 
-		if(ishuman(M) && prob(60) && bless(M, user))
+		if(prob(60) && bless(M, user))
 			smack = 0
 		else if(iscarbon(M))
 			var/mob/living/carbon/C = M
@@ -162,10 +204,10 @@ GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning",
 		return
 	if(isfloorturf(A))
 		to_chat(user, "<span class='notice'>You hit the floor with the bible.</span>")
-		if(user.mind && (user.mind.isholy))
+		if(user?.mind?.holy_role)
 			for(var/obj/effect/rune/R in orange(2,user))
 				R.invisibility = 0
-	if(user.mind && (user.mind.isholy))
+	if(user?.mind?.holy_role)
 		if(A.reagents && A.reagents.has_reagent(/datum/reagent/water)) // blesses all the water in the holder
 			to_chat(user, "<span class='notice'>You bless [A].</span>")
 			var/water2holy = A.reagents.get_reagent_amount(/datum/reagent/water)
@@ -182,8 +224,8 @@ GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning",
 			B.name = name
 			B.icon_state = icon_state
 			B.item_state = item_state
-	if(istype(A, /obj/item/twohanded/required/cult_bastard) && !iscultist(user))
-		var/obj/item/twohanded/required/cult_bastard/sword = A
+	if(istype(A, /obj/item/cult_bastard) && !iscultist(user))
+		var/obj/item/cult_bastard/sword = A
 		to_chat(user, "<span class='notice'>You begin to exorcise [sword].</span>")
 		playsound(src,'sound/hallucinations/veryfar_noise.ogg',40,1)
 		if(do_after(user, 40, target = sword))
@@ -242,7 +284,7 @@ GLOBAL_LIST_INIT(bibleitemstates, list("bible", "koran", "scrapbook", "burning",
 
 /obj/item/storage/book/bible/syndicate/attack_self(mob/living/carbon/human/H)
 	if (uses)
-		H.mind.isholy = TRUE
+		H.mind.holy_role = HOLY_ROLE_PRIEST
 		uses -= 1
 		to_chat(H, "<span class='userdanger'>You try to open the book AND IT BITES YOU!</span>")
 		playsound(src.loc, 'sound/effects/snap.ogg', 50, 1)

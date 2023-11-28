@@ -63,7 +63,7 @@
 
 /datum/chemical_reaction/plasmasolidification/on_reaction(datum/reagents/holder, created_volume)
 	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
+	for(var/i in 1 to created_volume)
 		new /obj/item/stack/sheet/mineral/plasma(location)
 
 /datum/chemical_reaction/goldsolidification
@@ -74,7 +74,7 @@
 
 /datum/chemical_reaction/goldsolidification/on_reaction(datum/reagents/holder, created_volume)
 	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
+	for(var/i in 1 to created_volume)
 		new /obj/item/stack/sheet/mineral/gold(location)
 
 /datum/chemical_reaction/adamantinesolidification
@@ -85,7 +85,7 @@
 
 /datum/chemical_reaction/adamantinesolidification/on_reaction(datum/reagents/holder, created_volume)
 	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
+	for(var/i in 1 to created_volume)
 		new /obj/item/stack/sheet/mineral/adamantine(location)
 
 /datum/chemical_reaction/capsaicincondensation
@@ -103,7 +103,7 @@
 
 /datum/chemical_reaction/soapification/on_reaction(datum/reagents/holder, created_volume)
 	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
+	for(var/i in 1 to created_volume)
 		new /obj/item/soap/homemade(location)
 
 /datum/chemical_reaction/candlefication
@@ -115,7 +115,7 @@
 
 /datum/chemical_reaction/candlefication/on_reaction(datum/reagents/holder, created_volume)
 	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
+	for(var/i in 1 to created_volume)
 		new /obj/item/candle(location)
 
 /datum/chemical_reaction/meatification
@@ -126,7 +126,7 @@
 
 /datum/chemical_reaction/meatification/on_reaction(datum/reagents/holder, created_volume)
 	var/location = get_turf(holder.my_atom)
-	for(var/i = 1, i <= created_volume, i++)
+	for(var/i in 1 to created_volume)
 		new /obj/item/reagent_containers/food/snacks/meat/slab/meatproduct(location)
 	return
 
@@ -236,7 +236,6 @@
 /datum/chemical_reaction/mix_virus
 	name = "Mix Virus"
 	id = "mixvirus"
-	results = list(/datum/reagent/blood = 1)
 	required_reagents = list(/datum/reagent/consumable/virus_food = 1)
 	required_catalysts = list(/datum/reagent/blood = 1)
 	var/level_min = 1
@@ -249,7 +248,7 @@
 		var/datum/disease/advance/D = locate(/datum/disease/advance) in B.data["viruses"]
 		if(D)
 			D.Evolve(level_min, level_max)
-
+			D.logchanges(holder, "EVOLVE")
 
 /datum/chemical_reaction/mix_virus/mix_virus_2
 	name = "Mix Virus 2"
@@ -356,6 +355,7 @@
 		var/datum/disease/advance/D = locate(/datum/disease/advance) in B.data["viruses"]
 		if(D)
 			D.Devolve()
+			D.logchanges(holder, "DEVOLVE")
 
 //prevents a random symptom from showing while keeping the stats
 /datum/chemical_reaction/mix_virus/neuter_virus
@@ -371,6 +371,7 @@
 		var/datum/disease/advance/D = locate(/datum/disease/advance) in B.data["viruses"]
 		if(D)
 			D.Neuter()
+			D.logchanges(holder, "NEUTER")
 
 //prevents the altering of disease symptoms
 /datum/chemical_reaction/mix_virus/preserve_virus
@@ -386,6 +387,7 @@
 		var/datum/disease/advance/D = locate(/datum/disease/advance) in B.data["viruses"]
 		if(D)
 			D.mutable = FALSE
+			D.logchanges(holder, "PRESERVE")
 
 //prevents the disease from spreading via symptoms
 /datum/chemical_reaction/mix_virus/falter_virus
@@ -403,6 +405,7 @@
 			D.faltered = TRUE
 			D.spread_flags = DISEASE_SPREAD_FALTERED
 			D.spread_text = "Intentional Injection"
+			D.logchanges(holder, "FALTER")
 
 
 ////////////////////////////////// foam and foam precursor ///////////////////////////////////////////////////
@@ -546,8 +549,65 @@
 /datum/chemical_reaction/carpet
 	name = /datum/reagent/carpet
 	id = /datum/reagent/carpet
-	results = list(/datum/reagent/carpet = 2)
+	results = list(/datum/reagent/carpet = 10)
 	required_reagents = list(/datum/reagent/drug/space_drugs = 1, /datum/reagent/blood = 1)
+
+/datum/chemical_reaction/carpet/black
+	name = /datum/reagent/carpet/black
+	id = /datum/reagent/carpet/black
+	results = list(/datum/reagent/carpet/black = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/oil = 0.1)
+
+/datum/chemical_reaction/carpet/blue
+	name = /datum/reagent/carpet/blue
+	id = /datum/reagent/carpet/blue
+	results = list(/datum/reagent/carpet/blue = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/cryostylane = 0.1)
+
+/datum/chemical_reaction/carpet/cyan
+	name = /datum/reagent/carpet/cyan
+	id = /datum/reagent/carpet/cyan
+	results = list(/datum/reagent/carpet/cyan = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/toxin/cyanide = 0.1)
+	//cyan = cyanide get it huehueuhuehuehheuhe
+
+/datum/chemical_reaction/carpet/green
+	name = /datum/reagent/carpet/green
+	id = /datum/reagent/carpet/green
+	results = list(/datum/reagent/carpet/green = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/consumable/ethanol/beer/green = 0.1)
+	//make green beer by grinding up green crayons and mixing with beer
+
+/datum/chemical_reaction/carpet/orange
+	name = /datum/reagent/carpet/orange
+	id = /datum/reagent/carpet/orange
+	results = list(/datum/reagent/carpet/orange = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/consumable/orangejuice = 0.1)
+
+/datum/chemical_reaction/carpet/purple
+	name = /datum/reagent/carpet/purple
+	id = /datum/reagent/carpet/purple
+	results = list(/datum/reagent/carpet/purple = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/medicine/regen_jelly = 0.1)
+	//slimes only party
+
+/datum/chemical_reaction/carpet/red
+	name = /datum/reagent/carpet/red
+	id = /datum/reagent/carpet/red
+	results = list(/datum/reagent/carpet/red = 2)
+	required_reagents = list(/datum/reagent/carpet = 1, /datum/reagent/liquidgibs = 0.1)
+
+/datum/chemical_reaction/carpet/royalblack
+	name = /datum/reagent/carpet/royal/black
+	id = /datum/reagent/carpet/royal/black
+	results = list(/datum/reagent/carpet/royal/black = 2)
+	required_reagents = list(/datum/reagent/carpet/black = 1, /datum/reagent/royal_bee_jelly = 0.1)
+
+/datum/chemical_reaction/carpet/royalblue
+	name = /datum/reagent/carpet/royal/blue
+	id = /datum/reagent/carpet/royal/blue
+	results = list(/datum/reagent/carpet/royal/blue = 2)
+	required_reagents = list(/datum/reagent/carpet/blue = 1, /datum/reagent/royal_bee_jelly = 0.1)
 
 /datum/chemical_reaction/oil
 	name = "Oil"
@@ -666,6 +726,31 @@
 	for(var/i in 1 to created_volume)
 		new /obj/item/stack/sheet/plastic(location)
 
+/datum/chemical_reaction/glitter
+	name = "light pink glitter"
+	id = /datum/reagent/glitter
+	results = list(/datum/reagent/glitter = 10)
+	required_reagents = list(/datum/reagent/oil = 5, /datum/reagent/toxin/acid = 2, /datum/reagent/ash = 3, /datum/reagent/aluminium = 2)
+	required_temp = 340 //arbitrarily lower than plastic to prevent conflict
+
+/datum/chemical_reaction/glitter/pink
+	name = "pink glitter"
+	id = /datum/reagent/glitter/pink
+	results = list(/datum/reagent/glitter/pink = 5)
+	required_reagents = list(/datum/reagent/glitter = 5, /datum/reagent/stable_plasma = 1)
+
+/datum/chemical_reaction/glitter/white
+	name = "white glitter"
+	id = /datum/reagent/glitter/white
+	results = list(/datum/reagent/glitter/white = 5)
+	required_reagents = list(/datum/reagent/glitter = 5, /datum/reagent/consumable/sugar = 1)
+
+/datum/chemical_reaction/glitter/blue
+	name = "blue glitter"
+	id = /datum/reagent/glitter/blue
+	results = list(/datum/reagent/glitter/blue = 5)
+	required_reagents = list(/datum/reagent/glitter = 5, /datum/reagent/nitrogen = 1)
+
 /datum/chemical_reaction/pax
 	name = /datum/reagent/pax
 	id = /datum/reagent/pax
@@ -705,6 +790,12 @@
 	results = list(/datum/reagent/mutationtoxin/moth = 5)
 	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/toxin/lipolicide = 10) //I know it's the opposite of what moths like, but I am out of ideas for this.
 
+/datum/chemical_reaction/mutationtoxin/apid
+	name = /datum/reagent/mutationtoxin/apid
+	id = /datum/reagent/mutationtoxin/apid
+	results = list(/datum/reagent/mutationtoxin/apid = 5)
+	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/consumable/honey = 20) // beeeeeeeeeeeeeeeeeeeeees
+
 /datum/chemical_reaction/mutationtoxin/pod
 	name = /datum/reagent/mutationtoxin/pod
 	id = /datum/reagent/mutationtoxin/pod
@@ -723,19 +814,19 @@
 	results = list(/datum/reagent/mutationtoxin/abductor = 5)
 	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/medicine/morphine = 10, /datum/reagent/toxin/mutetoxin = 10)
 
-/datum/chemical_reaction/mutationtoxin/squid
-	name = /datum/reagent/mutationtoxin/squid
-	id = /datum/reagent/mutationtoxin/squid
-	results = list(/datum/reagent/mutationtoxin/squid = 5)
-	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/consumable/sodiumchloride = 10, /datum/reagent/water = 20)
+/datum/chemical_reaction/mutationtoxin/ethereal
+	name = /datum/reagent/mutationtoxin/ethereal
+	id = /datum/reagent/mutationtoxin/ethereal
+	results = list(/datum/reagent/mutationtoxin/ethereal = 5)
+	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/consumable/liquidelectricity = 20)
 
-/datum/chemical_reaction/mutationtoxin/ipc
-	name = /datum/reagent/mutationtoxin/ipc
-	id = /datum/reagent/mutationtoxin/ipc
-	results = list(/datum/reagent/mutationtoxin/ipc = 5)
-	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/teslium = 20)
+/datum/chemical_reaction/mutationtoxin/oozeling
+	name = /datum/reagent/mutationtoxin/oozeling
+	id = /datum/reagent/mutationtoxin/oozeling
+	results = list(/datum/reagent/mutationtoxin/oozeling = 5)
+	required_reagents  = list(/datum/reagent/mutationtoxin/unstable = 5, /datum/reagent/medicine/calomel = 10, /datum/reagent/toxin/bad_food = 30, /datum/reagent/stable_plasma = 5)
 
-//////////////Mutatuion toxins made out of advanced toxin/////////////
+//////////////Mutation toxins made out of advanced toxin/////////////
 
 /datum/chemical_reaction/mutationtoxin/skeleton
 	name = /datum/reagent/mutationtoxin/skeleton
@@ -743,7 +834,7 @@
 	results = list(/datum/reagent/mutationtoxin/skeleton = 5)
 	required_reagents  = list(/datum/reagent/aslimetoxin = 5, /datum/reagent/consumable/milk = 30, /datum/reagent/toxin/acid/fluacid = 30) //Because acid melts flesh off.
 
-///datum/chemical_reaction/mutationtoxin/zombie //No zombies untill holopara issue is fixed.
+///datum/chemical_reaction/mutationtoxin/zombie //No zombies until holopara issue is fixed.
 //	name = /datum/reagent/mutationtoxin/zombie
 //	id = /datum/reagent/mutationtoxin/zombie
 //	results = list(/datum/reagent/mutationtoxin/zombie = 1)

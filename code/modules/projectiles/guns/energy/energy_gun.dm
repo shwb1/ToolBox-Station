@@ -12,7 +12,6 @@
 	flight_y_offset = 10
 	weapon_weight = WEAPON_MEDIUM
 	dual_wield_spread = 60
-	block_upgrade_walk = 1
 
 /obj/item/gun/energy/e_gun/mini
 	name = "miniature energy gun"
@@ -20,20 +19,29 @@
 	icon_state = "mini"
 	item_state = "gun"
 	w_class = WEIGHT_CLASS_SMALL
-	cell_type = /obj/item/stock_parts/cell{charge = 600; maxcharge = 600}
+	gun_charge = 600
 	ammo_x_offset = 2
 	charge_sections = 3
 	can_flashlight = FALSE // Can't attach or detach the flashlight, and override it's icon update
 	weapon_weight = WEAPON_LIGHT
 
-/obj/item/gun/energy/e_gun/mini/Initialize()
-	gun_light = new /obj/item/flashlight/seclite(src)
-	return ..()
+/obj/item/gun/energy/e_gun/mini/heads
+	name = "Personal Tiny Self Defense Gun"
+	desc = "The PTSD gun has a built-in flashlight and the ability to recharge itself in two minutes. PTSD is standard issue for leadership within Nanotrasen. It has two settings: disable and kill."
+	ammo_type = list(/obj/item/ammo_casing/energy/disabler/hos, /obj/item/ammo_casing/energy/laser) ///uses the hos disabler rounds to slightly weaken the disabler count and also to avoid encountering a visual bug where the gun is out of charge but displays that it has one enough for another shot.
+	selfcharge = 1
+	charge_delay = 20
+	can_charge = FALSE 			///Not compatible with fast charging stations, must recharge slowly.
+	icon_state = "personal"
+	item_state = "gun"
+	ammo_x_offset = 2
+	charge_sections = 2
+	flight_x_offset = 13
+	flight_y_offset = 12
 
-/obj/item/gun/energy/e_gun/mini/update_icon()
-	..()
-	if(gun_light?.on)
-		add_overlay("mini-light")
+/obj/item/gun/energy/e_gun/mini/Initialize(mapload)
+	set_gun_light(new /obj/item/flashlight/seclite(src))
+	return ..()
 
 /obj/item/gun/energy/e_gun/stun
 	name = "tactical energy gun"
@@ -58,9 +66,9 @@
 /obj/item/gun/energy/e_gun/hos
 	name = "\improper X-01 MultiPhase Energy Gun"
 	desc = "This is an expensive, modern recreation of an antique laser gun. This gun has several unique firemodes, but lacks the ability to recharge over time."
-	//cell_type = /obj/item/stock_parts/cell{charge = 1200; maxcharge = 1200}
+	gun_charge = 1200
 	icon_state = "hoslaser"
-	w_class = WEIGHT_CLASS_NORMAL
+	w_class = WEIGHT_CLASS_LARGE
 	force = 10
 	automatic = 1
 	fire_rate = 3
@@ -68,6 +76,7 @@
 	ammo_type = list(/obj/item/ammo_casing/energy/electrode/hos, /obj/item/ammo_casing/energy/laser/hos, /obj/item/ammo_casing/energy/disabler/hos)
 	ammo_x_offset = 4
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | ACID_PROOF
+	investigate_flags = ADMIN_INVESTIGATE_TARGET
 
 /obj/item/gun/energy/e_gun/dragnet
 	name = "\improper DRAGnet"
@@ -80,7 +89,7 @@
 	can_flashlight = FALSE
 	ammo_x_offset = 1
 	fire_rate = 1.5
-	w_class = WEIGHT_CLASS_NORMAL
+	w_class = WEIGHT_CLASS_LARGE //Updated to large, was medium
 	var/beaconfrequency = STANDARD_BEACON_FREQUENCY
 
 /obj/item/gun/energy/e_gun/dragnet/update_ammo_types()
@@ -103,7 +112,7 @@
 	item_state = "turretlaser"
 	slot_flags = null
 	w_class = WEIGHT_CLASS_HUGE
-	cell_type = /obj/item/stock_parts/cell{charge = 10000; maxcharge = 10000}
+	gun_charge = 10000
 	ammo_type = list(/obj/item/ammo_casing/energy/electrode, /obj/item/ammo_casing/energy/laser)
 	weapon_weight = WEAPON_HEAVY
 	can_flashlight = FALSE
@@ -117,7 +126,7 @@
 	desc = "An energy gun with an experimental miniaturized nuclear reactor that automatically charges the internal power cell."
 	icon_state = "nucgun"
 	item_state = "nucgun"
-	charge_delay = 5
+	charge_delay = 10
 	pin = null
 	can_charge = FALSE
 	ammo_x_offset = 1
@@ -127,9 +136,9 @@
 	var/fail_tick = 0
 	var/fail_chance = 0
 
-/obj/item/gun/energy/e_gun/nuclear/process()
+/obj/item/gun/energy/e_gun/nuclear/process(delta_time)
 	if(fail_tick > 0)
-		fail_tick--
+		fail_tick -= delta_time * 0.5
 	..()
 
 /obj/item/gun/energy/e_gun/nuclear/shoot_live_shot(mob/living/user, pointblank = 0, atom/pbtarget = null, message = 1)

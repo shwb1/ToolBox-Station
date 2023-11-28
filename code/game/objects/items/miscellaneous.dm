@@ -38,7 +38,7 @@
 	var/list/display_names = generate_display_names()
 	if(!display_names.len)
 		return
-	var/choice = input(M,"Which item would you like to order?","Select an Item") as null|anything in sortList(display_names)
+	var/choice = input(M,"Which item would you like to order?","Select an Item") as null|anything in sort_list(display_names)
 	if(!choice || !M.canUseTopic(src, BE_CLOSE, FALSE, NO_TK))
 		return
 
@@ -47,6 +47,7 @@
 	if(!uses)
 		qdel(src)
 	else
+		balloon_alert(M, "[uses] use[uses > 1 ? "s" : ""] remaining")
 		to_chat(M, "<span class='notice'>[uses] use[uses > 1 ? "s" : ""] remaining on the [src].</span>")
 
 /obj/item/choice_beacon/proc/spawn_option(obj/choice,mob/living/M)
@@ -61,24 +62,59 @@
 			msg = "You hear something crackle in your ears for a moment before a voice speaks.  \"Please stand by for a message from Central Command.  Message as follows: <span class='bold'>Item request received. Your package is inbound, please stand back from the landing site.</span> Message ends.\""
 	to_chat(M, msg)
 
-	new /obj/effect/DPtarget(get_turf(src), pod)
+	new /obj/effect/pod_landingzone(get_turf(src), pod)
 
-/obj/item/choice_beacon/hero
+/obj/item/choice_beacon/radial
+	name = "multi-choice beacon"
+	desc = "Summons a variety of items"
+
+/obj/item/choice_beacon/radial/proc/generate_item_list()
+	return list()
+
+/obj/item/choice_beacon/radial/hero
 	name = "heroic beacon"
 	desc = "To summon heroes from the past to protect the future."
 
-/obj/item/choice_beacon/hero/generate_display_names()
-	var/static/list/hero_item_list
-	if(!hero_item_list)
-		hero_item_list = list()
-		var/list/templist = typesof(/obj/item/storage/box/hero) //we have to convert type = name to name = type, how lovely!
-		for(var/V in templist)
+/obj/item/choice_beacon/radial/hero/generate_options(mob/living/M)
+	var/list/item_list = generate_item_list()
+	if(!item_list.len)
+		return
+	var/choice = show_radial_menu(M, src, item_list, radius = 36, require_near = TRUE, tooltips = TRUE)
+	if(!QDELETED(src) && !(isnull(choice)) && !M.incapacitated() && in_range(M,src))
+		var/list/temp_list = typesof(/obj/item/storage/box/hero)
+		for(var/V in temp_list)
 			var/atom/A = V
-			hero_item_list[initial(A.name)] = A
-	return hero_item_list
+			if(initial(A.name) == choice)
+				spawn_option(A,M)
+				uses--
+				if(!uses)
+					qdel(src)
+				else
+					balloon_alert(M, "[uses] use[uses > 1 ? "s" : ""] remaining")
+					to_chat(M, "<span class='notice'>[uses] use[uses > 1 ? "s" : ""] remaining on the [src].</span>")
+				return
+
+/obj/item/choice_beacon/radial/hero/generate_item_list()
+	var/static/list/item_list
+	if(!item_list)
+		item_list = list()
+		var/list/templist = typesof(/obj/item/storage/box/hero)
+		for(var/V in templist)
+			var/obj/item/storage/box/hero/boxy = V
+			var/image/outfit_icon = image(initial(boxy.item_icon_file), initial(boxy.item_icon_state))
+			var/datum/radial_menu_choice/choice = new
+			choice.image = outfit_icon
+			var/info_text = "That's [icon2html(outfit_icon, usr)] "
+			info_text += initial(boxy.info_text)
+			choice.info = info_text
+			item_list[initial(boxy.name)] = choice
+	return item_list
 
 /obj/item/storage/box/hero
 	name = "Courageous Tomb Raider - 1940's."
+	var/icon/item_icon_file = 'icons/misc/premade_loadouts.dmi'
+	var/item_icon_state = "indiana"
+	var/info_text = "Courageous Tomb Raider - 1940's. \n<span class='notice'>Comes with a whip</span>"
 
 /obj/item/storage/box/hero/PopulateContents()
 	new /obj/item/clothing/head/fedora/curator(src)
@@ -89,6 +125,8 @@
 
 /obj/item/storage/box/hero/astronaut
 	name = "First Man on the Moon - 1960's."
+	item_icon_state = "voidsuit"
+	info_text = "First Man on the Moon - 1960's. \n<span class='notice'>Comes with an air tank and a GPS</span>"
 
 /obj/item/storage/box/hero/astronaut/PopulateContents()
 	new /obj/item/clothing/suit/space/nasavoid(src)
@@ -98,6 +136,8 @@
 
 /obj/item/storage/box/hero/scottish
 	name = "Braveheart, the Scottish rebel - 1300's."
+	item_icon_state = "scottsman"
+	info_text = "Braveheart, the Scottish rebel - 1300's. \n<span class='notice'>Comes with a claymore and a spraycan</span>"
 
 /obj/item/storage/box/hero/scottish/PopulateContents()
 	new /obj/item/clothing/under/costume/kilt(src)
@@ -107,6 +147,8 @@
 
 /obj/item/storage/box/hero/ghostbuster
 	name = "Spectre Inspector - 1980's."
+	item_icon_state = "ghostbuster"
+	info_text = "Spectre Inspector - 1980's. \n<span class='notice'>Comes with some anti-spectre grenades</span>"
 
 /obj/item/storage/box/hero/ghostbuster/PopulateContents()
 	new /obj/item/clothing/glasses/welding/ghostbuster(src)
@@ -117,6 +159,27 @@
 	new /obj/item/grenade/chem_grenade/ghostbuster(src)
 	new /obj/item/grenade/chem_grenade/ghostbuster(src)
 	new /obj/item/grenade/chem_grenade/ghostbuster(src)
+
+/obj/item/storage/box/hero/carphunter
+	name = "Carp Hunter, Wildlife Expert - 2506."
+	item_icon_state = "carp"
+	info_text = "Carp Hunter, Wildlife Expert - 2506. \n<span class='notice'>Comes with a hunting knife</span>"
+
+/obj/item/storage/box/hero/carphunter/PopulateContents()
+	new /obj/item/clothing/suit/space/hardsuit/carp/old(src)
+	new /obj/item/clothing/mask/gas/carp(src)
+	new /obj/item/knife/hunting(src)
+
+/obj/item/storage/box/hero/ronin
+	name = "Sword Saint, Wandering Vagabond - 1600's."
+	item_icon_state = "samurai"
+	info_text = "Sword Saint, Wandering Vagabond - 1600's. \n<span class='notice'>Comes with a replica katana</span>"
+
+/obj/item/storage/box/hero/ronin/PopulateContents()
+    new /obj/item/clothing/under/costume/kamishimo(src)
+    new /obj/item/clothing/head/rice_hat(src)
+    new /obj/item/katana/weak/curator(src)
+    new /obj/item/clothing/shoes/sandal(src)
 
 /obj/item/choice_beacon/augments
 	name = "augment beacon"
@@ -143,34 +206,68 @@
 	new choice(get_turf(M))
 	to_chat(M, "You hear something crackle from the beacon for a moment before a voice speaks.  \"Please stand by for a message from S.E.L.F. Message as follows: <span class='bold'>Item request received. Your package has been transported, use the autosurgeon supplied to apply the upgrade.</span> Message ends.\"")
 
-/obj/item/choice_beacon/magic
+/obj/item/choice_beacon/radial/magic
 	name = "beacon of summon magic"
 	desc = "Not actually magical."
 
-/obj/item/choice_beacon/magic/generate_display_names()
-	var/static/list/magic_item_list
-	if(!magic_item_list)
-		magic_item_list = list()
-		var/list/templist = typesof(/obj/item/storage/box/magic) //we have to convert type = name to name = type, how lovely!
-		for(var/V in templist)
+/obj/item/choice_beacon/radial/magic/generate_options(mob/living/M)
+	var/list/item_list = generate_item_list()
+	if(!item_list.len)
+		return
+	var/choice = show_radial_menu(M, src, item_list, radius = 36, require_near = TRUE, tooltips = TRUE)
+	if(!QDELETED(src) && !(isnull(choice)) && !M.incapacitated() && in_range(M,src))
+		var/list/temp_list = typesof(/obj/item/storage/box/magic)
+		for(var/V in temp_list)
 			var/atom/A = V
-			magic_item_list[initial(A.name)] = A
-	return magic_item_list
+			if(initial(A.name) == choice)
+				spawn_option(A,M)
+				uses--
+				if(!uses)
+					qdel(src)
+				else
+					balloon_alert(M, "[uses] use[uses > 1 ? "s" : ""] remaining")
+					to_chat(M, "<span class='notice'>[uses] use[uses > 1 ? "s" : ""] remaining on the [src].</span>")
+				return
+
+/obj/item/choice_beacon/radial/magic/generate_item_list()
+	var/static/list/item_list
+	if(!item_list)
+		item_list = list()
+		var/list/templist = typesof(/obj/item/storage/box/magic)
+		for(var/V in templist)
+			var/obj/item/storage/box/magic/boxy = V
+			var/image/outfit_icon = image(initial(boxy.item_icon_file), initial(boxy.item_icon_state))
+			var/datum/radial_menu_choice/choice = new
+			choice.image = outfit_icon
+			var/info_text = "That's [icon2html(outfit_icon, usr)] "
+			info_text += initial(boxy.info_text)
+			choice.info = info_text
+			item_list[initial(boxy.name)] = choice
+	return item_list
 
 /obj/item/storage/box/magic
 	name = "Tele-Gloves"
+	var/icon/item_icon_file = 'icons/obj/clothing/gloves.dmi'
+	var/item_icon_state = "white"
+	var/info_text = "Tele-Gloves. \n<span class='notice'>Allow object manipulation from a distance.</span>"
 
 /obj/item/storage/box/magic/PopulateContents()
 	new /obj/item/clothing/gloves/color/white/magic(src)
 
 /obj/item/storage/box/magic/cloak
 	name = "Invisibility Cloak"
+	item_icon_file = 'icons/obj/beds_chairs/beds.dmi'
+	item_icon_state = "sheetmagician"
+	info_text = "Invisibility Cloak. \n<span class='notice'>Allows for temporary invisibility.</span>"
 
 /obj/item/storage/box/magic/cloak/PopulateContents()
 	new /obj/item/shadowcloak/magician(src)
 
 /obj/item/storage/box/magic/hat
 	name = "Bottomless Top Hat"
+	item_icon_file = 'icons/obj/clothing/hats.dmi'
+	item_icon_state = "tophat"
+	info_text = "Bottomless Top Hat. \n<span class='notice'>Allows for storage of items and living beings inside.</span>"
 
 /obj/item/storage/box/magic/hat/PopulateContents()
 	new /obj/item/clothing/head/that/bluespace(src)
@@ -198,25 +295,25 @@
 	if(!proximity_flag)
 		return
 	if(isliving(target))
-		var/mob/living/M = target
-		var/kidnaptime = max(10, (M.health * (M.mob_size / 2)))
+		var/mob/living/kidnapee = target
+		var/kidnaptime = max(1 SECONDS, (kidnapee.health * (kidnapee.mob_size / 2)))
 		if(iscarbon(target))
-			kidnaptime += 100
+			kidnaptime += 10 SECONDS
 		if(target == user)
-			kidnaptime = 10
-		M.visible_message("<span class='warning'>[user] starts pulling [src] over [M]'s head!</span>", "<span class='userdanger'>[user] starts pulling [src] over your head!</span>")
-		if(do_after_mob(user, M, kidnaptime * kidnappingcoefficient))
-			if(M == user)
-				M.drop_all_held_items()
+			kidnaptime = 1 SECONDS
+		kidnapee.visible_message("<span class='warning'>[user] starts pulling [src] over [kidnapee]'s head!</span>", "<span class='userdanger'>[user] starts pulling [src] over your head!</span>")
+		if(do_after(user, kidnaptime * kidnappingcoefficient, kidnapee))
+			if(kidnapee == user)
+				kidnapee.drop_all_held_items()
 				if(HAS_TRAIT(src, TRAIT_NODROP))
 					return
-			if(M.mob_size <= capacity)
-				src.contents += M
-				capacity -= M.mob_size
-				user.visible_message("<span class='warning'>[user] stuffs [M] into the [src]!</span>")
-				to_chat(M, "<span class='userdanger'>[user] stuffs you into the [src]!</span>")
+			if(kidnapee.mob_size <= capacity)
+				src.contents += kidnapee
+				capacity -= kidnapee.mob_size
+				user.visible_message("<span class='warning'>[user] stuffs [kidnapee] into the [src]!</span>")
+				to_chat(kidnapee, "<span class='userdanger'>[user] stuffs you into the [src]!</span>")
 			else
-				to_chat(user, "[M] will not fit in the tophat!")
+				to_chat(user, "[kidnapee] will not fit in the tophat!")
 	else if (isitem(target))
 		var/obj/item/I = target
 		if(I in user.contents)
@@ -328,14 +425,14 @@
 	var/mob/your_pet = new mob_choice(pod)
 	pod.explosionSize = list(0,0,0,0)
 	your_pet.name = name
+	your_pet.real_name = name
 	var/msg = "<span class=danger>After making your selection, you notice a strange target on the ground. It might be best to step back!</span>"
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
 		if(istype(H.ears, /obj/item/radio/headset))
 			msg = "You hear something crackle in your ears for a moment before a voice speaks.  \"Please stand by for a message from Central Command.  Message as follows: <span class='bold'>One pet delivery straight from Central Command. Stand clear!</span> Message ends.\""
 	to_chat(M, msg)
-
-	new /obj/effect/DPtarget(get_turf(src), pod)
+	new /obj/effect/pod_landingzone(get_turf(src), pod)
 
 /obj/item/choice_beacon/pet/cat
 	name = "cat delivery beacon"
@@ -346,33 +443,45 @@
 	name = "mouse delivery beacon"
 	default_name = "Jerry"
 	mob_choice = /mob/living/simple_animal/mouse
-	
+
 /obj/item/choice_beacon/pet/corgi
 	name = "corgi delivery beacon"
 	default_name = "Tosha"
 	mob_choice = /mob/living/simple_animal/pet/dog/corgi
-	
+
 /obj/item/choice_beacon/pet/hamster
 	name = "hamster delivery beacon"
 	default_name = "Doctor"
 	mob_choice = /mob/living/simple_animal/pet/hamster
-	
+
 /obj/item/choice_beacon/pet/pug
 	name = "pug delivery beacon"
 	default_name = "Silvestro"
 	mob_choice = /mob/living/simple_animal/pet/dog/pug
-	
+
 /obj/item/choice_beacon/pet/ems
 	name = "emotional support animal delivery beacon"
 	default_name = "Hugsie"
 	mob_choice = /mob/living/simple_animal/pet/cat/kitten
-	
+
 /obj/item/choice_beacon/pet/pingu
 	name = "penguin delivery beacon"
 	default_name = "Pingu"
 	mob_choice = /mob/living/simple_animal/pet/penguin/baby
-	
+
 /obj/item/choice_beacon/pet/clown
 	name = "living lube delivery beacon"
 	default_name = "Offensive"
 	mob_choice = /mob/living/simple_animal/hostile/retaliate/clown/lube
+
+/obj/item/choice_beacon/pet/goat
+	name = "goat delivery beacon"
+	default_name = "Billy"
+	mob_choice = /mob/living/simple_animal/hostile/retaliate/goat
+
+/obj/item/choice_beacon/janicart
+	name = "janicart delivery beacon"
+	desc = "Summons a pod containing one (1) pimpin ride."
+
+/obj/item/choice_beacon/janicart/generate_display_names()
+	return list("janitor cart" = /obj/vehicle/ridden/janicart/upgraded/keyless)

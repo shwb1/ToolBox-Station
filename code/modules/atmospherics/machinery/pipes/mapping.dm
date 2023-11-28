@@ -6,29 +6,28 @@
 		color = Color;					\
 	}									\
 	##Fulltype/visible {				\
-		level = PIPE_VISIBLE_LEVEL;		\
+		hide = FALSE; 					\
 		layer = GAS_PIPE_VISIBLE_LAYER;	\
 		FASTDMM_PROP(pipe_group = "atmos-[piping_layer]-"+Type+"-visible");\
 	}									\
-	##Fulltype/visible/layer1 {			\
-		piping_layer = 1;				\
-		icon_state = Iconbase + "-1";	\
+	##Fulltype/visible/layer2 {			\
+		piping_layer = 2;				\
+		icon_state = Iconbase + "-2";	\
 	}									\
-	##Fulltype/visible/layer3 {			\
-		piping_layer = 3;				\
-		icon_state = Iconbase + "-3";	\
+	##Fulltype/visible/layer4 {			\
+		piping_layer = 4;				\
+		icon_state = Iconbase + "-4";	\
 	}									\
 	##Fulltype/hidden {					\
-		level = PIPE_HIDDEN_LEVEL;		\
-		FASTDMM_PROP(pipe_group = "atmos-[piping_layer]-"+Type+"-hidden");\
+		hide = TRUE;					\
 	}									\
-	##Fulltype/hidden/layer1 {			\
-		piping_layer = 1;				\
-		icon_state = Iconbase + "-1";	\
+	##Fulltype/hidden/layer2 {			\
+		piping_layer = 2;				\
+		icon_state = Iconbase + "-2";	\
 	}									\
-	##Fulltype/hidden/layer3 {			\
-		piping_layer = 3;				\
-		icon_state = Iconbase + "-3";	\
+	##Fulltype/hidden/layer4 {			\
+		piping_layer = 4;				\
+		icon_state = Iconbase + "-4";	\
 	}
 
 #define HELPER_PARTIAL_NAMED(Fulltype, Type, Iconbase, Color, Name) \
@@ -56,10 +55,10 @@ HELPER(purple, rgb(128, 0, 182))
 HELPER(dark, rgb(69, 69, 69))
 HELPER(brown, rgb(178, 100, 56))
 HELPER(violet, rgb(64, 0, 128))
+HELPER(amethyst, rgb(130, 43, 255))
 
 HELPER_NAMED(scrubbers, "scrubbers pipe", rgb(255, 0, 0))
 HELPER_NAMED(supply, "air supply pipe", rgb(0, 0, 255))
-HELPER_NAMED(supplymain, "main air supply pipe", rgb(130, 43, 255))
 
 #undef HELPER_NAMED
 #undef HELPER

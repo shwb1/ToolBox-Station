@@ -20,8 +20,9 @@ GLOBAL_REAL(GLOB, /datum/controller/global_vars)
 
 	Initialize()
 
-/datum/controller/global_vars/Destroy()
-	//fuck off kevinz
+/datum/controller/global_vars/Destroy(force)
+	// This is done to prevent an exploit where admins can get around protected vars
+	SHOULD_CALL_PARENT(FALSE)
 	return QDEL_HINT_IWILLGC
 
 /datum/controller/global_vars/stat_entry()
@@ -30,7 +31,7 @@ GLOBAL_REAL(GLOB, /datum/controller/global_vars)
 		text="Edit",
 		action = "statClickDebug",
 		params=list(
-			"targetRef" = REF(src),
+			"targetRef" = FAST_REF(src),
 			"class"="controller",
 		),
 		type=STAT_BUTTON,
@@ -41,6 +42,11 @@ GLOBAL_REAL(GLOB, /datum/controller/global_vars)
 	if(gvars_datum_protected_varlist[var_name])
 		return FALSE
 	return ..()
+
+/datum/controller/global_vars/can_vv_get(var_name)
+	if(var_name == "gvars_datum_protected_varlist" || var_name == "gvars_datum_in_built_vars")
+		return FALSE
+	. = ..()
 
 /datum/controller/global_vars/Initialize()
 	gvars_datum_init_order = list()

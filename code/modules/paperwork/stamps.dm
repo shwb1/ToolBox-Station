@@ -9,63 +9,75 @@
 	throw_speed = 3
 	throw_range = 7
 	materials = list(/datum/material/iron=60)
-	item_color = "cargo"
 	pressure_resistance = 2
 	attack_verb = list("stamped")
 
-/obj/item/stamp/suicide_act(mob/user)
+/obj/item/stamp/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] stamps 'VOID' on [user.p_their()] forehead, then promptly falls over, dead.</span>")
-	return (OXYLOSS)
+	playsound(src, 'sound/items/handling/standard_stamp.ogg', 50, vary = TRUE)
+	return OXYLOSS
 
-/obj/item/stamp/qm
+/obj/item/stamp/get_writing_implement_details()
+	var/datum/asset/spritesheet/sheet = get_asset_datum(/datum/asset/spritesheet/simple/paper)
+	return list(
+		interaction_mode = MODE_STAMPING,
+		stamp_icon_state = icon_state,
+		stamp_class = sheet.icon_class_name(icon_state)
+	)
+
+/obj/item/stamp/quartermaster
 	name = "quartermaster's rubber stamp"
 	icon_state = "stamp-qm"
-	item_color = "qm"
+	dye_color = DYE_QM
 
 /obj/item/stamp/law
 	name = "law office's rubber stamp"
 	icon_state = "stamp-law"
-	item_color = "cargo"
+	dye_color = DYE_LAW
 
 /obj/item/stamp/captain
 	name = "captain's rubber stamp"
 	icon_state = "stamp-cap"
-	item_color = "captain"
+	dye_color = DYE_CAPTAIN
 
-/obj/item/stamp/hop
+/obj/item/stamp/head_of_personnel
 	name = "head of personnel's rubber stamp"
 	icon_state = "stamp-hop"
-	item_color = "hop"
+	dye_color = DYE_HOP
 
 /obj/item/stamp/hos
 	name = "head of security's rubber stamp"
 	icon_state = "stamp-hos"
-	item_color = "hosred"
+	dye_color = DYE_HOS
 
-/obj/item/stamp/ce
+/obj/item/stamp/chief_engineer
 	name = "chief engineer's rubber stamp"
 	icon_state = "stamp-ce"
-	item_color = "chief"
+	dye_color = DYE_CE
 
-/obj/item/stamp/rd
+/obj/item/stamp/research_director
 	name = "research director's rubber stamp"
 	icon_state = "stamp-rd"
-	item_color = "director"
+	dye_color = DYE_RD
 
 /obj/item/stamp/cmo
 	name = "chief medical officer's rubber stamp"
 	icon_state = "stamp-cmo"
-	item_color = "cmo"
+	dye_color = DYE_CMO
 
 /obj/item/stamp/denied
 	name = "\improper DENIED rubber stamp"
 	icon_state = "stamp-deny"
-	item_color = "redcoat"
+	dye_color = DYE_REDCOAT
+
+/obj/item/stamp/void
+	name = "VOID rubber stamp"
+	icon_state = "stamp-void"
 
 /obj/item/stamp/clown
 	name = "clown's rubber stamp"
 	icon_state = "stamp-clown"
-	item_color = "clown"
+	dye_color = DYE_CLOWN
 
 /obj/item/stamp/attack_paw(mob/user)
 	return attack_hand(user)

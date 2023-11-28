@@ -40,7 +40,7 @@
 				//Add category with verb
 				stat_tabs += V.category
 				sorted_verbs["[V.category]"] = list(V)
-				sortList(sorted_verbs)
+				sort_list(sorted_verbs)
 
 /datum/proc/remove_verb(old_verbs)
 	if(IsAdminAdvancedProcCall())
@@ -85,8 +85,8 @@
 		message_admins("[key_name(usr)] attempted to edit their verbs.")
 		log_game("[key_name(usr)] attempted to edit their verbs.")
 		return
-	//If we lose an old verb while in someone's inventory, remove it frmo their panel.
-	if(item_flags & IN_INVENTORY)
+	//If we lose an old verb while in someone's inventory, remove it from their panel.
+	if(item_flags & PICKED_UP)
 		var/mob/living/L = loc
 		if(istype(L) && L.client)
 			L.client.remove_verbs(new_verbs)
@@ -98,7 +98,7 @@
 		log_game("[key_name(usr)] attempted to edit their verbs.")
 		return
 	//If we get a new verb while in someone's inventory, add it to their panel.
-	if(item_flags & IN_INVENTORY)
+	if(item_flags & PICKED_UP)
 		var/mob/living/L = loc
 		if(istype(L) && L.client)
 			L.client.add_verbs(new_verbs)
@@ -121,6 +121,7 @@
 		return
 	if(!tgui_only)
 		verbs -= old_verbs
+	remove_verbs(old_verbs)
 	return ..(old_verbs)
 
 /mob/remove_verb(old_verbs, tgui_only = FALSE)

@@ -5,21 +5,38 @@
 // effectout: effect to show right after teleportation
 // asoundin: soundfile to play before teleportation
 // asoundout: soundfile to play after teleportation
-// forceMove: if false, teleport will use Move() proc (dense objects will prevent teleportation)
 // no_effects: disable the default effectin/effectout of sparks
 // forced: whether or not to ignore no_teleport
-/proc/do_teleport(atom/movable/teleatom, atom/destination, precision=null, forceMove = TRUE, datum/effect_system/effectin=null, datum/effect_system/effectout=null, asoundin=null, asoundout=null, no_effects=FALSE, channel=TELEPORT_CHANNEL_BLUESPACE, forced = FALSE, teleport_mode = TELEPORT_MODE_DEFAULT)
+/proc/do_teleport(atom/movable/teleatom, atom/destination, precision=null, datum/effect_system/effectin=null, datum/effect_system/effectout=null, asoundin=null, asoundout=null, no_effects=FALSE, channel=TELEPORT_CHANNEL_BLUESPACE, forced = FALSE, teleport_mode = TELEPORT_MODE_DEFAULT, commit = TRUE, no_wake = FALSE)
 	// teleporting most effects just deletes them
 	var/static/list/delete_atoms = typecacheof(list(
 		/obj/effect,
-		)) - typecacheof(list(
+	)) - typecacheof(list(
 		/obj/effect/dummy/chameleon,
 		/obj/effect/wisp,
 		/obj/effect/mob_spawn,
-		))
+		/obj/effect/warp_cube,
+		/obj/effect/extraction_holder,
+	))
 	if(delete_atoms[teleatom.type])
 		qdel(teleatom)
 		return FALSE
+
+	//Check bluespace anchors
+	if(channel != TELEPORT_CHANNEL_WORMHOLE && channel != TELEPORT_CHANNEL_FREE)
+		for (var/obj/machinery/bluespace_anchor/anchor as() in GLOB.active_bluespace_anchors)
+			//Not nearby
+			if (anchor.get_virtual_z_level() != teleatom.get_virtual_z_level() || (get_dist(teleatom, anchor) > anchor.range && get_dist(destination, anchor) > anchor.range))
+				continue
+			//Check it
+			if(!anchor.try_activate())
+				continue
+			do_sparks(5, FALSE, teleatom)
+			playsound(anchor, 'sound/magic/repulse.ogg', 80, TRUE)
+			if(ismob(teleatom))
+				to_chat(teleatom, "<span class='warning'>You feel like you are being held in place.</span>")
+			//Anchored...
+			return FALSE
 
 	// argument handling
 	// if the precision is not specified, default to 0, but apply BoH penalties
@@ -66,8 +83,20 @@
 	if(SEND_SIGNAL(destturf, COMSIG_ATOM_INTERCEPT_TELEPORT, channel, curturf, destturf))
 		return FALSE
 
+	if(isobserver(teleatom))
+		teleatom.abstract_move(destturf)
+		return TRUE
+
+	if (!commit)
+		return TRUE
+
+	// If we leave behind a wake, then create that here.
+	// Only leave a wake if we are going to a location that we can actually teleport to.
+	if (!no_wake && (channel == TELEPORT_CHANNEL_BLUESPACE || channel == TELEPORT_CHANNEL_CULT || channel == TELEPORT_CHANNEL_MAGIC) && A.teleport_restriction == TELEPORT_MODE_DEFAULT && B.teleport_restriction == TELEPORT_MODE_DEFAULT && teleport_mode == TELEPORT_MODE_DEFAULT)
+		new /obj/effect/temp_visual/teleportation_wake(get_turf(teleatom), destturf)
+
 	tele_play_specials(teleatom, curturf, effectin, asoundin)
-	var/success = forceMove ? teleatom.forceMove(destturf) : teleatom.Move(destturf)
+	var/success = teleatom.forceMove(destturf)
 	if (success)
 		log_game("[key_name(teleatom)] has teleported from [loc_name(curturf)] to [loc_name(destturf)]")
 		tele_play_specials(teleatom, destturf, effectout, asoundout)
@@ -91,7 +120,7 @@
 			effect.start()
 
 // Safe location finder
-/proc/find_safe_turf(zlevel, list/zlevels, extended_safety_checks = FALSE)
+/proc/find_safe_turf(zlevel, list/zlevels, extended_safety_checks = FALSE, dense_atoms = TRUE)
 	if(!zlevels)
 		if (zlevel)
 			zlevels = list(zlevel)
@@ -122,11 +151,11 @@
 		// Can most things breathe?
 		if(trace_gases)
 			continue
-		if(A.get_moles(/datum/gas/oxygen) < 16)
+		if(A.get_moles(GAS_O2) < 16)
 			continue
-		if(A.get_moles(/datum/gas/plasma))
+		if(A.get_moles(GAS_PLASMA))
 			continue
-		if(A.get_moles(/datum/gas/carbon_dioxide) >= 10)
+		if(A.get_moles(GAS_CO2) >= 10)
 			continue
 
 		// Aim for goldilocks temperatures and pressure
@@ -142,12 +171,24 @@
 				if(!L.is_safe())
 					continue
 
+		// Check that we're not warping onto a table or window
+		if(!dense_atoms)
+			var/density_found = FALSE
+			for(var/atom/movable/found_movable in F)
+				if(found_movable.density)
+					density_found = TRUE
+					break
+			if(density_found)
+				continue
+
 		// DING! You have passed the gauntlet, and are "probably" safe.
 		return F
 
 /proc/get_teleport_turfs(turf/center, precision = 0)
 	if(!precision)
 		return list(center)
+	//Return only open turfs unless none are available
+	var/list/safe_turfs = list()
 	var/list/posturfs = list()
 	for(var/turf/T as() in RANGE_TURFS(precision, center))
 		if(T.is_transition_turf())
@@ -155,7 +196,95 @@
 		var/area/A = T.loc
 		if(!A.teleport_restriction)
 			posturfs.Add(T)
+			if(isopenturf(T))
+				safe_turfs += T
+	if(length(safe_turfs))
+		return safe_turfs
 	return posturfs
 
 /proc/get_teleport_turf(turf/center, precision = 0)
 	return safepick(get_teleport_turfs(center, precision))
+
+/proc/wizarditis_teleport(mob/living/carbon/affected_mob)
+	var/list/theareas = get_areas_in_range(80, affected_mob)
+	for(var/area/space/S in theareas)
+		theareas -= S
+
+	if(!length(theareas))
+		return
+
+	var/area/thearea = pick(theareas)
+
+	var/list/L = list()
+	for(var/turf/T in get_area_turfs(thearea.type))
+		if(T.get_virtual_z_level() != affected_mob.get_virtual_z_level())
+			continue
+		if(isspaceturf(T))
+			continue
+		if(T.density)
+			continue
+
+		var/clear = TRUE
+		for(var/obj/O in T)
+			if(O.density)
+				clear = FALSE
+				break
+		if(clear)
+			L+=T
+
+	if(!L)
+		return
+
+	if(do_teleport(affected_mob, pick(L), channel = TELEPORT_CHANNEL_MAGIC, no_effects = TRUE))
+		affected_mob.say("SCYAR NILA [uppertext(thearea.name)]!", forced = "wizarditis teleport")
+
+/obj/effect/temp_visual/teleportation_wake
+	name = "slipspace wake"
+	duration = 30 SECONDS
+	randomdir = FALSE
+	icon = 'icons/effects/effects.dmi'
+	icon_state = null
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	hud_possible = list(DIAG_WAKE_HUD)
+	var/turf/destination
+	var/has_hud_icon = FALSE
+
+/obj/effect/temp_visual/teleportation_wake/Initialize(mapload, turf/destination)
+	// Replace any portals on the current turf
+	for (var/obj/effect/temp_visual/teleportation_wake/conflicting_portal in loc)
+		if (conflicting_portal == src)
+			continue
+		conflicting_portal.destination = destination
+		return INITIALIZE_HINT_QDEL
+	. = ..()
+	src.destination = destination
+	prepare_huds()
+	for(var/datum/atom_hud/data/diagnostic/diag_hud in GLOB.huds)
+		diag_hud.add_to_hud(src)
+	var/image/holder = hud_list[DIAG_WAKE_HUD]
+	var/mutable_appearance/MA = new /mutable_appearance()
+	MA.icon = 'icons/effects/effects.dmi'
+	MA.icon_state = "bluestream"
+	MA.layer = ABOVE_OPEN_TURF_LAYER
+	MA.plane = GAME_PLANE
+	holder.appearance = MA
+	has_hud_icon = TRUE
+
+/obj/effect/temp_visual/teleportation_wake/Destroy()
+	if (has_hud_icon)
+		for(var/datum/atom_hud/data/diagnostic/diag_hud in GLOB.huds)
+			diag_hud.remove_from_hud(src)
+	return ..()
+
+/obj/effect/temp_visual/portal_opening
+	name = "Portal Opening"
+	icon = 'icons/obj/stationobjs.dmi'
+	icon_state = "portal"
+	alpha = 0
+	duration = 11 SECONDS
+
+/obj/effect/temp_visual/portal_opening/Initialize(mapload)
+	. = ..()
+	transform = matrix() * 0
+	animate(src, time = 10 SECONDS, transform = matrix(), alpha = 255)
+	animate(time = 0.5 SECONDS, transform = matrix() * 0, alpha = 0)

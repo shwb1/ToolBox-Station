@@ -13,7 +13,7 @@
 #define SCANGATE_FLY			"fly"
 #define SCANGATE_PLASMAMAN		"plasma"
 #define SCANGATE_MOTH			"moth"
-#define SCANGATE_JELLY			"jelly"
+#define SCANGATE_OOZE			"oozeling"
 #define SCANGATE_POD			"pod"
 #define SCANGATE_GOLEM			"golem"
 #define SCANGATE_ZOMBIE			"zombie"
@@ -33,15 +33,19 @@
 	var/next_beep = 0 //avoids spam
 	var/locked = FALSE
 	var/scangate_mode = SCANGATE_NONE
-	var/disease_threshold = DISEASE_SEVERITY_MINOR
+	var/disease_threshold = DISEASE_MINOR
 	var/nanite_cloud = 1
 	var/detect_species = SCANGATE_HUMAN
 	var/reverse = FALSE //If true, signals if the scan returns false
 	var/detect_nutrition = NUTRITION_LEVEL_FAT
 
-/obj/machinery/scanner_gate/Initialize()
+/obj/machinery/scanner_gate/Initialize(mapload)
 	. = ..()
 	set_scanline("passive")
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 /obj/machinery/scanner_gate/examine(mob/user)
 	. = ..()
@@ -50,12 +54,13 @@
 	else
 		. += "<span class='notice'>The control panel is unlocked. Swipe an ID to lock it.</span>"
 
-/obj/machinery/scanner_gate/Crossed(atom/movable/AM)
-	. = ..()
-	auto_scan(AM)
+/obj/machinery/scanner_gate/proc/on_entered(datum/source, atom/movable/AM)
+	SIGNAL_HANDLER
+
+	INVOKE_ASYNC(src, PROC_REF(auto_scan), AM)
 
 /obj/machinery/scanner_gate/proc/auto_scan(atom/movable/AM)
-	if(!(stat & (BROKEN|NOPOWER)) && isliving(AM))
+	if(!(machine_stat & (BROKEN|NOPOWER)) && isliving(AM))
 		perform_scan(AM)
 
 /obj/machinery/scanner_gate/proc/set_scanline(type, duration)
@@ -63,7 +68,7 @@
 	deltimer(scanline_timer)
 	add_overlay(type)
 	if(duration)
-		scanline_timer = addtimer(CALLBACK(src, .proc/set_scanline, "passive"), duration, TIMER_STOPPABLE)
+		scanline_timer = addtimer(CALLBACK(src, PROC_REF(set_scanline), "passive"), duration, TIMER_STOPPABLE)
 
 /obj/machinery/scanner_gate/attackby(obj/item/W, mob/user, params)
 	var/obj/item/card/id/card = W.GetID()
@@ -73,23 +78,27 @@
 				locked = FALSE
 				req_access = list()
 				to_chat(user, "<span class='notice'>You unlock [src].</span>")
+				//Update to viewers
+				ui_update()
 		else if(!(obj_flags & EMAGGED))
 			to_chat(user, "<span class='notice'>You lock [src] with [W].</span>")
 			var/list/access = W.GetAccess()
 			req_access = access
 			locked = TRUE
+			//Update to viewers
+			ui_update()
 		else
 			to_chat(user, "<span class='warning'>You try to lock [src] with [W], but nothing happens.</span>")
 	else
 		return ..()
 
-/obj/machinery/scanner_gate/emag_act(mob/user)
-	if(obj_flags & EMAGGED)
-		return
+/obj/machinery/scanner_gate/on_emag(mob/user)
+	..()
 	locked = FALSE
 	req_access = list()
-	obj_flags |= EMAGGED
 	to_chat(user, "<span class='notice'>You fry the ID checking system.</span>")
+	//Update to viewers
+	ui_update()
 
 /obj/machinery/scanner_gate/proc/perform_scan(mob/living/M)
 	var/beep = FALSE
@@ -104,7 +113,7 @@
 				if(!R || (R.fields["criminal"] == "*Arrest*"))
 					beep = TRUE
 		if(SCANGATE_MINDSHIELD)
-			if(HAS_TRAIT(M, TRAIT_MINDSHIELD))
+			if(M.has_mindshield_hud_icon())
 				beep = TRUE
 		if(SCANGATE_NANITES)
 			if(SEND_SIGNAL(M, COMSIG_HAS_NANITES))
@@ -117,7 +126,7 @@
 		if(SCANGATE_DISEASE)
 			if(iscarbon(M))
 				var/mob/living/carbon/C = M
-				if(get_disease_severity_value(C.check_virus()) >= get_disease_severity_value(disease_threshold))
+				if(get_disease_danger_value(C.check_virus()) >= get_disease_danger_value(disease_threshold))
 					beep = TRUE
 		if(SCANGATE_SPECIES)
 			if(ishuman(M))
@@ -134,8 +143,8 @@
 						scan_species = /datum/species/plasmaman
 					if(SCANGATE_MOTH)
 						scan_species = /datum/species/moth
-					if(SCANGATE_JELLY)
-						scan_species = /datum/species/jelly
+					if(SCANGATE_OOZE)
+						scan_species = /datum/species/oozeling
 					if(SCANGATE_POD)
 						scan_species = /datum/species/pod
 					if(SCANGATE_GOLEM)
@@ -258,7 +267,7 @@
 #undef SCANGATE_FLY
 #undef SCANGATE_PLASMAMAN
 #undef SCANGATE_MOTH
-#undef SCANGATE_JELLY
+#undef SCANGATE_OOZE
 #undef SCANGATE_POD
 #undef SCANGATE_GOLEM
 #undef SCANGATE_ZOMBIE

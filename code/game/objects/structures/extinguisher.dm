@@ -7,15 +7,13 @@
 	density = FALSE
 	max_integrity = 200
 	integrity_failure = 50
+	layer = ABOVE_WINDOW_LAYER
 	var/obj/item/extinguisher/stored_extinguisher
 	var/opened = FALSE
 
 /obj/structure/extinguisher_cabinet/Initialize(mapload, ndir, building)
 	. = ..()
 	if(building)
-		setDir(ndir)
-		pixel_x = (dir & 3)? 0 : (dir == 4 ? -27 : 27)
-		pixel_y = (dir & 3)? (dir ==1 ? -30 : 30) : 0
 		opened = TRUE
 		icon_state = "extinguisher_empty"
 	else
@@ -24,6 +22,8 @@
 /obj/structure/extinguisher_cabinet/examine(mob/user)
 	. = ..()
 	. += "<span class='notice'>Alt-click to [opened ? "close":"open"] it.</span>"
+	if(!stored_extinguisher)
+		. += "<span class='notice'>It is <i>empty</i> and can be <b>unsecured</b> from the wall.</span>"
 
 /obj/structure/extinguisher_cabinet/Destroy()
 	if(stored_extinguisher)
@@ -33,7 +33,13 @@
 
 /obj/structure/extinguisher_cabinet/contents_explosion(severity, target)
 	if(stored_extinguisher)
-		stored_extinguisher.ex_act(severity, target)
+		switch(severity)
+			if(EXPLODE_DEVASTATE)
+				SSexplosions.high_mov_atom += stored_extinguisher
+			if(EXPLODE_HEAVY)
+				SSexplosions.med_mov_atom += stored_extinguisher
+			if(EXPLODE_LIGHT)
+				SSexplosions.low_mov_atom += stored_extinguisher
 
 /obj/structure/extinguisher_cabinet/handle_atom_del(atom/A)
 	if(A == stored_extinguisher)
@@ -152,3 +158,4 @@
 	desc = "Used for building wall-mounted extinguisher cabinets."
 	icon_state = "extinguisher"
 	result_path = /obj/structure/extinguisher_cabinet
+	pixel_shift = -30

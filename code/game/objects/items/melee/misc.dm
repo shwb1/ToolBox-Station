@@ -1,5 +1,5 @@
 /obj/item/melee
-	item_flags = NEEDS_PERMIT
+	item_flags = NEEDS_PERMIT | ISWEAPON
 
 /obj/item/melee/proc/check_martial_counter(mob/living/carbon/human/target, mob/living/carbon/human/user)
 	if(target.check_block())
@@ -25,9 +25,9 @@
 	hitsound = 'sound/weapons/chainhit.ogg'
 	materials = list(/datum/material/iron = 1000)
 
-/obj/item/melee/chainofcommand/suicide_act(mob/user)
+/obj/item/melee/chainofcommand/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] is strangling [user.p_them()]self with [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
-	return (OXYLOSS)
+	return OXYLOSS
 
 /obj/item/melee/synthetic_arm_blade
 	name = "synthetic arm blade"
@@ -38,8 +38,6 @@
 	lefthand_file = 'icons/mob/inhands/antag/changeling_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/antag/changeling_righthand.dmi'
 	w_class = WEIGHT_CLASS_HUGE
-	block_upgrade_walk = 1
-	block_level = 1
 	block_flags = BLOCKING_ACTIVE | BLOCKING_NASTY
 	force = 20
 	throwforce = 10
@@ -47,7 +45,7 @@
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "tore", "ripped", "diced", "cut")
 	sharpness = IS_SHARP
 
-/obj/item/melee/synthetic_arm_blade/Initialize()
+/obj/item/melee/synthetic_arm_blade/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/butchering, 60, 80) //very imprecise
 
@@ -74,7 +72,7 @@
 	materials = list(/datum/material/iron = 1000)
 
 
-/obj/item/melee/sabre/Initialize()
+/obj/item/melee/sabre/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/butchering, 30, 95, 5) //fast and effective, but as a sword, it might damage the results.
 
@@ -120,8 +118,8 @@
 		var/speedbase = abs((4 SECONDS) / limbs_to_dismember.len)
 		for(bodypart in limbs_to_dismember)
 			i++
-			addtimer(CALLBACK(src, .proc/suicide_dismember, user, bodypart), speedbase * i)
-	addtimer(CALLBACK(src, .proc/manual_suicide, user), (5 SECONDS) * i)
+			addtimer(CALLBACK(src, PROC_REF(suicide_dismember), user, bodypart), speedbase * i)
+	addtimer(CALLBACK(src, PROC_REF(manual_suicide), user), (5 SECONDS) * i)
 	return MANUAL_SUICIDE
 
 /obj/item/melee/sabre/proc/suicide_dismember(mob/living/user, obj/item/bodypart/affecting)
@@ -136,6 +134,27 @@
 		user.death(FALSE)
 	REMOVE_TRAIT(src, TRAIT_NODROP, SABRE_SUICIDE_TRAIT)
 
+/obj/item/melee/sabre/mime
+	name = "Bread Blade"
+	desc = "An elegant weapon, it has an inscription on it that says:  \"La Gluten Gutter\"."
+	force = 18
+	icon_state = "rapier"
+	item_state = "rapier"
+	lefthand_file = null
+	righthand_file = null
+	block_power = 60
+	armor = list(MELEE = 0,  BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
+
+/obj/item/melee/sabre/mime/on_exit_storage(datum/component/storage/concrete/R)
+	var/obj/item/storage/belt/sabre/mime/M = R.real_location()
+	if(istype(M))
+		playsound(M, 'sound/items/unsheath.ogg', 25, TRUE)
+
+/obj/item/melee/sabre/on_enter_storage(datum/component/storage/concrete/R)
+	var/obj/item/storage/belt/sabre/mime/M = R.real_location()
+	if(istype(M))
+		playsound(M, 'sound/items/sheath.ogg', 25, TRUE)
+
 /obj/item/melee/classic_baton
 	name = "classic baton"
 	desc = "A wooden truncheon for beating criminal scum."
@@ -144,7 +163,6 @@
 	item_state = "classic_baton"
 	lefthand_file = 'icons/mob/inhands/equipment/security_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/security_righthand.dmi'
-	block_upgrade_walk = 1
 	slot_flags = ITEM_SLOT_BELT
 	force = 12 //9 hit crit
 	w_class = WEIGHT_CLASS_NORMAL
@@ -217,7 +235,7 @@
 /obj/item/melee/classic_baton/police/attack(mob/living/target, mob/living/user)
 	if(!on)
 		return ..()
-	var/def_check = target.getarmor(type = "melee")
+	var/def_check = target.getarmor(type = MELEE, penetration = armour_penetration)
 
 	add_fingerprint(user)
 	if((HAS_TRAIT(user, TRAIT_CLUMSY)) && prob(50))
@@ -296,7 +314,7 @@
 			if(!iscarbon(user))
 				target.LAssailant = null
 			else
-				target.LAssailant = user
+				target.LAssailant = WEAKREF(user)
 			cooldown_check = world.time + cooldown
 		else
 			var/wait_desc = get_wait_description()
@@ -312,15 +330,16 @@
 //Telescopic Baton
 /obj/item/melee/classic_baton/police/telescopic
 	name = "telescopic baton"
-	desc = "A compact and harmless personal defense weapon. Can be concealed when folded."
+	desc = "A compact and harmless personal defense weapon. Sturdy enough to knock the feet out from under attackers and robust enough to disarm with a quick strike to the hand"
 	icon = 'icons/obj/items_and_weapons.dmi'
 	icon_state = "telebaton_0"
 	lefthand_file = 'icons/mob/inhands/weapons/melee_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/melee_righthand.dmi'
+	stamina_damage = 0
 	item_state = null
 	slot_flags = ITEM_SLOT_BELT
 	w_class = WEIGHT_CLASS_SMALL
-	item_flags = NONE
+	item_flags = ISWEAPON
 	force = 0
 	on = FALSE
 	on_sound = 'sound/weapons/batonextend.ogg'
@@ -337,7 +356,7 @@
 		return ..()
 	return 0
 
-/obj/item/melee/classic_baton/telescopic/suicide_act(mob/user)
+/obj/item/melee/classic_baton/telescopic/suicide_act(mob/living/user)
 	var/mob/living/carbon/human/H = user
 	var/obj/item/organ/brain/B = H.getorgan(/obj/item/organ/brain)
 
@@ -353,7 +372,7 @@
 			H.internal_organs -= B
 			qdel(B)
 		new /obj/effect/gibspawner/generic(H.drop_location(), H)
-		return (BRUTELOSS)
+		return BRUTELOSS
 
 /obj/item/melee/classic_baton/police/telescopic/attack_self(mob/user)
 	on = !on
@@ -379,9 +398,7 @@
 	add_fingerprint(user)
 
 //Contractor Baton
-/obj/item/melee/classic_baton/contractor_baton
-	name = "contractor baton"
-	desc = "A compact, specialised baton assigned to Syndicate contractors. Applies light electrical shocks to targets."
+/obj/item/melee/classic_baton/retractible_stun
 	icon = 'icons/obj/items_and_weapons.dmi'
 	icon_state = "contractor_baton_0"
 	lefthand_file = 'icons/mob/inhands/weapons/melee_lefthand.dmi'
@@ -390,10 +407,13 @@
 	item_state = null
 	slot_flags = ITEM_SLOT_BELT
 	w_class = WEIGHT_CLASS_SMALL
-	item_flags = NONE
+	item_flags = ISWEAPON
 	force = 5
 	on = FALSE
 	var/knockdown_time_carbon = (1.5 SECONDS) // Knockdown length for carbons.
+	var/stamina_damage_non_target = 55
+	var/stamina_damage_target = 85
+	var/target_confusion = 4 SECONDS
 
 	stamina_damage = 85
 	affect_silicon = TRUE
@@ -408,16 +428,14 @@
 	force_off = 5
 	weight_class_on = WEIGHT_CLASS_NORMAL
 
-
-
-/obj/item/melee/classic_baton/contractor_baton/get_wait_description()
+/obj/item/melee/classic_baton/retractible_stun/get_wait_description()
 	return "<span class='danger'>The baton is still charging!</span>"
 
-/obj/item/melee/classic_baton/contractor_baton/additional_effects_carbon(mob/living/target, mob/living/user)
-	target.Jitter(20)
-	target.stuttering += 20
+/obj/item/melee/classic_baton/retractible_stun/additional_effects_carbon(mob/living/target, mob/living/user)
+	target.Jitter(2 SECONDS)
+	target.stuttering += 2 SECONDS
 
-/obj/item/melee/classic_baton/contractor_baton/attack_self(mob/user)
+/obj/item/melee/classic_baton/retractible_stun/attack_self(mob/user)
 	on = !on
 	var/list/desc = get_on_description()
 
@@ -437,12 +455,23 @@
 		force = force_off
 		attack_verb = list("hit", "poked")
 
-	playsound(src.loc, on_sound, 50, 1)
+	playsound(src.loc, on_sound, 50, TRUE)
 	add_fingerprint(user)
 
-/obj/item/melee/classic_baton/contractor_baton/attack(mob/living/target, mob/living/user)
+/obj/item/melee/classic_baton/retractible_stun/proc/is_target(mob/living/target, mob/living/user)
+	return TRUE
+
+/obj/item/melee/classic_baton/retractible_stun/proc/check_disabled(mob/living/target, mob/living/user)
+	return FALSE
+
+/obj/item/melee/classic_baton/retractible_stun/attack(mob/living/target, mob/living/user)
 	if(!on)
 		return ..()
+
+	if(check_disabled(target, user))
+		return ..()
+
+	var/is_target = is_target(target, user)
 
 	add_fingerprint(user)
 	if((HAS_TRAIT(user, TRAIT_CLUMSY)) && prob(50))
@@ -499,10 +528,16 @@
 			if (stun_animation)
 				user.do_attack_animation(target)
 
-			playsound(get_turf(src), on_stun_sound, 75, 1, -1)
-			target.Knockdown(knockdown_time_carbon)
-			target.drop_all_held_items()
-			target.adjustStaminaLoss(stamina_damage)
+			playsound(get_turf(src), on_stun_sound, 75, TRUE, -1)
+			if(is_target)
+				target.Knockdown(knockdown_time_carbon)
+				target.drop_all_held_items()
+				target.adjustStaminaLoss(stamina_damage)
+				if(target_confusion > 0 && target.confused < 6 SECONDS)
+					target.confused = min(target.confused + target_confusion, 6 SECONDS)
+			else
+				target.Knockdown(knockdown_time_carbon)
+				target.adjustStaminaLoss(stamina_damage_non_target)
 			additional_effects_carbon(target, user)
 
 			log_combat(user, target, "stunned", src)
@@ -519,6 +554,34 @@
 			var/wait_desc = get_wait_description()
 			if (wait_desc)
 				to_chat(user, wait_desc)
+
+/obj/item/melee/classic_baton/retractible_stun/contractor_baton
+	name = "contractor baton"
+	desc = "A compact, specialised baton assigned to Syndicate contractors. Applies light electric shocks that can resonate with a specific target's brain frequency causing significant stunning effects."
+	var/datum/antagonist/traitor/owner_data = null
+
+/obj/item/melee/classic_baton/retractible_stun/contractor_baton/check_disabled(mob/living/target, mob/living/user)
+	return !owner_data || owner_data?.owner?.current != user
+
+/obj/item/melee/classic_baton/retractible_stun/contractor_baton/is_target(mob/living/target, mob/living/user)
+	return owner_data.contractor_hub?.current_contract?.contract?.target == target.mind
+
+/obj/item/melee/classic_baton/retractible_stun/contractor_baton/pickup(mob/user)
+	..()
+	if(!owner_data)
+		var/datum/antagonist/traitor/traitor_data = user.mind.has_antag_datum(/datum/antagonist/traitor)
+		if(traitor_data)
+			owner_data = traitor_data
+			to_chat(user, "<span class='notice'>[src] scans your genetic data as you pick it up, creating an uplink with the syndicate database. Attacking your current target will stun them, however the baton is weak against non-targets.</span>")
+
+/obj/item/melee/classic_baton/retractible_stun/bounty
+	name = "bounty hunter baton"
+	desc = "A compact, specialised retractible stun baton assigned to bounty hunters."
+	knockdown_time_carbon = (2 SECONDS)
+	stamina_damage_non_target = 60
+	stamina_damage_target = 60
+	stamina_damage = 60
+	target_confusion = 0
 
 // Supermatter Sword
 /obj/item/melee/supermatter_sword
@@ -545,7 +608,7 @@
 	owner.visible_message("<span class='danger'>[hitby] evaporates in midair!</span>")
 	return TRUE
 
-/obj/item/melee/supermatter_sword/Initialize()
+/obj/item/melee/supermatter_sword/Initialize(mapload)
 	. = ..()
 	shard = new /obj/machinery/power/supermatter_crystal(src)
 	qdel(shard.countdown)
@@ -594,13 +657,13 @@
 	"<span class='italics'>You hear a loud crack as you are washed with a wave of heat.</span>")
 	consume_everything()
 
-/obj/item/melee/supermatter_sword/bullet_act(obj/item/projectile/P)
+/obj/item/melee/supermatter_sword/bullet_act(obj/projectile/P)
 	visible_message("<span class='danger'>[P] smacks into [src] and rapidly flashes to ash.</span>",\
 	"<span class='italics'>You hear a loud crack as you are washed with a wave of heat.</span>")
 	consume_everything(P)
 	return BULLET_ACT_HIT
 
-/obj/item/melee/supermatter_sword/suicide_act(mob/user)
+/obj/item/melee/supermatter_sword/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] touches [src]'s blade. It looks like [user.p_theyre()] tired of waiting for the radiation to kill [user.p_them()]!</span>")
 	user.dropItemToGround(src, TRUE)
 	shard.Bumped(user)
@@ -635,7 +698,7 @@
 	lefthand_file = 'icons/mob/inhands/weapons/melee_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/melee_righthand.dmi'
 	slot_flags = ITEM_SLOT_BELT
-	force = 0.001
+	force = 0.001 //"Some attack noises shit"
 	reach = 3
 	w_class = WEIGHT_CLASS_NORMAL
 	attack_verb = list("flogged", "whipped", "lashed", "disciplined")
@@ -643,47 +706,43 @@
 
 /obj/item/melee/curator_whip/attack(mob/living/target, mob/living/user)
 	. = ..()
-	var/mob/living/carbon/human/H = target
-	var/mob/living/carbon/human/U = user
-	if(ishuman(target))
-		if((user.zone_selected == BODY_ZONE_CHEST) || (user.zone_selected == BODY_ZONE_HEAD) || (user.zone_selected == BODY_ZONE_PRECISE_GROIN))
-			if(H.getarmor(type = "melee") < 16)
-				H.emote("scream")
-				H.visible_message("<span class='danger'>[U] whips [H]!</span>", "<span class='userdanger'>[U] whips you! It stings!</span>")
-		if((user.zone_selected == BODY_ZONE_R_LEG) || (user.zone_selected == BODY_ZONE_L_LEG))
-			var/dist = get_dist(H, U)
-			if(dist < 2)
-				to_chat(user, "<span class='warning'>[H] is too close to trip with the whip!</span>")
-				return
-			else
-				target.Knockdown(30)
-				log_combat(user, target, "tripped", src)
-				H.visible_message("<span class='danger'>[U] trips [H]!</span>", "<span class='userdanger'>[U] whips your legs out from under you!</span>")
-			return
-		if(user.zone_selected == BODY_ZONE_L_ARM)
-			var/obj/item/I = H.get_held_items_for_side("left")
-			if(I)
-				if(H.dropItemToGround(I))
-					H.visible_message("<span class='danger'>[I] is yanked off [H]'s hand by [src]!</span>","<span class='userdanger'>[U] grabs [I] with [src]!</span>")
-					if(!user.get_inactive_held_item())
-						U.throw_mode_on()
-						U.swap_hand()
-						I.throw_at(user, 10, 2)
-						to_chat(user, "<span class='notice'>You pull [I] towards yourself.</span>")
+	if(!ishuman(target))
+		return
+
+	switch(user.zone_selected)
+		if(BODY_ZONE_L_ARM)
+			whip_disarm(user, target, "left")
+		if(BODY_ZONE_R_ARM)
+			whip_disarm(user, target, "right")
+		if(BODY_ZONE_R_LEG, BODY_ZONE_L_LEG)
+			whip_trip(user, target)
+		else
+			whip_lash(user, target)
+
+/obj/item/melee/curator_whip/proc/whip_disarm(mob/living/carbon/user, mob/living/target, side)
+	var/obj/item/I = target.get_held_items_for_side(side)
+	if(I)
+		if(target.dropItemToGround(I))
+			target.visible_message("<span class='danger'>[I] is yanked out of [target]'s hands by [src]!</span>","<span class='userdanger'>[user] grabs [I] out of your hands with [src]!</span>")
+			to_chat(user, "<span class='notice'>You yank [I] towards yourself.</span>")
 			log_combat(user, target, "disarmed", src)
-			H.visible_message("<span class='danger'>[U] disarms [H]!</span>", "<span class='userdanger'>[U] disarmed you!</span>")
-		if(user.zone_selected == BODY_ZONE_R_ARM)
-			var/obj/item/I = H.get_held_items_for_side("right")
-			if(I)
-				if(H.dropItemToGround(I))
-					H.visible_message("<span class='danger'>[I] is yanked off [H]'s hand by [src]!</span>","<span class='userdanger'>[U] grabs [I] with [src]!</span>")
-					to_chat(user, "<span class='notice'>You pull [I] towards yourself.</span>")
-					if(!user.get_inactive_held_item())
-						U.throw_mode_on()
-						U.swap_hand()
-						I.throw_at(user, 10, 2)
-			log_combat(user, target, "disarmed", src)
-			H.visible_message("<span class='danger'>[user] disarms [H]!</span>", "<span class='userdanger'>[U] disarmed you!</span>")
+			if(!user.get_inactive_held_item())
+				user.throw_mode_on(THROW_MODE_TOGGLE)
+				user.swap_hand()
+				I.throw_at(user, 10, 2)
+
+/obj/item/melee/curator_whip/proc/whip_trip(mob/living/user, mob/living/target) //this is bad and ugly but not as bad and ugly as the original code
+	if(get_dist(user, target) < 2)
+		to_chat(user, "<span class='warning'>[target] is too close to trip with the whip!</span>")
+		return
+	target.Knockdown(3 SECONDS)
+	log_combat(user, target, "tripped", src)
+	target.visible_message("<span class='danger'>[user] knocks [target] off [target.p_their()] feet!</span>", "<span class='userdanger'>[user] yanks your legs out from under you!</span>")
+
+/obj/item/melee/curator_whip/proc/whip_lash(mob/living/user, mob/living/target)
+	if(target.getarmor(type = MELEE, penetration = armour_penetration) < 16)
+		target.emote("scream")
+		target.visible_message("<span class='danger'>[user] whips [target]!</span>", "<span class='userdanger'>[user] whips you! It stings!</span>")
 
 /obj/item/melee/roastingstick
 	name = "advanced roasting stick"
@@ -692,19 +751,18 @@
 	item_state = "null"
 	slot_flags = ITEM_SLOT_BELT
 	w_class = WEIGHT_CLASS_SMALL
-	item_flags = NONE
+	item_flags = ISWEAPON
 	force = 0
-	block_upgrade_walk = 1
 	attack_verb = list("hit", "poked")
 	var/obj/item/reagent_containers/food/snacks/sausage/held_sausage
 	var/static/list/ovens
 	var/on = FALSE
 	var/datum/beam/beam
 
-/obj/item/melee/roastingstick/Initialize()
+/obj/item/melee/roastingstick/Initialize(mapload)
 	. = ..()
-	if (!ovens)
-		ovens = typecacheof(list(/obj/singularity, /obj/machinery/power/supermatter_crystal, /obj/structure/bonfire))
+	if(!ovens)
+		ovens = typecacheof(list(/obj/anomaly, /obj/machinery/power/supermatter_crystal, /obj/structure/bonfire))
 
 /obj/item/melee/roastingstick/attack_self(mob/user)
 	on = !on
@@ -741,12 +799,10 @@
 		held_sausage = null
 	update_icon()
 
-/obj/item/melee/roastingstick/update_icon()
+/obj/item/melee/roastingstick/update_overlays()
 	. = ..()
-	cut_overlays()
 	if (held_sausage)
-		var/mutable_appearance/sausage = mutable_appearance(icon, "roastingstick_sausage")
-		add_overlay(sausage)
+		. += mutable_appearance(icon, "roastingstick_sausage")
 
 /obj/item/melee/roastingstick/proc/extend(user)
 	to_chat(user, "<span class='warning'>You extend [src].</span>")
@@ -767,16 +823,16 @@
 
 /obj/item/melee/roastingstick/afterattack(atom/target, mob/user, proximity)
 	. = ..()
-	if (!on)
+	if(!on)
 		return
-	if (is_type_in_typecache(target, ovens))
-		if (held_sausage && held_sausage.roasted)
+	if(is_type_in_typecache(target, ovens))
+		if(held_sausage && held_sausage.roasted)
 			to_chat("Your [held_sausage] has already been cooked.")
 			return
-		if (istype(target, /obj/singularity) && get_dist(user, target) < 10)
+		if(istype(target, /obj/anomaly) && get_dist(user, target) < 10)
 			to_chat(user, "You send [held_sausage] towards [target].")
 			playsound(src, 'sound/items/rped.ogg', 50, 1)
-			beam = user.Beam(target,icon_state="rped_upgrade",time=100)
+			beam = user.Beam(target,icon_state="rped_upgrade", time = 10 SECONDS)
 		else if (user.Adjacent(target))
 			to_chat(user, "You extend [src] towards [target].")
 			playsound(src.loc, 'sound/weapons/batonextend.ogg', 50, 1)
@@ -807,7 +863,6 @@
 	slot_flags = ITEM_SLOT_BELT
 	force = 0
 	throwforce = 0
-	block_upgrade_walk = 1
 	w_class = WEIGHT_CLASS_NORMAL
 	attack_verb = list("repelled")
 	var/cooldown = 0

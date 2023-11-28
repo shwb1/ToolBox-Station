@@ -2,12 +2,20 @@
 
 /datum/gear/accessory
 	subtype_path = /datum/gear/accessory
-	slot = SLOT_NECK
+	slot = ITEM_SLOT_NECK
 	sort_category = "Accessories"
 
 /datum/gear/accessory/scarf
 	subtype_path = /datum/gear/accessory/scarf
 	cost = 1000
+
+/datum/gear/accessory/scarf/black
+	display_name = "scarf, black"
+	path = /obj/item/clothing/neck/scarf/black
+
+/datum/gear/accessory/scarf/pink
+	display_name = "scarf, pink"
+	path = /obj/item/clothing/neck/scarf/pink
 
 /datum/gear/accessory/scarf/red
 	display_name = "scarf, red"
@@ -20,6 +28,22 @@
 /datum/gear/accessory/scarf/darkblue
 	display_name = "scarf, dark blue"
 	path = /obj/item/clothing/neck/scarf/darkblue
+
+/datum/gear/accessory/scarf/purple
+	display_name = "scarf, purple"
+	path = /obj/item/clothing/neck/scarf/purple
+
+/datum/gear/accessory/scarf/yellow
+	display_name = "scarf, yellow"
+	path = /obj/item/clothing/neck/scarf/yellow
+
+/datum/gear/accessory/scarf/orange
+	display_name = "scarf, orange"
+	path = /obj/item/clothing/neck/scarf/orange
+
+/datum/gear/accessory/scarf/cyan
+	display_name = "scarf, cyan"
+	path = /obj/item/clothing/neck/scarf/cyan
 
 /datum/gear/accessory/scarf/zebra
 	display_name = "scarf, zebra"
@@ -34,6 +58,11 @@
 /datum/gear/accessory/scarf/stripedblue
 	display_name = "scarf, striped blue"
 	path = /obj/item/clothing/neck/stripedbluescarf
+	cost = 1200
+
+/datum/gear/accessory/scarf/stripedgreen
+	display_name = "scarf, striped green"
+	path = /obj/item/clothing/neck/stripedgreenscarf
 	cost = 1200
 
 //armbands
@@ -99,19 +128,19 @@
 
 /datum/gear/accessory/eyepatch
 	display_name = "eyepatch"
-	slot = SLOT_GLASSES
+	slot = ITEM_SLOT_EYES
 	path = /obj/item/clothing/glasses/eyepatch
 	cost = 1200
 
 /datum/gear/accessory/monocle
 	display_name = "monocle"
-	slot = SLOT_GLASSES
+	slot = ITEM_SLOT_EYES
 	path = /obj/item/clothing/glasses/monocle
 	cost = 1200
 
 /datum/gear/accessory/glasses
 	display_name = "prescription glasses"
-	slot = SLOT_GLASSES
+	slot = ITEM_SLOT_EYES
 	path = /obj/item/clothing/glasses/regular
 	cost = 3000
 
@@ -146,6 +175,38 @@
 /datum/gear/accessory/glasses/red
 	display_name = "red glasses"
 	path = /obj/item/clothing/glasses/red
+
+//BANDANAS (masks)
+
+/datum/gear/accessory/bandana
+	slot = ITEM_SLOT_MASK
+	subtype_path = /datum/gear/accessory/bandana
+	cost = 1500
+
+/datum/gear/accessory/bandana/red
+	display_name = "red bandana"
+	path = /obj/item/clothing/mask/bandana/red
+
+/datum/gear/accessory/bandana/blue
+	display_name = "blue bandana"
+	path = /obj/item/clothing/mask/bandana/blue
+
+/datum/gear/accessory/bandana/green
+	display_name = "green bandana"
+	path = /obj/item/clothing/mask/bandana/green
+
+/datum/gear/accessory/bandana/gold
+	display_name = "gold bandana"
+	path = /obj/item/clothing/mask/bandana/gold
+
+/datum/gear/accessory/bandana/black
+	display_name = "black bandana"
+	path = /obj/item/clothing/mask/bandana/black
+
+/datum/gear/accessory/bandana/skull
+	display_name = "skull bandana"
+	path = /obj/item/clothing/mask/bandana/skull
+	cost = 2000
 
 //LIPSTICK
 
@@ -183,4 +244,4 @@
 /datum/gear/accessory/cloak/blackbishop
 	display_name = "black bishop's cloak"
 	path = /obj/item/clothing/neck/cloak/chap/bishop/black
-	allowed_roles = list("Chaplain")
+	allowed_roles = list(JOB_NAME_CHAPLAIN)

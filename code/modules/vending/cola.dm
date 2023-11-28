@@ -22,23 +22,12 @@
 		           /obj/item/reagent_containers/food/drinks/soda_cans/monkey_energy = 1,
 		           /obj/item/reagent_containers/food/drinks/soda_cans/grey_bull = 1)
 	refill_canister = /obj/item/vending_refill/cola
-	default_price = 10
-	extra_price = 30
-	payment_department = ACCOUNT_SRV
+	default_price = 5
+	extra_price = 60
+	dept_req_for_free = ACCOUNT_SRV_BITFLAG
 /obj/item/vending_refill/cola
 	machine_name = "Robust Softdrinks"
 	icon_state = "refill_cola"
-
-/obj/machinery/vending/cola/random
-	name = "\improper Random Drinkies"
-	icon_state = "random_cola"
-	desc = "Uh oh!"
-
-/obj/machinery/vending/cola/random/Initialize()
-	..()
-	var/T = pick(subtypesof(/obj/machinery/vending/cola) - /obj/machinery/vending/cola/random)
-	new T(loc)
-	return INITIALIZE_HINT_QDEL
 
 /obj/machinery/vending/cola/blue
 	icon_state = "Cola_Machine"

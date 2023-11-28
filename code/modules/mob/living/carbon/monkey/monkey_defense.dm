@@ -48,7 +48,7 @@
 			apply_damage(damage, BRUTE, affecting)
 			log_combat(M, src, "attacked")
 		if("disarm")
-			if(!IsUnconscious())
+			if(stat < UNCONSCIOUS)
 				M.do_attack_animation(src, ATTACK_EFFECT_DISARM)
 				Knockdown(40)
 				playsound(loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
@@ -135,13 +135,13 @@
 	. = 1
 	if(!bodyzone_hit || bodyzone_hit == BODY_ZONE_HEAD)
 		if(wear_mask)
-			if(!(wear_mask.resistance_flags & UNACIDABLE))
+			if(!(wear_mask.resistance_flags & (UNACIDABLE | INDESTRUCTIBLE)))
 				wear_mask.acid_act(acidpwr, acid_volume)
 			else
 				to_chat(src, "<span class='warning'>Your mask protects you from the acid.</span>")
 			return
 		if(head)
-			if(!(head.resistance_flags & UNACIDABLE))
+			if(!(head.resistance_flags & (UNACIDABLE | INDESTRUCTIBLE)))
 				head.acid_act(acidpwr, acid_volume)
 			else
 				to_chat(src, "<span class='warning'>Your hat protects you from the acid.</span>")
@@ -162,13 +162,13 @@
 
 		if (EXPLODE_HEAVY)
 			take_overall_damage(60, 60)
-			damage_clothes(200, BRUTE, "bomb")
+			damage_clothes(200, BRUTE, BOMB)
 			adjustEarDamage(30, 120)
 			Unconscious(200)
 
 		if(EXPLODE_LIGHT)
 			take_overall_damage(30, 0)
-			damage_clothes(50, BRUTE, "bomb")
+			damage_clothes(50, BRUTE, BOMB)
 			adjustEarDamage(15,60)
 			Unconscious(160)
 
@@ -176,8 +176,7 @@
 	//attempt to dismember bodyparts
 	if(severity <= 2)
 		var/max_limb_loss = round(4/severity) //so you don't lose four limbs at severity 3.
-		for(var/X in bodyparts)
-			var/obj/item/bodypart/BP = X
+		for(var/obj/item/bodypart/BP as() in bodyparts)
 			if(prob(50/severity) && BP.body_zone != BODY_ZONE_CHEST)
 				BP.brute_dam = BP.max_damage
 				BP.dismember()

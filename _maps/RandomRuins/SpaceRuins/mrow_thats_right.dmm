@@ -2,9 +2,6 @@
 "aa" = (
 /turf/template_noop,
 /area/template_noop)
-"ab" = (
-/turf/closed/mineral,
-/area/ruin/unpowered/no_grav)
 "ac" = (
 /turf/open/floor/plating/asteroid/airless,
 /area/ruin/unpowered/no_grav)
@@ -113,27 +110,6 @@
 /obj/machinery/light/small,
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/powered/cat_man)
-"aw" = (
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"ax" = (
-/obj/machinery/light{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
 "ay" = (
 /obj/effect/decal/cleanable/dirt,
 /turf/open/floor/plating,
@@ -184,32 +160,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/powered/cat_man)
-"aF" = (
-/obj/item/twohanded/required/kirbyplants/random,
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"aG" = (
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"aH" = (
-/obj/machinery/firealarm{
-	dir = 1;
-	pixel_y = -24
-	},
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
 "aI" = (
 /turf/open/floor/plasteel,
 /area/ruin/space/has_grav/powered/cat_man)
@@ -241,12 +191,6 @@
 	name = "Private Quarters"
 	},
 /turf/open/floor/carpet,
-/area/ruin/space/has_grav/powered/cat_man)
-"aO" = (
-/obj/machinery/door/firedoor/border_only{
-	dir = 1
-	},
-/turf/open/floor/plasteel,
 /area/ruin/space/has_grav/powered/cat_man)
 "aP" = (
 /obj/effect/spawner/structure/window/reinforced,
@@ -282,50 +226,6 @@
 /obj/structure/dresser,
 /turf/open/floor/carpet,
 /area/ruin/space/has_grav/powered/cat_man)
-"aU" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"aV" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/item/twohanded/required/kirbyplants/random,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"aW" = (
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"aX" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/dirt,
-/obj/item/reagent_containers/glass/bowl,
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/machinery/light/small{
-	dir = 1
-	},
-/turf/open/floor/plating,
-/area/ruin/space/has_grav/powered/cat_man)
 "aY" = (
 /obj/structure/bed/dogbed{
 	name = "kitty bed"
@@ -343,16 +243,6 @@
 "ba" = (
 /obj/structure/table/wood,
 /obj/item/flashlight/lamp,
-/turf/open/floor/carpet,
-/area/ruin/space/has_grav/powered/cat_man)
-"bb" = (
-/obj/machinery/light{
-	dir = 4
-	},
-/obj/structure/closet/cabinet,
-/obj/item/gps{
-	gpstag = "kitty"
-	},
 /turf/open/floor/carpet,
 /area/ruin/space/has_grav/powered/cat_man)
 "bc" = (
@@ -383,14 +273,6 @@
 /turf/open/floor/plasteel/white/corner{
 	dir = 8
 	},
-/area/ruin/space/has_grav/powered/cat_man)
-"bh" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
 /area/ruin/space/has_grav/powered/cat_man)
 "bi" = (
 /obj/effect/decal/cleanable/dirt,
@@ -483,17 +365,6 @@
 	dir = 8
 	},
 /area/ruin/space/has_grav/powered/cat_man)
-"bv" = (
-/obj/machinery/firealarm{
-	dir = 4;
-	pixel_x = 24
-	},
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
 "bw" = (
 /obj/structure/table/wood,
 /obj/item/paper_bin,
@@ -541,34 +412,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/powered/cat_man)
-"bE" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"bF" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/item/twohanded/required/kirbyplants/random,
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"bG" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
 "bH" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
@@ -588,48 +431,8 @@
 	},
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/powered/cat_man)
-"bJ" = (
-/obj/structure/closet/crate/bin,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"bK" = (
-/obj/structure/table,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"bL" = (
-/obj/structure/chair,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
-"bM" = (
-/obj/structure/reagent_dispensers/water_cooler,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 1
-	},
-/obj/effect/turf_decal/tile/neutral{
-	dir = 4
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
 "bN" = (
-/obj/machinery/door/firedoor/border_only,
+/obj/machinery/door/firedoor,
 /turf/open/floor/plasteel,
 /area/ruin/space/has_grav/powered/cat_man)
 "bO" = (
@@ -669,14 +472,6 @@
 /obj/effect/decal/cleanable/dirt,
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/powered/cat_man)
-"bT" = (
-/obj/machinery/light,
-/obj/effect/turf_decal/tile/neutral,
-/obj/effect/turf_decal/tile/neutral{
-	dir = 8
-	},
-/turf/open/floor/plasteel,
-/area/ruin/space/has_grav/powered/cat_man)
 "bU" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/green/hidden{
@@ -700,18 +495,6 @@
 	},
 /obj/effect/mob_spawn/human/corpse/damaged{
 	head = /obj/item/clothing/head/kitty
-	},
-/turf/open/floor/plating,
-/area/ruin/space/has_grav/powered/cat_man)
-"bX" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/dirt,
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/machinery/atmospherics/pipe/simple/green/hidden{
-	dir = 6
 	},
 /turf/open/floor/plating,
 /area/ruin/space/has_grav/powered/cat_man)
@@ -873,44 +656,6 @@
 /obj/item/organ/ears/cat,
 /turf/open/floor/plasteel/freezer,
 /area/ruin/space/has_grav/powered/cat_man)
-"cv" = (
-/obj/structure/closet/crate/freezer{
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
-	desc = "A slab of cat meat. Tastes like furball.";
-	name = "cat meat"
-	},
-/turf/open/floor/plasteel/freezer,
-/area/ruin/space/has_grav/powered/cat_man)
 "cw" = (
 /obj/machinery/light/small,
 /turf/open/floor/plasteel/freezer,
@@ -927,12 +672,208 @@
 /obj/item/organ/tail/cat,
 /turf/open/floor/plasteel/freezer,
 /area/ruin/space/has_grav/powered/cat_man)
+"fs" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/kirbyplants/random,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"ho" = (
+/obj/machinery/firealarm{
+	dir = 4;
+	pixel_x = 24
+	},
+/obj/effect/turf_decal/tile/neutral/half/contrasted,
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"hz" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/reagent_containers/glass/bowl,
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/machinery/light/small{
+	dir = 1
+	},
+/turf/open/floor/plating,
+/area/ruin/space/has_grav/powered/cat_man)
+"ml" = (
+/obj/structure/reagent_dispensers/water_cooler,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"mA" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"mI" = (
+/turf/closed/mineral,
+/area/ruin/unpowered/no_grav)
+"nI" = (
+/obj/structure/closet/crate/freezer{
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/turf/open/floor/plasteel/freezer,
+/area/ruin/space/has_grav/powered/cat_man)
+"nY" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/kirbyplants/random,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 8
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"rY" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 8
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"tk" = (
+/obj/machinery/firealarm{
+	dir = 1;
+	pixel_y = -24
+	},
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 8
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"tT" = (
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 8
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"Bj" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/tile/neutral/half/contrasted,
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
 "Bl" = (
 /obj/machinery/door/airlock/external,
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 1
 	},
 /turf/open/floor/plating,
+/area/ruin/space/has_grav/powered/cat_man)
+"Bm" = (
+/obj/item/kirbyplants/random,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 8
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"Bo" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/turf_decal/tile/neutral/anticorner/contrasted,
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"BQ" = (
+/obj/structure/chair,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"Cr" = (
+/obj/machinery/light{
+	dir = 4
+	},
+/obj/structure/closet/cabinet,
+/obj/item/gps{
+	gpstag = "kitty"
+	},
+/turf/open/floor/carpet,
+/area/ruin/space/has_grav/powered/cat_man)
+"CZ" = (
+/obj/effect/turf_decal/tile/neutral/anticorner/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"Eo" = (
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"IN" = (
+/obj/machinery/light{
+	dir = 1
+	},
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"NJ" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/reagent_containers/food/snacks/meat/slab/synthmeat{
+	desc = "A slab of cat meat. Tastes like furball.";
+	name = "cat meat"
+	},
+/obj/machinery/atmospherics/pipe/simple/green/hidden{
+	dir = 6
+	},
+/turf/open/floor/plating,
+/area/ruin/space/has_grav/powered/cat_man)
+"Oi" = (
+/obj/structure/table,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
+/area/ruin/space/has_grav/powered/cat_man)
+"OG" = (
+/obj/machinery/light,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 8
+	},
+/turf/open/floor/plasteel,
 /area/ruin/space/has_grav/powered/cat_man)
 "RT" = (
 /obj/machinery/door/airlock/external,
@@ -945,6 +886,13 @@
 	dir = 8
 	},
 /turf/open/floor/plating,
+/area/ruin/space/has_grav/powered/cat_man)
+"SV" = (
+/obj/structure/closet/crate/bin,
+/obj/effect/turf_decal/tile/neutral/half/contrasted{
+	dir = 4
+	},
+/turf/open/floor/plasteel,
 /area/ruin/space/has_grav/powered/cat_man)
 
 (1,1,1) = {"
@@ -964,13 +912,13 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -987,22 +935,22 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ac
 ac
 ac
 ac
 ac
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1018,25 +966,25 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ac
 ac
 ac
 ac
 ac
 ac
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1048,62 +996,62 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 ac
 ac
 ac
 ac
 ac
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 "}
 (5,1,1) = {"
 aa
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ac
 ac
 ac
-ab
-ab
+mI
+mI
 ac
 ac
 ac
 ac
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 "}
@@ -1118,39 +1066,39 @@ ac
 ad
 au
 ad
-ab
-ab
+mI
+mI
 ac
 ac
 ac
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 ac
 ac
-ab
+mI
 aa
 aa
 "}
 (7,1,1) = {"
 aa
 aa
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
 ad
 av
 ad
-ab
+mI
 ad
 aZ
 aZ
@@ -1174,8 +1122,8 @@ aa
 (8,1,1) = {"
 aa
 aa
-ab
-ab
+mI
+mI
 ad
 ad
 ad
@@ -1188,9 +1136,9 @@ ba
 bo
 bw
 ad
-bJ
+SV
 aI
-aF
+Bm
 ad
 aZ
 ad
@@ -1205,24 +1153,24 @@ aa
 "}
 (9,1,1) = {"
 aa
-ab
-ab
-ab
+mI
+mI
+mI
 ad
 ae
 ah
 ad
-aw
-aF
+Eo
+Bm
 ad
 aR
 aS
 bp
 bx
 ad
-bK
+Oi
 aI
-aG
+tT
 RT
 ah
 Bl
@@ -1236,25 +1184,25 @@ aa
 aa
 "}
 (10,1,1) = {"
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 af
 ah
 aq
-aw
-aG
+Eo
+tT
 aN
 aS
 aS
 aS
 aS
 ad
-bL
+BQ
 aI
-aH
+tk
 ad
 aZ
 ad
@@ -1269,24 +1217,24 @@ aa
 "}
 (11,1,1) = {"
 aa
-ab
-ab
-ab
+mI
+mI
+mI
 ad
 ad
 ad
 ad
-ax
-aH
+IN
+tk
 ad
 aT
-bb
+Cr
 aS
 by
 ad
-bM
+ml
 aI
-bT
+OG
 ad
 ac
 ac
@@ -1302,14 +1250,14 @@ aa
 (12,1,1) = {"
 aa
 aa
-ab
-ab
+mI
+mI
 ad
 ag
 aj
 ad
-aw
-aG
+Eo
+tT
 ad
 ad
 ad
@@ -1318,31 +1266,31 @@ ad
 ad
 ad
 aI
-aG
+tT
 ad
 ad
 ad
 ad
 ad
-ab
-ab
+mI
+mI
 ac
-ab
+mI
 aa
 aa
 "}
 (13,1,1) = {"
 aa
 aa
-ab
-ab
+mI
+mI
 ad
 ah
 ah
 ar
-aw
+Eo
 aI
-aO
+bN
 aI
 bc
 bq
@@ -1350,7 +1298,7 @@ aI
 aI
 bN
 aI
-aG
+tT
 bY
 ay
 cd
@@ -1359,15 +1307,15 @@ ad
 ad
 ad
 ad
-ab
+mI
 aa
 aa
 "}
 (14,1,1) = {"
 aa
-ab
-ab
-ab
+mI
+mI
+mI
 ad
 ai
 ak
@@ -1375,11 +1323,11 @@ ad
 ad
 ad
 ad
-aw
+Eo
 bd
 br
 bz
-aG
+tT
 ad
 ad
 ad
@@ -1389,17 +1337,17 @@ ce
 ci
 co
 cs
-cv
+nI
 ad
-ab
-ab
+mI
+mI
 aa
 "}
 (15,1,1) = {"
 aa
-ab
-ab
-ab
+mI
+mI
+mI
 ad
 ad
 ad
@@ -1407,11 +1355,11 @@ ad
 ay
 ay
 aP
-aw
+Eo
 be
 bs
 bA
-aG
+tT
 aP
 bP
 bU
@@ -1423,27 +1371,27 @@ cp
 ct
 cw
 ad
-ab
-ab
+mI
+mI
 aa
 "}
 (16,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 al
 as
 az
 aJ
 aP
-aw
+Eo
 bf
 bt
 bB
-bE
+rY
 aP
 bQ
 bV
@@ -1455,27 +1403,27 @@ ad
 cu
 cx
 ad
-ab
-ab
+mI
+mI
 aa
 "}
 (17,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 am
 ad
 aA
 aK
 aQ
-aU
+mA
 bg
 bu
 bC
-aG
+tT
 bO
 aK
 bW
@@ -1487,27 +1435,27 @@ ad
 ad
 ad
 ad
-ab
-ab
+mI
+mI
 aa
 "}
 (18,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 an
 ad
 ad
 ad
 ad
-aV
+fs
 aI
 aI
 aI
-bF
+nY
 ad
 ad
 ad
@@ -1517,50 +1465,50 @@ ad
 cl
 cm
 ad
-ab
-ab
-ab
+mI
+mI
+mI
 aa
 aa
 "}
 (19,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 ao
 as
 aB
 ay
 aQ
-aW
-bh
-bv
-bh
-bG
+CZ
+Bj
+ho
+Bj
+Bo
 bO
 ay
-bX
+NJ
 as
 cb
 ad
 cm
 cq
 ad
-ab
-ab
-ab
+mI
+mI
+mI
 aa
 aa
 "}
 (20,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 an
 ad
@@ -1581,18 +1529,18 @@ ad
 ad
 ad
 ad
-ab
-ab
-ab
+mI
+mI
+mI
 aa
 aa
 "}
 (21,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 an
 ad
@@ -1613,25 +1561,25 @@ cg
 cm
 cr
 ad
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
 "}
 (22,1,1) = {"
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 am
 ad
 ad
 ad
 ad
-aX
+hz
 bk
 ad
 aL
@@ -1645,9 +1593,9 @@ ad
 cn
 cr
 ad
-ab
-ab
-ab
+mI
+mI
+mI
 aa
 aa
 "}
@@ -1655,8 +1603,8 @@ aa
 aa
 aa
 aa
-ab
-ab
+mI
+mI
 ad
 ap
 at
@@ -1677,8 +1625,8 @@ ad
 ad
 ad
 ad
-ab
-ab
+mI
+mI
 aa
 aa
 aa
@@ -1687,8 +1635,8 @@ aa
 aa
 aa
 aa
-ab
-ab
+mI
+mI
 ad
 ad
 ad
@@ -1706,11 +1654,11 @@ ad
 ad
 ad
 ad
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1720,10 +1668,10 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 ap
 at
@@ -1735,14 +1683,14 @@ bn
 aE
 bS
 ad
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1752,10 +1700,10 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
 ad
 ad
 ad
@@ -1767,14 +1715,14 @@ ad
 ad
 ad
 ad
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1784,27 +1732,27 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1816,27 +1764,27 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1848,27 +1796,27 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1883,20 +1831,20 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1915,14 +1863,14 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
-ab
-ab
-ab
-ab
-ab
+mI
+mI
+mI
+mI
+mI
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1949,9 +1897,9 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
+mI
+mI
+mI
 aa
 aa
 aa
@@ -1981,9 +1929,9 @@ aa
 aa
 aa
 aa
-ab
-ab
-ab
+mI
+mI
+mI
 aa
 aa
 aa

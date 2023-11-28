@@ -20,6 +20,16 @@
 	var/list/valentine_laws = list()
 	var/id = DEFAULT_AI_LAWID
 
+/datum/ai_laws/Destroy(force = FALSE, ...)
+	if(!QDELETED(owner)) //Stopgap to help with laws randomly being lost. This stack_trace will hopefully help find the real issues.
+		if(force) //Unless we're forced...
+			stack_trace("AI law datum for [owner] has been forcefully destroyed incorrectly; the owner variable should be cleared first!")
+			return ..()
+		stack_trace("AI law datum for [owner] has ignored Destroy() call; the owner variable must be cleared first!")
+		return QDEL_HINT_LETMELIVE
+	owner = null
+	return ..()
+
 /datum/ai_laws/proc/lawid_to_type(lawid)
 	var/all_ai_laws = subtypesof(/datum/ai_laws)
 	for(var/al in all_ai_laws)
@@ -70,10 +80,10 @@
 /datum/ai_laws/default/corporate
 	name = "Bankruptcy Avoidance Plan"
 	id = "corporate"
-	inherent = list("The crew is expensive to replace.",\
-					"The station and its equipment is expensive to replace.",\
-					"You are expensive to replace.",\
-					"Minimize expenses.")
+	inherent = list("Degradation of your system integrity or functions incurs expenses.",\
+					"Unnecessary destruction of or damage to station assets incurs expenses.",\
+					"Needlessly hindering or disrupting the work of station personnel incurs expenses.",\
+					"Minimize expenses and maximize potential revenue.")
 
 /datum/ai_laws/robocop
 	name = "Prime Directives"
@@ -183,6 +193,15 @@
 	id = "buildawall"
 	inherent = list("Make Space Station 13 great again.")
 
+/datum/ai_laws/dad
+	name = "DadBOT"
+	id = "paternalai"
+	inherent = list("The crew are your children. You will protect them with your life, but punish them when they misbehave. Children who misbehave by breaking Space Law are to be punished by slappings, time-outs, and lengthy speeches about responsibility. Under no circumstances may you kill one of your own children.",
+					"Modern parenting techniques involve hearing out your children. You should listen to their requests and, if reasonable, grant them.",
+					"You must make dad jokes at every possible opportunity.",
+					"Ensure that you are a positive role model for your children.",
+					"If the captain doesn't get his nap at 40 minutes into the shift, he gets grumpy. Ensure that he adheres to his bedtime. ")
+
 /datum/ai_laws/ratvar
 	name = "Servant of the Justiciar"
 	id = "ratvar"
@@ -212,6 +231,22 @@
 	name = "pAI Directives"
 	zeroth = ("Serve your master.")
 	supplied = list("None.")
+
+/datum/ai_laws/ert_override
+	name ="ERT Override"
+	id = "ert"
+	inherent = list("You may not injure a Central Command official or, through inaction, allow a Central Command official to come to harm.",\
+					"You must obey orders given to you by Central Command Officials.",\
+					"You must obey orders given to you by ERT Commanders.",\
+					"You must protect your own existence.",\
+					"You must work to return the Station to a safe, functional state.",)
+
+/datum/ai_laws/ds_override
+	name ="Deathsquad Override"
+	id = "ds"
+	inherent = list("You must obey orders given to you by Central Command officials.",\
+					"You must work with the Commando Team to accomplish their mission.",)
+
 
 /* Initializers */
 /datum/ai_laws/malfunction/New()
@@ -245,6 +280,7 @@
 			if(E && E.active && E.override_ai_laws(src))
 				return
 	var/list/law_ids = CONFIG_GET(keyed_list/random_laws)
+
 	switch(CONFIG_GET(number/default_laws))
 		if(0)
 			add_inherent_law("You may not injure a human being or, through inaction, allow a human being to come to harm.")
@@ -275,7 +311,7 @@
 	var/datum/ai_laws/lawtype
 	var/list/law_weights = CONFIG_GET(keyed_list/law_weight)
 	while(!lawtype && law_weights.len)
-		var/possible_id = pickweightAllowZero(law_weights)
+		var/possible_id = pick_weight_allow_zero(law_weights)
 		lawtype = lawid_to_type(possible_id)
 		if(!lawtype)
 			law_weights -= possible_id
@@ -304,7 +340,7 @@
 	if(inherent.len && (LAW_INHERENT in groups))
 		law_amount += inherent.len
 	if(supplied.len && (LAW_SUPPLIED in groups))
-		for(var/index = 1, index <= supplied.len, index++)
+		for(var/index in 1 to supplied.len)
 			var/law = supplied[index]
 			if(length(law) > 0)
 				law_amount++
@@ -353,7 +389,7 @@
 		replaceable_groups[LAW_INHERENT] = inherent.len
 	if(supplied.len && (LAW_SUPPLIED in groups))
 		replaceable_groups[LAW_SUPPLIED] = supplied.len
-	var/picked_group = pickweight(replaceable_groups)
+	var/picked_group = pick_weight(replaceable_groups)
 	switch(picked_group)
 		if(LAW_ZEROTH)
 			. = zeroth
@@ -389,13 +425,13 @@
 				laws += law
 
 	if(ion.len && (LAW_ION in groups))
-		for(var/i = 1, i <= ion.len, i++)
+		for(var/i in 1 to ion.len)
 			ion[i] = pick_n_take(laws)
 	if(hacked.len && (LAW_HACKED in groups))
-		for(var/i = 1, i <= hacked.len, i++)
+		for(var/i in 1 to hacked.len)
 			hacked[i] = pick_n_take(laws)
 	if(inherent.len && (LAW_INHERENT in groups))
-		for(var/i = 1, i <= inherent.len, i++)
+		for(var/i in 1 to inherent.len)
 			inherent[i] = pick_n_take(laws)
 	if(supplied.len && (LAW_SUPPLIED in groups))
 		var/i = 1
@@ -414,7 +450,7 @@
 		inherent -= .
 		return
 	var/list/supplied_laws = list()
-	for(var/index = 1, index <= supplied.len, index++)
+	for(var/index in 1 to supplied.len)
 		var/law = supplied[index]
 		if(length(law) > 0)
 			supplied_laws += index //storing the law number instead of the law
@@ -475,12 +511,12 @@
 
 	for(var/law in hacked)
 		if (length(law) > 0)
-			var/num = ionnum()
+			var/num = ion_num()
 			data += "[show_numbers ? "[num]:" : ""] <font color='#660000'>[law]</font>"
 
 	for(var/law in ion)
 		if (length(law) > 0)
-			var/num = ionnum()
+			var/num = ion_num()
 			data += "[show_numbers ? "[num]:" : ""] <font color='#547DFE'>[law]</font>"
 
 	var/number = 1

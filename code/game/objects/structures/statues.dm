@@ -10,7 +10,6 @@
 	var/material_drop_type = /obj/item/stack/sheet/iron
 	CanAtmosPass = ATMOS_PASS_DENSITY
 
-
 /obj/structure/statue/attackby(obj/item/W, mob/living/user, params)
 	add_fingerprint(user)
 	user.changeNext_move(CLICK_CD_MELEE)
@@ -108,42 +107,19 @@
 
 /obj/structure/statue/plasma/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature > 300)
-		PlasmaBurn(exposed_temperature)
+		plasma_ignition(6)
 
 
-/obj/structure/statue/plasma/bullet_act(obj/item/projectile/Proj)
-	var/burn = FALSE
-	if(!(Proj.nodamage) && Proj.damage_type == BURN && !QDELETED(src))
-		burn = TRUE
-	if(burn)
-		var/turf/T = get_turf(src)
-		if(Proj.firer)
-			message_admins("Plasma statue ignited by [ADMIN_LOOKUPFLW(Proj.firer)] in [ADMIN_VERBOSEJMP(T)]")
-			log_game("Plasma statue ignited by [key_name(Proj.firer)] in [AREACOORD(T)]")
-		else
-			message_admins("Plasma statue ignited by [Proj]. No known firer, in [ADMIN_VERBOSEJMP(T)]")
-			log_game("Plasma statue ignited by [Proj] in [AREACOORD(T)]. No known firer.")
-		PlasmaBurn(2500)
+/obj/structure/statue/plasma/bullet_act(obj/projectile/Proj)
+	if(!(Proj.nodamage) && Proj.damage_type == BURN)
+		plasma_ignition(6, Proj?.firer)
 	. = ..()
 
 /obj/structure/statue/plasma/attackby(obj/item/W, mob/user, params)
-	if(W.is_hot() > 300 && !QDELETED(src))//If the temperature of the object is over 300, then ignite
-		var/turf/T = get_turf(src)
-		message_admins("Plasma statue ignited by [ADMIN_LOOKUPFLW(user)] in [ADMIN_VERBOSEJMP(T)]")
-		log_game("Plasma statue ignited by [key_name(user)] in [AREACOORD(T)]")
-		ignite(W.is_hot())
+	if(W.is_hot() > 300)//If the temperature of the object is over 300, then ignite
+		plasma_ignition(6, user)
 	else
 		return ..()
-
-/obj/structure/statue/plasma/proc/PlasmaBurn(exposed_temperature)
-	if(QDELETED(src))
-		return
-	atmos_spawn_air("plasma=[oreAmount*10];TEMP=[exposed_temperature]")
-	deconstruct(FALSE)
-
-/obj/structure/statue/plasma/proc/ignite(exposed_temperature)
-	if(exposed_temperature > 300)
-		PlasmaBurn(exposed_temperature)
 
 //////////////////////gold///////////////////////////////////////
 
@@ -224,7 +200,7 @@
 	max_integrity = 300
 	material_drop_type = /obj/item/stack/sheet/mineral/bananium
 	desc = "A bananium statue with a small engraving:'HOOOOOOONK'."
-	var/spam_flag = 0
+	var/spam_flag = FALSE
 
 /obj/structure/statue/bananium/clown
 	name = "statue of a clown"
@@ -248,10 +224,9 @@
 
 /obj/structure/statue/bananium/proc/honk()
 	if(!spam_flag)
-		spam_flag = 1
+		spam_flag = TRUE
 		playsound(src.loc, 'sound/items/bikehorn.ogg', 50, 1)
-		spawn(20)
-			spam_flag = 0
+		addtimer(VARSET_CALLBACK(src, spam_flag, FALSE), 2 SECONDS)
 
 /////////////////////sandstone/////////////////////////////////////////
 
@@ -275,7 +250,8 @@
 
 /obj/structure/statue/snow
 	max_integrity = 50
-	material_drop_type = /obj/item/stack/sheet/mineral/snow
+	material_drop_type = /obj/item/stack/sheet/snow
+
 
 /obj/structure/statue/snow/snowman
 	name = "snowman"

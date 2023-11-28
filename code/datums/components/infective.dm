@@ -4,6 +4,7 @@
 	var/expire_time
 	var/min_clean_strength = CLEAN_WEAK
 
+
 /datum/component/infective/Initialize(list/datum/disease/_diseases, expire_in)
 	if(islist(_diseases))
 		diseases = _diseases
@@ -15,37 +16,50 @@
 	if(expire_in)
 		expire_time = world.time + expire_in
 		QDEL_IN(src, expire_in)
-	if(!ismovableatom(parent))
+	if(!ismovable(parent))
 		return COMPONENT_INCOMPATIBLE
-	RegisterSignal(parent, COMSIG_COMPONENT_CLEAN_ACT, .proc/clean)
-	RegisterSignal(parent, COMSIG_MOVABLE_BUCKLE, .proc/try_infect_buckle)
-	RegisterSignal(parent, COMSIG_MOVABLE_BUMP, .proc/try_infect_collide)
-	RegisterSignal(parent, COMSIG_MOVABLE_CROSSED, .proc/try_infect_crossed)
-	RegisterSignal(parent, COMSIG_MOVABLE_IMPACT_ZONE, .proc/try_infect_impact_zone)
-	RegisterSignal(parent, COMSIG_ATOM_EXTRAPOLATOR_ACT, .proc/extrapolation)
+
+	var/static/list/disease_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(try_infect_crossed),
+	)
+	AddComponent(/datum/component/connect_loc_behalf, parent, disease_connections)
+
+	RegisterSignal(parent, COMSIG_COMPONENT_CLEAN_ACT, PROC_REF(clean))
+	RegisterSignal(parent, COMSIG_MOVABLE_BUCKLE, PROC_REF(try_infect_buckle))
+	RegisterSignal(parent, COMSIG_MOVABLE_BUMP, PROC_REF(try_infect_collide))
+	RegisterSignal(parent, COMSIG_MOVABLE_IMPACT_ZONE, PROC_REF(try_infect_impact_zone))
+	RegisterSignal(parent, COMSIG_ATOM_EXTRAPOLATOR_ACT, PROC_REF(extrapolation))
 	if(isitem(parent))
-		RegisterSignal(parent, COMSIG_ITEM_ATTACK_ZONE, .proc/try_infect_attack_zone)
-		RegisterSignal(parent, COMSIG_ITEM_ATTACK, .proc/try_infect_attack)
-		RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, .proc/try_infect_equipped)
+		RegisterSignal(parent, COMSIG_ITEM_ATTACK_ZONE, PROC_REF(try_infect_attack_zone))
+		RegisterSignal(parent, COMSIG_ITEM_ATTACK, PROC_REF(try_infect_attack))
+		RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, PROC_REF(try_infect_equipped))
 		if(istype(parent, /obj/item/reagent_containers/food/snacks))
-			RegisterSignal(parent, COMSIG_FOOD_EATEN, .proc/try_infect_eat)
+			RegisterSignal(parent, COMSIG_FOOD_EATEN, PROC_REF(try_infect_eat))
 	else if(istype(parent, /obj/effect/decal/cleanable/blood/gibs))
-		RegisterSignal(parent, COMSIG_GIBS_STREAK, .proc/try_infect_streak)
+		RegisterSignal(parent, COMSIG_GIBS_STREAK, PROC_REF(try_infect_streak))
 
 /datum/component/infective/proc/try_infect_eat(datum/source, mob/living/eater, mob/living/feeder)
+	SIGNAL_HANDLER
+
 	for(var/V in diseases)
 		eater.ForceContractDisease(V)
 	try_infect(feeder, BODY_ZONE_L_ARM)
 
 /datum/component/infective/proc/clean(datum/source, clean_strength)
+	SIGNAL_HANDLER
+
 	if(clean_strength >= min_clean_strength)
 		qdel(src)
 
 /datum/component/infective/proc/try_infect_buckle(datum/source, mob/M, force)
+	SIGNAL_HANDLER
+
 	if(isliving(M))
 		try_infect(M)
 
 /datum/component/infective/proc/try_infect_collide(datum/source, atom/A)
+	SIGNAL_HANDLER
+
 	var/atom/movable/P = parent
 	if(P.throwing)
 		//this will be handled by try_infect_impact_zone()
@@ -54,18 +68,26 @@
 		try_infect(A)
 
 /datum/component/infective/proc/try_infect_impact_zone(datum/source, mob/living/target, hit_zone)
+	SIGNAL_HANDLER
+
 	try_infect(target, hit_zone)
 
 /datum/component/infective/proc/try_infect_attack_zone(datum/source, mob/living/carbon/target, mob/living/user, hit_zone)
+	SIGNAL_HANDLER
+
 	try_infect(user, BODY_ZONE_L_ARM)
 	try_infect(target, hit_zone)
 
 /datum/component/infective/proc/try_infect_attack(datum/source, mob/living/target, mob/living/user)
+	SIGNAL_HANDLER
+
 	if(!iscarbon(target)) //this case will be handled by try_infect_attack_zone
 		try_infect(target)
 	try_infect(user, BODY_ZONE_L_ARM)
 
 /datum/component/infective/proc/try_infect_equipped(datum/source, mob/living/L, slot)
+	SIGNAL_HANDLER
+
 	var/old_permeability
 	if(isitem(parent))
 		//if you are putting an infective item on, it obviously will not protect you, so set its permeability high enough that it will never block ContactContractDisease()
@@ -79,19 +101,21 @@
 		var/obj/item/I = parent
 		I.permeability_coefficient = old_permeability
 
-/datum/component/infective/proc/try_infect_crossed(datum/source, atom/movable/M)
-	if(isliving(M))
-		try_infect(M, BODY_ZONE_PRECISE_L_FOOT)
+/datum/component/infective/proc/try_infect_crossed(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
+	SIGNAL_HANDLER
+
+	if(isliving(arrived))
+		try_infect(arrived, BODY_ZONE_PRECISE_L_FOOT)
 
 /datum/component/infective/proc/try_infect_streak(datum/source, list/directions, list/output_diseases)
+	SIGNAL_HANDLER
+
 	output_diseases |= diseases
 
 /datum/component/infective/proc/try_infect(mob/living/L, target_zone)
 	for(var/V in diseases)
 		L.ContactContractDisease(V, target_zone)
 
-/datum/component/infective/proc/extrapolation(datum/source, mob/user, var/obj/item/extrapolator/E, scan = TRUE)
-	if(scan)
-		E.scan(source, diseases, user)
-	else
-		E.extrapolate(source, diseases, user)
+/datum/component/infective/proc/extrapolation(datum/source, mob/user, obj/item/extrapolator/extrapolator, dry_run = FALSE, list/result)
+	SIGNAL_HANDLER
+	EXTRAPOLATOR_ACT_ADD_DISEASES(result, diseases)

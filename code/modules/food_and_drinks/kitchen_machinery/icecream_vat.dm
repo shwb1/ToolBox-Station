@@ -60,7 +60,7 @@
 			return "vanilla"
 
 
-/obj/machinery/icecream_vat/Initialize()
+/obj/machinery/icecream_vat/Initialize(mapload)
 	. = ..()
 	while(product_types.len < 6)
 		product_types.Add(5)
@@ -167,16 +167,17 @@
 	return
 
 /obj/item/reagent_containers/food/snacks/icecream
-	name = "ice cream cone"
+	name = "waffle cone"
 	desc = "Delicious waffle cone, but no ice cream."
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "icecream_cone_waffle" //default for admin-spawned cones, href_list["cone"] should overwrite this all the time
 	var/ice_creamed = 0
 	var/cone_type
 	bitesize = 3
-	foodtype = DAIRY
+	foodtype = DAIRY | SUGAR
+	/*food_flags = FOOD_FINGER_FOOD*/
 
-/obj/item/reagent_containers/food/snacks/icecream/Initialize()
+/obj/item/reagent_containers/food/snacks/icecream/Initialize(mapload)
 	. = ..()
 	create_reagents(20)
 	reagents.add_reagent(/datum/reagent/consumable/nutriment, 4)

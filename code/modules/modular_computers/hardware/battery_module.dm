@@ -4,21 +4,25 @@
 	icon_state = "cell_con"
 	critical = 1
 	malfunction_probability = 1
-	var/obj/item/stock_parts/cell/battery = null
+	var/obj/item/stock_parts/cell/battery
 	device_type = MC_CELL
 
-/obj/item/computer_hardware/battery/New(loc, battery_type = null)
+/obj/item/computer_hardware/battery/get_cell()
+	return battery
+
+/obj/item/computer_hardware/battery/Initialize(mapload, battery_type)
+	. = ..()
 	if(battery_type)
 		battery = new battery_type(src)
-	..()
 
 /obj/item/computer_hardware/battery/Destroy()
-	. = ..()
-	QDEL_NULL(battery)
+	if(battery)
+		QDEL_NULL(battery)
+	return ..()
 
 /obj/item/computer_hardware/battery/handle_atom_del(atom/A)
 	if(A == battery)
-		try_eject(0, null, TRUE)
+		try_eject(forced = TRUE)
 	. = ..()
 
 /obj/item/computer_hardware/battery/try_insert(obj/item/I, mob/living/user = null)
@@ -45,29 +49,19 @@
 	return TRUE
 
 
-/obj/item/computer_hardware/battery/try_eject(slot=0, mob/living/user = null, forced = 0)
+/obj/item/computer_hardware/battery/try_eject(mob/living/user = null, forced = FALSE)
 	if(!battery)
 		to_chat(user, "<span class='warning'>There is no power cell connected to \the [src].</span>")
 		return FALSE
 	else
-		if(user)
+		if(user && in_range(src, user))
 			user.put_in_hands(battery)
+			to_chat(user, "<span class='notice'>You detach \the [battery] from \the [src].</span>")
 		else
 			battery.forceMove(drop_location())
-		to_chat(user, "<span class='notice'>You detach \the [battery] from \the [src].</span>")
+
 		battery = null
-
-		if(holder)
-			if(holder.enabled && !holder.use_power())
-				holder.shutdown_computer()
-
 		return TRUE
-
-
-
-
-
-
 
 /obj/item/stock_parts/cell/computer
 	name = "standard battery"
@@ -76,7 +70,6 @@
 	icon_state = "cell_mini"
 	w_class = WEIGHT_CLASS_TINY
 	maxcharge = 750
-
 
 /obj/item/stock_parts/cell/computer/advanced
 	name = "advanced battery"

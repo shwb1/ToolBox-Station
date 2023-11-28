@@ -13,6 +13,8 @@
 	barefootstep = FOOTSTEP_SAND
 	clawfootstep = FOOTSTEP_SAND
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
+	max_integrity = 200
+	damage_deflection = 0
 	var/environment_type = "asteroid"
 	var/turf_type = /turf/open/floor/plating/asteroid //Because caves do whacky shit to revert to normal
 	var/floor_variance = 20 //probability floor has a different icon state
@@ -20,7 +22,7 @@
 	var/obj/item/stack/digResult = /obj/item/stack/ore/glass/basalt
 	var/dug
 
-/turf/open/floor/plating/asteroid/Initialize()
+/turf/open/floor/plating/asteroid/Initialize(mapload)
 	var/proper_name = name
 	. = ..()
 	name = proper_name
@@ -76,10 +78,6 @@
 			for(var/obj/item/stack/ore/O in src)
 				SEND_SIGNAL(W, COMSIG_PARENT_ATTACKBY, O)
 
-/turf/open/floor/plating/asteroid/ex_act(severity, target)
-	. = SEND_SIGNAL(src, COMSIG_ATOM_EX_ACT, severity, target)
-	contents_explosion(severity, target)
-
 /turf/open/floor/plating/lavaland_baseturf
 	baseturfs = /turf/open/floor/plating/asteroid/basalt/lava_land_surface
 
@@ -99,7 +97,7 @@
 /turf/open/floor/plating/asteroid/basalt/airless
 	initial_gas_mix = AIRLESS_ATMOS
 
-/turf/open/floor/plating/asteroid/basalt/Initialize()
+/turf/open/floor/plating/asteroid/basalt/Initialize(mapload)
 	. = ..()
 	set_basalt_light(src)
 
@@ -121,15 +119,17 @@
 	planetary_atmos = TRUE
 	baseturfs = /turf/open/lava/smooth/lava_land_surface
 
-
-
+/turf/open/floor/plating/asteroid/basalt/iceland_surface
+	initial_gas_mix = FROZEN_ATMOS
+	planetary_atmos = TRUE
+	baseturfs = /turf/open/lava/smooth/cold
 
 /turf/open/floor/plating/asteroid/airless
 	initial_gas_mix = AIRLESS_ATMOS
 	baseturfs = /turf/open/floor/plating/asteroid/airless
 	turf_type = /turf/open/floor/plating/asteroid/airless
 
-
+//MERGE doesnt want this:
 #define SPAWN_MEGAFAUNA "bluh bluh huge boss"
 #define SPAWN_BUBBLEGUM 6
 
@@ -279,7 +279,7 @@
 
 		new randumb(T)
 	return
-
+//MERGE END
 #undef SPAWN_MEGAFAUNA
 #undef SPAWN_BUBBLEGUM
 
@@ -302,6 +302,9 @@
 			if(istype(F, randumb))
 				return
 		new randumb(T)
+// / Breathing types. Lungs can access either by these or by a string, which will be considered a gas ID.
+#define BREATH_OXY		/datum/breathing_class/oxygen
+#define BREATH_PLASMA	/datum/breathing_class/plasma
 
 /turf/open/floor/plating/asteroid/snow
 	gender = PLURAL
@@ -312,14 +315,13 @@
 	icon_state = "snow"
 	icon_plating = "snow"
 	initial_gas_mix = FROZEN_ATMOS
-	slowdown = 2
 	environment_type = "snow"
 	flags_1 = NONE
 	planetary_atmos = TRUE
 	burnt_states = list("snow_dug")
 	bullet_sizzle = TRUE
 	bullet_bounce_sound = null
-	digResult = /obj/item/stack/sheet/mineral/snow
+	digResult = /obj/item/stack/sheet/snow
 
 /turf/open/floor/plating/asteroid/snow/burn_tile()
 	if(!burnt)

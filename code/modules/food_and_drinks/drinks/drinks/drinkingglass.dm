@@ -12,6 +12,8 @@
 	spillable = TRUE
 	resistance_flags = ACID_PROOF
 	obj_flags = UNIQUE_RENAME
+	drop_sound = 'sound/items/handling/drinkglass_drop.ogg'
+	pickup_sound =  'sound/items/handling/drinkglass_pickup.ogg'
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/on_reagent_change(changetype)
 	cut_overlays()
@@ -73,21 +75,24 @@
 		desc = "A shot glass - the universal symbol for bad decisions."
 		return
 
-/obj/item/reagent_containers/food/drinks/drinkingglass/filled/Initialize()
+/obj/item/reagent_containers/food/drinks/drinkingglass/filled/Initialize(mapload)
 	. = ..()
 	on_reagent_change(ADD_REAGENT)
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/filled/soda
 	name = "Soda Water"
 	list_reagents = list(/datum/reagent/consumable/sodawater = 50)
+	vendor_icon_preview = "glass_clear"
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/filled/cola
 	name = "Space Cola"
 	list_reagents = list(/datum/reagent/consumable/space_cola = 50)
+	vendor_icon_preview = "glass_brown"
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/filled/nuka_cola
 	name = "Nuka Cola"
 	list_reagents = list(/datum/reagent/consumable/nuka_cola = 50)
+	vendor_icon_preview = "nuka_colaglass"
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/food/snacks/egg)) //breaking eggs

@@ -9,10 +9,10 @@
 			to_chat(H, "<span class='notice'>A throwing star has been created in your hand!</span>")
 		else
 			qdel(N)
-		H.throw_mode_on() //So they can quickly throw it.
+		H.throw_mode_on(THROW_MODE_TOGGLE) //So they can quickly throw it.
 
 
 /obj/item/throwing_star/ninja
 	name = "ninja throwing star"
 	throwforce = 30
-	embedding = list("embedded_pain_multiplier" = 6, "embed_chance" = 100, "embedded_fall_chance" = 0)
+	embedding = list("pain_mult" = 6, "embed_chance" = 180, "fall_chance" = 0)

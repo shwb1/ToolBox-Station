@@ -7,12 +7,13 @@
 	light_color = LIGHT_COLOR_BROWN
 	products = list(/obj/item/reagent_containers/food/drinks/coffee = 6,
 		            /obj/item/reagent_containers/food/drinks/mug/tea = 6,
-		            /obj/item/reagent_containers/food/drinks/mug/cocoa = 3)
+		            /obj/item/reagent_containers/food/drinks/mug/cocoa = 3,
+					/obj/item/reagent_containers/food/drinks/bubble_tea = 4)
 	contraband = list(/obj/item/reagent_containers/food/drinks/ice = 12)
 	refill_canister = /obj/item/vending_refill/coffee
 	default_price = 10
 	extra_price = 25
-	payment_department = ACCOUNT_SRV
+	dept_req_for_free = ACCOUNT_SRV_BITFLAG
 /obj/item/vending_refill/coffee
 	machine_name = "Solar's Best Hot Drinks"
 	icon_state = "refill_joe"

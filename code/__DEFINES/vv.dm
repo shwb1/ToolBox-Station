@@ -73,22 +73,49 @@
 #define VV_HK_EXPOSE "expose"
 #define VV_HK_CALLPROC "proc_call"
 #define VV_HK_MARK "mark"
+#define VV_HK_ADDCOMPONENT "addcomponent"
 #define VV_HK_MODIFY_TRAITS "modtraits"
-#ifdef REFERENCE_TRACKING
-#define VV_HK_VIEW_REFERENCES "viewreferences"
-#endif
 
 // /atom
 #define VV_HK_MODIFY_TRANSFORM "atom_transform"
+#define VV_HK_MODIFY_GREYSCALE "modify_greyscale"
 #define VV_HK_ADD_REAGENT "addreagent"
 #define VV_HK_TRIGGER_EMP "empulse"
 #define VV_HK_TRIGGER_EXPLOSION "explode"
 #define VV_HK_AUTO_RENAME "auto_rename"
+#define VV_HK_EDIT_FILTERS "edit_filters"
+#define VV_HK_EDIT_PARTICLES "edit_particles"
+#define VV_HK_ADD_EMITTER "add_emitter"
+#define VV_HK_REMOVE_EMITTER "remove_emitter"
+#define VV_HK_ADD_AI "add_ai"
+
+// /datum/gas_mixture
+#define VV_HK_SET_MOLES "set_moles"
+#define VV_HK_EMPTY "empty"
+#define VV_HK_SET_TEMPERATURE "set_temp"
+#define VV_HK_PARSE_GASSTRING "parse_gasstring"
+#define VV_HK_SET_VOLUME "set_volume"
 
 // /obj
 #define VV_HK_OSAY "osay"
 #define VV_HK_MASS_DEL_TYPE "mass_delete_type"
 #define VV_HK_ARMOR_MOD "mod_obj_armor"
+
+// /obj/item/card/id
+#define VV_ID_PAYDAY "id_payday"
+#define VV_ID_GIVE_MINING_POINT "id_give_mining_points"
+
+// /obj/item/organ/cyberimp/arm
+#define VV_HK_ADD_IMPLANT_TOOL	"add_implant_tool"
+#define VV_HK_DEL_IMPLANT_TOOL	"del_implant_tool"
+
+// /obj/machinery/vendor/exploration
+#define VV_ID_GIVE_EXPLO_POINT "id_give_explo_points"
+
+// /obj/machinery/computer/rdconsole
+#define VV_ID_GIVE_GENERAL_POINT "give_general_points"
+#define VV_ID_GIVE_DISCOVERY_POINT "give_discovery_points"
+#define VV_ID_GIVE_NANITE_POINT "give_nanite_points"
 
 // /mob
 #define VV_HK_GIB "gib"
@@ -112,6 +139,8 @@
 #define VV_HK_MARTIAL_ART "give_martial_art"
 #define VV_HK_GIVE_TRAUMA "give_trauma"
 #define VV_HK_CURE_TRAUMA "cure_trauma"
+#define VV_HK_GIVE_MUTATION "give_mutation"
+#define VV_HK_REMOVE_MUTATION "remove_mutation"
 
 // /mob/living/carbon/human
 #define VV_HK_COPY_OUTFIT "copy_outfit"
@@ -122,10 +151,11 @@
 #define VV_HK_MAKE_ALIEN "human_alienify"
 #define VV_HK_SET_SPECIES "setspecies"
 #define VV_HK_PURRBATION "purrbation"
+#define VV_HK_RANDOM_NAME "random_name"
 
 // misc
 #define VV_HK_SPACEVINE_PURGE "spacevine_purge"
 #define VV_HK_MODIFY_CANISTER_GAS "modify_canister_gas"
 
-
-
+// paintings
+#define VV_HK_REMOVE_PAINTING "remove_painting"

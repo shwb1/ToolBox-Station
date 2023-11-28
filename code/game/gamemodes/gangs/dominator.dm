@@ -13,7 +13,7 @@
 	max_integrity = 300
 	integrity_failure = 100
 	move_resist = INFINITY
-	armor = list("melee" = 20, "bullet" = 50, "laser" = 50, "energy" = 50, "bomb" = 10, "bio" = 100, "rad" = 100, "fire" = 10, "acid" = 70)
+	armor = list(MELEE = 20,  BULLET = 50, LASER = 50, ENERGY = 50, BOMB = 10, BIO = 100, RAD = 100, FIRE = 10, ACID = 70, STAMINA = 0)
 	var/datum/team/gang/gang
 	var/operating = FALSE	//false=standby or broken, true=takeover
 	var/warned = FALSE	//if this device has set off the warning at <3 minutes yet
@@ -21,10 +21,10 @@
 	var/datum/effect_system/spark_spread/spark_system
 	var/obj/effect/countdown/dominator/countdown
 
-/obj/machinery/dominator/Initialize()
+/obj/machinery/dominator/Initialize(mapload)
 	. = ..()
 	set_light(2)
-	GLOB.poi_list |= src
+	AddElement(/datum/element/point_of_interest)
 	spark_system = new
 	spark_system.set_up(5, TRUE, src)
 	countdown = new(src)
@@ -33,14 +33,13 @@
 /obj/machinery/dominator/Destroy()
 	if(!(stat & BROKEN))
 		set_broken()
-	GLOB.poi_list.Remove(src)
 	gang = null
 	QDEL_NULL(spark_system)
 	QDEL_NULL(countdown)
 	return ..()
 
 /obj/machinery/dominator/emp_act(severity)
-	take_damage(100, BURN, "energy", 0)
+	take_damage(100, BURN, ENERGY, 0)
 	..()
 
 /obj/machinery/dominator/hulk_damage()
@@ -179,7 +178,7 @@
 
 		gang = tempgang
 		gang.dom_attempts --
-		priority_announce("Network breach detected in [locname]. The [gang.name] Gang is attempting to seize control of the station!","Network Alert")
+		priority_announce("Network breach detected in [locname]. The [gang.name] Gang is attempting to seize control of the station!", "Network Alert", SSstation.announcer.get_rand_alert_sound())
 		gang.domination()
 		SSshuttle.registerHostileEnvironment(src)
 		name = "[gang.name] Gang [name]"
@@ -222,7 +221,7 @@
 		if(!takeover_in_progress)
 			var/was_stranded = SSshuttle.emergency.mode == SHUTTLE_STRANDED
 			if(!was_stranded)
-				priority_announce("All hostile activity within station systems has ceased.","Network Alert")
+				priority_announce("All hostile activity within station systems has ceased.","Network Alert", SSstation.announcer.get_rand_alert_sound())
 
 			if(get_security_level() == "delta")
 				set_security_level("red")

@@ -80,6 +80,8 @@
 	var/obj/item/organ/ears/ears = getorgan(/obj/item/organ/ears)
 	if(ears)
 		ears.adjustEarDamage(ddmg, ddeaf)
+		if(ears.deaf)
+			SEND_SOUND(src, sound(null))
 
 /mob/proc/minimumDeafTicks()
 
@@ -95,16 +97,22 @@
 	icon_state = "kitty"
 	bang_protect = -2
 
-/obj/item/organ/ears/cat/Insert(mob/living/carbon/human/H, special = 0, drop_if_replaced = TRUE)
+/obj/item/organ/ears/cat/Insert(mob/living/carbon/human/H, special = 0, drop_if_replaced = TRUE, pref_load = FALSE)
 	..()
+	if(pref_load)
+		H.update_body()
+		return
 	if(istype(H))
 		color = H.hair_color
 		H.dna.species.mutant_bodyparts |= "ears"
 		H.dna.features["ears"] = "Cat"
 		H.update_body()
 
-/obj/item/organ/ears/cat/Remove(mob/living/carbon/human/H,  special = 0)
+/obj/item/organ/ears/cat/Remove(mob/living/carbon/human/H, special = 0, pref_load = FALSE)
 	..()
+	if(pref_load && istype(H))
+		H.update_body()
+		return
 	if(istype(H))
 		color = H.hair_color
 		H.dna.features["ears"] = "None"
@@ -116,13 +124,13 @@
 	desc = "The source of a penguin's happy feet."
 	var/datum/component/waddle
 
-/obj/item/organ/ears/penguin/Insert(mob/living/carbon/human/H, special = 0, drop_if_replaced = TRUE)
+/obj/item/organ/ears/penguin/Insert(mob/living/carbon/human/H, special = 0, drop_if_replaced = TRUE, pref_load = FALSE)
 	. = ..()
 	if(istype(H))
 		to_chat(H, "<span class='notice'>You suddenly feel like you've lost your balance.</span>")
 		waddle = H.AddComponent(/datum/component/waddling)
 
-/obj/item/organ/ears/penguin/Remove(mob/living/carbon/human/H,  special = 0)
+/obj/item/organ/ears/penguin/Remove(mob/living/carbon/human/H,  special = 0, pref_load = FALSE)
 	. = ..()
 	if(istype(H))
 		to_chat(H, "<span class='notice'>Your sense of balance comes back to you.</span>")
@@ -150,10 +158,11 @@
 			owner.Jitter(30)
 			owner.Dizzy(30)
 			owner.Knockdown(200)
-			deaf = 30
-			to_chat(owner, "<span class='warning'>Your robotic ears are ringing, uselessly.</span>")
+			to_chat(owner, "<span class='warning'>Alert: Audio sensors malfunctioning</span>")
+			owner.apply_status_effect(STATUS_EFFECT_IPC_EMP)
 		if(2)
 			owner.Jitter(15)
 			owner.Dizzy(15)
 			owner.Knockdown(100)
-			to_chat(owner, "<span class='warning'>Your robotic ears buzz.</span>") 
+			to_chat(owner, "<span class='warning'>Alert: Audio sensors malfunctioning</span>")
+			owner.apply_status_effect(STATUS_EFFECT_IPC_EMP)

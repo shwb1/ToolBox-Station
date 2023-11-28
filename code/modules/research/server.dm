@@ -9,6 +9,7 @@
 	var/working = TRUE
 	var/research_disabled = FALSE
 	var/server_id = 0
+	var/heat_gen = 1
 	// some notes on this number
 	// as of 4/29/2020, the techweb was set that fed a constant of 52.3 no matter how many servers there were
 	// A coeffecent of sqrt(100/<servercount>) is set up on a per some older code.  Since there are normaly 2 servers this comes out to
@@ -16,7 +17,7 @@
 	// 7.40./2 = 3.70 (note, all these values are rounded).  This is howw this number was found.
 	var/base_mining_income = 3.70
 
-	// Heating is wierd.  Since  the servers are stored in a room that sucks air in one vent, into a pipe network, to a
+	// Heating is weird.  Since  the servers are stored in a room that sucks air in one vent, into a pipe network, to a
 	// T1 freezer, then out another vent at standard presure, the rooms temps could vary as wieldy as 100K.  The T1 freezer
 	// has 10000 heat power at the start, so each of the servers produce that but only heat a quarter of the turf
 	// This allows the servers to rapidly heat up in under 5 min to the shut off point and make it annoying to cool back
@@ -29,7 +30,7 @@
 	var/temp_tolerance_damage = T0C + 200		// Most CPUS get up to 200C they start breaking.  TODO: Start doing damage to the server?
 	var/temp_penalty_coefficient = 0.5	//1 = -1 points per degree above high tolerance. 0.5 = -0.5 points per degree above high tolerance.
 	var/current_temp = -1
-	req_access = list(ACCESS_RD) //ONLY THE R&D CAN CHANGE SERVER SETTINGS.
+	req_access = list(ACCESS_RD_SERVER) //ONLY THE R&D, AND WHO HAVE THE ACCESS TO CAN CHANGE SERVER SETTINGS.
 
 /obj/machinery/rnd/server/Initialize(mapload)
 	. = ..()
@@ -46,8 +47,6 @@
 	name += " [uppertext(num2hex(server_id, -1))]" //gives us a random four-digit hex number as part of the name. Y'know, for fluff.
 	SSresearch.servers |= src
 	stored_research = SSresearch.science_tech
-	var/obj/item/circuitboard/machine/B = new /obj/item/circuitboard/machine/rdserver(null)
-	B.apply_default_parts(src)
 	// The +10 is so the sparks work
 	RefreshParts()
 
@@ -59,13 +58,13 @@
 	var/tot_rating = 0
 	for(var/obj/item/stock_parts/SP in src)
 		tot_rating += SP.rating
-	heating_power = heating_power / max(1, tot_rating)
+	heat_gen = initial(src.heat_gen) / max(1, tot_rating)
 
 /obj/machinery/rnd/server/update_icon()
 	if (panel_open)
 		icon_state = "RD-server-on_t"
 		return
-	if (stat & EMPED || stat & NOPOWER)
+	if (machine_stat & EMPED || machine_stat & NOPOWER)
 		icon_state = "RD-server-off"
 		return
 	if (research_disabled || overheated)
@@ -89,20 +88,11 @@
 		// This is from the RD server code.  It works well enough but I need to move over the
 		// sspace heater code so we can caculate power used per tick as well and making this both
 		// exothermic and an endothermic component
-		if(env && env.return_temperature() < T20C + 80)
+		if(env)
+			var/perc = max((get_env_temp() - temp_tolerance_high), 0) * temp_penalty_coefficient / base_mining_income
 
-			var/transfer_moles = 0.25 * env.total_moles()
-
-			var/datum/gas_mixture/removed = env.remove(transfer_moles)
-
-			if(removed)
-				var/heat_capacity = removed.heat_capacity()
-				if(heat_capacity == 0 || heat_capacity == null)
-					heat_capacity = 1
-				removed.set_temperature(min((removed.return_temperature()*heat_capacity + heating_power)/heat_capacity, 1000))
-
-			current_temp = removed.return_temperature()
-			env.merge(removed)
+			env.adjust_heat(heating_power * perc * heat_gen)
+			air_update_turf()
 			src.air_update_turf()
 		else
 			current_temp = env ? env.return_temperature() : -1
@@ -135,10 +125,10 @@
 
 	// If we are overheateed, start shooting out sparks
 	// don't shoot them if we have no power
-	if(overheated && !(stat & NOPOWER) && prob(40))
+	if(overheated && !(machine_stat & NOPOWER) && prob(40))
 		do_sparks(5, FALSE, src)
 
-	if(overheated || research_disabled || stat & EMPED || stat & NOPOWER)
+	if(overheated || research_disabled || machine_stat & EMPED || machine_stat & NOPOWER)
 		working = FALSE
 	else
 		working = TRUE
@@ -147,15 +137,10 @@
 
 /obj/machinery/rnd/server/emp_act()
 	. = ..()
-	if(. & EMP_PROTECT_SELF)
-		return
-	stat |= EMPED
-	// Side note, make a little status screen on the server to show the reboot
-	addtimer(CALLBACK(src, .proc/unemp), 600)
 	refresh_working()
 
-/obj/machinery/rnd/server/proc/unemp()
-	stat &= ~EMPED
+/obj/machinery/rnd/server/emp_reset()
+	..()
 	refresh_working()
 
 /obj/machinery/rnd/server/proc/toggle_disable()
@@ -177,11 +162,8 @@
 	desc = "Used to manage access to research and manufacturing databases."
 	icon_screen = "rdcomp"
 	icon_keyboard = "rd_key"
-	req_access = list(ACCESS_RD)
+	req_access = list(ACCESS_RD_SERVER)
 	circuit = /obj/item/circuitboard/computer/rdservercontrol
-
-
-
 
 /obj/machinery/computer/rdservercontrol/ui_state(mob/user)
 	return GLOB.default_state
@@ -191,6 +173,7 @@
 	if(!ui)
 		ui = new(user, src, "RDConsole")
 		ui.open()
+		ui.set_autoupdate(TRUE)
 
 /obj/machinery/computer/rdservercontrol/ui_data(mob/user)
 	var/list/data = list()
@@ -243,9 +226,7 @@
 					. = TRUE
 					break
 
-/obj/machinery/computer/rdservercontrol/emag_act(mob/user)
-	if(obj_flags & EMAGGED)
-		return
+/obj/machinery/computer/rdservercontrol/on_emag(mob/user)
+	..()
 	playsound(src, "sparks", 75, 1)
-	obj_flags |= EMAGGED
 	to_chat(user, "<span class='notice'>You disable the security protocols.</span>")

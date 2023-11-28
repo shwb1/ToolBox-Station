@@ -3,7 +3,9 @@
 	var/obj/item/claymore/highlander/sword
 	show_in_antagpanel = FALSE
 	show_name_in_check_antagonists = TRUE
-	can_hijack = HIJACK_HIJACKER
+	can_elimination_hijack = ELIMINATION_ENABLED
+	count_against_dynamic_roll_chance = FALSE
+	banning_key = BAN_ROLE_ALL_ANTAGONISTS
 
 /datum/antagonist/highlander/apply_innate_effects(mob/living/mob_override)
 	var/mob/living/L = owner.current || mob_override
@@ -18,13 +20,9 @@
 	steal_objective.owner = owner
 	steal_objective.set_target(new /datum/objective_item/steal/nukedisc)
 	objectives += steal_objective
-	log_objective(owner, steal_objective.explanation_text)
-
-	var/datum/objective/hijack/hijack_objective = new
-	hijack_objective.explanation_text = "Escape on the shuttle alone. Ensure that nobody else makes it out."
-	hijack_objective.owner = owner
-	objectives += hijack_objective
-	log_objective(owner, hijack_objective.explanation_text)
+	var/datum/objective/elimination/highlander/elimination_objective = new
+	elimination_objective.owner = owner
+	objectives += elimination_objective
 
 /datum/antagonist/highlander/on_gain()
 	forge_objectives()
@@ -50,27 +48,26 @@
 		qdel(I)
 	for(var/obj/item/I in H.held_items)
 		qdel(I)
-	H.equip_to_slot_or_del(new /obj/item/clothing/under/costume/kilt/highlander(H), SLOT_W_UNIFORM)
-	H.equip_to_slot_or_del(new /obj/item/radio/headset/heads/captain(H), SLOT_EARS)
-	H.equip_to_slot_or_del(new /obj/item/clothing/head/beret/highlander(H), SLOT_HEAD)
-	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/combat(H), SLOT_SHOES)
-	H.equip_to_slot_or_del(new /obj/item/pinpointer/nuke(H), SLOT_L_STORE)
+	H.equip_to_slot_or_del(new /obj/item/clothing/under/costume/kilt/highlander(H), ITEM_SLOT_ICLOTHING)
+	H.equip_to_slot_or_del(new /obj/item/radio/headset/heads/captain(H), ITEM_SLOT_EARS)
+	H.equip_to_slot_or_del(new /obj/item/clothing/head/beret/highlander(H), ITEM_SLOT_HEAD)
+	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/combat(H), ITEM_SLOT_FEET)
+	H.equip_to_slot_or_del(new /obj/item/pinpointer/nuke(H), ITEM_SLOT_LPOCKET)
 	for(var/obj/item/pinpointer/nuke/P in H)
 		P.attack_self(H)
 	var/obj/item/card/id/W = new(H)
 	W.icon_state = "centcom"
 	W.access = get_all_accesses()
-	W.access += get_all_centcom_access()
+	W.access |= get_all_centcom_access()
 	W.assignment = "Highlander"
 	W.registered_name = H.real_name
 	ADD_TRAIT(W, TRAIT_NODROP, HIGHLANDER)
 	W.update_label(H.real_name)
-	H.equip_to_slot_or_del(W, SLOT_WEAR_ID)
+	H.equip_to_slot_or_del(W, ITEM_SLOT_ID)
 
 	sword = new(H)
 	if(!GLOB.highlander)
 		sword.flags_1 |= ADMIN_SPAWNED_1 //To prevent announcing
-	sword.pickup(H) //For the stun shielding
 	H.put_in_hands(sword)
 
 

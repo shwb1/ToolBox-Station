@@ -3,7 +3,7 @@
 
 Hyphema (Eye bleeding)
 
-	Slightly noticable.
+	Slightly noticeable.
 	Lowers resistance tremendously.
 	Decreases stage speed tremendously.
 	Decreases transmittablity.
@@ -22,27 +22,30 @@ Bonus
 	stealth = -1
 	resistance = -3
 	stage_speed = -4
-	transmittable = -2
-	level = 5
+	transmission = -2
+	level = 3
 	severity = 3
 	base_message_chance = 50
 	symptom_delay_min = 25
 	symptom_delay_max = 80
+	prefixes = list("Eye ")
+	bodies = list("Blind")
+	suffixes = list(" Blindness")
 	var/remove_eyes = FALSE
 	threshold_desc = "<b>Resistance 12:</b> Weakens extraocular muscles, eventually leading to complete detachment of the eyes.<br>\
 					  <b>Stealth 4:</b> The symptom remains hidden until active."
 
 /datum/symptom/visionloss/severityset(datum/disease/advance/A)
 	. = ..()
-	if(A.properties["resistance"] >= 12) //goodbye eyes
+	if(A.resistance >= 12) //goodbye eyes
 		severity += 1
 
 /datum/symptom/visionloss/Start(datum/disease/advance/A)
 	if(!..())
 		return
-	if(A.properties["stealth"] >= 4)
+	if(A.stealth >= 4)
 		suppress_warning = TRUE
-	if(A.properties["resistance"] >= 12) //goodbye eyes
+	if(A.resistance >= 12) //goodbye eyes
 		remove_eyes = TRUE
 
 /datum/symptom/visionloss/Activate(datum/disease/advance/A)
@@ -66,7 +69,7 @@ Bonus
 					M.become_nearsighted(EYE_DAMAGE)
 				if(prob(eyes.damage - 10 + 1))
 					if(!remove_eyes)
-						if(!HAS_TRAIT(M, TRAIT_BLIND))
+						if(!M.is_blind())
 							to_chat(M, "<span class='userdanger'>You go blind!</span>")
 							eyes.applyOrganDamage(eyes.maxHealth)
 					else

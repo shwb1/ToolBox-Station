@@ -15,6 +15,7 @@
 
 	density = TRUE
 
+	circuit = /obj/item/circuitboard/machine/circulator
 
 	var/flipped = 0
 	var/mode = CIRCULATOR_HOT
@@ -23,10 +24,6 @@
 //default cold circ for mappers
 /obj/machinery/atmospherics/components/binary/circulator/cold
 	mode = CIRCULATOR_COLD
-
-/obj/machinery/atmospherics/components/binary/circulator/Initialize(mapload)
-	.=..()
-	component_parts = list(new /obj/item/circuitboard/machine/circulator)
 
 /obj/machinery/atmospherics/components/binary/circulator/ComponentInitialize()
 	. = ..()
@@ -46,7 +43,7 @@
 	var/input_starting_pressure = air2.return_pressure()
 
 	if(output_starting_pressure >= input_starting_pressure-10)
-		//Need at least 10 KPa difference to overcome friction in the mechanism
+		//Need at least 10 kPa difference to overcome friction in the mechanism
 		last_pressure_delta = 0
 		return null
 
@@ -73,7 +70,7 @@
 	update_icon()
 
 /obj/machinery/atmospherics/components/binary/circulator/update_icon()
-	if(!is_operational())
+	if(!is_operational)
 		icon_state = "circ-p-[flipped]"
 	else if(last_pressure_delta > 0)
 		if(last_pressure_delta > ONE_ATMOSPHERE)

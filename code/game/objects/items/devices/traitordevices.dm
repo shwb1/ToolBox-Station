@@ -87,6 +87,7 @@ effective or pretty fucking useless.
 		log_combat(user, M, "irradiated", src)
 		var/cooldown = get_cooldown()
 		used = TRUE
+		SStgui.update_uis(src) // Update immediately, since it's not spammable
 		icon_state = "health1"
 		handle_cooldown(cooldown) // splits off to handle the cooldown while handling wavelength
 		to_chat(user, "<span class='warning'>Successfully irradiated [M].</span>")
@@ -102,6 +103,7 @@ effective or pretty fucking useless.
 	spawn(cooldown)
 		used = FALSE
 		icon_state = "health"
+		SStgui.update_uis(src) // Update immediately, since it's not spammable
 
 /obj/item/healthanalyzer/rad_laser/proc/get_cooldown()
 	return round(max(10, (stealth*30 + intensity*5 - wavelength/4)))
@@ -190,10 +192,10 @@ effective or pretty fucking useless.
 	icon = 'icons/obj/clothing/belts.dmi'
 	icon_state = "utilitybelt"
 	item_state = "utility"
+	worn_icon_state = "utility"
 	slot_flags = ITEM_SLOT_BELT
 	attack_verb = list("whipped", "lashed", "disciplined")
 
-	var/equipslot = SLOT_BELT
 	var/mob/living/carbon/human/user = null
 	var/charge = 300
 	var/max_charge = 300
@@ -202,7 +204,7 @@ effective or pretty fucking useless.
 	actions_types = list(/datum/action/item_action/toggle)
 
 /obj/item/shadowcloak/ui_action_click(mob/user)
-	if(user.get_item_by_slot(equipslot) == src)
+	if(user.get_item_by_slot(slot_flags) == src)
 		if(!on)
 			Activate(usr)
 		else
@@ -210,8 +212,8 @@ effective or pretty fucking useless.
 	return
 
 /obj/item/shadowcloak/item_action_slot_check(slot, mob/user)
-	if(slot == equipslot)
-		return 1
+	if(slot == slot_flags)
+		return TRUE
 
 /obj/item/shadowcloak/proc/Activate(mob/living/carbon/human/user)
 	if(!user)
@@ -232,30 +234,32 @@ effective or pretty fucking useless.
 
 /obj/item/shadowcloak/dropped(mob/user)
 	..()
-	if(user && user.get_item_by_slot(equipslot) != src)
+	if(user && user.get_item_by_slot(slot_flags) != src)
 		Deactivate()
 
-/obj/item/shadowcloak/process()
-	if(user.get_item_by_slot(equipslot) != src)
+/obj/item/shadowcloak/process(delta_time)
+	if(user.get_item_by_slot(slot_flags) != src)
 		Deactivate()
 		return
 	var/turf/T = get_turf(src)
 	if(on)
 		var/lumcount = T.get_lumcount()
 		if(lumcount > 0.3)
-			charge = max(0,charge - 25)//Quick decrease in light
+			charge = max(0, charge - 12.5 * delta_time)//Quick decrease in light
 		else
-			charge = min(max_charge,charge + 50) //Charge in the dark
-		animate(user,alpha = CLAMP(255 - charge,0,255),time = 10)
+			charge = min(max_charge,charge + 25 * delta_time) //Charge in the dark
+		animate(user,alpha = clamp(255 - charge,0,255),time = 10)
 
 /obj/item/shadowcloak/magician
 	name = "magician's cape"
 	desc = "A magician never reveals his secrets."
-	icon = 'icons/obj/bedsheets.dmi'
+	icon = 'icons/obj/beds_chairs/beds.dmi'
+	lefthand_file = 'icons/mob/inhands/misc/bedsheet_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/misc/bedsheet_righthand.dmi'
 	icon_state = "sheetmagician"
+	item_state = "sheetmagician"
 	slot_flags = ITEM_SLOT_NECK
 	layer = MOB_LAYER
-	equipslot = SLOT_NECK
 	attack_verb = null
 
 /obj/item/shadowcloak/magician/attackby(obj/item/W, mob/user, params)
@@ -270,18 +274,29 @@ effective or pretty fucking useless.
 			playsound(user, 'sound/weapons/emitter2.ogg', 25, 1, -1)
 
 /obj/item/jammer
-	name = "radio jammer"
-	desc = "Device used to disrupt nearby radio communication."
+	name = "signal jammer"
+	desc = "Device used to disrupt nearby wireless communication."
 	icon = 'icons/obj/device.dmi'
 	icon_state = "jammer"
-	var/active = FALSE
-	var/range = 12
+
+/obj/item/jammer/ComponentInitialize()
+	. = ..()
+	//Add the radio jamming component
+	AddComponent(/datum/component/radio_jamming)
 
 /obj/item/jammer/attack_self(mob/user)
-	to_chat(user,"<span class='notice'>You [active ? "deactivate" : "activate"] [src].</span>")
-	active = !active
-	if(active)
-		GLOB.active_jammers |= src
-	else
-		GLOB.active_jammers -= src
-	update_icon()
+	SEND_SIGNAL(src, COMSIG_TOGGLE_JAMMER, user, FALSE)
+
+///Checks if an atom is jammed by a radio jammer
+///Parameters:
+/// - Protection level: The amount of protection that the atom has. See jamming_defines.dm
+/atom/proc/is_jammed(protection_level)
+	var/turf/position = get_turf(src)
+	for(var/datum/component/radio_jamming/jammer as anything in GLOB.active_jammers)
+		//Check to see if the jammer is strong enough to block this signal
+		if (protection_level > jammer.intensity)
+			continue
+		var/turf/jammer_turf = get_turf(jammer.parent)
+		if(position?.get_virtual_z_level() == jammer_turf.get_virtual_z_level() && (get_dist(position, jammer_turf) <= jammer.range))
+			return TRUE
+	return FALSE

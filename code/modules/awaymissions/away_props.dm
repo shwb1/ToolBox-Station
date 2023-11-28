@@ -6,11 +6,9 @@
 	invisibility = INVISIBILITY_MAXIMUM
 	anchored = TRUE
 
-/obj/effect/oneway/CanPass(atom/movable/mover, turf/target)
-	var/turf/T = get_turf(src)
-	var/turf/MT = get_turf(mover)
-	return ..() && (T == MT || get_dir(MT,T) == dir)
-
+/obj/effect/oneway/CanAllowThrough(atom/movable/mover, border_dir)
+	. = ..()
+	return . && border_dir == dir
 
 /obj/effect/wind
 	name = "wind effect"
@@ -20,7 +18,7 @@
 	invisibility = INVISIBILITY_MAXIMUM
 	var/strength = 30
 
-/obj/effect/wind/Initialize()
+/obj/effect/wind/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj,src)
 
@@ -39,16 +37,16 @@
 	var/list/blocked_types = list()
 	var/reverse = FALSE //Block if path not present
 
-/obj/effect/path_blocker/Initialize()
+/obj/effect/path_blocker/Initialize(mapload)
 	. = ..()
 	if(blocked_types.len)
 		blocked_types = typecacheof(blocked_types)
 
-/obj/effect/path_blocker/CanPass(atom/movable/mover, turf/target)
+/obj/effect/path_blocker/CanAllowThrough(atom/movable/mover, border_dir)
+	. = ..()
 	if(blocked_types.len)
 		var/list/mover_contents = mover.GetAllContents()
 		for(var/atom/movable/thing in mover_contents)
 			if(blocked_types[thing.type])
 				return reverse
 	return !reverse
-	

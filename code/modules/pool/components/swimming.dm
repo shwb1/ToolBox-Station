@@ -20,13 +20,15 @@
 	var/mob/M = parent
 	M.visible_message("<span class='notice'>[parent] starts splashing around in the water!</span>")
 	M.add_movespeed_modifier(MOVESPEED_ID_SWIMMING, update=TRUE, priority=50, multiplicative_slowdown=slowdown, movetypes=GROUND)
-	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, .proc/onMove)
-	RegisterSignal(parent, COMSIG_CARBON_SPECIESCHANGE, .proc/onChangeSpecies)
-	RegisterSignal(parent, COMSIG_MOB_ATTACK_HAND_TURF, .proc/try_leave_pool)
+	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(onMove))
+	RegisterSignal(parent, COMSIG_CARBON_SPECIESCHANGE, PROC_REF(onChangeSpecies))
+	RegisterSignal(parent, COMSIG_MOB_ATTACK_HAND_TURF, PROC_REF(try_leave_pool))
 	START_PROCESSING(SSprocessing, src)
 	enter_pool()
 
 /datum/component/swimming/proc/onMove()
+	SIGNAL_HANDLER
+
 	lengths ++
 	if(lengths > lengths_for_bonus)
 		var/mob/living/L = parent
@@ -36,6 +38,8 @@
 
 //Damn edge cases
 /datum/component/swimming/proc/onChangeSpecies()
+	SIGNAL_HANDLER
+
 	var/mob/living/carbon/C = parent
 	var/component_type = /datum/component/swimming
 	if(istype(C) && C?.dna?.species)
@@ -45,14 +49,28 @@
 	M.AddComponent(component_type)
 
 /datum/component/swimming/proc/try_leave_pool(datum/source, turf/clicked_turf)
+	SIGNAL_HANDLER
+
 	var/mob/living/L = parent
 	if(!L.can_interact_with(clicked_turf))
 		return
-	if(is_blocked_turf(clicked_turf))
+	if(clicked_turf.is_blocked_turf())
 		return
 	if(istype(clicked_turf, /turf/open/indestructible/sound/pool))
 		return
 	if(L.pulling)
+		INVOKE_ASYNC(src, PROC_REF(pull_out), L, clicked_turf)
+		return
+	INVOKE_ASYNC(src, PROC_REF(climb_out), L, clicked_turf)
+
+/datum/component/swimming/proc/climb_out(var/mob/living/L, turf/clicked_turf)
+	L.forceMove(clicked_turf)
+	L.visible_message("<span class='notice'>[parent] climbs out of the pool.</span>")
+	RemoveComponent()
+
+/datum/component/swimming/proc/pull_out(var/mob/living/L, turf/clicked_turf)
+	to_chat(parent, "<span class='notice'>You start to climb out of the pool...</span>")
+	if(do_after(parent, 1 SECONDS, target=clicked_turf))
 		to_chat(parent, "<span class='notice'>You start to lift [L.pulling] out of the pool...</span>")
 		var/atom/movable/pulled_object = L.pulling
 		if(do_after(parent, 1 SECONDS, target=pulled_object))
@@ -61,12 +79,6 @@
 			var/datum/component/swimming/swimming_comp = pulled_object.GetComponent(/datum/component/swimming)
 			if(swimming_comp)
 				swimming_comp.RemoveComponent()
-		return
-	to_chat(parent, "<span class='notice'>You start to climb out of the pool...</span>")
-	if(do_after(parent, 1 SECONDS, target=clicked_turf))
-		L.forceMove(clicked_turf)
-		L.visible_message("<span class='notice'>[parent] climbs out of the pool.</span>")
-		RemoveComponent()
 
 /datum/component/swimming/UnregisterFromParent()
 	exit_pool()
@@ -85,8 +97,8 @@
 /datum/component/swimming/process()
 	var/mob/living/L = parent
 	var/floating = FALSE
-	var/obj/item/twohanded/required/pool/helditem = L.get_active_held_item()
-	if(istype(helditem) && helditem.wielded)
+	var/obj/item/pool/helditem = L.get_active_held_item()
+	if(istype(helditem) && ISWIELDED(helditem))
 		bob_tick ++
 		animate(L, time=9.5, pixel_y = (L.pixel_y == bob_height_max) ? bob_height_min : bob_height_max)
 		floating = TRUE
@@ -105,22 +117,27 @@
 	L.adjust_fire_stacks(-1)
 
 /datum/component/swimming/proc/is_drowning(mob/living/victim)
-	var/obj/item/twohanded/required/pool/helditem = victim.get_active_held_item()
-	if(istype(helditem) && helditem.wielded)
+	var/obj/item/pool/helditem = victim.get_active_held_item()
+	if(istype(helditem) && ISWIELDED(helditem))
 		return
 	return ((!(victim.mobility_flags & MOBILITY_STAND)) && (!HAS_TRAIT(victim, TRAIT_NOBREATH)))
 
 /datum/component/swimming/proc/drown(mob/living/victim)
 	if(victim.losebreath < 1)
 		victim.losebreath += 1
+	var/shouldemote = TRUE
+	if(victim.stat > CONSCIOUS)
+		shouldemote = FALSE //Unconscious/dead people shouldn't emote
 	ticks_drowned ++
-	if(prob(20))
-		victim.emote("cough")
-	else if(prob(25))
-		victim.emote("gasp")
+	if(shouldemote)
+		if(prob(20))
+			victim.emote("cough")
+		else if(prob(25))
+			victim.emote("gasp")
 	if(ticks_drowned > 20)
 		if(prob(10))
-			victim.visible_message("<span class='warning'>[victim] falls unconcious for a moment!</span>")
+			if(shouldemote)
+				victim.visible_message("<span class='warning'>[victim] falls unconscious for a moment!</span>")
 			victim.Unconscious(10)
 
 /datum/component/swimming/proc/start_drowning(mob/living/victim)

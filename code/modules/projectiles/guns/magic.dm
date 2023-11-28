@@ -12,17 +12,26 @@
 	var/checks_antimagic = TRUE
 	var/max_charges = 6
 	var/charges = 0
-	var/recharge_rate = 4
-	var/charge_tick = 0
+	var/recharge_rate = 8
+	var/charge_timer = 0
 	var/can_charge = TRUE
 	var/ammo_type
 	var/no_den_usage
 	clumsy_check = 0
 	trigger_guard = TRIGGER_GUARD_ALLOW_ALL // Has no trigger at all, uses magic instead
 	pin = /obj/item/firing_pin/magic
+	requires_wielding = FALSE	//Magic has no recoil, just hold with 1 hand
+	equip_time = 0
 
 	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi' //not really a gun and some toys use these inhands
 	righthand_file = 'icons/mob/inhands/items_righthand.dmi'
+
+/obj/item/gun/magic/fire_sounds()
+	var/frequency_to_use = sin((90/max_charges) * charges)
+	if(suppressed)
+		playsound(src, suppressed_sound, suppressed_volume, vary_fire_sound, ignore_walls = FALSE, extrarange = SILENCED_SOUND_EXTRARANGE, falloff_distance = 0, frequency = frequency_to_use)
+	else
+		playsound(src, fire_sound, fire_sound_volume, vary_fire_sound, frequency = frequency_to_use)
 
 /obj/item/gun/magic/process_fire(atom/target, mob/living/user, message, params, zone_override, bonus_spread)
 	if(no_den_usage)
@@ -51,10 +60,11 @@
 		charges--//... drain a charge
 		recharge_newshot()
 
-/obj/item/gun/magic/Initialize()
+/obj/item/gun/magic/Initialize(mapload)
 	. = ..()
 	charges = max_charges
-	chambered = new ammo_type(src)
+	if(ammo_type)
+		chambered = new ammo_type(src)
 	if(can_charge)
 		START_PROCESSING(SSobj, src)
 
@@ -64,12 +74,14 @@
 		STOP_PROCESSING(SSobj, src)
 	return ..()
 
-
-/obj/item/gun/magic/process()
-	charge_tick++
-	if(charge_tick < recharge_rate || charges >= max_charges)
+/obj/item/gun/magic/process(delta_time)
+	if (charges >= max_charges)
+		charge_timer = 0
+		return
+	charge_timer += delta_time
+	if(charge_timer < recharge_rate)
 		return 0
-	charge_tick = 0
+	charge_timer = 0
 	charges++
 	if(charges == 1)
 		recharge_newshot()
@@ -81,13 +93,13 @@
 /obj/item/gun/magic/shoot_with_empty_chamber(mob/living/user as mob|obj)
 	to_chat(user, "<span class='warning'>The [name] whizzles quietly.</span>")
 
-/obj/item/gun/magic/suicide_act(mob/user)
+/obj/item/gun/magic/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] is twisting [src] above [user.p_their()] head, releasing a magical blast! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	playsound(loc, fire_sound, 50, 1, -1)
-	return (FIRELOSS)
+	return FIRELOSS
 
 /obj/item/gun/magic/vv_edit_var(var_name, var_value)
 	. = ..()
 	switch (var_name)
-		if ("charges")
+		if(NAMEOF(src, charges))
 			recharge_newshot()

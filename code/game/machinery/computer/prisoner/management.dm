@@ -24,18 +24,18 @@
 	else if(screen == 1)
 		dat += "<H3>Prisoner ID Management</H3>"
 		if(contained_id)
-			dat += text("<A href='?src=[REF(src)];id=eject'>[contained_id]</A><br>")
-			dat += text("Collected Points: [contained_id.points]. <A href='?src=[REF(src)];id=reset'>Reset.</A><br>")
-			dat += text("Card goal: [contained_id.goal].  <A href='?src=[REF(src)];id=setgoal'>Set </A><br>")
-			dat += text("Space Law recommends quotas of 100 points per minute they would normally serve in the brig.<BR>")
+			dat += "<A href='?src=[REF(src)];id=eject'>[contained_id]</A><br>"
+			dat += "Collected Points: [contained_id.points]. <A href='?src=[REF(src)];id=reset'>Reset.</A><br>"
+			dat += "Card goal: [contained_id.goal].  <A href='?src=[REF(src)];id=setgoal'>Set</A> <A href='?src=[REF(src)];id=setpermanent'>Make [contained_id.permanent ? "temporary" : "permanent"].</A><br>"
+			dat += "Space Law recommends quotas of 100 points per minute they would normally serve in the brig.<BR>"
 		else
-			dat += text("<A href='?src=[REF(src)];id=insert'>Insert Prisoner ID.</A><br>")
+			dat += "<A href='?src=[REF(src)];id=insert'>Insert Prisoner ID.</A><br>"
 		dat += "<H3>Prisoner Implant Management</H3>"
 		dat += "<HR>Chemical Implants<BR>"
 		var/turf/Tr = null
 		for(var/obj/item/implant/chem/C in GLOB.tracked_chem_implants)
 			Tr = get_turf(C)
-			if((Tr) && (Tr.z != src.z))
+			if((Tr) && (Tr.get_virtual_z_level() != src.get_virtual_z_level()))
 				continue//Out of range
 			if(!C.imp_in)
 				continue
@@ -50,7 +50,7 @@
 			if(!isliving(T.imp_in))
 				continue
 			Tr = get_turf(T)
-			if((Tr) && (Tr.z != src.z))
+			if((Tr) && (Tr.get_virtual_z_level() != src.get_virtual_z_level()))
 				continue//Out of range
 
 			var/loc_display = "Unknown"
@@ -100,8 +100,10 @@
 					if("setgoal")
 						var/num = round(input(usr, "Choose prisoner's goal:", "Input an Integer", null) as num|null)
 						if(num >= 0)
-							num = min(num,1000) //Cap the quota to the equivilent of 10 minutes.
+							num = min(num, 1500) //Cap the quota to the equivilent of 10 minutes.
 							contained_id.goal = num
+					if("setpermanent")
+						contained_id.permanent = !contained_id.permanent
 		else if(href_list["inject1"])
 			var/obj/item/implant/I = locate(href_list["inject1"]) in GLOB.tracked_chem_implants
 			if(I && istype(I))
@@ -126,6 +128,10 @@
 			var/warning = stripped_input(usr, "Message:", "Enter your message here!", "", MAX_MESSAGE_LEN)
 			if(!warning)
 				return
+			if(CHAT_FILTER_CHECK(warning))
+				to_chat(usr, "<span class='warning'>Your message contains forbidden words.</span>")
+				return
+			warning = usr.treat_message_min(warning)
 			var/obj/item/implant/I = locate(href_list["warn"]) in GLOB.tracked_implants
 			if(I && istype(I) && I.imp_in)
 				var/mob/living/R = I.imp_in

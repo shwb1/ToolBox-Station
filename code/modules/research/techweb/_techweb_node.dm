@@ -1,9 +1,10 @@
 
-//Techweb nodes are GLOBAL, there should only be one instance of them in the game. Persistant changes should never be made to them in-game.
+//Techweb nodes are GLOBAL, there should only be one instance of them in the game. Persistent changes should never be made to them in-game.
 //USE SSRESEARCH PROCS TO OBTAIN REFERENCES. DO NOT REFERENCE OUTSIDE OF SSRESEARCH OR YOU WILL FUCK UP GC.
 
 /datum/techweb_node
 	var/id
+	var/tech_tier = 0
 	var/display_name = "Errored Node"
 	var/description = "Why are you seeing this?"
 	var/hidden = FALSE			//Whether it starts off hidden.
@@ -41,9 +42,9 @@
 	VARSET_TO_LIST(., display_name)
 	VARSET_TO_LIST(., hidden)
 	VARSET_TO_LIST(., starting_node)
-	VARSET_TO_LIST(., assoc_list_strip_value(prereq_ids))
-	VARSET_TO_LIST(., assoc_list_strip_value(design_ids))
-	VARSET_TO_LIST(., assoc_list_strip_value(unlock_ids))
+	VARSET_TO_LIST(., assoc_to_keys(prereq_ids))
+	VARSET_TO_LIST(., assoc_to_keys(design_ids))
+	VARSET_TO_LIST(., assoc_to_keys(unlock_ids))
 	VARSET_TO_LIST(., boost_item_paths)
 	VARSET_TO_LIST(., autounlock_by_boost)
 	VARSET_TO_LIST(., export_price)
@@ -89,12 +90,27 @@
 			for(var/i in L)
 				if(actual_costs[i])
 					actual_costs[i] -= L[i]
+		actual_costs[TECHWEB_POINT_TYPE_DISCOVERY] = calculate_discovery_cost(host.current_tier)
 		return actual_costs
 	else
 		return research_costs
+
+/datum/techweb_node/proc/calculate_discovery_cost(their_tier)
+	var/delta = tech_tier - their_tier
+	switch(delta)
+		if(-INFINITY to 0)
+			return 0
+		if(1)
+			return 1000
+		if(2)
+			return 2500
+		if(3)
+			return 5000
+		if(4 to INFINITY)
+			return 10000
 
 /datum/techweb_node/proc/price_display(datum/techweb/TN)
 	return techweb_point_display_generic(get_price(TN))
 
 /datum/techweb_node/proc/on_research() //new proc, not currently in file
-    return 
+    return
